@@ -2,11 +2,19 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from .managers import (GithubObjectManager, WithRepositoryManager,
+                       IssueCommentManager, GithubUserManager, IssueManager,
+                       RepositoryManager)
 import username_hack  # force the username length to be 255 chars
 
 
 class GithubObject(models.Model):
     fetched_at = models.DateTimeField()
+
+    objects = GithubObjectManager()
+
+    github_matching = {}
+    github_ignore = ()
 
     class Meta:
         abstract = True
@@ -14,6 +22,11 @@ class GithubObject(models.Model):
 
 class GithubObjectWithId(GithubObject):
     github_id = models.PositiveIntegerField(unique=True)
+
+    github_matching = {
+        'id': 'github_id'
+    }
+    github_identifiers = {'github_id': 'github_id'}
 
     class Meta:
         abstract = True
@@ -25,12 +38,23 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     avatar_url = models.TextField()
     is_organization = models.BooleanField(default=False)
 
+    objects = GithubUserManager()
+
+    github_matching = dict(GithubObjectWithId.github_matching)
+    github_matching.update({
+        'login': 'username',
+    })
+    github_ignore = GithubObjectWithId.github_ignore + ('token',
+        'is_organization', 'password', 'is_staff', 'is_active', 'date_joined')
+
 
 class Repository(GithubObjectWithId):
     owner = models.ForeignKey(GithubUser, related_name='owned_repositories')
     name = models.TextField(db_index=True)
     description = models.TextField(blank=True, null=True)
     collaborators = models.ManyToManyField(GithubUser, related_name='repositories')
+
+    objects = RepositoryManager()
 
     class Meta:
         unique_together = (
@@ -62,6 +86,11 @@ class Label(GithubObject):
     label_type = models.ForeignKey(LabelType, related_name='labels', blank=True, null=True)
     typed_name = models.TextField(db_index=True)
 
+    objects = WithRepositoryManager()
+
+    github_ignore = GithubObject.github_ignore + ('label_type', 'typed_name', )
+    github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'name': 'name'}
+
     class Meta:
         unique_together = (
             ('repository', 'name'),
@@ -90,6 +119,8 @@ class Milestone(GithubObjectWithId):
     due_on = models.DateTimeField(db_index=True, blank=True, null=True)
     creator = models.ForeignKey(GithubUser, related_name='milestones')
 
+    objects = WithRepositoryManager()
+
     class Meta:
         unique_together = (
             ('repository', 'number'),
@@ -112,6 +143,10 @@ class Issue(GithubObjectWithId):
     milestone = models.ForeignKey(Milestone, related_name='issues', blank=True, null=True)
     state = models.CharField(max_length=10, db_index=True)
 
+    objects = IssueManager()
+
+    github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
+
     class Meta:
         unique_together = (
             ('repository', 'number'),
@@ -124,6 +159,8 @@ class IssueComment(GithubObjectWithId):
     body = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(db_index=True)
     updated_at = models.DateTimeField(db_index=True)
+
+    objects = IssueCommentManager()
 
     class Meta:
         ordering = ('created_at', )
