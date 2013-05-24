@@ -15,29 +15,45 @@ class GithubObject(models.Model):
 
     github_matching = {}
     github_ignore = ()
+    github_format = '+json'
 
     class Meta:
         abstract = True
+
+    @classmethod
+    def _prepare_parameters(cls, parameters=None):
+        """
+        Prepare and return parameters.
+        Actually simply add a Accept header based on the github_format attribute
+        of the model
+        """
+        parameters = dict(parameters or {})
+        headers = parameters.pop('headers', {})
+        if 'Accept' not in headers:
+            headers['Accept'] = 'application/vnd.github%s' % cls.github_format
+        parameters['headers'] = headers
+        return parameters
 
     def fetch(self, auth, parameters=None):
         """
         Fetch data from github for the current object and update itself.
         """
+        parameters = self._prepare_parameters(parameters)
         identifiers = self.github_callable_identifiers
         obj = self.__class__.objects.get_from_github(auth, identifiers, parameters)
+
         if obj is None:
             return False
+
         self.__dict__.update(obj.__dict__)
+
         return True
 
     def fetch_many(self, field_name, auth, parameters=None):
         """
         Fetch data from github for the given m2m or related field.
         """
-        identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
-
         field, _, direct, _ = self._meta.get_field_by_name(field_name)
-
         if direct:
             # we are on a field of the current model, the objects to create or
             # update are on the model on the other side of the relation
@@ -48,6 +64,8 @@ class GithubObject(models.Model):
             # relation to use to create or update are on the current model
             model = field.model
 
+        parameters = model._prepare_parameters(parameters)
+        identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
         objs = model.objects.get_from_github(auth, identifiers, parameters)
 
         # now update the list with created/updated objects
@@ -255,7 +273,12 @@ class Issue(GithubObjectWithId):
 
     objects = IssueManager()
 
+    github_matching = dict(GithubObjectWithId.github_matching)
+    github_matching.update({
+        'body_html': 'body',
+    })
     github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
+    github_format = '.html+json'
 
     class Meta:
         unique_together = (
@@ -301,6 +324,12 @@ class IssueComment(GithubObjectWithId):
     updated_at = models.DateTimeField(db_index=True)
 
     objects = IssueCommentManager()
+
+    github_matching = dict(GithubObjectWithId.github_matching)
+    github_matching.update({
+        'body_html': 'body',
+    })
+    github_format = '.html+json'
 
     class Meta:
         ordering = ('created_at', )

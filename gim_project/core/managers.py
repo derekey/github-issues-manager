@@ -47,7 +47,7 @@ class GithubObjectManager(models.Manager):
 
         return result
 
-    def get_data_from_github(self, gh, identifiers, parameters):
+    def get_data_from_github(self, gh, identifiers, parameters=None):
         """
         Use the gh connection to get an object from github using the given
         identifiers
