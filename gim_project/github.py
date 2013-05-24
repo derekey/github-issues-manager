@@ -43,16 +43,14 @@ Traceback (most recent call last):
 ApiNotFoundError: https://api.github.com/users/github-not-exist-user/followers
 '''
 
-import re, os, sha, time, hmac, base64, hashlib, urllib, urllib2, mimetypes
+import base64
+import urllib
+import urllib2
 
 try:
     import json
 except ImportError:
     import simplejson as json
-
-from collections import Iterable
-from datetime import datetime, timedelta, tzinfo
-from StringIO import StringIO
 
 _URL = 'https://api.github.com'
 _METHOD_MAP = dict(
@@ -64,6 +62,7 @@ _METHOD_MAP = dict(
 
 DEFAULT_SCOPE = None
 RW_SCOPE = 'user,public_repo,repo,repo:status,gist'
+
 
 class GitHub(object):
 
@@ -106,7 +105,7 @@ class GitHub(object):
         '''
         In callback url: http://host/callback?code=123&state=xyz
 
-        use code and state to get an access token.        
+        use code and state to get an access token.
         '''
         kw = dict(client_id=self._client_id, client_secret=self._client_secret, code=code)
         if self._redirect_uri:
@@ -123,7 +122,7 @@ class GitHub(object):
             if 'error' in r:
                 raise ApiAuthError(str(r.error))
             return str(r.access_token)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError:
             raise ApiAuthError('HTTPError when get access token')
 
     def __getattr__(self, attr):
@@ -131,10 +130,9 @@ class GitHub(object):
 
     def _http(self, method, path, **kw):
         data = None
-        params = None
-        if method=='GET' and kw:
+        if method == 'GET' and kw:
             path = '%s?%s' % (path, _encode_params(kw))
-        if method=='POST':
+        if method == 'POST':
             data = _encode_json(kw)
         url = '%s%s' % (_URL, path)
         opener = urllib2.build_opener(urllib2.HTTPSHandler)
@@ -142,7 +140,7 @@ class GitHub(object):
         request.get_method = _METHOD_MAP[method]
         if self._authorization:
             request.add_header('Authorization', self._authorization)
-        if method=='POST':
+        if method == 'POST':
             request.add_header('Content-Type', 'application/x-www-form-urlencoded')
         try:
             response = opener.open(request)
@@ -152,10 +150,10 @@ class GitHub(object):
         except urllib2.HTTPError, e:
             is_json = self._process_resp(e.headers)
             if is_json:
-                json = _parse_json(e.read())
+                _json = _parse_json(e.read())
             req = JsonObject(method=method, url=url)
-            resp = JsonObject(code=e.code, json=json)
-            if resp.code==404:
+            resp = JsonObject(code=e.code, json=_json)
+            if resp.code == 404:
                 raise ApiNotFoundError(url, req, resp)
             raise ApiError(url, req, resp)
 
@@ -164,13 +162,14 @@ class GitHub(object):
         if headers:
             for k in headers:
                 h = k.lower()
-                if h=='x-ratelimit-remaining':
+                if h == 'x-ratelimit-remaining':
                     self.x_ratelimit_remaining = int(headers[k])
-                elif h=='x-ratelimit-limit':
+                elif h == 'x-ratelimit-limit':
                     self.x_ratelimit_limit = int(headers[k])
-                elif h=='content-type':
+                elif h == 'content-type':
                     is_json = headers[k].startswith('application/json')
         return is_json
+
 
 class _Executable(object):
 
@@ -187,6 +186,7 @@ class _Executable(object):
 
     __repr__ = __str__
 
+
 class _Callable(object):
 
     def __init__(self, gh, name):
@@ -194,19 +194,19 @@ class _Callable(object):
         self._name = name
 
     def __call__(self, *args):
-        if len(args)==0:
+        if len(args) == 0:
             return self
         name = '%s/%s' % (self._name, '/'.join([str(arg) for arg in args]))
         return _Callable(self._gh, name)
 
     def __getattr__(self, attr):
-        if attr=='get':
+        if attr == 'get':
             return _Executable(self._gh, 'GET', self._name)
-        if attr=='put':
+        if attr == 'put':
             return _Executable(self._gh, 'PUT', self._name)
-        if attr=='post':
+        if attr == 'post':
             return _Executable(self._gh, 'POST', self._name)
-        if attr=='delete':
+        if attr == 'delete':
             return _Executable(self._gh, 'DELETE', self._name)
         name = '%s/%s' % (self._name, attr)
         return _Callable(self._gh, name)
@@ -215,6 +215,7 @@ class _Callable(object):
         return '_Callable (%s)' % self._name
 
     __repr__ = __str__
+
 
 def _encode_params(kw):
     '''
@@ -225,6 +226,7 @@ def _encode_params(kw):
         qv = v.encode('utf-8') if isinstance(v, unicode) else str(v)
         args.append('%s=%s' % (k, urllib.quote(qv)))
     return '&'.join(args)
+
 
 def _encode_json(obj):
     '''
@@ -240,6 +242,7 @@ def _encode_json(obj):
         return d
     return json.dumps(obj, default=_dump_obj)
 
+
 def _parse_json(jsonstr):
     def _obj_hook(pairs):
         o = JsonObject()
@@ -248,6 +251,7 @@ def _parse_json(jsonstr):
         return o
     return json.loads(jsonstr, object_hook=_obj_hook)
 
+
 class ApiError(BaseException):
 
     def __init__(self, url, request, response):
@@ -255,13 +259,16 @@ class ApiError(BaseException):
         self.request = request
         self.response = response
 
+
 class ApiAuthError(ApiError):
 
     def __init__(self, msg):
         super(ApiAuthError, self).__init__(msg, None, None)
 
+
 class ApiNotFoundError(ApiError):
     pass
+
 
 class JsonObject(dict):
     '''
