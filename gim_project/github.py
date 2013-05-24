@@ -128,7 +128,7 @@ class GitHub(object):
     def __getattr__(self, attr):
         return _Callable(self, '/%s' % attr)
 
-    def _http(self, method, path, **kw):
+    def _http(self, method, path, headers, **kw):
         data = None
         if method == 'GET' and kw:
             path = '%s?%s' % (path, _encode_params(kw))
@@ -136,7 +136,7 @@ class GitHub(object):
             data = _encode_json(kw)
         url = '%s%s' % (_URL, path)
         opener = urllib2.build_opener(urllib2.HTTPSHandler)
-        request = urllib2.Request(url, data=data)
+        request = urllib2.Request(url, data=data, headers=headers or {})
         request.get_method = _METHOD_MAP[method]
         if self._authorization:
             request.add_header('Authorization', self._authorization)
@@ -145,8 +145,11 @@ class GitHub(object):
         try:
             response = opener.open(request)
             is_json = self._process_resp(response.headers)
+            content = response.read()
             if is_json:
-                return _parse_json(response.read())
+                return _parse_json(content)
+            else:
+                return content
         except urllib2.HTTPError, e:
             is_json = self._process_resp(e.headers)
             if is_json:
@@ -173,13 +176,14 @@ class GitHub(object):
 
 class _Executable(object):
 
-    def __init__(self, gh, method, path):
+    def __init__(self, gh, method, path, headers=None):
         self._gh = gh
         self._method = method
         self._path = path
 
     def __call__(self, **kw):
-        return self._gh._http(self._method, self._path, **kw)
+        headers = kw.pop('headers', {})
+        return self._gh._http(self._method, self._path, headers, **kw)
 
     def __str__(self):
         return '_Executable (%s %s)' % (self._method, self._path)
