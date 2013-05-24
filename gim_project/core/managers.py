@@ -6,12 +6,56 @@ from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import UserManager
 
+from .ghpool import Connection
+
 
 class GithubObjectManager(models.Manager):
     """
     This manager is to be used with GithubObject models.
     It provides stuff to create or update objects with json from the github api.
     """
+
+    def get_github_callable(self, gh, identifiers):
+        """
+        Return the github callable object for the given identifiers.
+        We create it by looping through identifiers to create something like
+        gh.{identiers[0].(identifiers[1])(identifiers[2])
+        """
+        if not identifiers:
+            raise Exception('Unable to find the path to the github api.')
+        result = getattr(gh, identifiers[0])
+        for identifier in identifiers[1:]:
+            result = result(identifier)
+        return result
+
+    def get_from_github(self, auth, identifiers, parameters=None):
+        """
+        Trying to get data for the model related to this manager, by using
+        identifiers to generate the API call. auth is a dictionnary used to
+        call Connection.get.
+        """
+        gh = Connection.get(**auth)
+
+        data = self.get_data_from_github(gh, identifiers, parameters)
+
+        if isinstance(data, list):
+            result = self.create_or_update_from_list(data)
+        else:
+            result = self.create_or_update_from_dict(data)
+            if not result:
+                raise Exception("Unable to create an object of the %s kind" % self.model.__name__)
+
+        return result
+
+    def get_data_from_github(self, gh, identifiers, parameters):
+        """
+        Use the gh connection to get an object from github using the given
+        identifiers
+        """
+        gh_callable = self.get_github_callable(gh, identifiers)
+        if not parameters:
+            parameters = {}
+        return gh_callable.get(**parameters)
 
     def get_matching_field(self, field_name):
         """
@@ -71,18 +115,24 @@ class GithubObjectManager(models.Manager):
         if not obj:
             obj = self.model(fetched_at=datetime.utcnow())
 
-        # simply store
+        # store siple filelds and FKs
         for field, value in fields['simple'].iteritems():
             setattr(obj, field, value)
 
         for field, value in fields['fk'].iteritems():
             setattr(obj, field, value)
 
+        # we need to save the object before saving m2m
         obj.save()
 
-        for field, values in fields['m2m'].iteritems():
+        # finaaly save m2m
+        for field, values in fields['many'].iteritems():
             field = getattr(obj, field)
-            field.clear()
+            if hasattr(field, 'clear'):
+                # if the other side is a non-nullable FK, we cannot clear, only
+                # add items (consider that in this case, they could not be
+                # deleted on the github side)
+                field.clear()
             field.add(*values)
 
         return obj
@@ -93,7 +143,8 @@ class GithubObjectManager(models.Manager):
         to update or create an object. The returned dict contains 3 entries:
             - 'simple' to hold values for simple fields
             - 'fk' to hold values (real model instances) for foreign keys
-            - 'm2m' to hold list of real model instances for many to many fields
+            - 'many' to hold list of real model instances for many to many fields
+              or for the related relation of a fk (issues of a repository...)
         Eeach of these entries is a dict with the model field names as key, and
         the values to save in the model as value.
         """
@@ -101,7 +152,7 @@ class GithubObjectManager(models.Manager):
         fields = {
             'simple': {},
             'fk': {},
-            'm2m': {}
+            'many': {}
         }
 
         # run for each field in the dict
@@ -116,28 +167,26 @@ class GithubObjectManager(models.Manager):
 
             try:
                 # get informations about the field
-                field_tuple = self.model._meta.get_field_by_name(field_name)
+                field, _, direct, is_m2m = self.model._meta.get_field_by_name(field_name)
             except models.FieldDoesNotExist:
                 # there is not field for the given key, we pass to the next key
                 continue
 
-            field = field_tuple[0]
-
-            # work depending of the file type
-
-            if field_tuple[3]:  # flag that it's a m2m
+            # work depending of the field type
+            # TODO: nanage OneToOneField, not yet used in our models
+            if is_m2m or not direct:
                 # we have many objects to create
                 if value:
-                    m2m_model = field.related.parent_model
-                    fields['m2m'][field_name] = m2m_model.objects.create_or_update_from_list(value)
+                    model = field.related.parent_model if direct else field.model
+                    fields['many'][field_name] = model.objects.create_or_update_from_list(value)
                 else:
-                    fields['m2m'][field_name] = []
+                    fields['many'][field_name] = []
 
             elif isinstance(field, models.ForeignKey):
                 # we have an external object to create
                 if value:
-                    fk_model = field.related.parent_model
-                    fields['fk'][field_name] = fk_model.objects.create_or_update_from_dict(value)
+                    model = field.related.parent_model if direct else field.model
+                    fields['fk'][field_name] = model.objects.create_or_update_from_dict(value)
                 else:
                     fields['fk'][field_name] = None
 

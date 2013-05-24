@@ -19,6 +19,53 @@ class GithubObject(models.Model):
     class Meta:
         abstract = True
 
+    def fetch(self, auth, parameters=None):
+        """
+        Fetch data from github for the current object and update itself.
+        """
+        identifiers = self.github_callable_identifiers
+        obj = self.__class__.objects.get_from_github(auth, identifiers, parameters)
+        if obj is None:
+            return False
+        self.__dict__.update(obj.__dict__)
+        return True
+
+    def fetch_many(self, field_name, auth, parameters=None):
+        """
+        Fetch data from github for the given m2m or related field.
+        """
+        identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
+
+        field, _, direct, _ = self._meta.get_field_by_name(field_name)
+
+        if direct:
+            # we are on a field of the current model, the objects to create or
+            # update are on the model on the other side of the relation
+            model = field.related.parent_model
+        else:
+            # the field is originally defined on the other side of the relation,
+            # we have a RelatedObject with the model on the other side of the
+            # relation to use to create or update are on the current model
+            model = field.model
+
+        objs = model.objects.get_from_github(auth, identifiers, parameters)
+
+        # now update the list with created/updated objects
+        instance_field = getattr(self, field_name)
+
+        if hasattr(instance_field, 'clear'):
+            # if FK, only objects with nullable FK have a clear method, so we
+            # only clear if the model allows us to
+            instance_field.clear()
+
+        # add new objects (won't touch existing ones)
+        instance_field.add(*objs)
+
+        if not objs:
+            return 0
+        else:
+            return len(objs)
+
 
 class GithubObjectWithId(GithubObject):
     github_id = models.PositiveIntegerField(unique=True)
@@ -47,6 +94,13 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     github_ignore = GithubObjectWithId.github_ignore + ('token',
         'is_organization', 'password', 'is_staff', 'is_active', 'date_joined')
 
+    @property
+    def github_callable_identifiers(self):
+        return [
+            'users',
+            self.username,
+        ]
+
 
 class Repository(GithubObjectWithId):
     owner = models.ForeignKey(GithubUser, related_name='owned_repositories')
@@ -60,6 +114,50 @@ class Repository(GithubObjectWithId):
         unique_together = (
             ('owner', 'name'),
         )
+
+    @property
+    def github_callable_identifiers(self):
+        return [
+            'repos',
+            self.owner.username,
+            self.name,
+        ]
+
+    @property
+    def github_callable_identifiers_for_collaborators(self):
+        return self.github_callable_identifiers + [
+            'collaborators',
+        ]
+
+    def fetch_collaborators(self, auth, parameters=None):
+        return self.fetch_many('collaborators', auth, parameters)
+
+    @property
+    def github_callable_identifiers_for_labels(self):
+        return self.github_callable_identifiers + [
+            'labels',
+        ]
+
+    def fetch_labels(self, auth, parameters=None):
+        return self.fetch_many('labels', auth, parameters)
+
+    @property
+    def github_callable_identifiers_for_milestones(self):
+        return self.github_callable_identifiers + [
+            'milestones',
+        ]
+
+    def fetch_milestones(self, auth, parameters=None):
+        return self.fetch_many('milestones', auth, parameters)
+
+    @property
+    def github_callable_identifiers_for_issues(self):
+        return self.github_callable_identifiers + [
+            'issues',
+        ]
+
+    def fetch_issues(self, auth, parameters=None):
+        return self.fetch_many('issues', auth, parameters)
 
 
 class LabelType(models.Model):
@@ -97,6 +195,12 @@ class Label(GithubObject):
         )
         ordering = ('name', )
 
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_labels + [
+            self.name,
+        ]
+
     def save(self, *args, **kwargs):
         for label_type in self.repository.label_types.all():
             if label_type.match(self.name):
@@ -127,6 +231,12 @@ class Milestone(GithubObjectWithId):
         )
         ordering = ('number', )
 
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_milestones + [
+            self.number,
+        ]
+
 
 class Issue(GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues')
@@ -152,6 +262,36 @@ class Issue(GithubObjectWithId):
             ('repository', 'number'),
         )
 
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_issues + [
+            self.number,
+        ]
+
+    @property
+    def github_callable_identifiers_for_comments(self):
+        return self.github_callable_identifiers + [
+            'comments',
+        ]
+
+    def fetch_comments(self, auth, parameters=None):
+        return self.fetch_many('comments', auth, parameters)
+
+    @property
+    def github_callable_identifiers_for_labels(self):
+        return self.github_callable_identifiers + [
+            'labels',
+        ]
+
+    def fetch_labels(self, auth, parameters=None):
+        return self.fetch_many('labels', auth, parameters)
+
+    @property
+    def github_callable_identifiers_for_label(self, label):
+        return self.github_callable_identifiers_for_labels + [
+            label.name,
+        ]
+
 
 class IssueComment(GithubObjectWithId):
     issue = models.ForeignKey(Issue, related_name='comments')
@@ -164,3 +304,10 @@ class IssueComment(GithubObjectWithId):
 
     class Meta:
         ordering = ('created_at', )
+
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_issues + [
+            'comments',
+            self.github_id,
+        ]
