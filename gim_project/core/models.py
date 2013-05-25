@@ -20,27 +20,26 @@ class GithubObject(models.Model):
     class Meta:
         abstract = True
 
-    @classmethod
-    def _prepare_parameters(cls, parameters=None):
+    def _prepare_fetch_headers(self):
         """
-        Prepare and return parameters.
-        Actually simply add a Accept header based on the github_format attribute
-        of the model
+        Prepare and return the headers to use for the github call..
         """
-        parameters = dict(parameters or {})
-        headers = parameters.pop('headers', {})
-        if 'Accept' not in headers:
-            headers['Accept'] = 'application/vnd.github%s' % cls.github_format
-        parameters['headers'] = headers
-        return parameters
+        headers = {
+            'Accept': 'application/vnd.github%s' % self.github_format
+        }
+        return headers
 
     def fetch(self, auth, parameters=None):
         """
         Fetch data from github for the current object and update itself.
         """
-        parameters = self._prepare_parameters(parameters)
         identifiers = self.github_callable_identifiers
-        obj = self.__class__.objects.get_from_github(auth, identifiers, parameters)
+
+        request_headers = self._prepare_fetch_headers()
+        response_headers = {}
+
+        obj = self.__class__.objects.get_from_github(auth, identifiers,
+                                parameters, request_headers, response_headers)
 
         if obj is None:
             return False
@@ -64,9 +63,13 @@ class GithubObject(models.Model):
             # relation to use to create or update are on the current model
             model = field.model
 
-        parameters = model._prepare_parameters(parameters)
         identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
-        objs = model.objects.get_from_github(auth, identifiers, parameters)
+
+        request_headers = self._prepare_fetch_headers()
+        response_headers = {}
+
+        objs = model.objects.get_from_github(auth, identifiers, parameters,
+                                            request_headers, response_headers)
 
         # now update the list with created/updated objects
         instance_field = getattr(self, field_name)

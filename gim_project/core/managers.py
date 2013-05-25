@@ -28,7 +28,8 @@ class GithubObjectManager(models.Manager):
             result = result(identifier)
         return result
 
-    def get_from_github(self, auth, identifiers, parameters=None):
+    def get_from_github(self, auth, identifiers, parameters=None,
+                        request_headers=None, response_headers=None):
         """
         Trying to get data for the model related to this manager, by using
         identifiers to generate the API call. auth is a dictionnary used to
@@ -36,7 +37,8 @@ class GithubObjectManager(models.Manager):
         """
         gh = Connection.get(**auth)
 
-        data = self.get_data_from_github(gh, identifiers, parameters)
+        data = self.get_data_from_github(gh, identifiers, parameters,
+                                         request_headers, response_headers)
 
         if isinstance(data, list):
             result = self.create_or_update_from_list(data)
@@ -47,7 +49,8 @@ class GithubObjectManager(models.Manager):
 
         return result
 
-    def get_data_from_github(self, gh, identifiers, parameters=None):
+    def get_data_from_github(self, gh, identifiers, parameters=None,
+                             request_headers=None, response_headers=None):
         """
         Use the gh connection to get an object from github using the given
         identifiers
@@ -55,7 +58,9 @@ class GithubObjectManager(models.Manager):
         gh_callable = self.get_github_callable(gh, identifiers)
         if not parameters:
             parameters = {}
-        return gh_callable.get(**parameters)
+        return gh_callable.get(request_headers=request_headers,
+                               response_headers=response_headers,
+                               **parameters)
 
     def get_matching_field(self, field_name):
         """
