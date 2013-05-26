@@ -355,6 +355,18 @@ class Label(GithubObject):
 
         super(Label, self).save(*args, **kwargs)
 
+    def fetch(self, auth, defaults=None):
+        """
+        Enhance the default fetch by setting the current repository as a default
+        value.
+        """
+        if self.repository_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['repository'] = self.repository
+
+        return super(Label, self).fetch(auth, defaults)
+
 
 class Milestone(GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='milestones')
@@ -382,6 +394,18 @@ class Milestone(GithubObjectWithId):
         return self.repository.github_callable_identifiers_for_milestones + [
             self.number,
         ]
+
+    def fetch(self, auth, defaults=None):
+        """
+        Enhance the default fetch by setting the current repository as a default
+        value.
+        """
+        if self.repository_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['repository'] = self.repository
+
+        return super(Milestone, self).fetch(auth, defaults)
 
 
 class Issue(GithubObjectWithId):
@@ -453,6 +477,18 @@ class Issue(GithubObjectWithId):
         #self.fetch_labels(auth)  # already retrieved via self.fetch
         self.fetch_comments(auth)
 
+    def fetch(self, auth, defaults=None):
+        """
+        Enhance the default fetch by setting the current repository as a default
+        value.
+        """
+        if self.repository_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['repository'] = self.repository
+
+        return super(Issue, self).fetch(auth, defaults)
+
 
 class IssueComment(GithubObjectWithId):
     issue = models.ForeignKey(Issue, related_name='comments')
@@ -481,3 +517,15 @@ class IssueComment(GithubObjectWithId):
             'comments',
             self.github_id,
         ]
+
+    def fetch(self, auth, defaults=None):
+        """
+        Enhance the default fetch by setting the current issue as a default
+        value.
+        """
+        if self.issue_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['issue'] = self.issue
+
+        return super(IssueComment, self).fetch(auth, defaults)
