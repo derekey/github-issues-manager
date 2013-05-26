@@ -52,6 +52,12 @@ class GithubObject(models.Model):
 
         return True
 
+    def fetch_all(self, auth):
+        """
+        By default fetch only the current object. Override to add some fetch_many
+        """
+        return self.fetch(auth)
+
     def fetch_many(self, field_name, auth, vary=None):
         """
         Fetch data from github for the given m2m or related field.
@@ -221,6 +227,13 @@ class Repository(GithubObjectWithId):
     def fetch_issues(self, auth):
         return self.fetch_many('issues', auth, vary={'state': ('open', 'closed')})
 
+    def fetch_all(self, auth):
+        super(Repository, self).fetch_all(auth)
+        self.fetch_collaborators(auth)
+        self.fetch_labels(auth)
+        self.fetch_milestones(auth)
+        self.fetch_issues(auth)
+
 
 class LabelType(models.Model):
     repository = models.ForeignKey(Repository, related_name='label_types')
@@ -358,6 +371,11 @@ class Issue(GithubObjectWithId):
         return self.github_callable_identifiers_for_labels + [
             label.name,
         ]
+
+    def fetch_all(self, auth):
+        super(Issue, self).fetch_all(auth)
+        #self.fetch_labels(auth)  # already retrieved via self.fetch
+        self.fetch_comments(auth)
 
 
 class IssueComment(GithubObjectWithId):
