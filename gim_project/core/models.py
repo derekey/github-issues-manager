@@ -1,5 +1,6 @@
 
 from urlparse import urlsplit, parse_qs
+from itertools import product
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -32,7 +33,7 @@ class GithubObject(models.Model):
         }
         return headers
 
-    def fetch(self, auth, parameters=None):
+    def fetch(self, auth):
         """
         Fetch data from github for the current object and update itself.
         """
@@ -42,7 +43,7 @@ class GithubObject(models.Model):
         response_headers = {}
 
         obj = self.__class__.objects.get_from_github(auth, identifiers,
-                                parameters, request_headers, response_headers)
+                                None, request_headers, response_headers)
 
         if obj is None:
             return False
@@ -51,7 +52,7 @@ class GithubObject(models.Model):
 
         return True
 
-    def fetch_many(self, field_name, auth, parameters=None):
+    def fetch_many(self, field_name, auth, vary=None):
         """
         Fetch data from github for the given m2m or related field.
         """
@@ -85,6 +86,7 @@ class GithubObject(models.Model):
 
             objs += page_objs
 
+            # if we have a next page, got fetch it
             if 'link' in response_headers:
                 links = parse_header_links(response_headers['link'])
                 if 'next' in links and 'url' in links['next']:
@@ -98,7 +100,17 @@ class GithubObject(models.Model):
                     )
                     fetch_page_and_next(objs, next_page_parameters)
 
-        fetch_page_and_next(objs, parameters)
+        if not vary:
+            # no varying parameter, fetch with an empty set of parameters
+            parameters_dicts = [{}]
+        else:
+            # create all combinations of varying parameters
+            vary_keys = sorted(vary)
+            parameters_dicts = [dict(zip(vary_keys, prod)) for prod in product(*(vary[key] for key in vary_keys))]
+
+        # fetch data for each combination of varying parameters
+        for parameters in parameters_dicts:
+            fetch_page_and_next(objs, parameters)
 
         # now update the list with created/updated objects
         instance_field = getattr(self, field_name)
@@ -179,8 +191,8 @@ class Repository(GithubObjectWithId):
             'collaborators',
         ]
 
-    def fetch_collaborators(self, auth, parameters=None):
-        return self.fetch_many('collaborators', auth, parameters)
+    def fetch_collaborators(self, auth):
+        return self.fetch_many('collaborators', auth)
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -188,8 +200,8 @@ class Repository(GithubObjectWithId):
             'labels',
         ]
 
-    def fetch_labels(self, auth, parameters=None):
-        return self.fetch_many('labels', auth, parameters)
+    def fetch_labels(self, auth):
+        return self.fetch_many('labels', auth)
 
     @property
     def github_callable_identifiers_for_milestones(self):
@@ -197,8 +209,8 @@ class Repository(GithubObjectWithId):
             'milestones',
         ]
 
-    def fetch_milestones(self, auth, parameters=None):
-        return self.fetch_many('milestones', auth, parameters)
+    def fetch_milestones(self, auth):
+        return self.fetch_many('milestones', auth, vary={'state': ('open', 'closed')})
 
     @property
     def github_callable_identifiers_for_issues(self):
@@ -206,8 +218,8 @@ class Repository(GithubObjectWithId):
             'issues',
         ]
 
-    def fetch_issues(self, auth, parameters=None):
-        return self.fetch_many('issues', auth, parameters)
+    def fetch_issues(self, auth):
+        return self.fetch_many('issues', auth, vary={'state': ('open', 'closed')})
 
 
 class LabelType(models.Model):
@@ -329,8 +341,8 @@ class Issue(GithubObjectWithId):
             'comments',
         ]
 
-    def fetch_comments(self, auth, parameters=None):
-        return self.fetch_many('comments', auth, parameters)
+    def fetch_comments(self, auth):
+        return self.fetch_many('comments', auth)
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -338,8 +350,8 @@ class Issue(GithubObjectWithId):
             'labels',
         ]
 
-    def fetch_labels(self, auth, parameters=None):
-        return self.fetch_many('labels', auth, parameters)
+    def fetch_labels(self, auth):
+        return self.fetch_many('labels', auth)
 
     @property
     def github_callable_identifiers_for_label(self, label):
