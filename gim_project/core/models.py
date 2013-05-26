@@ -1,7 +1,10 @@
 
+from urlparse import urlsplit, parse_qs
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from .ghpool import parse_header_links
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager)
@@ -66,10 +69,36 @@ class GithubObject(models.Model):
         identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
 
         request_headers = self._prepare_fetch_headers()
-        response_headers = {}
 
-        objs = model.objects.get_from_github(auth, identifiers, parameters,
-                                            request_headers, response_headers)
+        objs = []
+
+        def fetch_page_and_next(objs, parameters):
+            """
+            Fetch a page of objects with the given parameters, and if github
+            tell us there is a "next" page, continue fetching
+
+            """
+            response_headers = {}
+
+            page_objs = model.objects.get_from_github(auth, identifiers,
+                                parameters, request_headers, response_headers)
+
+            objs += page_objs
+
+            if 'link' in response_headers:
+                links = parse_header_links(response_headers['link'])
+                if 'next' in links and 'url' in links['next']:
+                    next_page_parameters = parameters.copy()
+                    next_page_parameters.update(
+                        dict(
+                            (k, v[0]) for k, v in parse_qs(
+                                    urlsplit(links['next']['url']).query
+                                ).items() if len(v)
+                            )
+                    )
+                    fetch_page_and_next(objs, next_page_parameters)
+
+        fetch_page_and_next(objs, parameters)
 
         # now update the list with created/updated objects
         instance_field = getattr(self, field_name)

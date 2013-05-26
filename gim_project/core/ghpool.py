@@ -49,3 +49,38 @@ class Connection(GitHub):
 
         # return the old or new connection in the pool
         return cls.pool[auth['username']]
+
+
+def parse_header_links(value):
+    """
+    Based on kennethreitz/requests stuff
+    Return a dict of parsed link headers proxies.
+    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
+    """
+
+    links = {}
+
+    replace_chars = " '\""
+
+    for val in value.split(","):
+        try:
+            url, params = val.split(";", 1)
+        except ValueError:
+            url, params = val, ''
+
+        link = {}
+
+        link["url"] = url.strip("<> '\"")
+
+        for param in params.split(";"):
+            try:
+                key, value = param.split("=")
+            except ValueError:
+                break
+
+            link[key.strip(replace_chars)] = value.strip(replace_chars)
+
+        if 'rel' in link:
+            links[link['rel']] = link
+
+    return links
