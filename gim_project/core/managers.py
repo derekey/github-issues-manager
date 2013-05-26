@@ -125,46 +125,69 @@ class GithubObjectManager(models.Manager):
 
             updated_fields = []
 
-            # store siple filelds and FKs
-            for field, value in fields['simple'].iteritems():
-                updated_fields.append(field)
-                setattr(obj, field, value)
+            # store simple filelds if needed
+            save_simples = False
+            if fields['simple']:
+                save_simples = True
 
-            for field, value in fields['fk'].iteritems():
-                updated_fields.append(field)
-                setattr(obj, field, value)
+                if not to_create:
+                    obj_fields = dict((f, getattr(obj, f)) for f in fields['simple'])
+                    save_simples = obj_fields != fields['simple']
 
-            obj.fetched_at = datetime.utcnow()
+                if save_simples:
+                    for field, value in fields['simple'].iteritems():
+                        updated_fields.append(field)
+                        setattr(obj, field, value)
 
-            try:
-                # force update or insert to avoid a exists() call in db
-                if to_create:
-                    save_params = {'force_insert': True}
-                else:
-                    save_params = {
-                        'force_update': True,
-                        # only save updated fields
-                        'update_fields': updated_fields,
-                    }
+            # store FKs if needed
+            save_fks = False
+            if fields['fk']:
+                save_fks = True
 
-                obj.save(**save_params)
+                if not to_create:
+                    obj_fields = dict((f, getattr(obj, '%s_id' % f)) for f in fields['fk'])
+                    fk_fields = dict((f, fields['fk'][f].id if fields['fk'][f] else None) for f in fields['fk'])
+                    save_fks = obj_fields != fk_fields
 
-            except IntegrityError:
-                # We could have an integrity error if we tried to create an
-                # object that has been created elsewhere during the process
-                # So we check if we really have an object now, and retry the
-                # whole set/save process.
-                # If we already have an object in db, or if we have'nt but there
-                # is still no object, it's a real IntegrityError that we don't
-                # want to skip
-                if to_create:
-                    obj = self.get_from_identifiers(fields)
-                    if obj:
-                        return _create_or_update()
+                if save_fks:
+                    for field, value in fields['fk'].iteritems():
+                        updated_fields.append(field)
+                        setattr(obj, field, value)
+
+            if save_simples or save_fks:
+                # do save only if something is modified
+
+                obj.fetched_at = datetime.utcnow()
+
+                try:
+                    # force update or insert to avoid a exists() call in db
+                    if to_create:
+                        save_params = {'force_insert': True}
+                    else:
+                        save_params = {
+                            'force_update': True,
+                            # only save updated fields
+                            'update_fields': updated_fields,
+                        }
+
+                    obj.save(**save_params)
+
+                except IntegrityError:
+                    # We could have an integrity error if we tried to create an
+                    # object that has been created elsewhere during the process
+                    # So we check if we really have an object now, and retry the
+                    # whole set/save process.
+                    # If we already have an object in db, or if we have'nt but there
+                    # is still no object, it's a real IntegrityError that we don't
+                    # want to skip
+                    if to_create:
+                        obj = self.get_from_identifiers(fields)
+                        if obj:
+                            return _create_or_update()
+                        else:
+                            raise
                     else:
                         raise
-                else:
-                    raise
 
             return obj
 
