@@ -36,9 +36,11 @@ class GithubObject(models.Model):
         }
         return headers
 
-    def fetch(self, auth):
+    def fetch(self, auth, defaults=None):
         """
         Fetch data from github for the current object and update itself.
+        If defined, "defaults" is a dict with values that will be used if not
+        found in fetched data.
         """
         identifiers = self.github_callable_identifiers
 
@@ -46,7 +48,7 @@ class GithubObject(models.Model):
         response_headers = {}
 
         obj = self.__class__.objects.get_from_github(auth, identifiers,
-                                None, request_headers, response_headers)
+                            defaults, None, request_headers, response_headers)
 
         if obj is None:
             return False
@@ -57,17 +59,19 @@ class GithubObject(models.Model):
 
     def fetch_all(self, auth):
         """
-        By default fetch only the current object. Override to add some fetch_many
+        By default fetch only the current object. Override to add some _fetch_many
         """
         return self.fetch(auth)
 
-    def fetch_many(self, field_name, auth, vary=None):
+    def _fetch_many(self, field_name, auth, vary=None, defaults=None):
         """
         Fetch data from github for the given m2m or related field.
         If defined, "vary" is a dict of list of parameters to fetch. For each
         key of this dict, all values of the list will be used as a parameter,
         one after the other. If many keys are in "vary", all combinations will
         be fetched.
+        If defined, "defaults" is a dict with values that will be used if not
+        found in fetched data.
         """
         field, _, direct, _ = self._meta.get_field_by_name(field_name)
         if direct:
@@ -95,7 +99,7 @@ class GithubObject(models.Model):
             response_headers = {}
 
             page_objs = model.objects.get_from_github(auth, identifiers,
-                                parameters, request_headers, response_headers)
+                        defaults, parameters, request_headers, response_headers)
 
             objs += page_objs
 
@@ -248,7 +252,7 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_collaborators(self, auth):
-        return self.fetch_many('collaborators', auth)
+        return self._fetch_many('collaborators', auth)
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -257,7 +261,8 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_labels(self, auth):
-        return self.fetch_many('labels', auth)
+        return self._fetch_many('labels', auth,
+                                defaults={'fk': {'repository': self}})
 
     @property
     def github_callable_identifiers_for_milestones(self):
@@ -266,7 +271,9 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_milestones(self, auth):
-        return self.fetch_many('milestones', auth, vary={'state': ('open', 'closed')})
+        return self._fetch_many('milestones', auth,
+                                vary={'state': ('open', 'closed')},
+                                defaults={'fk': {'repository': self}})
 
     @property
     def github_callable_identifiers_for_issues(self):
@@ -275,7 +282,9 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_issues(self, auth):
-        return self.fetch_many('issues', auth, vary={'state': ('open', 'closed')})
+        return self._fetch_many('issues', auth,
+                                vary={'state': ('open', 'closed')},
+                                defaults={'fk': {'repository': self}})
 
     def fetch_all(self, auth):
         super(Repository, self).fetch_all(auth)
@@ -420,7 +429,8 @@ class Issue(GithubObjectWithId):
         ]
 
     def fetch_comments(self, auth):
-        return self.fetch_many('comments', auth)
+        return self._fetch_many('comments', auth,
+                                defaults={'fk': {'issue': self}})
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -429,7 +439,8 @@ class Issue(GithubObjectWithId):
         ]
 
     def fetch_labels(self, auth):
-        return self.fetch_many('labels', auth)
+        return self._fetch_many('labels', auth,
+                                defaults={'fk': {'repository': self.repository}})
 
     @property
     def github_callable_identifiers_for_label(self, label):

@@ -28,7 +28,7 @@ class GithubObjectManager(models.Manager):
             result = result(identifier)
         return result
 
-    def get_from_github(self, auth, identifiers, parameters=None,
+    def get_from_github(self, auth, identifiers, defaults=None, parameters=None,
                         request_headers=None, response_headers=None):
         """
         Trying to get data for the model related to this manager, by using
@@ -41,9 +41,9 @@ class GithubObjectManager(models.Manager):
                                          request_headers, response_headers)
 
         if isinstance(data, list):
-            result = self.create_or_update_from_list(data)
+            result = self.create_or_update_from_list(data, defaults)
         else:
-            result = self.create_or_update_from_dict(data)
+            result = self.create_or_update_from_dict(data, defaults)
             if not result:
                 raise Exception("Unable to create an object of the %s kind" % self.model.__name__)
 
@@ -70,7 +70,7 @@ class GithubObjectManager(models.Manager):
         """
         return self.model.github_matching.get(field_name, field_name)
 
-    def create_or_update_from_list(self, data):
+    def create_or_update_from_list(self, data, defaults):
         """
         Take a list of json objects, call create_or_update for each one, and
         return the list of touched objects. Objects that cannot be created are
@@ -78,7 +78,7 @@ class GithubObjectManager(models.Manager):
         """
         objs = []
         for entry in data:
-            obj = self.create_or_update_from_dict(entry)
+            obj = self.create_or_update_from_dict(entry, defaults)
             if obj:
                 objs.append(obj)
         return objs
@@ -104,13 +104,13 @@ class GithubObjectManager(models.Manager):
         except self.model.DoesNotExist:
             return None
 
-    def create_or_update_from_dict(self, data):
+    def create_or_update_from_dict(self, data, defaults):
         """
         Taking a dict (passed in the data argument), try to update an existing
         object that match some fields, or create a new one.
         Return the object, or None if no object could be updated/created.
         """
-        fields = self.get_object_fields_from_dict(data)
+        fields = self.get_object_fields_from_dict(data, defaults)
 
         if not fields:
             return None
@@ -136,7 +136,7 @@ class GithubObjectManager(models.Manager):
 
         return obj
 
-    def get_object_fields_from_dict(self, data):
+    def get_object_fields_from_dict(self, data, defaults):
         """
         Taking a dict (passed in the data argument), return the fields to use
         to update or create an object. The returned dict contains 3 entries:
@@ -146,6 +146,12 @@ class GithubObjectManager(models.Manager):
               or for the related relation of a fk (issues of a repository...)
         Eeach of these entries is a dict with the model field names as key, and
         the values to save in the model as value.
+        The "defaults" arguments is to fill fields not found in data. It must
+        respect the same format as the return of this method: a dict with
+        "simple"/"fk"/"many" as keys, with a dict of fields as values. A
+        "related" entry can be present for default values to use for related
+        data (if "foo" is a related found in "data", defaults["related"]["foo"]
+        will be the "defaults" dict used to create/update "foo)
         """
 
         fields = {
@@ -177,7 +183,10 @@ class GithubObjectManager(models.Manager):
                 # we have many objects to create
                 if value:
                     model = field.related.parent_model if direct else field.model
-                    fields['many'][field_name] = model.objects.create_or_update_from_list(value)
+                    defaults_related = None
+                    if defaults and 'related' in defaults and field_name in defaults['related']:
+                        defaults_related = defaults['related'][field_name]
+                    fields['many'][field_name] = model.objects.create_or_update_from_list(value, defaults_related)
                 else:
                     fields['many'][field_name] = []
 
@@ -185,7 +194,10 @@ class GithubObjectManager(models.Manager):
                 # we have an external object to create
                 if value:
                     model = field.related.parent_model if direct else field.model
-                    fields['fk'][field_name] = model.objects.create_or_update_from_dict(value)
+                    defaults_related = None
+                    if defaults and 'related' in defaults and field_name in defaults['related']:
+                        defaults_related = defaults['related'][field_name]
+                    fields['fk'][field_name] = model.objects.create_or_update_from_dict(value, defaults_related)
                 else:
                     fields['fk'][field_name] = None
 
@@ -200,6 +212,15 @@ class GithubObjectManager(models.Manager):
                 # it's a simple field
                 fields['simple'][field_name] = value
 
+        # add default fields
+        if defaults:
+            for field_type, default_fields in defaults.iteritems():
+                if field_type not in ('simple', 'fk', 'many'):
+                    continue
+                for field_name, value in default_fields.iteritems():
+                    if field_name not in fields[field_type]:
+                        fields[field_type][field_name] = value
+
         return fields
 
 
@@ -212,7 +233,7 @@ class WithRepositoryManager(GithubObjectManager):
     repository belongs the object.
     """
 
-    def get_object_fields_from_dict(self, data):
+    def get_object_fields_from_dict(self, data, defaults):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
         repository the objects belongs to, from the url found in the data given
@@ -220,7 +241,7 @@ class WithRepositoryManager(GithubObjectManager):
         """
         from .models import Repository
 
-        fields = super(WithRepositoryManager, self).get_object_fields_from_dict(data)
+        fields = super(WithRepositoryManager, self).get_object_fields_from_dict(data, defaults)
 
         # add the repository if needed
         if 'repository' not in fields['fk']:
@@ -240,13 +261,13 @@ class GithubUserManager(GithubObjectManager, UserManager):
     flag.
     """
 
-    def get_object_fields_from_dict(self, data):
+    def get_object_fields_from_dict(self, data, defaults):
         """
         In addition to the default get_object_fields_from_dict, set the
         is_orginization flag based on the value of the User field given by the
         github api.
         """
-        fields = super(GithubUserManager, self).get_object_fields_from_dict(data)
+        fields = super(GithubUserManager, self).get_object_fields_from_dict(data, defaults)
 
         # add the is_orginization field if needed
         if 'is_orginization' not in fields['simple']:
@@ -344,6 +365,24 @@ class IssueManager(WithRepositoryManager):
         number = self.get_number_from_url(url)
         return self.get_by_repository_and_number(repository, number)
 
+    def get_object_fields_from_dict(self, data, defaults):
+        """
+        Override the default "get_object_fields_from_dict" by adding default
+        value for the repository of labels and milestone, if one is given as
+        default for the issue.
+        """
+        if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
+            if 'related' not in defaults:
+                defaults['related'] = {}
+            for related in ('labels', 'milestone'):
+                if related not in defaults['related']:
+                    defaults['related'][related] = {}
+                if 'fk' not in defaults['related'][related]:
+                    defaults['related'][related]['fk'] = {}
+                defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
+
+        return super(IssueManager, self).get_object_fields_from_dict(data, defaults)
+
 
 class IssueCommentManager(GithubObjectManager):
     """
@@ -353,7 +392,7 @@ class IssueCommentManager(GithubObjectManager):
     flag.
     """
 
-    def get_object_fields_from_dict(self, data):
+    def get_object_fields_from_dict(self, data, defaults):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
         issue the comment belongs to, from the issue_url found in the data given
@@ -363,7 +402,7 @@ class IssueCommentManager(GithubObjectManager):
         """
         from .models import Issue
 
-        fields = super(IssueCommentManager, self).get_object_fields_from_dict(data)
+        fields = super(IssueCommentManager, self).get_object_fields_from_dict(data, defaults)
 
         # add the issue if needed
         if 'issue' not in fields['fk']:
