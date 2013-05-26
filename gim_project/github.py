@@ -158,6 +158,8 @@ class GitHub(object):
                 response_headers.update(e.headers.dict.copy())
             if is_json:
                 _json = _parse_json(e.read())
+            else:
+                _json = None
             req = JsonObject(method=method, url=url)
             resp = JsonObject(code=e.code, json=_json)
             if resp.code == 404:
