@@ -32,7 +32,7 @@ class GithubObject(models.Model):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def _prepare_fetch_headers(self, if_modified_since=None):
+    def _prepare_fetch_headers(self, if_modified_since=None, if_none_match=None):
         """
         Prepare and return the headers to use for the github call..
         """
@@ -42,6 +42,8 @@ class GithubObject(models.Model):
         if if_modified_since:
             # tell github to retrn data only if something new
             headers['If-Modified-Since'] = if_modified_since.replace(tzinfo=UTC).strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if if_none_match:
+            headers['If-None-Match'] = if_none_match
 
         return headers
 
@@ -103,8 +105,28 @@ class GithubObject(models.Model):
 
         identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
 
+        # prepare headers to add in the request
+        if_modified_since = None
+        if_none_match = None
+        if not force_fetch:
+            fetched_at_field = '%s_fetched_at' % field_name
+            if hasattr(self, fetched_at_field):
+                # if we have a fetch date, use it
+                if_modified_since = getattr(self, fetched_at_field)
+                if not if_modified_since:
+                    # we don't have a fetch_date, it's because we never fetched
+                    # this relations, or because we set the date to None on the
+                    # previous fetch because we didn't have any objects
+                    if not getattr(self, field_name).count():
+                        # if we don't have any objects, force a If-None-Match
+                        # header that indicate "empty list", so Github won't
+                        # count any requests on our rate-limit if we fetch
+                        # again an empty list (and because we don't want to save
+                        # etags in our db)
+                        if_none_match = '"d751713988987e9331980363e24189ce"'
+
         request_headers = self._prepare_fetch_headers(
-                    if_modified_since=None if force_fetch else getattr(self, '%s_fetched_at' % field_name, None))
+                    if_modified_since=if_modified_since, if_none_match=if_none_match)
 
         objs = []
 
@@ -237,7 +259,13 @@ class GithubObject(models.Model):
         # save the fetch date
         fetched_at_field = '%s_fetched_at' % field_name
         if hasattr(self, fetched_at_field):
-            setattr(self, fetched_at_field, datetime.utcnow())
+            save_date = True
+            if not to_add:
+                # If we didn't add anything, we only save a fetch_date if we have
+                # data in database. On the next direct fetch, we'll use a ETAG
+                # meaning "no data" to ask github if we have something new
+                save_date = instance_field.count() > 0
+            setattr(self, fetched_at_field, datetime.utcnow() if save_date else None)
             self.save(update_fields=[fetched_at_field], force_update=True)
 
         return count
