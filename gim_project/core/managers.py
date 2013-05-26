@@ -3,7 +3,7 @@ import re
 import dateutil.parser
 from datetime import datetime
 
-from django.db import models
+from django.db import models, IntegrityError
 from django.contrib.auth.models import UserManager
 
 from .ghpool import Connection
@@ -115,23 +115,62 @@ class GithubObjectManager(models.Manager):
         if not fields:
             return None
 
-        # get or create a new object
-        obj = self.get_from_identifiers(fields)
-        if not obj:
-            obj = self.model()
+        def _create_or_update():
+            # get or create a new object
+            to_create = False
+            obj = self.get_from_identifiers(fields)
+            if not obj:
+                to_create = True
+                obj = self.model()
 
-        # store siple filelds and FKs
-        for field, value in fields['simple'].iteritems():
-            setattr(obj, field, value)
+            updated_fields = []
 
-        for field, value in fields['fk'].iteritems():
-            setattr(obj, field, value)
+            # store siple filelds and FKs
+            for field, value in fields['simple'].iteritems():
+                updated_fields.append(field)
+                setattr(obj, field, value)
 
-        # we need to save the object before saving lists
-        obj.fetched_at = datetime.utcnow()
-        obj.save()
+            for field, value in fields['fk'].iteritems():
+                updated_fields.append(field)
+                setattr(obj, field, value)
 
-        # finally save lists
+            obj.fetched_at = datetime.utcnow()
+
+            try:
+                # force update or insert to avoid a exists() call in db
+                if to_create:
+                    save_params = {'force_insert': True}
+                else:
+                    save_params = {
+                        'force_update': True,
+                        # only save updated fields
+                        'update_fields': updated_fields,
+                    }
+
+                obj.save(**save_params)
+
+            except IntegrityError:
+                # We could have an integrity error if we tried to create an
+                # object that has been created elsewhere during the process
+                # So we check if we really have an object now, and retry the
+                # whole set/save process.
+                # If we already have an object in db, or if we have'nt but there
+                # is still no object, it's a real IntegrityError that we don't
+                # want to skip
+                if to_create:
+                    obj = self.get_from_identifiers(fields)
+                    if obj:
+                        return _create_or_update()
+                    else:
+                        raise
+                else:
+                    raise
+
+            return obj
+
+        obj = _create_or_update()
+
+        # finally save lists now that we have an object
         for field, values in fields['many'].iteritems():
             obj.update_related_field(field, [o.id for o in values])
 
@@ -258,21 +297,21 @@ class GithubUserManager(GithubObjectManager, UserManager):
     This manager is for the GithubUser model, and is based on the default
     UserManager, and the GithubObjectManager to allow creation/update from data
     coming from the github api.
-    The get_object_fields_from_dict is enhance to compute the is_orginization
+    The get_object_fields_from_dict is enhance to compute the is_organization
     flag.
     """
 
     def get_object_fields_from_dict(self, data, defaults):
         """
         In addition to the default get_object_fields_from_dict, set the
-        is_orginization flag based on the value of the User field given by the
+        is_organization flag based on the value of the User field given by the
         github api.
         """
         fields = super(GithubUserManager, self).get_object_fields_from_dict(data, defaults)
 
-        # add the is_orginization field if needed
-        if 'is_orginization' not in fields['simple']:
-            fields['simple']['is_orginization'] = data.get('type', 'User') == 'Organization'
+        # add the is_organization field if needed
+        if 'is_organization' not in fields['simple']:
+            fields['simple']['is_organization'] = data.get('type', 'User') == 'Organization'
 
         return fields
 
@@ -327,6 +366,9 @@ class IssueManager(WithRepositoryManager):
     """
     This manager extends the GithubObjectManager with helpers to find an
     issue based on an url or simply a path+number ({user}/{repos}/issues/{number}).
+    It also provides an enhanced get_object_fields_from_dict method, to compute the
+    is_pull_request flag, and set default values for labels and milestone
+    repository.
     """
     issue_finder = re.compile('^https?://api\.github\.com/repos/(?:[^/]+/[^/]+)/issues/(?P<number>\w+)(?:/|$)')
 
@@ -371,6 +413,8 @@ class IssueManager(WithRepositoryManager):
         Override the default "get_object_fields_from_dict" by adding default
         value for the repository of labels and milestone, if one is given as
         default for the issue.
+        Also set the is_pull_request flag based on the 'diff_url' attribute of
+        the 'pull_request' dict in the data given by the github api.
         """
         if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
             if 'related' not in defaults:
@@ -382,15 +426,19 @@ class IssueManager(WithRepositoryManager):
                     defaults['related'][related]['fk'] = {}
                 defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
 
-        return super(IssueManager, self).get_object_fields_from_dict(data, defaults)
+        fields = super(IssueManager, self).get_object_fields_from_dict(data, defaults)
+
+        # check if it's a pull request
+        if 'is_pull_reques' not in fields['simple']:
+            fields['simple']['is_pull_request'] = bool(data.get('pull_request', {}).get('diff_url', False))
+
+        return fields
 
 
 class IssueCommentManager(GithubObjectManager):
     """
     This manager is for the IssueComment model, with an enhanced
-    get_object_fields_from_dict method, to get the issue and to compute the
-    is_pull_request flag.
-    flag.
+    get_object_fields_from_dict method, to get the issue.
     """
 
     def get_object_fields_from_dict(self, data, defaults):
@@ -398,8 +446,6 @@ class IssueCommentManager(GithubObjectManager):
         In addition to the default get_object_fields_from_dict, try to guess the
         issue the comment belongs to, from the issue_url found in the data given
         by the github api. Only set if the issue is found.
-        Also set the is_pull_request flag based on the 'diff_url' attribute of
-        the 'pull_request' dict in the data given by the github api.
         """
         from .models import Issue
 
@@ -410,9 +456,5 @@ class IssueCommentManager(GithubObjectManager):
             issue = Issue.objects.get_by_url(data.get('issue_url', None))
             if issue:
                 fields['fk']['issue'] = issue
-
-        # check if it's a pull request
-        if 'is_pull_reques' not in fields['simple']:
-            fields['simple']['is_pull_request'] = bool(data.get('pull_request', {}).get('diff_url', False))
 
         return fields
