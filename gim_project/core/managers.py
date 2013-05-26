@@ -458,3 +458,38 @@ class IssueCommentManager(GithubObjectManager):
                 fields['fk']['issue'] = issue
 
         return fields
+
+
+class LabelTypeManager(models.Manager):
+    """
+    This manager, for the LabelType model, manage a cache by repository/label-name
+    to quickly return label type and typed name for a label.
+    """
+    _name_cache = {}
+
+    def _reset_cache(self, repository):
+        """
+        Clear all the cache for the given repository
+        """
+        self._name_cache.pop(repository.id)
+
+    def get_for_name(self, repository, name):
+        """
+        Return the label_type and typed_name to use for a label in a repository.
+        Use an internal cache to speed up future accesses.
+        """
+        if repository.id not in self._name_cache:
+            self._name_cache[repository.id] = {}
+
+        if name not in self._name_cache[repository.id]:
+            result = None
+            for label_type in repository.label_types.all():
+                if label_type.match(name):
+                    result = (
+                        label_type,
+                        label_type.get_typed_name(name)
+                    )
+                    break
+            self._name_cache[repository.id][name] = result
+
+        return self._name_cache[repository.id][name]

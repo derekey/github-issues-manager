@@ -8,7 +8,7 @@ from django.contrib.auth.models import AbstractUser
 from .ghpool import parse_header_links
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
-                       RepositoryManager)
+                       RepositoryManager, LabelTypeManager)
 import username_hack  # force the username length to be 255 chars
 
 
@@ -299,6 +299,8 @@ class LabelType(models.Model):
     regex = models.TextField()
     name = models.TextField(db_index=True)
 
+    objects = LabelTypeManager()
+
     class Meta:
         unique_together = (
             ('repository', 'name'),
@@ -315,6 +317,14 @@ class LabelType(models.Model):
 
     def get_typed_name(self, name):
         pass
+
+    def save(self, *args, **kwargs):
+        super(LabelType, self).save(*args, **kwargs)
+        LabelType.objects._reset_cache(self.repository)
+
+    def delete(self, *args, **kwargs):
+        LabelType.objects._reset_cache(self.repository)
+        super(LabelType, self).delete(*args, **kwargs)
 
 
 class Label(GithubObject):
@@ -345,13 +355,14 @@ class Label(GithubObject):
         ]
 
     def save(self, *args, **kwargs):
-        for label_type in self.repository.label_types.all():
-            if label_type.match(self.name):
-                self.label_type = label_type
-                self.typed_name = label_type.get_typed_name(self.name)
-                break
-        if not self.label_type:
+        label_type_infos = LabelType.objects.get_for_name(self.repository, self.name)
+        if label_type_infos:
+            self.label_type, self.typed_name = label_type_infos
+        else:
             self.typed_name = self.name
+
+        if kwargs.get('update_fields', None) is not None:
+            kwargs['update_fields'] += ['label_type', 'typed_name']
 
         super(Label, self).save(*args, **kwargs)
 
