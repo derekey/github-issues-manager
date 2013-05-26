@@ -167,7 +167,7 @@ class GithubObjectManager(models.Manager):
                         save_params = {
                             'force_update': True,
                             # only save updated fields
-                            'update_fields': updated_fields,
+                            'update_fields': updated_fields + ['fetched_at', ],
                         }
 
                     obj.save(**save_params)
@@ -267,7 +267,8 @@ class GithubObjectManager(models.Manager):
             elif isinstance(field, models.DateTimeField):
                 # we need to convert a datetimefield
                 if value:
-                    fields['simple'][field_name] = dateutil.parser.parse(value)
+                    # all github datetime are utc, so we can remove the timezome
+                    fields['simple'][field_name] = dateutil.parser.parse(value).replace(tzinfo=None)
                 else:
                     fields['simple'][field_name] = None
 

@@ -1,15 +1,20 @@
 
 from urlparse import urlsplit, parse_qs
 from itertools import product
+from datetime import datetime
+from dateutil import tz
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from .ghpool import parse_header_links
+from .ghpool import parse_header_links, ApiError
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager)
 import username_hack  # force the username length to be 255 chars
+
+
+UTC = tz.gettz('UTC')
 
 
 class GithubObject(models.Model):
@@ -27,16 +32,20 @@ class GithubObject(models.Model):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def _prepare_fetch_headers(self):
+    def _prepare_fetch_headers(self, if_modified_since=None):
         """
         Prepare and return the headers to use for the github call..
         """
         headers = {
             'Accept': 'application/vnd.github%s' % self.github_format
         }
+        if if_modified_since:
+            # tell github to retrn data only if something new
+            headers['If-Modified-Since'] = if_modified_since.replace(tzinfo=UTC).strftime('%a, %d %b %Y %H:%M:%S GMT')
+
         return headers
 
-    def fetch(self, auth, defaults=None):
+    def fetch(self, auth, defaults=None, force_fetch=False):
         """
         Fetch data from github for the current object and update itself.
         If defined, "defaults" is a dict with values that will be used if not
@@ -44,11 +53,19 @@ class GithubObject(models.Model):
         """
         identifiers = self.github_callable_identifiers
 
-        request_headers = self._prepare_fetch_headers()
+        request_headers = self._prepare_fetch_headers(
+                    if_modified_since=None if force_fetch else self.fetched_at)
         response_headers = {}
 
-        obj = self.__class__.objects.get_from_github(auth, identifiers,
+        try:
+            obj = self.__class__.objects.get_from_github(auth, identifiers,
                             defaults, None, request_headers, response_headers)
+        except ApiError, e:
+            if e.response and e.response['code'] == 304:
+                # github tell us nothing is new, so we stop all the work here
+                return True
+            else:
+                raise
 
         if obj is None:
             return False
@@ -57,13 +74,13 @@ class GithubObject(models.Model):
 
         return True
 
-    def fetch_all(self, auth):
+    def fetch_all(self, auth, force_fetch=False):
         """
         By default fetch only the current object. Override to add some _fetch_many
         """
-        return self.fetch(auth)
+        return self.fetch(auth, force_fetch=force_fetch)
 
-    def _fetch_many(self, field_name, auth, vary=None, defaults=None):
+    def _fetch_many(self, field_name, auth, vary=None, defaults=None, force_fetch=False):
         """
         Fetch data from github for the given m2m or related field.
         If defined, "vary" is a dict of list of parameters to fetch. For each
@@ -86,7 +103,8 @@ class GithubObject(models.Model):
 
         identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
 
-        request_headers = self._prepare_fetch_headers()
+        request_headers = self._prepare_fetch_headers(
+                    if_modified_since=None if force_fetch else getattr(self, '%s_fetched_at' % field_name, None))
 
         objs = []
 
@@ -126,11 +144,44 @@ class GithubObject(models.Model):
             parameters_dicts = [dict(zip(vary_keys, prod)) for prod in product(*(vary[key] for key in vary_keys))]
 
         # fetch data for each combination of varying parameters
+        status = {'ok': 0, 304: 0}
+        restart_withouht_if_modified_since = False
         for parameters in parameters_dicts:
-            fetch_page_and_next(objs, parameters)
+            try:
+                fetch_page_and_next(objs, parameters)
+            except ApiError, e:
+                if e.response and e.response['code'] == 304:
+                    # github tell us nothing is new
+                    status[304] += 1
+                else:
+                    raise
+            else:
+                if status[304]:
+                    # we have data but at least one time we didn't have any new
+                    # one, we want to restart all without the if_modified_since
+                    # header to be sure to get all data
+                    restart_withouht_if_modified_since = True
+                    break
+                if not status['ok']:
+                    # we have data despite of the if_modified_since_header, and
+                    # it's the first parameter combination, we remove the header
+                    # for the next combinations to be sure to get all the data
+                    request_headers = self._prepare_fetch_headers(if_modified_since=None)
+                status['ok'] += 1
+
+        if restart_withouht_if_modified_since:
+            # something goes wrong with the if_modified_since header and we
+            # were asked to restart, so we do it without the header
+            status = {'ok': 0, 304: 0}
+            request_headers = self._prepare_fetch_headers(if_modified_since=None)
+            objs = []
+            for parameters in parameters_dicts:
+                fetch_page_and_next(objs, parameters)
 
         # now update the list with created/updated objects
-        self.update_related_field(field_name, [obj.id for obj in objs])
+        if not status[304]:
+            # but only if we had fresh data !
+            self.update_related_field(field_name, [obj.id for obj in objs])
 
         # we return the number of fetched objects
         if not objs:
@@ -175,13 +226,19 @@ class GithubObject(models.Model):
                 # delete the objects.
                 # Example: a milestone of a repository is not fetched via
                 # fetch_milestones, so we know it's deleted
-                instance_field.objects.filter(id__in=to_remove).delete()
+                instance_field.model.objects.filter(id__in=to_remove).delete()
 
         # if we have new relations, add them
         to_add = fetched_ids - existing_ids
         if to_add:
             count['added'] = len(to_remove)
             instance_field.add(*to_add)
+
+        # save the fetch date
+        fetched_at_field = '%s_fetched_at' % field_name
+        if hasattr(self, fetched_at_field):
+            setattr(self, fetched_at_field, datetime.utcnow())
+            self.save(update_fields=[fetched_at_field], force_update=True)
 
         return count
 
@@ -227,6 +284,11 @@ class Repository(GithubObjectWithId):
     description = models.TextField(blank=True, null=True)
     collaborators = models.ManyToManyField(GithubUser, related_name='repositories')
 
+    collaborators_fetched_at = models.DateTimeField(blank=True, null=True)
+    milestones_fetched_at = models.DateTimeField(blank=True, null=True)
+    labels_fetched_at = models.DateTimeField(blank=True, null=True)
+    issues_fetched_at = models.DateTimeField(blank=True, null=True)
+
     objects = RepositoryManager()
 
     class Meta:
@@ -251,8 +313,8 @@ class Repository(GithubObjectWithId):
             'collaborators',
         ]
 
-    def fetch_collaborators(self, auth):
-        return self._fetch_many('collaborators', auth)
+    def fetch_collaborators(self, auth, force_fetch=False):
+        return self._fetch_many('collaborators', auth, force_fetch=force_fetch)
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -260,9 +322,10 @@ class Repository(GithubObjectWithId):
             'labels',
         ]
 
-    def fetch_labels(self, auth):
+    def fetch_labels(self, auth, force_fetch=False):
         return self._fetch_many('labels', auth,
-                                defaults={'fk': {'repository': self}})
+                                defaults={'fk': {'repository': self}},
+                                force_fetch=force_fetch)
 
     @property
     def github_callable_identifiers_for_milestones(self):
@@ -270,10 +333,11 @@ class Repository(GithubObjectWithId):
             'milestones',
         ]
 
-    def fetch_milestones(self, auth):
+    def fetch_milestones(self, auth, force_fetch=False):
         return self._fetch_many('milestones', auth,
                                 vary={'state': ('open', 'closed')},
-                                defaults={'fk': {'repository': self}})
+                                defaults={'fk': {'repository': self}},
+                                force_fetch=force_fetch)
 
     @property
     def github_callable_identifiers_for_issues(self):
@@ -281,17 +345,18 @@ class Repository(GithubObjectWithId):
             'issues',
         ]
 
-    def fetch_issues(self, auth):
+    def fetch_issues(self, auth, force_fetch=False):
         return self._fetch_many('issues', auth,
                                 vary={'state': ('open', 'closed')},
-                                defaults={'fk': {'repository': self}})
+                                defaults={'fk': {'repository': self}},
+                                force_fetch=force_fetch)
 
-    def fetch_all(self, auth):
-        super(Repository, self).fetch_all(auth)
-        self.fetch_collaborators(auth)
-        self.fetch_labels(auth)
-        self.fetch_milestones(auth)
-        self.fetch_issues(auth)
+    def fetch_all(self, auth, force_fetch=False):
+        super(Repository, self).fetch_all(auth, force_fetch=force_fetch)
+        self.fetch_collaborators(auth, force_fetch=force_fetch)
+        self.fetch_labels(auth, force_fetch=force_fetch)
+        self.fetch_milestones(auth, force_fetch=force_fetch)
+        self.fetch_issues(auth, force_fetch=force_fetch)
 
 
 class LabelType(models.Model):
@@ -366,7 +431,7 @@ class Label(GithubObject):
 
         super(Label, self).save(*args, **kwargs)
 
-    def fetch(self, auth, defaults=None):
+    def fetch(self, auth, defaults=None, force_fetch=False):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -376,7 +441,7 @@ class Label(GithubObject):
                 defaults = {}
             defaults.setdefault('fk', {})['repository'] = self.repository
 
-        return super(Label, self).fetch(auth, defaults)
+        return super(Label, self).fetch(auth, defaults, force_fetch=force_fetch)
 
 
 class Milestone(GithubObjectWithId):
@@ -406,7 +471,7 @@ class Milestone(GithubObjectWithId):
             self.number,
         ]
 
-    def fetch(self, auth, defaults=None):
+    def fetch(self, auth, defaults=None, force_fetch=False):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -416,7 +481,7 @@ class Milestone(GithubObjectWithId):
                 defaults = {}
             defaults.setdefault('fk', {})['repository'] = self.repository
 
-        return super(Milestone, self).fetch(auth, defaults)
+        return super(Milestone, self).fetch(auth, defaults, force_fetch=force_fetch)
 
 
 class Issue(GithubObjectWithId):
@@ -433,6 +498,8 @@ class Issue(GithubObjectWithId):
     is_pull_request = models.BooleanField(default=False, db_index=True)
     milestone = models.ForeignKey(Milestone, related_name='issues', blank=True, null=True)
     state = models.CharField(max_length=10, db_index=True)
+
+    comments_fetched_at = models.DateTimeField(blank=True, null=True)
 
     objects = IssueManager()
 
@@ -463,9 +530,10 @@ class Issue(GithubObjectWithId):
             'comments',
         ]
 
-    def fetch_comments(self, auth):
+    def fetch_comments(self, auth, force_fetch=False):
         return self._fetch_many('comments', auth,
-                                defaults={'fk': {'issue': self}})
+                                defaults={'fk': {'issue': self}},
+                                force_fetch=force_fetch)
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -473,9 +541,10 @@ class Issue(GithubObjectWithId):
             'labels',
         ]
 
-    def fetch_labels(self, auth):
+    def fetch_labels(self, auth, force_fetch=False):
         return self._fetch_many('labels', auth,
-                                defaults={'fk': {'repository': self.repository}})
+                                defaults={'fk': {'repository': self.repository}},
+                                force_fetch=force_fetch)
 
     @property
     def github_callable_identifiers_for_label(self, label):
@@ -483,12 +552,12 @@ class Issue(GithubObjectWithId):
             label.name,
         ]
 
-    def fetch_all(self, auth):
-        super(Issue, self).fetch_all(auth)
-        #self.fetch_labels(auth)  # already retrieved via self.fetch
-        self.fetch_comments(auth)
+    def fetch_all(self, auth, force_fetch=False):
+        super(Issue, self).fetch_all(auth, force_fetch=force_fetch)
+        #self.fetch_labels(auth, force_fetch=force_fetch)  # already retrieved via self.fetch
+        self.fetch_comments(auth, force_fetch=force_fetch)
 
-    def fetch(self, auth, defaults=None):
+    def fetch(self, auth, defaults=None, force_fetch=False):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -498,7 +567,7 @@ class Issue(GithubObjectWithId):
                 defaults = {}
             defaults.setdefault('fk', {})['repository'] = self.repository
 
-        return super(Issue, self).fetch(auth, defaults)
+        return super(Issue, self).fetch(auth, defaults, force_fetch=force_fetch)
 
 
 class IssueComment(GithubObjectWithId):
@@ -529,7 +598,7 @@ class IssueComment(GithubObjectWithId):
             self.github_id,
         ]
 
-    def fetch(self, auth, defaults=None):
+    def fetch(self, auth, defaults=None, force_fetch=False):
         """
         Enhance the default fetch by setting the current issue as a default
         value.
@@ -539,4 +608,4 @@ class IssueComment(GithubObjectWithId):
                 defaults = {}
             defaults.setdefault('fk', {})['issue'] = self.issue
 
-        return super(IssueComment, self).fetch(auth, defaults)
+        return super(IssueComment, self).fetch(auth, defaults, force_fetch=force_fetch)
