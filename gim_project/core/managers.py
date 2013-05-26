@@ -127,18 +127,12 @@ class GithubObjectManager(models.Manager):
         for field, value in fields['fk'].iteritems():
             setattr(obj, field, value)
 
-        # we need to save the object before saving m2m
+        # we need to save the object before saving lists
         obj.save()
 
-        # finaaly save m2m
+        # finally save lists
         for field, values in fields['many'].iteritems():
-            field = getattr(obj, field)
-            if hasattr(field, 'clear'):
-                # if the other side is a non-nullable FK, we cannot clear, only
-                # add items (consider that in this case, they could not be
-                # deleted on the github side)
-                field.clear()
-            field.add(*values)
+            obj.update_related_field(field, [o.id for o in values])
 
         return obj
 

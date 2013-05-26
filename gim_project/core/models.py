@@ -122,20 +122,60 @@ class GithubObject(models.Model):
             fetch_page_and_next(objs, parameters)
 
         # now update the list with created/updated objects
-        instance_field = getattr(self, field_name)
+        self.update_related_field(field_name, [obj.id for obj in objs])
 
-        if hasattr(instance_field, 'clear'):
-            # if FK, only objects with nullable FK have a clear method, so we
-            # only clear if the model allows us to
-            instance_field.clear()
-
-        # add new objects (won't touch existing ones)
-        instance_field.add(*objs)
-
+        # we return the number of fetched objects
         if not objs:
             return 0
         else:
             return len(objs)
+
+    def update_related_field(self, field_name, ids):
+        """
+        For the given field name, with must be a m2m or the reverse side of
+        a m2m or a fk, use the given list of ids as the lists of ids of all the
+        objects that must be linked.
+        Objects that were linked but not in the given list will be removed from
+        the relation, or deleted if the relation has a non-nullable link.
+        New objects will be simple added to the relation.
+        """
+        instance_field = getattr(self, field_name)
+
+        count = {'removed': 0, 'added': 0}
+
+        # guess whitch relations to add and whicth to delete
+        existing_ids = set(instance_field.values_list('id', flat=True))
+        fetched_ids = set(ids or [])
+
+        # if some relations are not here, remove them
+        to_remove = existing_ids - fetched_ids
+        if to_remove:
+            count['removed'] = len(to_remove)
+            # if FK, only objects with nullable FK have a clear method, so we
+            # only clear if the model allows us to
+            if hasattr(instance_field, 'remove'):
+                # The relation itself can be removed, we remove it but we keep
+                # the original object
+                # Example: a user is not anymore a collaborator, we keep the
+                # the user but remove the relation user <-> repository
+                instance_field.remove(*to_remove)
+            else:
+                # The relation cannot be remove, because the current object is
+                # a non-nullable fk of the other objects. In this case we are
+                # sure the object is fully deleted on the github side, or
+                # attached to another object, but we don't care here, so we
+                # delete the objects.
+                # Example: a milestone of a repository is not fetched via
+                # fetch_milestones, so we know it's deleted
+                instance_field.objects.filter(id__in=to_remove).delete()
+
+        # if we have new relations, add them
+        to_add = fetched_ids - existing_ids
+        if to_add:
+            count['added'] = len(to_remove)
+            instance_field.add(*to_add)
+
+        return count
 
 
 class GithubObjectWithId(GithubObject):
