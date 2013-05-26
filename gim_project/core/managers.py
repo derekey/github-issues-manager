@@ -118,7 +118,7 @@ class GithubObjectManager(models.Manager):
         # get or create a new object
         obj = self.get_from_identifiers(fields)
         if not obj:
-            obj = self.model(fetched_at=datetime.utcnow())
+            obj = self.model()
 
         # store siple filelds and FKs
         for field, value in fields['simple'].iteritems():
@@ -128,6 +128,7 @@ class GithubObjectManager(models.Manager):
             setattr(obj, field, value)
 
         # we need to save the object before saving lists
+        obj.fetched_at = datetime.utcnow()
         obj.save()
 
         # finally save lists
