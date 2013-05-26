@@ -64,6 +64,10 @@ class GithubObject(models.Model):
     def fetch_many(self, field_name, auth, vary=None):
         """
         Fetch data from github for the given m2m or related field.
+        If defined, "vary" is a dict of list of parameters to fetch. For each
+        key of this dict, all values of the list will be used as a parameter,
+        one after the other. If many keys are in "vary", all combinations will
+        be fetched.
         """
         field, _, direct, _ = self._meta.get_field_by_name(field_name)
         if direct:
