@@ -24,6 +24,9 @@ class GithubObject(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+
     def _prepare_fetch_headers(self):
         """
         Prepare and return the headers to use for the github call..
@@ -183,6 +186,9 @@ class Repository(GithubObjectWithId):
             ('owner', 'name'),
         )
 
+    def __unicode__(self):
+        return u'%s/%s' % (self.owner.username if self.owner else '?', self.name)
+
     @property
     def github_callable_identifiers(self):
         return [
@@ -245,6 +251,12 @@ class LabelType(models.Model):
             ('repository', 'name'),
         )
 
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+
     def match(self, name):
         pass
 
@@ -269,6 +281,9 @@ class Label(GithubObject):
             ('repository', 'name'),
         )
         ordering = ('name', )
+
+    def __unicode__(self):
+        return u'%s' % self.name
 
     @property
     def github_callable_identifiers(self):
@@ -306,6 +321,9 @@ class Milestone(GithubObjectWithId):
         )
         ordering = ('number', )
 
+    def __unicode__(self):
+        return u'#%d %s' % (self.number, self.title)
+
     @property
     def github_callable_identifiers(self):
         return self.repository.github_callable_identifiers_for_milestones + [
@@ -341,6 +359,9 @@ class Issue(GithubObjectWithId):
         unique_together = (
             ('repository', 'number'),
         )
+
+    def __unicode__(self):
+        return u'#%d %s' % (self.number, self.title)
 
     @property
     def github_callable_identifiers(self):
@@ -395,6 +416,9 @@ class IssueComment(GithubObjectWithId):
 
     class Meta:
         ordering = ('created_at', )
+
+    def __unicode__(self):
+        return u'on issue #%d' % (self.issue.number if self.issue else '?')
 
     @property
     def github_callable_identifiers(self):
