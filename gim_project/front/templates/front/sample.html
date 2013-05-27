@@ -1,1 +1,15 @@
-hello, welcome to {{ repository }}
+<p>hello, welcome to {{ repository }} ({{ view.name }})</p>
+
+<p>Available repositories:</p>
+<ul>
+    {% for repository in all_repositories %}
+        <li>{{ repository }}</li>
+    {% endfor %}
+</ul>
+
+<p>Views: </p>
+<ul>
+    {% for main_view in repository_main_views %}
+        <li><a href="{{ main_view.url }}">{{ main_view.title }}{% if main_view.is_current %} *{% endif %}</a></li>
+    {% endfor %}
+</ul>

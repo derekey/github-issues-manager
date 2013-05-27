@@ -2,4 +2,5 @@ from ..views import BaseRepositoryView
 
 
 class WorkflowView(BaseRepositoryView):
-    pass
+    name = 'Workflow'
+    url_name = 'workflow'

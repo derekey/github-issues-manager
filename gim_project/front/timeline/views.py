@@ -2,4 +2,5 @@ from ..views import BaseRepositoryView
 
 
 class TimelineView(BaseRepositoryView):
-    pass
+    name = 'Timeline'
+    url_name = 'timeline'

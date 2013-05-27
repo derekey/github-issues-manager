@@ -2,4 +2,5 @@ from ..views import BaseRepositoryView
 
 
 class IssuesView(BaseRepositoryView):
-    pass
+    name = 'Issues'
+    url_name = 'issues'
