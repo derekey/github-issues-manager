@@ -499,7 +499,7 @@ class LabelTypeManager(models.Manager):
         """
         Clear all the cache for the given repository
         """
-        self._name_cache.pop(repository.id)
+        self._name_cache.pop(repository.id, None)
 
     def get_for_name(self, repository, name):
         """
@@ -513,9 +513,11 @@ class LabelTypeManager(models.Manager):
             result = None
             for label_type in repository.label_types.all():
                 if label_type.match(name):
+                    name, order = label_type.get_name_and_order(name)
                     result = (
                         label_type,
-                        label_type.get_typed_name(name)
+                        name,
+                        int(order) if order is not None else None,
                     )
                     break
             self._name_cache[repository.id][name] = result

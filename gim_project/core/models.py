@@ -3,9 +3,11 @@ from urlparse import urlsplit, parse_qs
 from itertools import product
 from datetime import datetime
 from dateutil import tz
+import re
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core import validators
 
 from .ghpool import parse_header_links, ApiError
 from .managers import (GithubObjectManager, WithRepositoryManager,
@@ -406,7 +408,14 @@ class Repository(GithubObjectWithId):
 
 class LabelType(models.Model):
     repository = models.ForeignKey(Repository, related_name='label_types')
-    regex = models.TextField()
+    regex = models.TextField(
+        help_text='Must contain at least to parts: "(?P<type>name-of-the-type)" and "(?P<label>visible-part-of-the-label)", and can include "(?P<order>\d+)" for ordering',
+        validators=[
+            validators.RegexValidator(re.compile('\(\?\P<type>.+\)'), 'Must contain a "type" part: "(?P<type>name-of-the-type)"', 'invalid'),
+            validators.RegexValidator(re.compile('\(\?\P<label>.+\)'), 'Must contain a "label" part: "(?P<label>visible-part-of-the-label)"', 'invalid'),
+            validators.RegexValidator(re.compile('^(?!.*\(\?P<order>(?!\\\d\+\))).*$'), 'If an order is present, it must math a number: the exact part must be: "(?P<order>\d+)"', 'invalid'),
+        ]
+    )
     name = models.TextField(db_index=True)
 
     objects = LabelTypeManager()
@@ -422,15 +431,40 @@ class LabelType(models.Model):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def match(self, name):
-        pass
+    @property
+    def r(self):
+        if not hasattr(self, '_regex'):
+            self._regex = re.compile(self.regex)
+        return self._regex
 
-    def get_typed_name(self, name):
-        pass
+    def match(self, name):
+        return self.r.search(name)
+
+    def get_name_and_order(self, name):
+        d = self.match(name).groupdict()
+        return d['label'], d.get('order', None)
 
     def save(self, *args, **kwargs):
+        """
+        Check validity, save the label type, and apply label-type search for
+        all labels of the repository
+        """
+
+        # validate that the regex is ok
+        self.clean_fields()
+
+        # clear the cached compiled regex
+        if hasattr(self, '_regex'):
+            del self._regex
+
         super(LabelType, self).save(*args, **kwargs)
+
+        # reset the cache for this label, for all names
         LabelType.objects._reset_cache(self.repository)
+
+        # update all labels for the repository
+        for label in self.repository.labels.all():
+            label.save()
 
     def delete(self, *args, **kwargs):
         LabelType.objects._reset_cache(self.repository)
@@ -441,8 +475,9 @@ class Label(GithubObject):
     repository = models.ForeignKey(Repository, related_name='labels')
     name = models.TextField()
     color = models.CharField(max_length=6)
-    label_type = models.ForeignKey(LabelType, related_name='labels', blank=True, null=True)
+    label_type = models.ForeignKey(LabelType, related_name='labels', blank=True, null=True, on_delete=models.SET_NULL)
     typed_name = models.TextField(db_index=True)
+    order = models.IntegerField(blank=True, null=True)
 
     objects = WithRepositoryManager()
 
@@ -453,10 +488,19 @@ class Label(GithubObject):
         unique_together = (
             ('repository', 'name'),
         )
-        ordering = ('name', )
+        index_together = (
+            ('repository', 'label_type', 'order'),
+        )
+        ordering = ('label_type', 'order', 'typed_name', )
 
     def __unicode__(self):
-        return u'%s' % self.name
+        if self.label_type_id:
+            if self.order is not None:
+                return u'%s: #%d %s' % (self.label_type.name, self.order, self.typed_name)
+            else:
+                return u'%s: %s' % (self.label_type.name, self.typed_name)
+        else:
+            return u'%s' % self.name
 
     @property
     def github_callable_identifiers(self):
@@ -467,12 +511,12 @@ class Label(GithubObject):
     def save(self, *args, **kwargs):
         label_type_infos = LabelType.objects.get_for_name(self.repository, self.name)
         if label_type_infos:
-            self.label_type, self.typed_name = label_type_infos
+            self.label_type, self.typed_name, self.order = label_type_infos
         else:
-            self.typed_name = self.name
+            self.label_type, self.typed_name, self.order = None, self.name, None
 
         if kwargs.get('update_fields', None) is not None:
-            kwargs['update_fields'] += ['label_type', 'typed_name']
+            kwargs['update_fields'] += ['label_type', 'typed_name', 'order']
 
         super(Label, self).save(*args, **kwargs)
 
