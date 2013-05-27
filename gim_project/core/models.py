@@ -526,6 +526,7 @@ class Issue(GithubObjectWithId):
     is_pull_request = models.BooleanField(default=False, db_index=True)
     milestone = models.ForeignKey(Milestone, related_name='issues', blank=True, null=True)
     state = models.CharField(max_length=10, db_index=True)
+    comments_count = models.PositiveIntegerField(blank=True, null=True)
 
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
 
@@ -534,6 +535,7 @@ class Issue(GithubObjectWithId):
     github_matching = dict(GithubObjectWithId.github_matching)
     github_matching.update({
         'body_html': 'body',
+        'comments': 'comments_count',
     })
     github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
     github_format = '.html+json'
@@ -559,6 +561,12 @@ class Issue(GithubObjectWithId):
         ]
 
     def fetch_comments(self, auth, force_fetch=False):
+        """
+        Don't fetch comments if the previous fetch of the issue told us there
+        is not comments for it
+        """
+        if not force_fetch and self.comments_count == 0:
+            return 0
         return self._fetch_many('comments', auth,
                                 defaults={'fk': {'issue': self}},
                                 force_fetch=force_fetch)
