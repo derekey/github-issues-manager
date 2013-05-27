@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy, resolve
 from django.utils.decorators import classonlymethod
 
-from core.models import Repository
+from .models import Repository
 
 
 class BaseRepositoryView(DetailView):
@@ -39,12 +39,6 @@ class BaseRepositoryView(DetailView):
 
         return repository
 
-    @property
-    def app_name(self):
-        if not hasattr(self.request, 'app_name'):
-            self.request.app_name = resolve(self.request.path).app_name
-        return self.request.app_name
-
     @classonlymethod
     def as_view(cls, *args, **kwargs):
         """
@@ -78,13 +72,10 @@ class BaseRepositoryView(DetailView):
 
         # we also need a list of all main views for this repository
         repo_main_views = []
-        reverse_filter = {
-            'owner_username': repository.owner.username,
-            'repository_name': repository.name,
-        }
+        reverse_kwargs = repository.get_reverse_kwargs()
         for view_class in BaseRepositoryView.main_views:
             main_view = {
-                'url': reverse_lazy('%s:%s' % (self.app_name, view_class.url_name), kwargs=reverse_filter),
+                'url': reverse_lazy('front:%s' % view_class.url_name, kwargs=reverse_kwargs),
                 'is_current': self.url_name == view_class.url_name,
                 'title': view_class.name
             }

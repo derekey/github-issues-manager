@@ -2,11 +2,11 @@ from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
 
 repository_patterns = patterns('',
-    (r'^$', RedirectView.as_view(url='dashboard')),
-    (r'^dashboard/$', include('front.dashboard.urls')),
-    (r'^issues/$', include('front.issues.urls')),
-    (r'^worflow/$', include('front.workflow.urls')),
-    (r'^timeline/$', include('front.timeline.urls')),
+    url(r'^$', RedirectView.as_view(url='dashboard'), name='repository'),
+    url(r'^dashboard/$', include('front.dashboard.urls')),
+    url(r'^issues/$', include('front.issues.urls')),
+    url(r'^worflow/$', include('front.workflow.urls')),
+    url(r'^timeline/$', include('front.timeline.urls')),
 )
 
 urlpatterns = patterns('',

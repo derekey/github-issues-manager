@@ -3,7 +3,7 @@
 <p>Available repositories:</p>
 <ul>
     {% for repository in all_repositories %}
-        <li>{{ repository }}</li>
+        <li><a href="{{ repository.get_absolute_url }}">{{ repository }}</a></li>
     {% endfor %}
 </ul>
 
