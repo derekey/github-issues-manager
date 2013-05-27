@@ -1,3 +1,35 @@
 {% extends "front/repository/base.html" %}
 
-{% block main %}(issues){% endblock main %}
+{% block main %}
+
+<nav id="issues-nav">
+</nav>
+
+<section id="issues-list">
+    {% if issues %}
+        <ul>
+            {% for issue in issues %}
+                <li>{{ issue }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No matching issues...</p>
+    {% endif %}
+</section>
+
+<section id="issue">
+    <article>
+        {{ current_issue }}
+    </article>
+    {% if current_issue.comments_count %}
+        <aside>
+            <ul>
+                {% for comment in current_issue.comments.all %}
+                    <li>{{ comment.body }}</li>
+                {% endfor %}
+            </ul>
+        </aside>
+    {% endif %}
+</section>
+
+{% endblock main %}
