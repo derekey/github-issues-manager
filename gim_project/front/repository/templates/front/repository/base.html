@@ -3,20 +3,32 @@
 {% block title %}{{ current_repository }} | {{ view.name }}{% endblock title %}
 
 {% block body %}
-    <header>
-        Current repository:
-        <select onchange="window.location.href=this.options[this.selectedIndex].value;">
-            {% for repository in all_repositories %}
-                <option value="{{ repository.get_absolute_url }}"{% if repository.id == current_repository.id %} selected="selected"{% endif %}>{{ repository }}</option>
-            {% endfor %}
-        </select>
+    <header class="navbar navbar-inverse">
+        <div class="navbar-inner">
+            <a class="brand" href="/" title="Github Issues Manager">G.I.M</a>
+            <ul class="nav">
+                <li class="active"><a href="{{ current_repository.get_absolute_url }}">{{ current_repository }}</a></li>
+                {% if all_repositories|length > 1 %}
+                    <li class="dropdown">
+                        <a id="repository-switcher" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Change <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="repository-switcher">
+                            {% for repository in all_repositories %}
+                                <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}">{{ repository }}</a></li>
+                            {% endfor %}
+                      </ul>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
     </header>
-    <nav>
-        <ul>
-            {% for main_view in repository_main_views %}
-                <li{% if main_view.is_current %} class="current"{% endif %}><a href="{{ main_view.url }}">{{ main_view.title }}{% if main_view.is_current %} *{% endif %}</a></li>
-            {% endfor %}
-        </ul>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <ul class="nav">
+                {% for main_view in repository_main_views %}
+                    <li{% if main_view.is_current %} class="active"{% endif %}><a role="menuitem"href="{{ main_view.url }}">{{ main_view.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
     </nav>
     <main>
         {% block main %}{% endblock main %}

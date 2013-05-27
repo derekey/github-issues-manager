@@ -1,12 +1,18 @@
-<!doctype html>
+{% load staticfiles %}<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock title %} | Github Issues Manager</title>
     <meta name="description" content="Github Issues Manager">
     <meta name="author" content='Stéphane "Twidi" Angel'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static "front/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "front/css/front.css" %}" rel="stylesheet">
 </head>
 <body>
     {% block body %}{% endblock body %}
+    <script src="{% static "front/js/jquery-2.0.1.min.js" %}"></script>
+    <script src="{% static "front/bootstrap/js/bootstrap.min.js" %}"></script>
+    {% block js_footer %}{% endblock js_footer %}
 </body>
 </html>
