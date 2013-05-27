@@ -306,12 +306,17 @@ class WithRepositoryManager(GithubObjectManager):
         from .models import Repository
 
         fields = super(WithRepositoryManager, self).get_object_fields_from_dict(data, defaults)
+        if not fields:
+            return None
 
         # add the repository if needed
         if 'repository' not in fields['fk']:
             repository = Repository.objects.get_by_url(data.get('url', None))
             if repository:
                 fields['fk']['repository'] = repository
+            else:
+                # no repository found, don't save the object !
+                return None
 
         return fields
 
@@ -332,6 +337,8 @@ class GithubUserManager(GithubObjectManager, UserManager):
         github api.
         """
         fields = super(GithubUserManager, self).get_object_fields_from_dict(data, defaults)
+        if not fields:
+            return None
 
         # add the is_organization field if needed
         if 'is_organization' not in fields['simple']:
@@ -451,6 +458,8 @@ class IssueManager(WithRepositoryManager):
                 defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
 
         fields = super(IssueManager, self).get_object_fields_from_dict(data, defaults)
+        if not fields:
+            return None
 
         # check if it's a pull request
         if 'is_pull_reques' not in fields['simple']:
@@ -474,15 +483,20 @@ class IssueCommentManager(GithubObjectManager):
         from .models import Issue
 
         fields = super(IssueCommentManager, self).get_object_fields_from_dict(data, defaults)
+        if not fields:
+            return None
 
         # add the issue if needed
         if 'issue' not in fields['fk']:
             issue = Issue.objects.get_by_url(data.get('issue_url', None))
             if issue:
                 fields['fk']['issue'] = issue
+            else:
+                # no issue found, don't save the object !
+                return None
 
         # and the repository
-        if 'repository' not in fields['fk'] and 'issue' in fields['fk']:
+        if 'repository' not in fields['fk']:
             fields['fk']['repository'] = fields['fk']['issue'].repository
 
         return fields
