@@ -2,10 +2,12 @@
 
 {% block main %}
 
+<nav id="issues-nav" class="span2">
+
 <nav id="issues-nav">
 </nav>
 
-<section id="issues-list">
+<section id="issues-list" class="span4">
     {% if issues %}
         <ul>
             {% for issue in issues %}
@@ -17,7 +19,7 @@
     {% endif %}
 </section>
 
-<section id="issue">
+<section id="issue" class="span6">
     <article>
         {{ current_issue }}
     </article>
