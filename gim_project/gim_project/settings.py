@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'core',
     'front',
+    'front.repository',  # at least for specific templates
 )
 
 # A sample logging configuration. The only tangible logging

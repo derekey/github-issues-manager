@@ -9,7 +9,7 @@ from ..models import Repository
 class BaseRepositoryView(DetailView):
     # details vue attributes
     model = Repository
-    template_name = 'front/sample.html'
+    template_name = 'front/repository/base.html'
     context_object_name = 'current_repository'
 
     # specific attributes to define in subclasses

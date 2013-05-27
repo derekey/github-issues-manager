@@ -1,0 +1,24 @@
+{% extends "front/base.html" %}
+
+{% block title %}{{ current_repository }} | {{ view.name }}{% endblock title %}
+
+{% block body %}
+    <header>
+        Current repository:
+        <select onchange="window.location.href=this.options[this.selectedIndex].value;">
+            {% for repository in all_repositories %}
+                <option value="{{ repository.get_absolute_url }}"{% if repository.id == current_repository.id %} selected="selected"{% endif %}>{{ repository }}</option>
+            {% endfor %}
+        </select>
+    </header>
+    <nav>
+        <ul>
+            {% for main_view in repository_main_views %}
+                <li{% if main_view.is_current %} class="current"{% endif %}><a href="{{ main_view.url }}">{{ main_view.title }}{% if main_view.is_current %} *{% endif %}</a></li>
+            {% endfor %}
+        </ul>
+    </nav>
+    <main>
+        {% block main %}{% endblock main %}
+    </main>
+{% endblock body %}
