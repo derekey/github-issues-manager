@@ -165,6 +165,10 @@ class GithubObject(models.Model):
             vary_keys = sorted(vary)
             parameters_dicts = [dict(zip(vary_keys, prod)) for prod in product(*(vary[key] for key in vary_keys))]
 
+        # add per_page option
+        for parameters in parameters_dicts:
+            parameters.update({'per_page': 100})
+
         # fetch data for each combination of varying parameters
         status = {'ok': 0, 304: 0}
         restart_withouht_if_modified_since = False
