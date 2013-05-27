@@ -133,10 +133,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'core',
     'front',
-    'front.dashboard',
-    'front.issues',
-    'front.workflow',
-    'front.timeline',
 )
 
 # A sample logging configuration. The only tangible logging

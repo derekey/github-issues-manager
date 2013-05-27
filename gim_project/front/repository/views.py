@@ -1,9 +1,9 @@
 from django.views.generic import DetailView
 from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse_lazy, resolve
+from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import classonlymethod
 
-from .models import Repository
+from ..models import Repository
 
 
 class BaseRepositoryView(DetailView):
@@ -75,7 +75,7 @@ class BaseRepositoryView(DetailView):
         reverse_kwargs = repository.get_reverse_kwargs()
         for view_class in BaseRepositoryView.main_views:
             main_view = {
-                'url': reverse_lazy('front:%s' % view_class.url_name, kwargs=reverse_kwargs),
+                'url': reverse_lazy('front:repository:%s' % view_class.url_name, kwargs=reverse_kwargs),
                 'is_current': self.url_name == view_class.url_name,
                 'title': view_class.name
             }

@@ -20,4 +20,4 @@ class Repository(_Repository):
         }
 
     def get_absolute_url(self):
-        return reverse_lazy('front:repository', kwargs=self.get_reverse_kwargs())
+        return reverse_lazy('front:repository:home', kwargs=self.get_reverse_kwargs())
