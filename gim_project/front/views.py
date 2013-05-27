@@ -10,7 +10,7 @@ class BaseRepositoryView(DetailView):
     # details vue attributes
     model = Repository
     template_name = 'front/sample.html'
-    context_object_name = 'repository'
+    context_object_name = 'current_repository'
 
     # specific attributes to define in subclasses
     name = None
@@ -65,7 +65,7 @@ class BaseRepositoryView(DetailView):
         context = super(BaseRepositoryView, self).get_context_data(**kwargs)
 
         # quick access to repository
-        repository = context['repository']
+        repository = context['current_repository']
 
         # we need a list of availables repositories
         all_repositories = self.get_queryset().all()
