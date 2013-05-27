@@ -435,15 +435,15 @@ class IssueManager(WithRepositoryManager):
     def get_object_fields_from_dict(self, data, defaults):
         """
         Override the default "get_object_fields_from_dict" by adding default
-        value for the repository of labels and milestone, if one is given as
-        default for the issue.
+        value for the repository of labels, milestone and comments, if one is
+        given as default for the issue.
         Also set the is_pull_request flag based on the 'diff_url' attribute of
         the 'pull_request' dict in the data given by the github api.
         """
         if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
             if 'related' not in defaults:
                 defaults['related'] = {}
-            for related in ('labels', 'milestone'):
+            for related in ('labels', 'milestone', 'comments'):
                 if related not in defaults['related']:
                     defaults['related'][related] = {}
                 if 'fk' not in defaults['related'][related]:
@@ -462,14 +462,14 @@ class IssueManager(WithRepositoryManager):
 class IssueCommentManager(GithubObjectManager):
     """
     This manager is for the IssueComment model, with an enhanced
-    get_object_fields_from_dict method, to get the issue.
+    get_object_fields_from_dict method, to get the issue and the repository.
     """
 
     def get_object_fields_from_dict(self, data, defaults):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
         issue the comment belongs to, from the issue_url found in the data given
-        by the github api. Only set if the issue is found.
+        by the github api. Doing the same for the repository. Only set if found.
         """
         from .models import Issue
 
@@ -480,6 +480,10 @@ class IssueCommentManager(GithubObjectManager):
             issue = Issue.objects.get_by_url(data.get('issue_url', None))
             if issue:
                 fields['fk']['issue'] = issue
+
+        # and the repository
+        if 'repository' not in fields['fk'] and 'issue' in fields['fk']:
+            fields['fk']['repository'] = fields['fk']['issue'].repository
 
         return fields
 
