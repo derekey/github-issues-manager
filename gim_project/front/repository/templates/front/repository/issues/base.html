@@ -4,7 +4,35 @@
 
 <nav id="issues-nav" class="span2">
 
-<nav id="issues-nav">
+    Assignees:
+    <ul>
+        {% for collaborator in collaborators %}
+            <li>{{ collaborator }}</li>
+        {% endfor %}
+    </ul>
+
+    <hr />
+
+    {% for label_type in label_types %}
+        {{ label_type.name }}:
+        <ul>
+            {% for label in label_type.labels.all %}
+                <li>{{ label.typed_name }}</li>
+            {% endfor %}
+        </ul>
+
+        <hr />
+    {% endfor %}
+
+    {% if tags|length %}
+        Labels:
+        <ul>
+            {% for label in tags %}
+                <li>{{ label.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
 </nav>
 
 <section id="issues-list" class="span4">
