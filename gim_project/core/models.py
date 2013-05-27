@@ -157,7 +157,9 @@ class GithubObject(models.Model):
                                 ).items() if len(v)
                             )
                     )
-                    fetch_page_and_next(objs, next_page_parameters)
+                    return next_page_parameters
+
+            return None
 
         if not vary:
             # no varying parameter, fetch with an empty set of parameters
@@ -176,7 +178,11 @@ class GithubObject(models.Model):
         restart_withouht_if_modified_since = False
         for parameters in parameters_dicts:
             try:
-                fetch_page_and_next(objs, parameters)
+                page_parameters = parameters.copy()
+                while True:
+                    page_parameters = fetch_page_and_next(objs, page_parameters)
+                    if page_parameters is None:
+                        break
             except ApiError, e:
                 if e.response and e.response['code'] == 304:
                     # github tell us nothing is new
