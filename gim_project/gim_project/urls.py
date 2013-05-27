@@ -8,7 +8,7 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'gim_project.views.home', name='home'),
     # url(r'^gim_project/', include('gim_project.foo.urls')),
-    url(r'^', include('front.urls')),
+    url(r'^', include('front.urls', namespace='front')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
