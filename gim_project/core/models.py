@@ -84,7 +84,7 @@ class GithubObject(models.Model):
         """
         return self.fetch(auth, force_fetch=force_fetch)
 
-    def _fetch_many(self, field_name, auth, vary=None, defaults=None, force_fetch=False):
+    def _fetch_many(self, field_name, auth, vary=None, defaults=None, parameters=None, force_fetch=False):
         """
         Fetch data from github for the given m2m or related field.
         If defined, "vary" is a dict of list of parameters to fetch. For each
@@ -163,22 +163,24 @@ class GithubObject(models.Model):
 
         if not vary:
             # no varying parameter, fetch with an empty set of parameters
-            parameters_dicts = [{}]
+            parameters_combinations = [{}]
         else:
             # create all combinations of varying parameters
             vary_keys = sorted(vary)
-            parameters_dicts = [dict(zip(vary_keys, prod)) for prod in product(*(vary[key] for key in vary_keys))]
+            parameters_combinations = [dict(zip(vary_keys, prod)) for prod in product(*(vary[key] for key in vary_keys))]
 
         # add per_page option
-        for parameters in parameters_dicts:
-            parameters.update({'per_page': 100})
+        for parameters_combination in parameters_combinations:
+            parameters_combination.update({'per_page': 10})
+            if parameters:
+                parameters_combination.update(parameters)
 
         # fetch data for each combination of varying parameters
         status = {'ok': 0, 304: 0}
         restart_withouht_if_modified_since = False
-        for parameters in parameters_dicts:
+        for parameters_combination in parameters_combinations:
             try:
-                page_parameters = parameters.copy()
+                page_parameters = parameters_combination.copy()
                 while True:
                     page_parameters = fetch_page_and_next(objs, page_parameters)
                     if page_parameters is None:
@@ -209,8 +211,12 @@ class GithubObject(models.Model):
             status = {'ok': 0, 304: 0}
             request_headers = self._prepare_fetch_headers(if_modified_since=None)
             objs = []
-            for parameters in parameters_dicts:
-                fetch_page_and_next(objs, parameters)
+            for parameters_combination in parameters_combinations:
+                page_parameters = parameters_combination.copy()
+                while True:
+                    page_parameters = fetch_page_and_next(objs, page_parameters)
+                    if page_parameters is None:
+                        break
 
         # now update the list with created/updated objects
         if not status[304]:
@@ -390,6 +396,7 @@ class Repository(GithubObjectWithId):
         return self._fetch_many('issues', auth,
                                 vary={'state': ('open', 'closed')},
                                 defaults={'fk': {'repository': self}},
+                                parameters={'sort': 'updated', 'direction': 'desc'},
                                 force_fetch=force_fetch)
 
     @property
@@ -401,6 +408,7 @@ class Repository(GithubObjectWithId):
     def fetch_comments(self, auth, force_fetch=False):
         return self._fetch_many('comments', auth,
                                 defaults={'fk': {'repository': self}},
+                                parameters={'sort': 'updated', 'direction': 'desc'},
                                 force_fetch=force_fetch)
 
     def fetch_all(self, auth, force_fetch=False):
