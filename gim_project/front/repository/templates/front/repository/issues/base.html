@@ -21,6 +21,15 @@
 
     <hr />
 
+    Milestones:
+    <ul>
+        {% for milestone in current_repository.milestones.all %}
+            <li>{{ milestone }}</li>
+        {% endfor %}
+    </ul>
+
+    <hr />
+
     {% for label_type in current_repository.label_types.all %}
         {{ label_type.name }}:
         <ul>
