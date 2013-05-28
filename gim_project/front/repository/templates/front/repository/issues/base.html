@@ -13,6 +13,13 @@
         {% endif %}
 
 
+        <li class="nav-header">Creators</li>
+        {% for creator in current_repository.issues_creators.all %}
+            <li>{{ creator }}</li>
+        {% endfor %}
+        <li class="divider"></li>
+
+
         <li class="nav-header">Assignees</li>
         {% for collaborator in current_repository.collaborators.all %}
             <li>{{ collaborator }}</li>

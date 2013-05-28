@@ -352,6 +352,14 @@ class Repository(GithubObjectWithId):
         """
         return self.labels.filter(label_type__isnull=True)
 
+    def issues_creators(self):
+        """
+        Shortcut to return a queryset for creator of issues on this repository
+        """
+        return GithubUser.objects.filter(
+                models.Q(created_issues__repository=self.id) | models.Q(repositories=self.id)
+            ).distinct()
+
     @property
     def github_callable_identifiers(self):
         return [
