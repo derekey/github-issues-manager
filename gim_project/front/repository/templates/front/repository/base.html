@@ -2,8 +2,8 @@
 
 {% block title %}{{ current_repository }} | {{ view.name }}{% endblock title %}
 
-{% block body %}
-    <header class="navbar navbar-inverse">
+{% block header %}
+    <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <a class="brand" href="/" title="Github Issues Manager">G.I.M</a>
             <ul class="nav">
@@ -20,20 +20,11 @@
                     </li>
                 {% endif %}
             </ul>
-        </div>
-    </header>
-    <nav class="navbar">
-        <div class="navbar-inner">
             <ul class="nav">
                 {% for main_view in repository_main_views %}
                     <li{% if main_view.is_current %} class="active"{% endif %}><a role="menuitem"href="{{ main_view.url }}{% if main_view.qs %}?{{ main_view.qs }}{% endif %}">{{ main_view.title }}</a></li>
                 {% endfor %}
             </ul>
         </div>
-    </nav>
-    <main class="container-fluid">
-        <div class="row-fluid">
-            {% block main %}{% endblock main %}
-        </div>
-    </main>
-{% endblock body %}
+    </header>
+{% endblock header %}

@@ -9,8 +9,10 @@
 
         {% if issues_filter %}
             <li><a href="{{ root_issues_url }}">Clear filters</a></li>
-            <li class="divider"></li>
+        {% else %}
+            <li class="nav-header">Filter issues</li>
         {% endif %}
+        <li class="divider"></li>
 
 
         <li class="nav-header">Creators</li>
@@ -77,32 +79,41 @@
 
 <section id="issues-list" class="span4">
     {% if issues %}
-        <ul>
+        <ul class="unstyled">
             {% for issue in issues %}
-                <li><a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user_filter }}">{{ issue }}</a></li>
+                <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
+                    <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user_filter }}">
+                        <strong>#{{ issue.number }}</strong> - {{ issue.title }}
+                    </a>
+                    <div>
+                        <span class="label label-{% if issue.state == 'open' %}success{% else %}important{% endif %}">{{ issue.state }}</span>
+                    </div>
+                </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>No matching issues...</p>
+        <p class="empty-column">Nothing :(</p>
     {% endif %}
 </section>
 
 <section id="issue" class="span6">
-    <article>
-        {% if current_issue %}
-            {{ current_issue }}
-        {% else %}
-            <p>{% if current_issue_state == 'notfound' %}Issue not found{% else %}Select an issue{% endif %}</p>
-        {% endif %}
-    </article>
     {% if current_issue %}
+        <article>
+            <h3>{{ current_issue }}</h3>
+            <div class="well">
+                {{ current_issue.body|safe }}
+            </div>
+        </article>
         <aside>
+            <h4>Comments</h4>
             <ul>
                 {% for comment in current_issue.comments.all %}
                     <li>{{ comment.body }}</li>
                 {% endfor %}
             </ul>
         </aside>
+    {% else %}
+        <p class="empty-column">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>
     {% endif %}
 </section>
 

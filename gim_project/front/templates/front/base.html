@@ -10,7 +10,12 @@
     <link href="{% static "front/css/front.css" %}" rel="stylesheet">
 </head>
 <body>
-    {% block body %}{% endblock body %}
+    {% block header %}{% endblock header %}
+    <main id="main" class="container-fluid">
+        <div class="row-fluid" id="main-inner">
+            {% block main %}{% endblock main %}
+        </div>
+    </main>
     <script src="{% static "front/js/jquery-2.0.1.min.js" %}"></script>
     <script src="{% static "front/bootstrap/js/bootstrap.min.js" %}"></script>
     {% block js_footer %}{% endblock js_footer %}
