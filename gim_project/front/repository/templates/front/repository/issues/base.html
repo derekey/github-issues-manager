@@ -13,6 +13,14 @@
 
     <hr />
 
+    State:
+    <ul>
+        <li>Open</li>
+        <li>Closed</li>
+    </ul>
+
+    <hr />
+
     {% for label_type in current_repository.label_types.all %}
         {{ label_type.name }}:
         <ul>
