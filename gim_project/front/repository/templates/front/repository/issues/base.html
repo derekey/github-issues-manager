@@ -5,59 +5,66 @@
 
 <nav id="issues-nav" class="span2">
 
-    {% if issues_filter %}
-        <a href="?">Clear filters</a>
-        <hr />
-    {% endif %}
+    <ul class="nav nav-list">
 
-    Assignees:
-    <ul>
+        {% if issues_filter %}
+            <li><a href="?">Clear filters</a></li>
+            <li class="divider"></li>
+        {% endif %}
+
+
+        <li class="nav-header">Assignees</li>
         {% for collaborator in current_repository.collaborators.all %}
             <li>{{ collaborator }}</li>
         {% endfor %}
-    </ul>
+        <li class="divider"></li>
 
-    <hr />
+    
+        <li class="nav-header">State</li>
+        <li{% toggle_value_if_in_querystring "state" "open" " class='active'" %}>
+            <a href="{% toggle_in_querystring "state" "open" %}">Open</a>
+        </li>
+        <li{% toggle_value_if_in_querystring "state" "closed" " class='active'" %}>
+            <a href="{% toggle_in_querystring "state" "closed" %}">Closed</a>
+        </li>
+        <li class="divider"></li>
 
-    State:
-    <ul>
-        <li><a href="{% toggle_in_querystring "state" "open" %}">Open</a>{% toggle_value_if_in_querystring "state" "open" "*" %}</li>
-        <li><a href="{% toggle_in_querystring "state" "closed" %}">Closed</a>{% toggle_value_if_in_querystring "state" "closed" "*" %}</li>
-    </ul>
 
-    <hr />
-
-    Milestones:
-    <ul>
-        <li><a href="{% toggle_in_querystring "milestone" "none" %}">No milestone</a>{% toggle_value_if_in_querystring "milestone" "none" "*" %}</li>
+        <li class="nav-header">Milestone</li>
+        <li{% toggle_value_if_in_querystring "milestone" "none" " class='active'" %}><a href="{% toggle_in_querystring "milestone" "none" %}">No milestone</a></li>
         {% for milestone in current_repository.milestones.all %}
-            <li><a href="{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>{% toggle_value_if_in_querystring "milestone" milestone.number "*" %}</li>
+            <li{% toggle_value_if_in_querystring "milestone" milestone.number " class='active'" %}>
+                <a href="{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>
+            </li>
         {% endfor %}
-    </ul>
+        <li class="divider"></li>
 
-    <hr />
 
-    {% for label_type in current_repository.label_types.all %}
-        {{ label_type.name }}:
-        <ul>
+        {% for label_type in current_repository.label_types.all %}
+            <li class="divider"></li>
+            <li class="nav-header">{{ label_type.name }}</li>
             {% for label in label_type.labels.all %}
-                <li><a href="{% toggle_one_from_querystring "labels" label.name %}">{{ label.typed_name }}</a>{% toggle_value_if_in_querystring "labels" label.name "*" %}</li>
+                <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
+                    <a href="{% toggle_one_from_querystring "labels" label.name %}">{{ label.typed_name }}</a>
+                </li>
             {% endfor %}
-        </ul>
+            <li class="divider"></li>
+        {% endfor %}
 
-        <hr />
-    {% endfor %}
 
-    {% with untyped_labels=current_repository.untyped_labels.all %}
-        {% if untyped_labels|length %}
-            Labels:
-            <ul>
+        {% with untyped_labels=current_repository.untyped_labels.all %}
+            {% if untyped_labels|length %}
+                <li class="nav-header">Labels</li>
                 {% for label in untyped_labels %}
-                <li><a href="{% toggle_one_from_querystring "labels" label.name %}">{{ label.typed_name }}</a>{% toggle_value_if_in_querystring "labels" label.name "*" %}</li>
+                    <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
+                        <a href="{% toggle_one_from_querystring "labels" label.name %}">{{ label.typed_name }}</a>{% toggle_value_if_in_querystring "labels" label.name "*" %}
+                    </li>
                 {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+                <li class="divider"></li>
+            {% endif %}
+        {% endwith %}
+
+    </ul>
 
 </nav>
 
