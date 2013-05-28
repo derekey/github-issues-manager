@@ -10,6 +10,7 @@ class IssuesView(BaseRepositoryView):
     name = 'Issues'
     url_name = 'issues'
     template_name = 'front/repository/issues/base.html'
+    default_qs = 'state=open'
 
     qs_filters = ('milestone', 'state', 'labels')
 

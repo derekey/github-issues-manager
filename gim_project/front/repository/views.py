@@ -15,6 +15,7 @@ class BaseRepositoryView(BaseFrontView):
     # specific attributes to define in subclasses
     name = None
     url_name = None
+    default_qs = None
 
     # internal attributes
     main_views = []
@@ -76,6 +77,7 @@ class BaseRepositoryView(BaseFrontView):
         for view_class in BaseRepositoryView.main_views:
             main_view = {
                 'url': reverse_lazy('front:repository:%s' % view_class.url_name, kwargs=reverse_kwargs),
+                'qs': view_class.default_qs,
                 'is_current': self.url_name == view_class.url_name,
                 'title': view_class.name
             }
