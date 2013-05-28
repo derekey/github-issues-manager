@@ -346,6 +346,12 @@ class Repository(GithubObjectWithId):
     def __unicode__(self):
         return u'%s/%s' % (self.owner.username if self.owner else '?', self.name)
 
+    def untyped_labels(self):
+        """
+        Shortcut to return a queryset for untyped labels of the repository
+        """
+        return self.labels.filter(label_type__isnull=True)
+
     @property
     def github_callable_identifiers(self):
         return [

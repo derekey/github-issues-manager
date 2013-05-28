@@ -70,15 +70,6 @@ class BaseRepositoryView(DetailView):
         # we need a list of availables repositories
         all_repositories = self.get_queryset().all()
 
-        # one for all collaborators
-        collaborators = repository.collaborators.all()
-
-        # all label-types
-        label_types = repository.label_types.all()
-
-        # labels without type
-        tags = repository.labels.filter(label_type__isnull=True)
-
         # we also need a list of all main views for this repository
         repo_main_views = []
         reverse_kwargs = repository.get_reverse_kwargs()
@@ -93,9 +84,6 @@ class BaseRepositoryView(DetailView):
         context.update({
             'all_repositories': all_repositories,
             'repository_main_views': repo_main_views,
-            'collaborators': collaborators,
-            'label_types': label_types,
-            'tags': tags,
         })
 
         return context
