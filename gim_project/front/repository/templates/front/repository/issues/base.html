@@ -1,8 +1,14 @@
 {% extends "front/repository/base.html" %}
+{% load querystring %}
 
 {% block main %}
 
 <nav id="issues-nav" class="span2">
+
+    {% if issues_filter %}
+        <a href="?">Clear filters</a>
+        <hr />
+    {% endif %}
 
     Assignees:
     <ul>
@@ -15,16 +21,17 @@
 
     State:
     <ul>
-        <li>Open</li>
-        <li>Closed</li>
+        <li><a href="{% toggle_in_querystring "state" "open" %}">Open</a>{% toggle_value_if_in_querystring "state" "open" "*" %}</li>
+        <li><a href="{% toggle_in_querystring "state" "closed" %}">Closed</a>{% toggle_value_if_in_querystring "state" "closed" "*" %}</li>
     </ul>
 
     <hr />
 
     Milestones:
     <ul>
+        <li><a href="{% toggle_in_querystring "milestone" "none" %}">No milestone</a>{% toggle_value_if_in_querystring "milestone" "none" "*" %}</li>
         {% for milestone in current_repository.milestones.all %}
-            <li>{{ milestone }}</li>
+            <li><a href="{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>{% toggle_value_if_in_querystring "milestone" milestone.number "*" %}</li>
         {% endfor %}
     </ul>
 
@@ -34,7 +41,7 @@
         {{ label_type.name }}:
         <ul>
             {% for label in label_type.labels.all %}
-                <li>{{ label.typed_name }}</li>
+                <li><a href="{% toggle_one_from_querystring "labels" label.name %}">{{ label.typed_name }}</a>{% toggle_value_if_in_querystring "labels" label.name "*" %}</li>
             {% endfor %}
         </ul>
 
@@ -46,7 +53,7 @@
             Labels:
             <ul>
                 {% for label in untyped_labels %}
-                    <li>{{ label.name }}</li>
+                <li><a href="{% toggle_one_from_querystring "labels" label.name %}">{{ label.typed_name }}</a>{% toggle_value_if_in_querystring "labels" label.name "*" %}</li>
                 {% endfor %}
             </ul>
         {% endif %}
@@ -58,7 +65,7 @@
     {% if issues %}
         <ul>
             {% for issue in issues %}
-                <li><a href="{{ issue.get_absolute_url }}">{{ issue }}</a></li>
+                <li><a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring }}">{{ issue }}</a></li>
             {% endfor %}
         </ul>
     {% else %}

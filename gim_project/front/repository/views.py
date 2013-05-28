@@ -1,12 +1,12 @@
-from django.views.generic import DetailView
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import classonlymethod
 
+from ..views import BaseFrontView
 from core.models import Repository
 
 
-class BaseRepositoryView(DetailView):
+class BaseRepositoryView(BaseFrontView):
     # details vue attributes
     model = Repository
     template_name = 'front/repository/base.html'
