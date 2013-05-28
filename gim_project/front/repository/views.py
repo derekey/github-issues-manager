@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import classonlymethod
 
-from ..models import Repository
+from core.models import Repository
 
 
 class BaseRepositoryView(DetailView):

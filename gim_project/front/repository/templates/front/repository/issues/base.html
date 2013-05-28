@@ -41,7 +41,7 @@
     {% if issues %}
         <ul>
             {% for issue in issues %}
-                <li>{{ issue }}</li>
+                <li><a href="{{ issue.get_absolute_url }}">{{ issue }}</a></li>
             {% endfor %}
         </ul>
     {% else %}
@@ -51,9 +51,13 @@
 
 <section id="issue" class="span6">
     <article>
-        {{ current_issue }}
+        {% if current_issue %}
+            {{ current_issue }}
+        {% else %}
+            <p>{% if current_issue_state == 'notfound' %}Issue not found{% else %}Select an issue{% endif %}</p>
+        {% endif %}
     </article>
-    {% if current_issue.comments_count %}
+    {% if current_issue %}
         <aside>
             <ul>
                 {% for comment in current_issue.comments.all %}

@@ -135,6 +135,7 @@ class GitHub(object):
         if method == 'POST':
             data = _encode_json(kw)
         url = '%s%s' % (_URL, path)
+        print 'REQUEST', url, request_headers
         opener = urllib2.build_opener(urllib2.HTTPSHandler)
         request = urllib2.Request(url, data=data, headers=request_headers or {})
         request.get_method = _METHOD_MAP[method]
@@ -147,6 +148,7 @@ class GitHub(object):
             is_json = self._process_resp(response.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(response.headers.dict.copy())
+                print 'RESPONSE', 200, response_headers
             content = response.read()
             if is_json:
                 return _parse_json(content)
@@ -156,6 +158,7 @@ class GitHub(object):
             is_json = self._process_resp(e.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(e.headers.dict.copy())
+                print 'RESPONSE', e.code, response_headers
             if is_json:
                 _json = _parse_json(e.read())
             else:

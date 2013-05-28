@@ -1,14 +1,13 @@
 from django.core.urlresolvers import reverse_lazy
+from django.db import models
 
-from core.models import Repository as _Repository
-
-# load all other models to use from front.models and not core.models
-from core.models import GithubUser, Milestone, LabelType, Label, Issue, IssueComment
+from core import models as core_models
+from core.utils import contribute_to_model
 
 
-class Repository(_Repository):
+class _Repository(models.Model):
     class Meta:
-        proxy = True
+        abstract = True
 
     def get_reverse_kwargs(self):
         """
@@ -21,3 +20,25 @@ class Repository(_Repository):
 
     def get_absolute_url(self):
         return reverse_lazy('front:repository:home', kwargs=self.get_reverse_kwargs())
+
+contribute_to_model(_Repository, core_models.Repository)
+
+
+class _Issue(models.Model):
+    class Meta:
+        abstract = True
+
+    def get_reverse_kwargs(self):
+        """
+        Return the kwargs to use for "reverse"
+        """
+        return {
+            'owner_username': self.repository.owner.username,
+            'repository_name': self.repository.name,
+            'issue_number': self.number
+        }
+
+    def get_absolute_url(self):
+        return reverse_lazy('front:repository:issue', kwargs=self.get_reverse_kwargs())
+
+contribute_to_model(_Issue, core_models.Issue)
