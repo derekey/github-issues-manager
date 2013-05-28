@@ -21,6 +21,18 @@ class _Repository(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('front:repository:home', kwargs=self.get_reverse_kwargs())
 
+    def get_issues_user_filter_url_for_username(self, filter_type, username):
+        """
+        Return the url to filter issues of this repositories by filter_type, for
+        the given username
+        """
+        kwargs = self.get_reverse_kwargs()
+        kwargs.update({
+            'username': username,
+            'user_filter_type': filter_type
+        })
+        return reverse_lazy('front:repository:user_issues', kwargs=kwargs)
+
 contribute_to_model(_Repository, core_models.Repository)
 
 

@@ -8,40 +8,41 @@
     <ul class="nav nav-list">
 
         {% if issues_filter %}
-            <li><a href="?">Clear filters</a></li>
+            <li><a href="{{ root_issues_url }}">Clear filters</a></li>
             <li class="divider"></li>
         {% endif %}
 
 
         <li class="nav-header">Creators</li>
-        {% for creator in current_repository.issues_creators.all %}
-            <li>{{ creator }}</li>
+        {% for creator in issues_creators %}
+            <li{% if current_created == creator.username %} class="active"{% endif %}><a href="{{ creator.created_filter_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
         {% endfor %}
         <li class="divider"></li>
 
 
         <li class="nav-header">Assignees</li>
-        {% for collaborator in current_repository.collaborators.all %}
-            <li>{{ collaborator }}</li>
+        <li{% if current_assigned == 'none' %} class="active"{% endif %}><a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
+        {% for collaborator in collaborators %}
+            <li{% if current_assigned == collaborator.username %} class="active"{% endif %}><a href="{{ collaborator.assigned_filter_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
         {% endfor %}
         <li class="divider"></li>
 
-    
+
         <li class="nav-header">State</li>
         <li{% toggle_value_if_in_querystring "state" "open" " class='active'" %}>
-            <a href="{% toggle_in_querystring "state" "open" %}">Open</a>
+            <a href="{{ current_issues_url }}{% toggle_in_querystring "state" "open" %}">Open</a>
         </li>
         <li{% toggle_value_if_in_querystring "state" "closed" " class='active'" %}>
-            <a href="{% toggle_in_querystring "state" "closed" %}">Closed</a>
+            <a href="{{ current_issues_url }}{% toggle_in_querystring "state" "closed" %}">Closed</a>
         </li>
         <li class="divider"></li>
 
 
         <li class="nav-header">Milestone</li>
-        <li{% toggle_value_if_in_querystring "milestone" "none" " class='active'" %}><a href="{% toggle_in_querystring "milestone" "none" %}">No milestone</a></li>
+        <li{% toggle_value_if_in_querystring "milestone" "none" " class='active'" %}><a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">No milestone</a></li>
         {% for milestone in current_repository.milestones.all %}
             <li{% toggle_value_if_in_querystring "milestone" milestone.number " class='active'" %}>
-                <a href="{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>
+                <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>
             </li>
         {% endfor %}
         <li class="divider"></li>
@@ -51,7 +52,7 @@
             <li class="nav-header">{{ label_type.name }}</li>
             {% for label in label_type.labels.all %}
                 <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
-                    <a href="{% toggle_one_from_querystring "labels" label.name %}" title="{{ label.name }}">{{ label.typed_name }}</a>
+                    <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}" title="{{ label.name }}">{{ label.typed_name }}</a>
                 </li>
             {% endfor %}
             <li class="divider"></li>
@@ -63,7 +64,7 @@
                 <li class="nav-header">Labels</li>
                 {% for label in untyped_labels %}
                     <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
-                        <a href="{% toggle_one_from_querystring "labels" label.name %}">{{ label.name }}</a>{% toggle_value_if_in_querystring "labels" label.name "*" %}
+                        <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}">{{ label.name }}</a>
                     </li>
                 {% endfor %}
                 <li class="divider"></li>
@@ -78,7 +79,7 @@
     {% if issues %}
         <ul>
             {% for issue in issues %}
-                <li><a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring }}">{{ issue }}</a></li>
+                <li><a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user_filter }}">{{ issue }}</a></li>
             {% endfor %}
         </ul>
     {% else %}
