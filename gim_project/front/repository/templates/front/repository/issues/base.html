@@ -17,15 +17,27 @@
 
         <li class="nav-header">Creators</li>
         {% for creator in issues_creators %}
-            <li{% if current_created == creator.username %} class="active"{% endif %}><a href="{{ creator.created_filter_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
+            {% if current_created == creator.username %}
+                <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
+            {% else %}
+                <li><a href="{{ creator.created_filter_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
+            {% endif %}
         {% endfor %}
         <li class="divider"></li>
 
 
         <li class="nav-header">Assignees</li>
-        <li{% if current_assigned == 'none' %} class="active"{% endif %}><a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
+        {% if current_assigned == 'none' %}
+            <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
+        {% else %}
+            <li><a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
+        {% endif %}
         {% for collaborator in collaborators %}
-            <li{% if current_assigned == collaborator.username %} class="active"{% endif %}><a href="{{ collaborator.assigned_filter_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
+            {% if current_assigned == collaborator.username %}
+                <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
+            {% else %}
+                <li><a href="{{ collaborator.assigned_filter_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
+            {% endif %}
         {% endfor %}
         <li class="divider"></li>
 
