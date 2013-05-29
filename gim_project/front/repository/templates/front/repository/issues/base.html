@@ -62,13 +62,17 @@
 
 
         {% for label_type in current_repository.label_types.all %}
-            <li class="nav-header">{{ label_type.name }}</li>
-            {% for label in label_type.labels.all %}
-                <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
-                    <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}" title="{{ label.name }}">{{ label.typed_name }}</a>
-                </li>
-            {% endfor %}
-            <li class="divider"></li>
+            {% with label_type.labels.all as label_type_labels %}
+                {% if label_type_labels|length %}
+                    <li class="nav-header">{{ label_type.name }}</li>
+                    {% for label in label_type.labels.all %}
+                        <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
+                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}" title="{{ label.name }}">{{ label.typed_name }}</a>
+                        </li>
+                    {% endfor %}
+                    <li class="divider"></li>
+                {% endif %}
+            {% endwith %}
         {% endfor %}
 
 
@@ -116,6 +120,18 @@
                     {% for group_by_field in view.allowed_group_by_fields %}
                         <li{% toggle_value_if_in_querystring "group_by" group_by_field " class='active'" %} ><a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a></li>
                     {% endfor %}
+                    {% with current_repository.label_types.all as label_types %}
+                        {% if label_types|length %}
+                            <li class="divider"></li>
+                            {% for label_type in label_types %}
+                                {% with "type:"|add:label_type.name as label_type_group_name %}
+                                    {% if label_type.labels.count %}
+                                        <li{% toggle_value_if_in_querystring "group_by" label_type_group_name " class='active'" %} ><a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" label_type_group_name %}">{{ label_type.name }}</a></li>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                 </ul>
             </div>
         </div>
@@ -123,7 +139,7 @@
             {% dynamic_regroup issues by group_by_field as issues_groups %}
             {% for group in issues_groups %}
                 <div>
-                    {% if group_by_field %}<h3>{{ group.grouper }}</h3>{% endif %}
+                    {% if group_by_field %}<h3>{{ group.grouper }} ({{ group.list|length }})</h3>{% endif %}
                     <ul class="unstyled">
                         {% for issue in group.list %}
                             <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
