@@ -111,7 +111,7 @@
         <ul class="unstyled">
             {% for issue in issues %}
                 <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
-                    <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user_filter }}">
+                    <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user_filter|default:issues_filter.querystring }}">
                         <strong>#{{ issue.number }}</strong> - {{ issue.title }}
                     </a>
                     <div>
