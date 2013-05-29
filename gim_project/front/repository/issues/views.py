@@ -13,10 +13,11 @@ class IssuesView(BaseRepositoryView):
     template_name = 'front/repository/issues/base.html'
     default_qs = 'state=open'
 
-    allowed_filters = ['milestone', 'state', 'labels', 'sort', 'direction']
+    allowed_filters = ['milestone', 'state', 'labels', 'sort', 'direction', 'group_by']
     allowed_states = ['open', 'closed']
     allowed_sort_fields = ['created', 'updated']
     allowed_sort_orders = ['asc', 'desc']
+    allowed_group_by_fields = ['state', 'creator', 'assigned', 'milestone']
     default_sort = ('created', 'desc')
 
     def get_issues_for_context(self, context):
@@ -58,12 +59,26 @@ class IssuesView(BaseRepositoryView):
             if len(Qs):
                 queryset = queryset.filter(*Qs)
 
-        # and finally, ordering
+        # prepare order, by group then asked ordering
+        order_by = []
+
+        # do we need to group by a field ?
+        qs_group_by = qs_parts.get('group_by', None)
+        if qs_group_by in self.allowed_group_by_fields:
+            group_by_issue_field = {'creator': 'user', 'assigned': 'assignee'}.get(qs_group_by, qs_group_by)
+            order_by.append(group_by_issue_field)
+            # add the real field in context, to use by the "regroup" templatetag
+            context['group_by_field'] = group_by_issue_field
+
+        # and finally, asked ordering
         qs_sort_field = qs_parts.get('sort', None)
         qs_sort_order = qs_parts.get('direction', None)
         if qs_sort_field not in self.allowed_sort_fields or qs_sort_order not in self.allowed_sort_orders:
             qs_sort_field, qs_sort_order = self.default_sort
-        queryset = queryset.order_by('%s%s_at' % ('-' if qs_sort_order == 'desc' else '', qs_sort_field))
+        order_by.append('%s%s_at' % ('-' if qs_sort_order == 'desc' else '', qs_sort_field))
+
+        # final order by, with group and wanted order
+        queryset = queryset.order_by(*order_by)
 
         # add sort in context
         if 'querystring_parts' not in context:
@@ -108,6 +123,7 @@ class IssuesView(BaseRepositoryView):
         if issue_filter_parts:
             issues_filter.update({
                 'querystring': make_querystring(issue_filter_parts),
+                'parts': issue_filter_parts,
             })
         # user parts
         issue_user_filter_parts = {}
@@ -119,6 +135,7 @@ class IssuesView(BaseRepositoryView):
                 'user_filter_type': user_filter_type,
                 'username': username,
             })
+            issues_filter['parts'].update(issue_user_filter_parts)
             issues_filter.update({
                 'querystring_with_user_filter': make_querystring(issue_user_filter_parts),
             })

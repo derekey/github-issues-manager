@@ -1,5 +1,5 @@
 {% extends "front/repository/base.html" %}
-{% load querystring %}
+{% load querystring frontutils %}
 
 {% block main %}
 
@@ -107,19 +107,39 @@
                     {% endfor %}
                 </ul>
             </div>
+            <div class="btn-group">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    Group by
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    {% for group_by_field in view.allowed_group_by_fields %}
+                        <li{% toggle_value_if_in_querystring "group_by" group_by_field " class='active'" %} ><a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-        <ul class="unstyled">
-            {% for issue in issues %}
-                <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
-                    <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user_filter|default:issues_filter.querystring }}">
-                        <strong>#{{ issue.number }}</strong> - {{ issue.title }}
-                    </a>
-                    <div>
-                        <span class="label label-{% if issue.state == 'open' %}success{% else %}important{% endif %}">{{ issue.state }}</span>
-                    </div>
-                </li>
+        <div>
+            {% dynamic_regroup issues by group_by_field as issues_groups %}
+            {% for group in issues_groups %}
+                <div>
+                    {% if group_by_field %}<h3>{{ group.grouper }}</h3>{% endif %}
+                    <ul class="unstyled">
+                        {% for issue in group.list %}
+                            <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
+                                <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user_filter|default:issues_filter.querystring }}">
+                                    <strong>#{{ issue.number }}</strong> - {{ issue.title }}
+                                </a>
+                                <div>
+                                    <span class="label label-{% if issue.state == 'open' %}success{% else %}important{% endif %}">{{ issue.state }}</span>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endfor %}
-        </ul>
+            </ul>
+        </div>
     {% else %}
         <p class="empty-column">Nothing :(</p>
     {% endif %}
