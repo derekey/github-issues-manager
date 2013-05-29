@@ -124,21 +124,34 @@ def remove_from_querystring(context, key, value=None):
 
 
 @register.simple_tag(takes_context=True)
-def toggle_one_from_querystring(context, key, value):
+def toggle_one_from_querystring(context, key, value, remove_values=None):
     """
     {% toggle_one_in_querystring "label" "foo" %}
         => remove foo from labels if present, or add it if not
+    {% toggle_one_in_querystring "label" "foo" remove_values=somelist %}
+        => remove foo from labels if present, or add it if not, and remove
+           all values from remove_values, except the the one defined as value
     """
     qs_parts = _get_qs_parts_from_context(context)
     value = _coerce_value(value)
+
     if value is not None:
         _set_part_as_list(qs_parts, key)
         if value in qs_parts[key]:
             qs_parts[key].remove(value)
-            if not len(qs_parts[key]):
-                del qs_parts[key]
         else:
             qs_parts[key].append(value)
+
+    if remove_values:
+        for val in remove_values:
+            if val != value:
+                try:
+                    qs_parts[key].remove(val)
+                except ValueError:
+                    pass
+
+    if not len(qs_parts[key]):
+        del qs_parts[key]
     return make_querystring(qs_parts)
 
 

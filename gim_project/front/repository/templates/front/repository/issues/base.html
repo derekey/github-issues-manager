@@ -65,9 +65,10 @@
             {% with label_type.labels.all as label_type_labels %}
                 {% if label_type_labels|length %}
                     <li class="nav-header">{{ label_type.name }}</li>
-                    {% for label in label_type.labels.all %}
+                    {% attributes_for_list label_type_labels "name" as label_names %}
+                    {% for label in label_type_labels %}
                         <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
-                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}" title="{{ label.name }}">{{ label.typed_name }}</a>
+                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="{{ label.name }}">{{ label.typed_name }}</a>
                         </li>
                     {% endfor %}
                     <li class="divider"></li>

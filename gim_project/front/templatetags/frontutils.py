@@ -75,3 +75,24 @@ def dynamic_regroup(parser, token):
     for `expression` to a FilterExpression.
     """
     return DynamicRegroupNode(target, parser, expression, var_name)
+
+
+@register.assignment_tag(takes_context=True)
+def attributes_for_list(context, items, attribute, none_if_missing=False):
+    """
+    Take a list of items (or something that can be iterated) and for each one,
+    return the given attribute, in a list. If the attribute is not found for an
+    item, no entry for this item will be returned, except if none_if_missing is
+    True, in which case None will be returned.
+    """
+    if not items:
+        return []
+    final_list = []
+    for item in items:
+        if isinstance(item, dict):
+            if none_if_missing or attribute in item:
+                final_list.append(item.get(attribute, None))
+        else:
+            if none_if_missing or hasattr(item, attribute):
+                final_list.append(getattr(item, attribute, None))
+    return final_list
