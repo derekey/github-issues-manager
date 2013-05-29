@@ -13,7 +13,8 @@ class IssuesView(BaseRepositoryView):
     template_name = 'front/repository/issues/base.html'
     default_qs = 'state=open'
 
-    allowed_filters = ['milestone', 'state', 'labels', 'sort', 'direction', 'group_by']
+    allowed_filters = ['milestone', 'state', 'labels', 'sort', 'direction',
+                       'group_by', 'group_by_direction']
     allowed_states = ['open', 'closed']
     allowed_sort_fields = ['created', 'updated']
     allowed_sort_orders = ['asc', 'desc']
@@ -82,10 +83,6 @@ class IssuesView(BaseRepositoryView):
             else:
                 context['group_by_label_type'] = label_type
                 group_by_field = 'label_type_grouper'
-
-        if group_by_field:
-            # add the real field in context, to use by the "regroup" templatetag
-            context['group_by_field'] = group_by_field
 
         # and finally, asked ordering
         qs_sort_field = qs_parts.get('sort', None)
@@ -208,7 +205,10 @@ class IssuesView(BaseRepositoryView):
             # for each label of the type, append matching issues to the final
             # list
             issues = []
-            for label in [None] + list(label_type.labels.all()):
+            label_type_labels = [None] + list(label_type.labels.all())
+            if context['issues_filter']['parts'].get('group_by_direction', 'asc') == 'desc':
+                label_type_labels.reverse()
+            for label in label_type_labels:
                 label_id = None if label is None else label.id
                 if label_id in issues_dict:
                     issues += issues_dict[label_id]

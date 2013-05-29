@@ -126,9 +126,18 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
+                    {% if issues_filter.parts.group_by %}
+                        <li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "asc" if_true=" active" %}">
+                            <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}">Asc.</a>
+                        </li><!--
+                        --><li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "desc" if_true=" active" %}">
+                            <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}">Desc.</a>
+                        </li>
+                        <li class="divider"></li>
+                    {% endif %}
                     {% for group_by_field in view.allowed_group_by_fields %}
                         <li{% toggle_value_if_in_querystring "group_by" group_by_field " class='active'" %}>
-                            <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a>
+                            <a href="{{ current_issues_url }}{% replace_many_in_querystring "group_by" group_by_field "group_by_direction" issues_filter.parts.group_by_direction|default:"asc" %}">{{ group_by_field|capfirst }}</a>
                         </li>
                     {% endfor %}
                     {% with current_repository.label_types.all as label_types %}
@@ -138,7 +147,7 @@
                                 {% with "type:"|add:label_type.name as label_type_group_name %}
                                     {% if label_type.labels.count %}
                                         <li{% toggle_value_if_in_querystring "group_by" label_type_group_name " class='active'" %}>
-                                            <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" label_type_group_name %}">{{ label_type.name }}</a>
+                                            <a href="{{ current_issues_url }}{% replace_many_in_querystring "group_by" label_type_group_name "group_by_direction" issues_filter.parts.group_by_direction|default:"asc" %}">{{ label_type.name }}</a>
                                         </li>
                                     {% endif %}
                                 {% endwith %}
