@@ -31,12 +31,11 @@
 
 
         <li class="nav-header">State</li>
-        <li{% toggle_value_if_in_querystring "state" "open" " class='active'" %}>
-            <a href="{{ current_issues_url }}{% toggle_in_querystring "state" "open" %}">Open</a>
-        </li>
-        <li{% toggle_value_if_in_querystring "state" "closed" " class='active'" %}>
-            <a href="{{ current_issues_url }}{% toggle_in_querystring "state" "closed" %}">Closed</a>
-        </li>
+        {% for state in view.allowed_states %}
+            <li{% toggle_value_if_in_querystring "state" state " class='active'" %}>
+                <a href="{{ current_issues_url }}{% toggle_in_querystring "state" state %}">{{ state|capfirst }}</a>
+            </li>
+        {% endfor %}
         <li class="divider"></li>
 
 
@@ -79,6 +78,24 @@
 
 <section id="issues-list" class="span4">
     {% if issues %}
+        <div id="issues-list-sort">
+            <div class="btn-group">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    Sort
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    {% for sort_field in view.allowed_sort_fields %}
+                        {% if not forloop.first %}
+                            <li class="divider"></li>
+                        {% endif %}
+                        {% for sort_order in view.allowed_sort_orders %}
+                            <li{% toggle_value_if_many_in_querystring "sort" sort_field "direction" sort_order if_true=" class='active'" %} ><a href="{{ current_issues_url }}{% replace_many_in_querystring "sort" sort_field "direction" sort_order %}">{{ sort_field|capfirst }} ({{ sort_order|capfirst }}.)</a></li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
         <ul class="unstyled">
             {% for issue in issues %}
                 <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
@@ -99,7 +116,7 @@
 <section id="issue" class="span6">
     {% if current_issue %}
         <article>
-            <h3>{{ current_issue }}</h3>
+            <h3>#{{ current_issue.number }} - {{ current_issue.title }}</h3>
             <div class="well">
                 {{ current_issue.body|safe }}
             </div>

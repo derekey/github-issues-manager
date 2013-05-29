@@ -13,7 +13,11 @@ class IssuesView(BaseRepositoryView):
     template_name = 'front/repository/issues/base.html'
     default_qs = 'state=open'
 
-    qs_filters = ['milestone', 'state', 'labels']
+    allowed_filters = ['milestone', 'state', 'labels', 'sort', 'direction']
+    allowed_states = ['open', 'closed']
+    allowed_sort_fields = ['created', 'updated']
+    allowed_sort_orders = ['asc', 'desc']
+    default_sort = ('created', 'desc')
 
     def get_issues_for_context(self, context):
         """
@@ -28,7 +32,7 @@ class IssuesView(BaseRepositoryView):
 
         # filter by state
         qs_state = qs_parts.get('state', None)
-        if qs_state in ('open', 'closed'):
+        if qs_state in self.allowed_states:
             filters['state'] = qs_state
 
         # filter by milestone
@@ -53,6 +57,21 @@ class IssuesView(BaseRepositoryView):
                 Qs.append(Q(labels=label_id))
             if len(Qs):
                 queryset = queryset.filter(*Qs)
+
+        # and finally, ordering
+        qs_sort_field = qs_parts.get('sort', None)
+        qs_sort_order = qs_parts.get('direction', None)
+        if qs_sort_field not in self.allowed_sort_fields or qs_sort_order not in self.allowed_sort_orders:
+            qs_sort_field, qs_sort_order = self.default_sort
+        queryset = queryset.order_by('%s%s_at' % ('-' if qs_sort_order == 'desc' else '', qs_sort_field))
+
+        # add sort in context
+        if 'querystring_parts' not in context:
+            context['querystring_parts'] = {}
+        context['querystring_parts'].update({
+            'sort': qs_sort_field,
+            'direction': qs_sort_order,
+        })
 
         return queryset
 
@@ -84,7 +103,7 @@ class IssuesView(BaseRepositoryView):
         qs_parts = self.get_qs_parts(context)
         issue_filter_parts = {}
         for part in qs_parts:
-            if part in self.qs_filters:
+            if part in self.allowed_filters:
                 issue_filter_parts[part] = qs_parts[part]
         if issue_filter_parts:
             issues_filter.update({
@@ -123,7 +142,7 @@ class IssuesView(BaseRepositoryView):
 class UserIssuesView(IssuesView):
     url_name = 'user_issues'
     user_filter_types = ['assigned', 'created', ]
-    qs_filters = IssuesView.qs_filters + user_filter_types
+    allowed_filters = IssuesView.allowed_filters + user_filter_types
 
     def get_issues_for_context(self, context):
         """

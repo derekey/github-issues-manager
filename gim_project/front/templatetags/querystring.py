@@ -55,6 +55,23 @@ def replace_in_querystring(context, key, value):
 
 
 @register.simple_tag(takes_context=True)
+def replace_many_in_querystring(context, *args):
+    """
+    {% replace_many_in_querystring "sort" "created" "direction" "asc" %}
+        => set the sort to created and the direction to asc
+    """
+    qs_parts = _get_qs_parts_from_context(context)
+    pairs = zip(args[::2], args[1::2])
+    for key, value in pairs:
+        value = _coerce_value(value)
+        if value is None:
+            qs_parts.pop(key, None)
+        else:
+            qs_parts[key] = value
+    return make_querystring(qs_parts)
+
+
+@register.simple_tag(takes_context=True)
 def toggle_in_querystring(context, key, value):
     """
     {% toggle_in_querystring "state" "open" %}
@@ -141,3 +158,31 @@ def toggle_value_if_in_querystring(context, key, value, if_true, if_false=""):
         return if_true if value in qs_parts[key] else if_false
     else:
         return if_true if value == qs_parts[key] else if_false
+
+
+@register.simple_tag(takes_context=True)
+def toggle_value_if_many_in_querystring(context, *args, **kwargs):
+    """
+    {% toggle_value_if_in_querystring "sort" "created" "direction" "asc" if_true="active" if_false="inactive" %}
+        => display active if sort is created and direction is asc, else inactive
+    """
+    if_true = kwargs.get('if_true', '')
+    if_false = kwargs.get('if_false', '')
+
+    qs_parts = _get_qs_parts_from_context(context)
+
+    pairs = zip(args[::2], args[1::2])
+    found = True
+    for key, value in pairs:
+        value = _coerce_value(value)
+        if value is None or key not in qs_parts:
+            found = False
+        else:
+            if isinstance(qs_parts[key], list):
+                found = value in qs_parts[key]
+            else:
+                found = value == qs_parts[key]
+        if not found:
+            break
+
+    return if_true if found else if_false
