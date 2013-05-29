@@ -60,3 +60,8 @@ body > .navbar {
     line-height: 2em;
     margin-top: -1em;
 }
+
+.dropdown-menu > li.sort-menu {
+    display: inline-block;
+    width: 50%;
+}

@@ -52,7 +52,9 @@
 
 
         <li class="nav-header">Milestone</li>
-        <li{% toggle_value_if_in_querystring "milestone" "none" " class='active'" %}><a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">No milestone</a></li>
+        <li{% toggle_value_if_in_querystring "milestone" "none" " class='active'" %}>
+            <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">No milestone</a>
+        </li>
         {% for milestone in current_repository.milestones.all %}
             <li{% toggle_value_if_in_querystring "milestone" milestone.number " class='active'" %}>
                 <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>
@@ -102,13 +104,19 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
+                    {% if issues_filter.parts.sort %}
+                        <li class="sort-menu{% toggle_value_if_in_querystring "direction" "asc" if_true=" active" %}">
+                            <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}">Asc.</a>
+                        </li><!--
+                        --><li class="sort-menu{% toggle_value_if_in_querystring "direction" "desc" if_true=" active" %}">
+                            <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}">Desc.</a>
+                        </li>
+                        <li class="divider"></li>
+                    {% endif %}
                     {% for sort_field in view.allowed_sort_fields %}
-                        {% if not forloop.first %}
-                            <li class="divider"></li>
-                        {% endif %}
-                        {% for sort_order in view.allowed_sort_orders %}
-                            <li{% toggle_value_if_many_in_querystring "sort" sort_field "direction" sort_order if_true=" class='active'" %} ><a href="{{ current_issues_url }}{% replace_many_in_querystring "sort" sort_field "direction" sort_order %}">{{ sort_field|capfirst }} ({{ sort_order|capfirst }}.)</a></li>
-                        {% endfor %}
+                        <li{% toggle_value_if_in_querystring "sort" sort_field if_true=" class='active'" %}>
+                            <a href="{{ current_issues_url }}{% replace_many_in_querystring "sort" sort_field "direction" issues_filter.parts.direction|default:"desc" %}">{{ sort_field|capfirst }}</a>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
@@ -119,7 +127,9 @@
                 </a>
                 <ul class="dropdown-menu">
                     {% for group_by_field in view.allowed_group_by_fields %}
-                        <li{% toggle_value_if_in_querystring "group_by" group_by_field " class='active'" %} ><a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a></li>
+                        <li{% toggle_value_if_in_querystring "group_by" group_by_field " class='active'" %}>
+                            <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a>
+                        </li>
                     {% endfor %}
                     {% with current_repository.label_types.all as label_types %}
                         {% if label_types|length %}
@@ -127,7 +137,9 @@
                             {% for label_type in label_types %}
                                 {% with "type:"|add:label_type.name as label_type_group_name %}
                                     {% if label_type.labels.count %}
-                                        <li{% toggle_value_if_in_querystring "group_by" label_type_group_name " class='active'" %} ><a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" label_type_group_name %}">{{ label_type.name }}</a></li>
+                                        <li{% toggle_value_if_in_querystring "group_by" label_type_group_name " class='active'" %}>
+                                            <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" label_type_group_name %}">{{ label_type.name }}</a>
+                                        </li>
                                     {% endif %}
                                 {% endwith %}
                             {% endfor %}
