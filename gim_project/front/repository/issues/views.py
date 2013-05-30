@@ -146,8 +146,18 @@ class IssuesView(BaseRepositoryView):
         labels = self._get_labels(repository, qs_parts)
         if labels:
             filter_objects['labels'] = labels
-            qs_filters['labels'] = [l.name for l in labels]
-            Q_objects = [Q(labels=label.id) for label in labels]
+            filter_objects['current_label_types'] = {}
+            filter_objects['current_labels'] = []
+            qs_filters['labels'] = []
+            Q_objects = []
+            for label in labels:
+                qs_filters['labels'].append(label.name)
+                if label.label_type_id and label.label_type_id not in filter_objects['current_label_types']:
+                    filter_objects['current_label_types'][label.label_type_id] = label
+                elif not label.label_type_id:
+                    filter_objects['current_labels'].append(label)
+                Q_objects.append(Q(labels=label.id))
+
             if len(Q_objects):
                 queryset = queryset.filter(*Q_objects)
 

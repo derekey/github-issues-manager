@@ -96,3 +96,35 @@ def attributes_for_list(context, items, attribute, none_if_missing=False):
             if none_if_missing or hasattr(item, attribute):
                 final_list.append(getattr(item, attribute, None))
     return final_list
+
+
+@register.filter
+def dict_item(dikt, key):
+    """
+Custom template tag used like so:
+{{ dictionary|dict_item:var }}
+where dictionary is a dictionary and key is a variable representing
+one of it's keys
+"""
+    try:
+        return dikt.__getitem__(key)
+    except:
+        return ''
+
+
+@register.filter
+def attr(obj, attr):
+    """
+Custom template tag used like so:
+{{ object|attr:var }}
+where object is an object with attributes and attr is a variable representing
+one of it's attributes
+"""
+    try:
+        result = getattr(obj, attr)
+        if callable(result):
+            return result()
+        return result
+    except:
+        return ''
+
