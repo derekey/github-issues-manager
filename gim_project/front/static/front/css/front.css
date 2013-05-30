@@ -71,9 +71,17 @@ body > .navbar {
     margin-right: -15px;
 }
 
-#issues-nav li.nav-header span {
+#issues-nav li.nav-header span.selection,
+#issues-list-sort-and-group span.selection {
     display: block;
     font-weight: normal;
-    padding-left: 15px;
     text-transform: none;
+}
+#issues-nav li.nav-header span.selection {
+    padding-left: 15px;    
+}
+#issues-list-sort-and-group span.selection {
+    font-size: smaller;
+    color: #999;
+    text-align: center;
 }
