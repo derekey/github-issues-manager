@@ -87,8 +87,10 @@ body > .navbar {
 }
 #issues-list-sort-and-group {
     margin-bottom: 15px;
-    margin-left: 15px;
+    margin-left: 0;
 }
-#issues-list-sort-and-group > div {
-    text-align: center;
+#issues-list-sort-and-group > div > a.btn {
+    margin: 0 auto;
+    width: 7em;
+    display: block;
 }

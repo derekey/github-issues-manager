@@ -200,7 +200,7 @@
                         {% endif %}
                     </span>
                 </a>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu pull-right">
                     {% if issues_filter.parts.group_by %}
                         <li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "asc" if_true=" active" %}">
                             <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}">Asc.</a>
