@@ -235,7 +235,7 @@
         <div>
             {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
             {% for group in issues_groups %}
-                <div>
+                <div class='issues-group'>
                     {% if issues_filter.objects.group_by_field %}
                         {% with uidname=issues_filter.objects.group_by.id|default:issues_filter.objects.group_by uidvalue=group.grouper.id|default:group.grouper|default:"none" %}
                             <h3 data-toggle="collapse" data-target="#groupby-list-{{ uidname}}-{{ uidvalue }}">
@@ -253,7 +253,7 @@
                     {% endif %}
                         {% for issue in group.list %}
                             <li class="well well-small issue-item{% if current_issue.id == issue.id %} active{% endif %}">
-                                <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}" class="issue-link">
+                                <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}" class="issue-link" data-issue-number="{{ issue.number }}">
                                     <strong>#{{ issue.number }}</strong> - {{ issue.title }}
                                 </a>
                                 <div>

@@ -94,7 +94,7 @@ body > .navbar {
     width: 7em;
     display: block;
 }
-.issue-item.active .issue-link:focus {
-    outline: none;
-    text-decoration: none;
+.issue-item .issue-link {
+    outline: none !important;
+    text-decoration: none !important;
 }
