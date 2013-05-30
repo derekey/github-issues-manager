@@ -85,3 +85,10 @@ body > .navbar {
     color: #999;
     text-align: center;
 }
+#issues-list-sort-and-group {
+    margin-bottom: 15px;
+    margin-left: 15px;
+}
+#issues-list-sort-and-group > div {
+    text-align: center;
+}

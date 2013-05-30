@@ -154,8 +154,8 @@
 
 <section id="issues-list" class="span4">
     {% if issues %}
-        <div id="issues-list-sort-and-group">
-            <div class="btn-group">
+        <div id="issues-list-sort-and-group" class="row">
+            <div class="btn-group span6">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                     Sort
                     <span class="caret"></span>
@@ -183,20 +183,22 @@
                     {% endfor %}
                 </ul>
             </div>
-            <div class="btn-group">
+            <div class="btn-group span6">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                     Group by
                     <span class="caret"></span>
-                    {% if issues_filter.parts.group_by %}
-                        <span class="selection">
+                    <span class="selection">
+                        {% if issues_filter.parts.group_by %}
                             {% if issues_filter.objects.group_by_field == 'label_type_grouper' %}
                                 {{ issues_filter.objects.group_by.name|capfirst }}
                             {% else %}
                                 {{ issues_filter.parts.group_by|capfirst }}
                             {% endif %}
                             ({{ issues_filter.parts.group_by_direction|capfirst }}.)
-                        </span>
-                    {% endif %}
+                        {% else %}
+                            No group by
+                        {% endif %}
+                    </span>
                 </a>
                 <ul class="dropdown-menu">
                     {% if issues_filter.parts.group_by %}
