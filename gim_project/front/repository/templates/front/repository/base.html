@@ -22,7 +22,7 @@
             </ul>
             <ul class="nav">
                 {% for main_view in repository_main_views %}
-                    <li{% if main_view.is_current %} class="active"{% endif %}><a role="menuitem"href="{{ main_view.url }}{% if main_view.qs %}?{{ main_view.qs }}{% endif %}">{{ main_view.title }}</a></li>
+                    <li{% if main_view.is_current %} class="active"{% endif %}><a role="menuitem" href="{{ main_view.url }}{% if main_view.qs %}?{{ main_view.qs }}{% endif %}">{{ main_view.title }}</a></li>
                 {% endfor %}
             </ul>
         </div>
