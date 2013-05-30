@@ -192,7 +192,7 @@
                             {% if issues_filter.objects.group_by_field == 'label_type_grouper' %}
                                 {{ issues_filter.objects.group_by.name|capfirst }}
                             {% else %}
-                                {{ issues_filter.parts.group_by|capfirst }}
+                                {{ issues_filter.objects.group_by|capfirst }}
                             {% endif %}
                             ({{ issues_filter.parts.group_by_direction|capfirst }}.)
                         {% else %}
@@ -236,8 +236,21 @@
             {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
             {% for group in issues_groups %}
                 <div>
-                    {% if issues_filter.objects.group_by_field %}<h3>{{ group.grouper }} ({{ group.list|length }})</h3>{% endif %}
-                    <ul class="unstyled">
+                    {% if issues_filter.objects.group_by_field %}
+                        {% with uidname=issues_filter.objects.group_by.id|default:issues_filter.objects.group_by uidvalue=group.grouper.id|default:group.grouper|default:"none" %}
+                            <h3 data-toggle="collapse" data-target="#groupby-list-{{ uidname}}-{{ uidvalue }}">
+                                {% if group.grouper %}
+                                    {{ group.grouper.typed_name|default:group.grouper }}
+                                {% else %}
+                                    No {{ issues_filter.objects.group_by|lower }}
+                                {% endif %}
+                                ({{ group.list|length }})
+                            </h3>
+                            <ul class="unstyled collapse" id="groupby-list-{{ uidname}}-{{ uidvalue }}">
+                        {% endwith %}
+                    {% else %}
+                        <ul class="unstyled">
+                    {% endif %}
                         {% for issue in group.list %}
                             <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
                                 <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}">

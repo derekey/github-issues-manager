@@ -167,14 +167,15 @@ class IssuesView(BaseRepositoryView):
         # do we need to group by a field ?
         group_by, group_by_direction = self._get_group_by(repository, qs_parts)
         if group_by is not None:
-            filter_objects['group_by'] = group_by
             filter_objects['group_by_direction'] = qs_filters['group_by_direction'] = group_by_direction
             if isinstance(group_by, basestring):
-                qs_filters['group_by'] = group_by
+                qs_filters['group_by'] = qs_parts['group_by']
+                filter_objects['group_by'] = qs_parts['group_by']
                 filter_objects['group_by_field'] = group_by
                 order_by.append('%s%s' % ('-' if group_by_direction == 'desc' else '', group_by))
             else:
                 qs_filters['group_by'] = 'type:%s' % group_by.name
+                filter_objects['group_by'] = group_by
                 filter_objects['group_by_field'] = 'label_type_grouper'
 
         # and finally, asked ordering
@@ -277,7 +278,7 @@ class IssuesView(BaseRepositoryView):
                         # found a label for the wanted type, mark it and stop
                         # checking labels for this issue
                         add_to = label.id
-                        setattr(issue, attribute, label.typed_name)
+                        setattr(issue, attribute, label)
                         break
 
                 # add in a dict, with one entry for each label of the type (and one for None)
