@@ -36,7 +36,8 @@ def _get_qs_parts_from_context(context):
     Return a deep copied version of the querystring_parts found in the context
     (or {} if not found)
     """
-    return deepcopy(context['querystring_parts']) if 'querystring_parts' in context else {}
+    qs = context.get('qs_parts_for_ttags', context.get('querystring_parts', None))
+    return deepcopy(qs) if qs else {}
 
 
 @register.simple_tag(takes_context=True)

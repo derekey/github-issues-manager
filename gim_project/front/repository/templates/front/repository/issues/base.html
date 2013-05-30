@@ -15,65 +15,85 @@
         <li class="divider"></li>
 
 
-        <li class="nav-header">Creators</li>
-        {% for creator in issues_creators %}
-            {% if current_created == creator.username %}
-                <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
-            {% else %}
-                <li><a href="{{ creator.created_filter_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
-            {% endif %}
-        {% endfor %}
-        <li class="divider"></li>
-
-
-        <li class="nav-header">Assignees</li>
-        {% if current_assigned == 'none' %}
-            <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
-        {% else %}
-            <li><a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
-        {% endif %}
-        {% for collaborator in collaborators %}
-            {% if current_assigned == collaborator.username %}
-                <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
-            {% else %}
-                <li><a href="{{ collaborator.assigned_filter_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
-            {% endif %}
-        {% endfor %}
-        <li class="divider"></li>
-
-
-        <li class="nav-header">State</li>
-        {% for state in view.allowed_states %}
-            <li{% toggle_value_if_in_querystring "state" state " class='active'" %}>
-                <a href="{{ current_issues_url }}{% toggle_in_querystring "state" state %}">{{ state|capfirst }}</a>
-            </li>
-        {% endfor %}
-        <li class="divider"></li>
-
-
-        <li class="nav-header">Milestone</li>
-        <li{% toggle_value_if_in_querystring "milestone" "none" " class='active'" %}>
-            <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">No milestone</a>
+        <li class="nav-header" data-toggle="collapse" data-target="#filter-created">Creators</li>
+        <li>
+            <ul class="nav nav-list collapse" id="filter-created">
+                {% for creator in issues_creators %}
+                    {% if issues_filter.objects.current_created == creator.username %}
+                        <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
+                    {% else %}
+                        <li><a href="{{ creator.created_filter_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="divider"></li>
+            </ul>
         </li>
-        {% for milestone in current_repository.milestones.all %}
-            <li{% toggle_value_if_in_querystring "milestone" milestone.number " class='active'" %}>
-                <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>
-            </li>
-        {% endfor %}
-        <li class="divider"></li>
+
+
+        <li class="nav-header" data-toggle="collapse" data-target="#filter-assigned">Assignees</li>
+        <li>
+            <ul class="nav nav-list collapse" id="filter-assigned">
+                {% if issues_filter.objects.current_assigned == 'none' %}
+                    <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
+                {% else %}
+                    <li><a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
+                {% endif %}
+                {% for collaborator in collaborators %}
+                    {% if issues_filter.objects.current_assigned == collaborator.username %}
+                        <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
+                    {% else %}
+                        <li><a href="{{ collaborator.assigned_filter_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="divider"></li>
+            </ul>
+        </li>
+
+
+        <li class="nav-header" data-toggle="collapse" data-target="#filter-state">State</li>
+        <li>
+            <ul class="nav nav-list collapse" id="filter-state">
+                {% for state in view.allowed_states %}
+                    <li{% toggle_value_if_in_querystring "state" state " class='active'" %}>
+                        <a href="{{ current_issues_url }}{% toggle_in_querystring "state" state %}">{{ state|capfirst }}</a>
+                    </li>
+                {% endfor %}
+                <li class="divider"></li>
+            </ul>
+        </li>
+
+
+        <li class="nav-header" data-toggle="collapse" data-target="#filter-milestone">Milestone</li>
+        <li>
+            <ul class="nav nav-list collapse" id="filter-milestone">
+                <li{% toggle_value_if_in_querystring "milestone" "none" " class='active'" %}>
+                    <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">No milestone</a>
+                </li>
+                {% for milestone in current_repository.milestones.all %}
+                    <li{% toggle_value_if_in_querystring "milestone" milestone.number " class='active'" %}>
+                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>
+                    </li>
+                {% endfor %}
+                <li class="divider"></li>
+            </ul>
+        </li>
 
 
         {% for label_type in current_repository.label_types.all %}
             {% with label_type.labels.all as label_type_labels %}
                 {% if label_type_labels|length %}
-                    <li class="nav-header">{{ label_type.name }}</li>
-                    {% attributes_for_list label_type_labels "name" as label_names %}
-                    {% for label in label_type_labels %}
-                        <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
-                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="{{ label.name }}">{{ label.typed_name }}</a>
-                        </li>
-                    {% endfor %}
-                    <li class="divider"></li>
+                    <li class="nav-header" data-toggle="collapse" data-target="#filter-label-type-{{ label_type.id }}">{{ label_type.name }}</li>
+                    <li>
+                        <ul class="nav nav-list collapse" id="filter-label-type-{{ label_type.id }}">
+                            {% attributes_for_list label_type_labels "name" as label_names %}
+                            {% for label in label_type_labels %}
+                                <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
+                                    <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="{{ label.name }}">{{ label.typed_name }}</a>
+                                </li>
+                            {% endfor %}
+                            <li class="divider"></li>
+                        </ul>
+                    </li>
                 {% endif %}
             {% endwith %}
         {% endfor %}
@@ -81,13 +101,17 @@
 
         {% with untyped_labels=current_repository.untyped_labels.all %}
             {% if untyped_labels|length %}
-                <li class="nav-header">Labels</li>
-                {% for label in untyped_labels %}
-                    <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
-                        <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}">{{ label.name }}</a>
-                    </li>
-                {% endfor %}
-                <li class="divider"></li>
+                <li class="nav-header" data-toggle="collapse" data-target="#filter-labels">Labels</li>
+                <li>
+                    <ul class="nav nav-list collapse" id="filter-labels">
+                        {% for label in untyped_labels %}
+                            <li{% toggle_value_if_in_querystring "labels" label.name " class='active'" %}>
+                                <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}">{{ label.name }}</a>
+                            </li>
+                        {% endfor %}
+                        <li class="divider"></li>
+                    </ul>
+                </li>
             {% endif %}
         {% endwith %}
 
@@ -158,14 +182,14 @@
             </div>
         </div>
         <div>
-            {% dynamic_regroup issues by group_by_field as issues_groups %}
+            {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
             {% for group in issues_groups %}
                 <div>
-                    {% if group_by_field %}<h3>{{ group.grouper }} ({{ group.list|length }})</h3>{% endif %}
+                    {% if issues_filter.objects.group_by_field %}<h3>{{ group.grouper }} ({{ group.list|length }})</h3>{% endif %}
                     <ul class="unstyled">
                         {% for issue in group.list %}
                             <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
-                                <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user_filter|default:issues_filter.querystring }}">
+                                <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}">
                                     <strong>#{{ issue.number }}</strong> - {{ issue.title }}
                                 </a>
                                 <div>
