@@ -253,7 +253,7 @@
                     {% endif %}
                         {% for issue in group.list %}
                             <li class="well well-small{% if current_issue.id == issue.id %} active{% endif %}">
-                                <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}">
+                                <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}" class="issue-link">
                                     <strong>#{{ issue.number }}</strong> - {{ issue.title }}
                                 </a>
                                 <div>
@@ -272,24 +272,7 @@
 </section>
 
 <section id="issue" class="span6">
-    {% if current_issue %}
-        <article>
-            <h3>#{{ current_issue.number }} - {{ current_issue.title }}</h3>
-            <div class="well">
-                {{ current_issue.body|safe }}
-            </div>
-        </article>
-        <aside>
-            <h4>Comments</h4>
-            <ul>
-                {% for comment in current_issue.comments.all %}
-                    <li>{{ comment.body }}</li>
-                {% endfor %}
-            </ul>
-        </aside>
-    {% else %}
-        <p class="empty-column">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>
-    {% endif %}
+    {% include "front/repository/issues/issue.html" %}
 </section>
 
 {% endblock main %}

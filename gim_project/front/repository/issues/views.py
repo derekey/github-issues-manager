@@ -373,6 +373,7 @@ class UserIssuesView(IssuesView):
 
 class IssueView(UserIssuesView):
     url_name = 'issue'
+    ajax_template_name = 'front/repository/issues/issue.html'
 
     def get_current_issue_for_context(self, context):
         """
@@ -389,7 +390,13 @@ class IssueView(UserIssuesView):
         """
         Add the selected view in the context
         """
-        context = super(IssueView, self).get_context_data(**kwargs)
+        if self.request.is_ajax():
+            # is we respond to an ajax call, bypass all the context stuff
+            # done by IssuesView and UserIssuesView by calling directly
+            # their baseclass
+            context = super(IssuesView, self).get_context_data(**kwargs)
+        else:
+            context = super(IssueView, self).get_context_data(**kwargs)
 
         # check which issue to display
         current_issue_state = 'ok'
@@ -409,3 +416,11 @@ class IssueView(UserIssuesView):
         })
 
         return context
+
+    def get_template_names(self):
+        """
+        Use a specific template if the request is an ajax one
+        """
+        if self.request.is_ajax():
+            self.template_name = self.ajax_template_name
+        return super(IssueView, self).get_template_names()
