@@ -235,29 +235,48 @@
         <div>
             {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
             {% for group in issues_groups %}
-                <div class='issues-group'>
+                <div class='box issues-group'>
                     {% if issues_filter.objects.group_by_field %}
                         {% with uidname=issues_filter.objects.group_by.id|default:issues_filter.objects.group_by uidvalue=group.grouper.id|default:group.grouper|default:"none" %}
-                            <h3 data-toggle="collapse" data-target="#groupby-list-{{ uidname}}-{{ uidvalue }}">
-                                {% if group.grouper %}
-                                    {{ group.grouper.typed_name|default:group.grouper }}
-                                {% else %}
-                                    No {{ issues_filter.objects.group_by|lower }}
-                                {% endif %}
-                                ({{ group.list|length }})
-                            </h3>
-                            <ul class="unstyled collapse" id="groupby-list-{{ uidname}}-{{ uidvalue }}">
+                            <div class="box-header" data-toggle="collapse" data-target="#groupby-list-{{ uidname}}-{{ uidvalue }}">
+                                <span class="title">
+                                    {% if group.grouper %}
+                                        {{ group.grouper.typed_name|default:group.grouper }}
+                                    {% else %}
+                                        No {{ issues_filter.objects.group_by|lower }}
+                                    {% endif %}
+                                </span>
+                                <ul class="unstyled box-toolbar">
+                                    <li><span class="label label-green">{{ group.list|length }}</span></li>
+                                </ul>
+                            </div>
+                            <ul class="unstyled box-content collapse" id="groupby-list-{{ uidname}}-{{ uidvalue }}">
                         {% endwith %}
                     {% else %}
-                        <ul class="unstyled">
+                        <ul class="unstyled box">
                     {% endif %}
                         {% for issue in group.list %}
-                            <li class="well well-small issue-item{% if current_issue.id == issue.id %} active{% endif %}">
-                                <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}" class="issue-link" data-issue-number="{{ issue.number }}">
-                                    <strong>#{{ issue.number }}</strong> - {{ issue.title }}
-                                </a>
-                                <div>
+                            <li class="box-section news issue-item{% if current_issue.id == issue.id %} active{% endif %}">
+                                <div class="avatar"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}"></div>
+                                <div class="news-time" title="{{ issue.created_at|date:"Y-m-d H:i:s" }}">{{ issue.created_at|ago }}</div>
+                                <div class="news-content">
+                                <div class="news-title">
+                                    <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}" class="issue-link" data-issue-number="{{ issue.number }}">
+                                        <strong>#{{ issue.number }}</strong> - {{ issue.title }}
+                                    </a>
+                                </div>
+                                <div class="news-text">
                                     <span class="label label-{% if issue.state == 'open' %}success{% else %}important{% endif %}">{{ issue.state }}</span>
+                                    {% for label in issue.labels.all %}
+                                        {% if label.label_type_id %}
+                                            <span class="label label-default">{{ label.label_type.name }}: {{ label.typed_name }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for label in issue.labels.all %}
+                                        {% if not label.label_type_id %}
+                                            <span class="label label-default">{{ label.name }}</span>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
                             </li>
                         {% endfor %}

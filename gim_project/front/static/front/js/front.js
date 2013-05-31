@@ -28,24 +28,24 @@ $().ready(function() {
 
         switch (e.keyCode) {
              case KEYUP:
-                $issue_link = $issue_item.prev().children('a').first();
+                $issue_link = $issue_item.prev().find('.issue-link').first();
                 if (!$issue_link.length) {
                     // try to get the last of the previous group
                     $issue_link = $issue_item.closest('.issues-group').prev().find('.issue-link').last();
                 }
                 break;
              case KEYDOWN:
-                $issue_link = $issue_item.next().children('a').first();
+                $issue_link = $issue_item.next().find('.issue-link').first();
                 if (!$issue_link.length) {
                     // try to get the first of the next group
                     $issue_link = $issue_item.closest('.issues-group').next().find('.issue-link').first();
                 }
                 break;
             case KEYHOME:
-                $issue_link = $issues_list_container.find('.issue-item > a').first();
+                $issue_link = $issues_list_container.find('.issue-link').first();
                 break;
             case KEYEND:
-                $issue_link = $issues_list_container.find('.issue-item > a').last();
+                $issue_link = $issues_list_container.find('.issue-link').last();
                 break;
         }
 

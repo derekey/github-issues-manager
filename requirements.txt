@@ -2,3 +2,4 @@ Django
 South
 django-extensions
 ipython
+git+ssh://git@github.com/twidi/pytimeago.git#egg=pytimeago

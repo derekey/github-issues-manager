@@ -2,6 +2,11 @@
 dynamic_group comes from http://djangosnippets.org/snippets/2511/
 """
 from itertools import groupby
+from datetime import datetime
+import time
+
+from pytimeago.english import english as english_ago
+
 from django import template
 from django.template import TemplateSyntaxError
 
@@ -128,3 +133,12 @@ one of it's attributes
     except:
         return ''
 
+
+@register.filter
+def ago(date):
+    try:
+        return english_ago(time.mktime(datetime.now().timetuple()) - time.mktime(date.timetuple()))
+    except:
+        return ''
+
+register.filter('ago', ago)
