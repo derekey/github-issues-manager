@@ -16,7 +16,7 @@
                             {% for repository in all_repositories %}
                                 <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}">{{ repository }}</a></li>
                             {% endfor %}
-                      </ul>
+                        </ul>
                     </li>
                 {% endif %}
             </ul>

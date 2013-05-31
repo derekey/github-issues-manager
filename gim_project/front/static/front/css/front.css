@@ -34,6 +34,7 @@ body > .navbar {
 }
 #issues-list {
     margin-left: 0;
+    padding-top: 0;
     border-right: solid #e5e5e5 1px;
 }
 #issues-nav li.divider {
@@ -60,6 +61,7 @@ body > .navbar {
 .dropdown-menu > li.sort-menu {
     display: inline-block;
     width: 50%;
+    text-align: center;
 }
 
 #issues-nav > ul.nav-list > li > ul.nav-list {
@@ -68,28 +70,46 @@ body > .navbar {
 }
 
 #issues-nav li.nav-header span.selection,
-#issues-list-sort-and-group span.selection {
+#issues-navbar span.selection {
     display: block;
     font-weight: normal;
     text-transform: none;
 }
 #issues-nav li.nav-header span.selection {
-    padding-left: 15px;    
+    padding-left: 15px;
 }
-#issues-list-sort-and-group span.selection {
+
+#issues-navbar span.selection {
     font-size: smaller;
     color: #999;
     text-align: center;
 }
-#issues-list-sort-and-group {
-    margin-bottom: 15px;
-    margin-left: 0;
+#issues-navbar span.selection ul {
+    display: inline-block;
 }
-#issues-list-sort-and-group > div > a.btn {
-    margin: 0 auto;
-    width: 7em;
+#issues-navbar span.selection li {
+    opacity: 0.5;
+}
+#issues-navbar .nav {
+    float: none;
+}
+#issues-navbar .dropdown-toggle > span:not(.selection) {
+    text-align: center;
     display: block;
+    padding-left: 5px;
 }
+#issues-navbar .navbar-inner {
+    padding-left: 0;
+    padding-right: 0;
+    border-left: none;
+    border-right: none;
+}
+#issues-navbar .divider-vertical {
+    margin-left: -1px;
+    margin-right: -1px;
+    height: 60px;
+}
+
 .issue-item .issue-link {
     outline: none !important;
     text-decoration: none !important;
