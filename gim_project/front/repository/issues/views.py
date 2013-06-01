@@ -216,6 +216,9 @@ class IssuesView(BaseRepositoryView):
         # get the list of issues
         issues, filter_context = self.get_issues_for_context(context)
 
+        # get the list of label types
+        label_types = repository.label_types.all().prefetch_related('labels')
+
         # final context
         issues_url = reverse_lazy('front:repository:%s' % IssuesView.url_name,
                                   kwargs=repository.get_reverse_kwargs())
@@ -228,7 +231,8 @@ class IssuesView(BaseRepositoryView):
             'collaborators': users_lists['collaborators'],
             'issues_creators': users_lists['issues_creators'],
             'no_assigned_filter_url': repository.get_issues_user_filter_url_for_username('assigned', 'none'),
-            'qs_parts_for_ttags': issues_filter['parts']
+            'qs_parts_for_ttags': issues_filter['parts'],
+            'label_types': label_types,
         })
         context['issues'] = self.finalize_issues(issues, context)
 

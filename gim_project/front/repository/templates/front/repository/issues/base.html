@@ -99,7 +99,7 @@
         <li class="divider"></li>
 
 
-        {% for label_type in current_repository.label_types.all %}
+        {% for label_type in label_types %}
             {% with label_type.labels.all as label_type_labels %}
                 {% if label_type_labels|length %}
                     <li class="nav-header" data-toggle="collapse" data-target="#filter-label-type-{{ label_type.id }}">
@@ -213,20 +213,18 @@
                                     <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a>
                                 </li>
                             {% endfor %}
-                            {% with current_repository.label_types.all as label_types %}
-                                {% if label_types|length %}
-                                    <li class="divider"></li>
-                                    {% for label_type in label_types %}
-                                        {% with "type:"|add:label_type.name as label_type_group_name %}
-                                            {% if label_type.labels.count %}
-                                                <li{% toggle_value_if_in_querystring "group_by" label_type_group_name " class='active'" %}>
-                                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" label_type_group_name %}">{{ label_type.name }}</a>
-                                                </li>
-                                            {% endif %}
-                                        {% endwith %}
-                                    {% endfor %}
-                                {% endif %}
-                            {% endwith %}
+                            {% if label_types|length %}
+                                <li class="divider"></li>
+                                {% for label_type in label_types %}
+                                    {% with "type:"|add:label_type.name as label_type_group_name %}
+                                        {% if label_type.labels.count %}
+                                            <li{% toggle_value_if_in_querystring "group_by" label_type_group_name " class='active'" %}>
+                                                <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" label_type_group_name %}">{{ label_type.name }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
+                            {% endif %}
                             {% if issues_filter.parts.group_by %}
                                 <li class="divider"></li>
                                 <li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "asc" if_true=" active" %}">
@@ -295,15 +293,16 @@
                                     </a>
                                 </div>
                                 <div class="news-text">
-                                    <span class="label label-{% if issue.state == 'open' %}success{% else %}important{% endif %}">{{ issue.state }}</span>
+                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "state" issue.state %}" title="Click to {% toggle_value_if_in_querystring "state" issue.state "stop filtering" "filter" %} on this state"><span class="label label-{% if issue.state == 'open' %}success{% else %}important{% endif %}">{{ issue.state }}</span></a>
                                     {% for label in issue.labels.all %}
                                         {% if label.label_type_id %}
-                                            <span class="label label-default">{{ label.label_type.name }}: {{ label.typed_name }}</span>
+                                            {% attributes_for_list label.label_type.labels.all "name" as label_names %}
+                                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "stop filtering" "filter" %} on this {{ label.label_type.name }}"><span class="label label-default">{{ label.label_type.name }}: {{ label.typed_name }}</span></a>
                                         {% endif %}
                                     {% endfor %}
                                     {% for label in issue.labels.all %}
                                         {% if not label.label_type_id %}
-                                            <span class="label label-default">{{ label.name }}</span>
+                                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "remove the" "add a" %} filter on this label"><span class="label label-default">{{ label.name }}</span></a>
                                         {% endif %}
                                     {% endfor %}
                                 </div>
