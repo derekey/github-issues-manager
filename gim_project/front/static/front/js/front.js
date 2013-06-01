@@ -57,7 +57,25 @@ $().ready(function() {
     }); // select_issue
 
     var KEY_UP = 38, KEY_DOWN = 40, KEY_LEFT=37, KEY_RIGHT=39, KEY_HOME = 36, KEY_END = 35,
-        KEY_J = 74, KEY_K = 75, KEY_C=67, KEY_O=79, KEY_T=84, KEY_D=68;
+        KEY_J = 74, KEY_K = 75, KEY_C=67, KEY_O=79, KEY_T=84, KEY_D=68,
+        KEY_QUESTION_MARK=191;
+
+    var on_keydown = (function on_keydown (e) {
+        var something_done = false;
+
+        switch (e.keyCode) {
+            case KEY_QUESTION_MARK:
+                setTimeout(function() { $('#show-shortcuts').click(); }, 10);
+                something_done = true;
+                break;
+        }
+
+        if (something_done) {
+            // stop event only if we did something with it
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }); // on_keydown
 
     var on_issues_list_keydown = (function on_issues_list_keydown (e) {
         if (e.ctrlKey || e.shiftKey || e.metaKey) { return; }
@@ -227,6 +245,7 @@ $().ready(function() {
     }); // on_toggle_details_click
 
     $(document).on('click', 'a.issue-link', on_issue_link_click);
+    $(document).on('keydown', on_keydown);
     $(document).on('keydown', '#issues-list', on_issues_list_keydown);
     $(document).on('keydown', '.issue-item', on_issue_item_keydown);
     $(document).on('keydown', '.issues-group .box-header', on_issues_group_title_click);

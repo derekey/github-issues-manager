@@ -245,3 +245,10 @@ a.box-header:focus {
 #issues-list.without-details .news {
     min-height: 20px;
 }
+#shortcuts-window {
+    width: 90%;
+    margin-left: -45%;
+}
+#shortcuts-window tr td:first-of-type {
+    white-space: nowrap;
+};
