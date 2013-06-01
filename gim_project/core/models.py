@@ -316,6 +316,9 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     github_ignore = GithubObjectWithId.github_ignore + ('token',
         'is_organization', 'password', 'is_staff', 'is_active', 'date_joined')
 
+    class Meta:
+        ordering = ('username', )
+
     @property
     def github_callable_identifiers(self):
         return [
@@ -342,6 +345,7 @@ class Repository(GithubObjectWithId):
         unique_together = (
             ('owner', 'name'),
         )
+        ordering = ('owner', 'name', )
 
     def __unicode__(self):
         return u'%s/%s' % (self.owner.username if self.owner else '?', self.name)
@@ -454,6 +458,7 @@ class LabelType(models.Model):
         unique_together = (
             ('repository', 'name'),
         )
+        ordering = ('name', )
 
     def __unicode__(self):
         return u'%s' % self.name
