@@ -56,9 +56,30 @@ $().ready(function() {
         return true;
     }); // select_issue
 
-    var KEYUP = 38, KEYDOWN = 40, KEYLEFT=37, KEYRIGHT=39, KEYHOME = 36, KEYEND = 35;
+    var KEY_UP = 38, KEY_DOWN = 40, KEY_LEFT=37, KEY_RIGHT=39, KEY_HOME = 36, KEY_END = 35,
+        KEY_J = 74, KEY_K = 75, KEY_C=67, KEY_O=79, KEY_T=84, KEY_D=68;
 
     var on_issues_list_keydown = (function on_issues_list_keydown (e) {
+        if (e.ctrlKey || e.shiftKey || e.metaKey) { return; }
+
+        var something_done = false;
+
+        switch (e.keyCode) {
+            case KEY_D:
+                // toggle the detail view of issues
+                on_toggle_details_click();
+                something_done = true;
+                break;
+        }
+
+        if (something_done) {
+            // stop event only if we did something with it
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }); // on_issues_list_keydown
+
+    var on_issue_item_keydown = (function on_issue_item_keydown (e) {
         if (e.ctrlKey || e.shiftKey || e.metaKey) { return; }
 
         var $issue_item = $(this),
@@ -66,7 +87,8 @@ $().ready(function() {
             $issue_link, $list, $group;
 
         switch (e.keyCode) {
-             case KEYUP:
+             case KEY_UP:
+             case KEY_K:
                 // focus and click on the previous issue, or if no one, try to
                 // go on the title of the current group
                 $issue_link = $issue_item.prev().find('.issue-link').first();
@@ -74,7 +96,8 @@ $().ready(function() {
                     select_issues_group($issue_item.closest('.issues-group'));
                 }
                 break;
-             case KEYDOWN:
+             case KEY_DOWN:
+             case KEY_J:
                 // focus and click on the next issue, or if no one, try to go on
                 // the title of the next group
                 $issue_link = $issue_item.next().find('.issue-link').first();
@@ -82,15 +105,16 @@ $().ready(function() {
                     select_issues_group($issue_item.closest('.issues-group').next());
                 }
                 break;
-            case KEYHOME:
+            case KEY_HOME:
                 // focus and click on the first issue on the group
                 $issue_link = $issue_item.closest('.issues-group').find('.issue-link').first();
                 break;
-            case KEYEND:
+            case KEY_END:
                 // focus and click on the last issue on the group
                 $issue_link = $issue_item.closest('.issues-group').find('.issue-link').last();
                 break;
-            case KEYLEFT:
+            case KEY_LEFT:
+            case KEY_C:
                 // close the current group
                 $list = $issue_item.closest('ul');
                 if ($list.hasClass('collapse') && $list.hasClass('in')) {
@@ -110,7 +134,7 @@ $().ready(function() {
             e.preventDefault();
             e.stopPropagation();
         }
-    }); // on_issues_list_keydown
+    }); // on_issue_item_keydown
 
     var on_issues_group_title_click = (function on_issues_group_title_click(e) {
         if (e.ctrlKey || e.shiftKey || e.metaKey) { return; }
@@ -123,7 +147,8 @@ $().ready(function() {
             $previous_group, $previous_list;
 
         switch (e.keyCode) {
-            case KEYUP:
+            case KEY_UP:
+            case KEY_K:
                 // focus and click on the last issue of the previous group if
                 // it's open, or it's title if not
                 $previous_group = $group.prev();
@@ -137,7 +162,8 @@ $().ready(function() {
                     something_done = true;
                 }
                 break;
-            case KEYDOWN:
+            case KEY_DOWN:
+            case KEY_J:
                 // focus and click on the first issue of the group if open, or
                 // focus on the title of the next group if not
                 if (open) {
@@ -146,25 +172,34 @@ $().ready(function() {
                     something_done = select_issues_group($group.next());
                 }
                 break;
-            case KEYLEFT:
+            case KEY_LEFT:
+            case KEY_C:
                 // close the group if open
                 if (can_collapse && open) {
                     $list.collapse('hide');
                     something_done = true;
                 }
                 break;
-            case KEYRIGHT:
+            case KEY_RIGHT:
+            case KEY_O:
                 // open the group if closed
                 if (can_collapse || !open) {
                     $list.collapse('show');
                     something_done = true;
                 }
                 break;
-            case KEYHOME:
+            case KEY_T:
+                // open the group if closed, close it if open
+                if (can_collapse) {
+                    $list.collapse(open ? 'hide' : 'show');
+                    something_done = true;
+                }
+                break;
+            case KEY_HOME:
                 // go to the title of the first group
                 something_done = select_issues_group($issues_list_container.find('.issues-group').first());
                 break;
-            case KEYEND:
+            case KEY_END:
                 // go to the title of the last group
                 something_done = select_issues_group($issues_list_container.find('.issues-group').last());
                 break;
@@ -192,7 +227,8 @@ $().ready(function() {
     }); // on_toggle_details_click
 
     $(document).on('click', 'a.issue-link', on_issue_link_click);
-    $(document).on('keydown', '.issue-item', on_issues_list_keydown);
+    $(document).on('keydown', '#issues-list', on_issues_list_keydown);
+    $(document).on('keydown', '.issue-item', on_issue_item_keydown);
     $(document).on('keydown', '.issues-group .box-header', on_issues_group_title_click);
     $(document).on('click', '#toggle-issues-details', on_toggle_details_click);
     $(document).on('click', '#close-all-groups', on_close_all_groups_click);
