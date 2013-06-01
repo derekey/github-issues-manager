@@ -1,4 +1,3 @@
-from django.db.models import Q
 from django.core.urlresolvers import reverse_lazy
 
 from core.models import Issue, GithubUser, LabelType, Milestone
@@ -149,17 +148,13 @@ class IssuesView(BaseRepositoryView):
             filter_objects['current_label_types'] = {}
             filter_objects['current_labels'] = []
             qs_filters['labels'] = []
-            Q_objects = []
             for label in labels:
                 qs_filters['labels'].append(label.name)
                 if label.label_type_id and label.label_type_id not in filter_objects['current_label_types']:
                     filter_objects['current_label_types'][label.label_type_id] = label
                 elif not label.label_type_id:
                     filter_objects['current_labels'].append(label)
-                Q_objects.append(Q(labels=label.id))
-
-            if len(Q_objects):
-                queryset = queryset.filter(*Q_objects)
+                queryset = queryset.filter(labels=label.id)
 
         # prepare order, by group then asked ordering
         order_by = []
