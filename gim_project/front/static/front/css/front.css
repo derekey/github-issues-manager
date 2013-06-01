@@ -13,15 +13,15 @@ body > .navbar {
 #main {
     height: 100%;
     overflow: hidden;
-    padding-top: 40px;
     padding-right: 0;
     padding-left: 0;
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
 }
 #main-inner {
     height: 100%;
+    padding-top: 40px;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
 }
 #main-inner > * {
     padding-top: 15px;
