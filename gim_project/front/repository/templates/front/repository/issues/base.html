@@ -1,5 +1,5 @@
 {% extends "front/repository/base.html" %}
-{% load querystring frontutils %}
+{% load querystring frontutils issues_tags %}
 
 {% block main %}
 
@@ -27,7 +27,7 @@
                     {% if issues_filter.objects.current_created == creator.username %}
                         <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
                     {% else %}
-                        <li><a href="{{ creator.created_filter_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
+                        <li><a href="{{ current_repository|base_url_issues_filtered_by_created:creator }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -52,7 +52,7 @@
                     {% if issues_filter.objects.current_assigned == collaborator.username %}
                         <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
                     {% else %}
-                        <li><a href="{{ collaborator.assigned_filter_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
+                        <li><a href="{{ current_repository|base_url_issues_filtered_by_assigned:collaborator }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -284,7 +284,7 @@
                     {% endif %}
                         {% for issue in group.list %}
                             <li class="box-section news issue-item{% if current_issue.id == issue.id %} active{% endif %}">
-                                <div class="avatar"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}"></div>
+                                <a href="{% if issues_filter.objects.current_created == issue.user.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_created:issue.user }}{% endif %}{{ issues_filter.querystring }}" class="avatar" title="Click to {% if issues_filter.objects.current_created == issue.user.username %}stop filtering{% else %}filter{% endif %} issues created by {{ issue.user.username }}"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}" alt="{{ issue.user.username }}"></a>
                                 <div class="news-time" title="{{ issue.created_at|date:"Y-m-d H:i:s" }}">{{ issue.created_at|ago }}</div>
                                 <div class="news-content">
                                 <div class="news-title">

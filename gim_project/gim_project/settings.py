@@ -134,6 +134,7 @@ INSTALLED_APPS = (
     'core',
     'front',
     'front.repository',  # at least for specific templates
+    'front.repository.issues',  # for its templatetags
 )
 
 # A sample logging configuration. The only tangible logging

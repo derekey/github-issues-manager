@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import models
 
 from core import models as core_models
@@ -25,13 +25,19 @@ class _Repository(models.Model):
         """
         Return the url to filter issues of this repositories by filter_type, for
         the given username
+        Calls are cached for faster access
         """
-        kwargs = self.get_reverse_kwargs()
-        kwargs.update({
-            'username': username,
-            'user_filter_type': filter_type
-        })
-        return reverse_lazy('front:repository:user_issues', kwargs=kwargs)
+        cache_key = (filter_type, username)
+        if cache_key not in self.get_issues_user_filter_url_for_username._cache:
+            kwargs = self.get_reverse_kwargs()
+            kwargs.update({
+                'username': username,
+                'user_filter_type': filter_type
+            })
+            self.get_issues_user_filter_url_for_username._cache[cache_key] = \
+                        reverse('front:repository:user_issues', kwargs=kwargs)
+        return self.get_issues_user_filter_url_for_username._cache[cache_key]
+    get_issues_user_filter_url_for_username._cache = {}
 
 contribute_to_model(_Repository, core_models.Repository)
 
