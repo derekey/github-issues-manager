@@ -56,8 +56,10 @@ $().ready(function() {
         return true;
     }); // select_issue
 
-    var KEY_UP = 38, KEY_DOWN = 40, KEY_LEFT=37, KEY_RIGHT=39, KEY_HOME = 36, KEY_END = 35,
-        KEY_J = 74, KEY_K = 75, KEY_C=67, KEY_O=79, KEY_T=84, KEY_D=68,
+    var KEY_UP = 38, KEY_DOWN = 40, KEY_LEFT=37, KEY_RIGHT=39,
+        KEY_HOME = 36, KEY_END = 35,
+        KEY_J = 74, KEY_K = 75, KEY_N = 78, KEY_P=80,
+        KEY_C=67, KEY_O=79, KEY_T=84, KEY_D=68,
         KEY_QUESTION_MARK=191;
 
     var on_keydown = (function on_keydown (e) {
@@ -105,8 +107,9 @@ $().ready(function() {
             $issue_link, $list, $group;
 
         switch (e.keyCode) {
-             case KEY_UP:
-             case KEY_K:
+            case KEY_UP:
+            case KEY_K:
+            case KEY_P:
                 // focus and click on the previous issue, or if no one, try to
                 // go on the title of the current group
                 $issue_link = $issue_item.prev().find('.issue-link').first();
@@ -114,8 +117,9 @@ $().ready(function() {
                     select_issues_group($issue_item.closest('.issues-group'));
                 }
                 break;
-             case KEY_DOWN:
-             case KEY_J:
+            case KEY_DOWN:
+            case KEY_J:
+            case KEY_N:
                 // focus and click on the next issue, or if no one, try to go on
                 // the title of the next group
                 $issue_link = $issue_item.next().find('.issue-link').first();
@@ -167,6 +171,7 @@ $().ready(function() {
         switch (e.keyCode) {
             case KEY_UP:
             case KEY_K:
+            case KEY_P:
                 // focus and click on the last issue of the previous group if
                 // it's open, or it's title if not
                 $previous_group = $group.prev();
@@ -182,6 +187,7 @@ $().ready(function() {
                 break;
             case KEY_DOWN:
             case KEY_J:
+            case KEY_N:
                 // focus and click on the first issue of the group if open, or
                 // focus on the title of the next group if not
                 if (open) {
