@@ -140,7 +140,7 @@ class IssuesView(BaseRepositoryView):
                 query_filters['milestone__number'] = milestone.number
 
         # the base queryset with the current filter
-        queryset = repository.issues.filter(**query_filters).prefetch_related('labels__label_type')
+        queryset = repository.issues.filter(**query_filters).prefetch_related('labels__label_type', 'user', 'assignee', 'milestone')
 
         # now filter by labels
         labels = self._get_labels(repository, qs_parts)

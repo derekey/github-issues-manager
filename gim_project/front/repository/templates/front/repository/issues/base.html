@@ -152,12 +152,12 @@
 
 </nav>
 
-<section id="issues-list" class="span4">
+<section id="issues-list-container" class="span4">
     {% if issues %}
         <nav id="issues-navbar" class="navbar">
             <div class="navbar-inner">
                 <ul class="nav">
-                    <li class="dropdown span6">
+                    <li class="dropdown span4">
                         <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
                             <span>
                                 Sort
@@ -171,24 +171,24 @@
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu">
+                            {% for sort_field in view.allowed_sort_fields %}
+                                <li{% toggle_value_if_in_querystring "sort" sort_field if_true=" class='active'" %}>
+                                    <a href="{{ current_issues_url }}{% replace_many_in_querystring "sort" sort_field "direction" issues_filter.parts.direction|default:"desc" %}">{{ sort_field|capfirst }}</a>
+                                </li>
+                            {% endfor %}
                             {% if issues_filter.parts.sort %}
+                                <li class="divider"></li>
                                 <li class="sort-menu{% toggle_value_if_in_querystring "direction" "asc" if_true=" active" %}">
                                     <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><ul class="unstyled"><li class="icon-arrow-down"> </li></ul></a>
                                 </li><!--
                                 --><li class="sort-menu{% toggle_value_if_in_querystring "direction" "desc" if_true=" active" %}">
                                     <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><ul class="unstyled"><li class="icon-arrow-up"> </li></ul></a>
                                 </li>
-                                <li class="divider"></li>
                             {% endif %}
-                            {% for sort_field in view.allowed_sort_fields %}
-                                <li{% toggle_value_if_in_querystring "sort" sort_field if_true=" class='active'" %}>
-                                    <a href="{{ current_issues_url }}{% replace_many_in_querystring "sort" sort_field "direction" issues_filter.parts.direction|default:"desc" %}">{{ sort_field|capfirst }}</a>
-                                </li>
-                            {% endfor %}
                         </ul>
                     </li>
                     <li class="divider-vertical"></li>
-                    <li class="dropdown span6">
+                    <li class="dropdown span4">
                         <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
                             <span>
                                 Group by
@@ -207,16 +207,7 @@
                                 {% endif %}
                             </span>
                         </a>
-                        <ul class="dropdown-menu pull-right">
-                            {% if issues_filter.parts.group_by %}
-                                <li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "asc" if_true=" active" %}">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><ul class="unstyled"><li class="icon-arrow-down"> </li></ul></a>
-                                </li><!--
-                                --><li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "desc" if_true=" active" %}">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><ul class="unstyled"><li class="icon-arrow-up"> </li></ul></a>
-                                </li>
-                                <li class="divider"></li>
-                            {% endif %}
+                        <ul class="dropdown-menu">
                             {% for group_by_field in view.allowed_group_by_fields %}
                                 <li{% toggle_value_if_in_querystring "group_by" group_by_field " class='active'" %}>
                                     <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a>
@@ -236,12 +227,35 @@
                                     {% endfor %}
                                 {% endif %}
                             {% endwith %}
+                            {% if issues_filter.parts.group_by %}
+                                <li class="divider"></li>
+                                <li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "asc" if_true=" active" %}">
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><ul class="unstyled"><li class="icon-arrow-down"> </li></ul></a>
+                                </li><!--
+                                --><li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "desc" if_true=" active" %}">
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><ul class="unstyled"><li class="icon-arrow-up"> </li></ul></a>
+                                </li>
+                            {% endif %}
                         </ul>
+                    </li>
+                    <li class="divider-vertical"></li>
+                    <li class="dropdown span4">
+                        <a href="#" role="button" class="dropdown-toggle no-selection" data-toggle="dropdown">
+                            <span>
+                                Options
+                                <span class="caret"></span>
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu pull-right">
+                            <li><a href="#" id="toggle-issues-details">Toggle details</a></li>
+                            <li><a href="#" id="close-all-groups">Close all groups</a></li>
+                            <li><a href="#" id="open-all-groups">Open all groups</a></li>
+                        <ul>
                     </li>
                 </ul>
             </div>
         </nav>
-        <div>
+        <div id="issues-list">
             {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
             {% for group in issues_groups %}
                 <div class='box issues-group'>

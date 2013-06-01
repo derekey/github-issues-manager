@@ -84,6 +84,21 @@ $().ready(function() {
         }
     }); // on_issues_list_keydown
 
+    var on_close_all_groups_click = (function on_close_all_groups_click(e) {
+        $issues_list_container.find('.collapse').each(function() { $(this). collapse('hide'); });
+    }); // on_close_all_groups_click
+
+    var on_open_all_groups_click = (function on_open_all_groups_click(e) {
+        $issues_list_container.find('.collapse').each(function() { $(this). collapse('show'); });
+    }); // on_open_all_groups_click
+
+    var on_toggle_details_click = (function on_toggle_details_click(e) {
+        $issues_list_container.toggleClass('without-details');
+    }); // on_toggle_details_click
+
     $(document).on('click', 'a.issue-link', on_issue_link_click);
     $(document).on('keydown', '.issue-item', on_issues_list_keydown);
+    $(document).on('click', '#toggle-issues-details', on_toggle_details_click);
+    $(document).on('click', '#close-all-groups', on_close_all_groups_click);
+    $(document).on('click', '#open-all-groups', on_open_all_groups_click);
 });

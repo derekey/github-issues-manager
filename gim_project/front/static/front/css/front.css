@@ -32,7 +32,7 @@ body > .navbar {
 #issues-nav {
     border-right: solid #e5e5e5 1px;
 }
-#issues-list {
+#issues-list-container {
     margin-left: 0;
     padding-top: 0;
     border-right: solid #e5e5e5 1px;
@@ -79,6 +79,12 @@ body > .navbar {
     padding-left: 15px;
 }
 
+#issues-navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
 #issues-navbar span.selection {
     font-size: smaller;
     color: #999;
@@ -92,11 +98,26 @@ body > .navbar {
 }
 #issues-navbar .nav {
     float: none;
+    margin-right: 0;
+}
+#issues-navbar .nav > li[class*="span"] {
+    width: 33.3%;
+    margin-left: 0;
+    margin-right: 0;
 }
 #issues-navbar .dropdown-toggle > span:not(.selection) {
     text-align: center;
     display: block;
     padding-left: 5px;
+}
+#issues-navbar a.no-selection {
+    line-height: 40px;
+}
+#issues-navbar a.no-selection span {
+    vertical-align: middle;
+}
+#issues-navbar a.no-selection span.caret {
+    margin-top: -5px;
 }
 #issues-navbar .navbar-inner {
     padding-left: 0;
@@ -109,6 +130,14 @@ body > .navbar {
     margin-right: -1px;
     height: 60px;
 }
+#issues-list {
+    overflow: auto;
+    position: absolute;
+    top: 61px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
 
 .issue-item .issue-link {
     outline: none !important;
@@ -120,8 +149,8 @@ body > .navbar {
     text-transform: capitalize;
     padding-left: 1ex;
     background: #f5f5f5;
-    border-top: solid 1px #ddd;
-    border-bottom: solid 1px #ddd;
+    border-top: solid 1px #d4d4d4;
+    border-bottom: solid 1px #d4d4d4;
 }
 .box-header[data-toggle="collapse"] {
     cursor: pointer;
@@ -137,7 +166,7 @@ body > .navbar {
 }
 .box-section {
     padding: 10px;
-    border-bottom: solid 1px #ddd;
+    border-bottom: solid 1px #d4d4d4;
     min-height: 80px;
 }
 .box-section.issue-item {
@@ -176,4 +205,23 @@ body > .navbar {
 }
 .news-title a {
     color: inherit;
+}
+
+#issues-list .box-content {
+    margin-bottom: -1px;
+}
+#issues-list.without-details .news .avatar,
+#issues-list.without-details .news .news-time,
+#issues-list.without-details .news .news-text {
+    display: none;
+}
+#issues-list.without-details .news .news-content {
+    margin-left: 0;
+    margin-right: 0;
+}
+#issues-list.without-details .news .news-title {
+    margin-bottom: 0;
+}
+#issues-list.without-details .news {
+    min-height: 20px;
 }
