@@ -261,7 +261,7 @@
                 <div class='box issues-group'>
                     {% if issues_filter.objects.group_by_field %}
                         {% with uidname=issues_filter.objects.group_by.id|default:issues_filter.objects.group_by uidvalue=group.grouper.id|default:group.grouper|default:"none" %}
-                            <div class="box-header" data-toggle="collapse" data-target="#groupby-list-{{ uidname}}-{{ uidvalue }}">
+                            <a class="box-header" href='#' data-toggle="collapse" data-target="#groupby-list-{{ uidname}}-{{ uidvalue }}">
                                 <span class="title">
                                     {% if group.grouper %}
                                         {{ group.grouper.typed_name|default:group.grouper }}
@@ -272,10 +272,16 @@
                                 <ul class="unstyled box-toolbar">
                                     <li><span class="label label-green">{{ group.list|length }}</span></li>
                                 </ul>
-                            </div>
+                            </a>
                             <ul class="unstyled box-content collapse" id="groupby-list-{{ uidname}}-{{ uidvalue }}">
                         {% endwith %}
                     {% else %}
+                        <a class="box-header" href='#'>
+                            <span class="title">{% if issues_filter.parts.keys|length > 2%}Filtered{% else %}All{% endif %} issues</span>
+                            <ul class="unstyled box-toolbar">
+                                <li><span class="label label-green">{{ group.list|length }}</span></li>
+                            </ul>
+                        </a>
                         <ul class="unstyled box">
                     {% endif %}
                         {% for issue in group.list %}
