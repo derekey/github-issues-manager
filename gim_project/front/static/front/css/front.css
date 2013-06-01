@@ -93,7 +93,7 @@ body > .navbar {
 #issues-navbar span.selection ul {
     display: inline-block;
 }
-#issues-navbar span.selection li {
+#issues-navbar span.selection i {
     opacity: 0.5;
 }
 #issues-navbar .nav {

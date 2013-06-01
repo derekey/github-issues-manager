@@ -166,7 +166,7 @@
                             {% if issues_filter.parts.sort %}
                                 <span class="selection">
                                     {{ issues_filter.parts.sort|capfirst }}
-                                    <ul class="unstyled"><li class="icon-arrow-{% if issues_filter.parts.direction == "asc" %}down{% else %}up{% endif %}"> </li></ul>
+                                    <i class="icon-arrow-{% if issues_filter.parts.direction == "asc" %}down{% else %}up{% endif %}"> </i>
                                 </span>
                             {% endif %}
                         </a>
@@ -179,10 +179,10 @@
                             {% if issues_filter.parts.sort %}
                                 <li class="divider"></li>
                                 <li class="sort-menu{% toggle_value_if_in_querystring "direction" "asc" if_true=" active" %}">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><ul class="unstyled"><li class="icon-arrow-down"> </li></ul></a>
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><i class="icon-arrow-down"> </i></a>
                                 </li><!--
                                 --><li class="sort-menu{% toggle_value_if_in_querystring "direction" "desc" if_true=" active" %}">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><ul class="unstyled"><li class="icon-arrow-up"> </li></ul></a>
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><i class="icon-arrow-up"> </i></a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -201,7 +201,7 @@
                                     {% else %}
                                         {{ issues_filter.objects.group_by|capfirst }}
                                     {% endif %}
-                                    <ul class="unstyled"><li class="icon-arrow-{% if issues_filter.parts.group_by_direction == "asc" %}down{% else %}up{% endif %}"> </li></ul>
+                                    <i class="icon-arrow-{% if issues_filter.parts.group_by_direction == "asc" %}down{% else %}up{% endif %}"> </i>
                                 {% else %}
                                     No group by
                                 {% endif %}
@@ -228,10 +228,10 @@
                             {% if issues_filter.parts.group_by %}
                                 <li class="divider"></li>
                                 <li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "asc" if_true=" active" %}">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><ul class="unstyled"><li class="icon-arrow-down"> </li></ul></a>
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><i class="icon-arrow-down"> </i></a>
                                 </li><!--
                                 --><li class="sort-menu{% toggle_value_if_in_querystring "group_by_direction" "desc" if_true=" active" %}">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><ul class="unstyled"><li class="icon-arrow-up"> </li></ul></a>
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><i class="icon-arrow-up"> </i></a>
                                 </li>
                             {% endif %}
                         </ul>
