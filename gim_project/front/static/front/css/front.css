@@ -230,6 +230,13 @@ a.box-header:focus {
     border-left: solid #666 3px;
 }
 
+#issues-list.without-details .news {
+    padding: 5px;
+    padding-left: 8px;
+}
+#issues-list.without-details .news.active {
+    padding-left: 5px;
+}
 #issues-list.without-details .news .avatar,
 #issues-list.without-details .news .news-time,
 #issues-list.without-details .news .news-text {
