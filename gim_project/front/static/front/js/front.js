@@ -245,10 +245,10 @@ $().ready(function() {
     }); // on_toggle_details_click
 
     $(document).on('click', 'a.issue-link', on_issue_link_click);
-    $(document).on('keydown', on_keydown);
-    $(document).on('keydown', '#issues-list', on_issues_list_keydown);
     $(document).on('keydown', '.issue-item', on_issue_item_keydown);
     $(document).on('keydown', '.issues-group .box-header', on_issues_group_title_click);
+    $(document).on('keydown', '#issues-list', on_issues_list_keydown);
+    $(document).on('keydown', on_keydown);
     $(document).on('click', '#toggle-issues-details', on_toggle_details_click);
     $(document).on('click', '#close-all-groups', on_close_all_groups_click);
     $(document).on('click', '#open-all-groups', on_open_all_groups_click);
