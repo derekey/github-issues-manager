@@ -295,7 +295,7 @@
                                 <div class="news-content">
                                 <div class="news-title">
                                     <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}" class="issue-link" data-issue-number="{{ issue.number }}">
-                                        <strong>#{{ issue.number }}</strong> - {{ issue.title }}
+                                        <strong{% if issue.state == 'closed' %} class="issue-closed"{% endif %}>#{{ issue.number }}</strong> - {{ issue.title }}
                                         {% if issue.is_pull_request %}<span class="label label-success" title="It's a pull-request">PR</span>{% endif %}
                                         {% if issue.comments_count %}<span class="label label-inverse" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">{{ issue.comments_count }}</span>{% endif %}
                                     </a>
