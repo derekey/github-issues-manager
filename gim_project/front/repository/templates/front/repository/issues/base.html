@@ -298,7 +298,7 @@
                                     {% for label in issue.labels.all %}
                                         {% if label.label_type_id %}
                                             {% attributes_for_list label.label_type.labels.all "name" as label_names %}
-                                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "stop filtering" "filter" %} on this {{ label.label_type.name }}"><span class="label label-default">{{ label.label_type.name }}: {{ label.typed_name }}</span></a>
+                                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "stop filtering" "filter" %} on this {{ label.label_type.name }}"><span class="label label-info">{{ label.label_type.name }}: {{ label.typed_name }}</span></a>
                                         {% endif %}
                                     {% endfor %}
                                     {% for label in issue.labels.all %}
@@ -306,6 +306,12 @@
                                             <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "remove the" "add a" %} filter on this label"><span class="label label-default">{{ label.name }}</span></a>
                                         {% endif %}
                                     {% endfor %}
+                                    {% if issue.milestone %}
+                                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" issue.milestone.number %}" title="Click to {% toggle_value_if_in_querystring "milestone" self.issue.milestone.number "stop filtering" "filter" %} on this milestone"><span class="label label-inverse">Milestone: {{ issue.milestone.title }}</span></a>
+                                    {% endif %}
+                                    {% if issue.assignee %}
+                                        <a href="{% if issues_filter.objects.current_assigned == issue.assignee.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_assigned:issue.assignee }}{% endif %}{{ issues_filter.querystring }}" title="Click to {% if issues_filter.objects.current_assigned == issue.assignee.username %}stop filtering{% else %}filter{% endif %} issues assigned to {{ issue.assignee.username }}"><span class="label label-warning">Assignee: {{ issue.assignee }}</span></a>
+                                    {% endif %}
                                 </div>
                             </li>
                         {% endfor %}
