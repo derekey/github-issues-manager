@@ -199,12 +199,18 @@ a.box-header:focus {
     max-height: 36px;
     max-width: 36px;
 }
+.avatar-tiny {
+    max-height: 16px;
+    max-width: 16px;
+}
 .news-time {
     float: right;
     max-width: 4em;
     color: #bbb;
     font-weight: bold;
     text-align: center;
+    font-size: smaller;
+    line-height: 15px;
 }
 .news-content {
     margin-left: 50px;

@@ -286,11 +286,17 @@
                         {% for issue in group.list %}
                             <li class="box-section news issue-item{% if current_issue.id == issue.id %} active{% endif %}">
                                 <a href="{% if issues_filter.objects.current_created == issue.user.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_created:issue.user }}{% endif %}{{ issues_filter.querystring }}" class="avatar" title="Click to {% if issues_filter.objects.current_created == issue.user.username %}stop filtering{% else %}filter{% endif %} issues created by {{ issue.user.username }}"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}" alt="{{ issue.user.username }}"></a>
-                                <div class="news-time" title="{{ issue.created_at|date:"Y-m-d H:i:s" }}">{{ issue.created_at|ago }}</div>
+                                <div class="news-time">
+                                    <span title="Created: {{ issue.created_at|date:"Y-m-d H:i:s" }}">{{ issue.created_at|ago }}</span>
+                                    {% if issue.updated_at and issue.created_at != issue.updated_at %}
+                                        ⇢ <span title="Updated: {{ issue.updated_at|date:"Y-m-d H:i:s" }}">{{ issue.updated_at|ago }}</span>
+                                    {% endif %}
+                                </div>
                                 <div class="news-content">
                                 <div class="news-title">
                                     <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}" class="issue-link" data-issue-number="{{ issue.number }}">
                                         <strong>#{{ issue.number }}</strong> - {{ issue.title }}
+                                        {% if issue.comments_count %}<span class="label label-inverse" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">{{ issue.comments_count }}</span>{% endif %}
                                     </a>
                                 </div>
                                 <div class="news-text">
@@ -310,7 +316,7 @@
                                         <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" issue.milestone.number %}" title="Click to {% toggle_value_if_in_querystring "milestone" self.issue.milestone.number "stop filtering" "filter" %} on this milestone"><span class="label label-inverse">Milestone: {{ issue.milestone.title }}</span></a>
                                     {% endif %}
                                     {% if issue.assignee %}
-                                        <a href="{% if issues_filter.objects.current_assigned == issue.assignee.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_assigned:issue.assignee }}{% endif %}{{ issues_filter.querystring }}" title="Click to {% if issues_filter.objects.current_assigned == issue.assignee.username %}stop filtering{% else %}filter{% endif %} issues assigned to {{ issue.assignee.username }}"><span class="label label-warning">Assignee: {{ issue.assignee }}</span></a>
+                                        <a href="{% if issues_filter.objects.current_assigned == issue.assignee.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_assigned:issue.assignee }}{% endif %}{{ issues_filter.querystring }}" title="Click to {% if issues_filter.objects.current_assigned == issue.assignee.username %}stop filtering{% else %}filter{% endif %} issues assigned to {{ issue.assignee.username }}"><span class="label label-warning">Assignee: <img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url }}"> {{ issue.assignee }}</span></a>
                                     {% endif %}
                                 </div>
                             </li>
