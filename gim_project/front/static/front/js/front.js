@@ -259,5 +259,15 @@ $().ready(function() {
     $(document).on('click', '#close-all-groups', on_close_all_groups_click);
     $(document).on('click', '#open-all-groups', on_open_all_groups_click);
 
-    select_issues_group($issues_list_container.find('.issues-group').first());
+    var something_selected = false;
+    if (location.hash) {
+        var issue = $(location.hash);
+        if (issue.length && issue.hasClass('issue-item')) {
+            something_selected = true;
+            select_issue(issue.find('.issue-link'));
+        }
+    }
+    if (!something_selected) {
+        select_issues_group($issues_list_container.find('.issues-group').first());
+    }
 });
