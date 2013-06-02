@@ -34,12 +34,12 @@ class GithubObject(models.Model):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def _prepare_fetch_headers(self, if_modified_since=None, if_none_match=None):
+    def _prepare_fetch_headers(self, if_modified_since=None, if_none_match=None, github_format=None):
         """
         Prepare and return the headers to use for the github call..
         """
         headers = {
-            'Accept': 'application/vnd.github%s' % self.github_format
+            'Accept': 'application/vnd.github%s' % (github_format or self.github_format)
         }
         if if_modified_since:
             # tell github to retrn data only if something new
@@ -128,7 +128,9 @@ class GithubObject(models.Model):
                         if_none_match = '"d751713988987e9331980363e24189ce"'
 
         request_headers = self._prepare_fetch_headers(
-                    if_modified_since=if_modified_since, if_none_match=if_none_match)
+                    if_modified_since=if_modified_since,
+                    if_none_match=if_none_match,
+                    github_format=model.github_format)
 
         objs = []
 
@@ -202,14 +204,18 @@ class GithubObject(models.Model):
                     # we have data despite of the if_modified_since_header, and
                     # it's the first parameter combination, we remove the header
                     # for the next combinations to be sure to get all the data
-                    request_headers = self._prepare_fetch_headers(if_modified_since=None)
+                    request_headers = self._prepare_fetch_headers(
+                                            if_modified_since=None,
+                                            github_format=model.github_format)
                 status['ok'] += 1
 
         if restart_withouht_if_modified_since:
             # something goes wrong with the if_modified_since header and we
             # were asked to restart, so we do it without the header
             status = {'ok': 0, 304: 0}
-            request_headers = self._prepare_fetch_headers(if_modified_since=None)
+            request_headers = self._prepare_fetch_headers(
+                                            if_modified_since=None,
+                                            github_format=model.github_format)
             objs = []
             for parameters_combination in parameters_combinations:
                 page_parameters = parameters_combination.copy()
