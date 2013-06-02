@@ -27,7 +27,7 @@ class _Repository(models.Model):
         the given username
         Calls are cached for faster access
         """
-        cache_key = (filter_type, username)
+        cache_key = (self.id, filter_type, username)
         if cache_key not in self.get_issues_user_filter_url_for_username._cache:
             kwargs = self.get_reverse_kwargs()
             kwargs.update({
