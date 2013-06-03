@@ -428,7 +428,10 @@ class Repository(GithubObjectWithId):
         # the "closed_by" attribute of an issue is not filled in list call, so
         # we fetch all closed issue that has no closed_by, one by one
         for issue in self.issues.filter(state='closed', closed_by__isnull=True).order_by('-closed_at'):
-            issue.fetch(auth, force_fetch=True)
+            try:
+                issue.fetch(auth, force_fetch=True)
+            except ApiError:
+                pass
 
         return count
 
