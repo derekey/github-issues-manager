@@ -192,6 +192,8 @@ a.box-header:focus {
     float: left;
     width: 40px;
     height: 40px;
+    max-width: 40px;
+    overflow: hidden;
     line-height: 40px;
     text-align: center;
 }
@@ -267,4 +269,4 @@ a.box-header:focus {
 }
 #shortcuts-window tr td:first-of-type {
     white-space: nowrap;
-};
+}

@@ -287,38 +287,47 @@
                             <li id="issue-{{ issue.number }}" class="box-section news issue-item{% if current_issue.id == issue.id %} active{% endif %}">
                                 <a href="{% if issues_filter.objects.current_created == issue.user.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_created:issue.user }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" class="avatar" title="Click to {% if issues_filter.objects.current_created == issue.user.username %}stop filtering{% else %}filter{% endif %} issues created by {{ issue.user.username }}"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}" alt="{{ issue.user.username }}"></a>
                                 <div class="news-time">
-                                    <span title="Created: {{ issue.created_at|date:"Y-m-d H:i:s" }}">{{ issue.created_at|ago }}</span>
-                                    {% if issue.updated_at and issue.created_at != issue.updated_at %}
-                                        ⇢ <span title="Updated: {{ issue.updated_at|date:"Y-m-d H:i:s" }}">{{ issue.updated_at|ago }}</span>
+                                    <span title="Created on {{ issue.created_at|date }}">{{ issue.created_at|ago }}</span>
+                                    {% if issue.state == 'closed' %}
+                                        {% if issues.updated_at > issue.closed_at %}
+                                            ⇢ <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date }}, updated on {{ issue.updated_at|date }}">{{ issue.updated_at|ago }}</span>
+                                        {% else %}
+                                            ⇢ <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date }}">{{ issue.closed_at|ago }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if issue.updated_at and issue.created_at != issue.updated_at %}
+                                            ⇢ <span title="Updated on {{ issue.updated_at|date }}">{{ issue.updated_at|ago }}</span>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                                 <div class="news-content">
-                                <div class="news-title">
-                                    <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}#issue-{{ issue.number }}" class="issue-link" data-issue-number="{{ issue.number }}">
-                                        <strong{% if issue.state == 'closed' %} class="issue-closed"{% endif %}>#{{ issue.number }}</strong> - {{ issue.title }}
-                                        {% if issue.is_pull_request %}<span class="label label-success" title="It's a pull-request">PR</span>{% endif %}
-                                        {% if issue.comments_count %}<span class="label label-inverse" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">{{ issue.comments_count }}</span>{% endif %}
-                                    </a>
-                                </div>
-                                <div class="news-text">
-                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "state" issue.state %}#issue-{{ issue.number }}" title="Click to {% toggle_value_if_in_querystring "state" issue.state "stop filtering" "filter" %} on this state"><span class="label label-{% if issue.state == 'open' %}success{% else %}important{% endif %}">{{ issue.state }}</span></a>
-                                    {% for label in issue.labels.all %}
-                                        {% if label.label_type_id %}
-                                            {% attributes_for_list label.label_type.labels.all "name" as label_names %}
-                                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}#issue-{{ issue.number }}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "stop filtering" "filter" %} on this {{ label.label_type.name }}"><span class="label label-info">{{ label.label_type.name }}: {{ label.typed_name }}</span></a>
+                                    <div class="news-title">
+                                        <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}#issue-{{ issue.number }}" class="issue-link" data-issue-number="{{ issue.number }}">
+                                            <strong{% if issue.state == 'closed' %} class="issue-closed"{% endif %}>#{{ issue.number }}</strong> - {{ issue.title }}
+                                            {% if issue.is_pull_request %}<span class="label label-success" title="It's a pull-request">PR</span>{% endif %}
+                                            {% if issue.comments_count %}<span class="label label-inverse" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">{{ issue.comments_count }}</span>{% endif %}
+                                        </a>
+                                    </div>
+                                    <div class="news-text">
+                                        <a href="{{ current_issues_url }}{% toggle_in_querystring "state" issue.state %}#issue-{{ issue.number }}" title="Click to {% toggle_value_if_in_querystring "state" issue.state "stop filtering" "filter" %} on this state"><span class="label label-{% if issue.state == 'open' %}success{% else %}important{% endif %}">{{ issue.state }}</span></a>
+                                        {% for label in issue.labels.all %}
+                                            {% if label.label_type_id %}
+                                                {% attributes_for_list label.label_type.labels.all "name" as label_names %}
+                                                <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}#issue-{{ issue.number }}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "stop filtering" "filter" %} on this {{ label.label_type.name }}"><span class="label label-info">{{ label.label_type.name }}: {{ label.typed_name }}</span></a>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for label in issue.labels.all %}
+                                            {% if not label.label_type_id %}
+                                                <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}#issue-{{ issue.number }}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "remove the" "add a" %} filter on this label"><span class="label label-default">{{ label.name }}</span></a>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if issue.milestone %}
+                                            <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" issue.milestone.number %}#issue-{{ issue.number }}" title="Click to {% toggle_value_if_in_querystring "milestone" self.issue.milestone.number "stop filtering" "filter" %} on this milestone"><span class="label label-inverse">Milestone: {{ issue.milestone.title }}</span></a>
                                         {% endif %}
-                                    {% endfor %}
-                                    {% for label in issue.labels.all %}
-                                        {% if not label.label_type_id %}
-                                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}#issue-{{ issue.number }}" title="Click to {% toggle_value_if_in_querystring "labels" label.name "remove the" "add a" %} filter on this label"><span class="label label-default">{{ label.name }}</span></a>
+                                        {% if issue.assignee %}
+                                            <a href="{% if issues_filter.objects.current_assigned == issue.assignee.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_assigned:issue.assignee }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" title="Click to {% if issues_filter.objects.current_assigned == issue.assignee.username %}stop filtering{% else %}filter{% endif %} issues assigned to {{ issue.assignee.username }}"><span class="label label-warning">Assignee: <img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url }}"> {{ issue.assignee }}</span></a>
                                         {% endif %}
-                                    {% endfor %}
-                                    {% if issue.milestone %}
-                                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" issue.milestone.number %}#issue-{{ issue.number }}" title="Click to {% toggle_value_if_in_querystring "milestone" self.issue.milestone.number "stop filtering" "filter" %} on this milestone"><span class="label label-inverse">Milestone: {{ issue.milestone.title }}</span></a>
-                                    {% endif %}
-                                    {% if issue.assignee %}
-                                        <a href="{% if issues_filter.objects.current_assigned == issue.assignee.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_assigned:issue.assignee }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" title="Click to {% if issues_filter.objects.current_assigned == issue.assignee.username %}stop filtering{% else %}filter{% endif %} issues assigned to {{ issue.assignee.username }}"><span class="label label-warning">Assignee: <img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url }}"> {{ issue.assignee }}</span></a>
-                                    {% endif %}
+                                    </div>
                                 </div>
                             </li>
                         {% endfor %}
