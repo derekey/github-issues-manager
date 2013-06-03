@@ -419,11 +419,18 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_issues(self, auth, force_fetch=False):
-        return self._fetch_many('issues', auth,
-                                vary={'state': ('open', 'closed')},
-                                defaults={'fk': {'repository': self}},
-                                parameters={'sort': 'updated', 'direction': 'desc'},
-                                force_fetch=force_fetch)
+        count = self._fetch_many('issues', auth,
+                                 vary={'state': ('open', 'closed')},
+                                 defaults={'fk': {'repository': self}},
+                                 parameters={'sort': 'updated', 'direction': 'desc'},
+                                 force_fetch=force_fetch)
+
+        # the "closed_by" attribute of an issue is not filled in list call, so
+        # we fetch all closed issue that has no closed_by, one by one
+        for issue in self.issues.filter(state='closed', closed_by__isnull=True).order_by('-closed_at'):
+            issue.fetch(auth, force_fetch=True)
+
+        return count
 
     @property
     def github_callable_identifiers_for_comments(self):
@@ -629,6 +636,7 @@ class Issue(GithubObjectWithId):
     milestone = models.ForeignKey(Milestone, related_name='issues', blank=True, null=True)
     state = models.CharField(max_length=10, db_index=True)
     comments_count = models.PositiveIntegerField(blank=True, null=True)
+    closed_by = models.ForeignKey(GithubUser, related_name='closed_issues', blank=True, null=True)
 
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
 
