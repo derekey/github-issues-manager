@@ -1,7 +1,45 @@
+{% load querystring frontutils issues_tags %}
 {% if current_issue %}
     <article>
-        <h3>#{{ current_issue.number }} - {{ current_issue.title }}</h3>
-        <div class="well">
+        <div class="area-top">
+            <div class="avatar">
+                <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url }}" alt="{{ current_issue.user.username }}">
+            </div>
+            <h3>#{{ current_issue.number }} - {{ current_issue.title }}</h3>
+            <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date }}</h5>
+            <ul class="unstyled issue-tags issue-main-tags">
+                <li class="label label-{% if current_issue.state == 'open' %}success{% else %}important{% endif %}">{{ current_issue.state }}</li>
+                {% if current_issue.is_pull_request %}<li class="label label-success" title="It's a pull-request">pull request</li>{% endif %}
+                {% if current_issue.milestone %}<li class="label label-inverse">Milestone: {{ current_issue.milestone.title }}</li>{% endif %}
+            </ul>
+            {% if current_issue.state == 'closed' %}
+                <h5>
+                    Closed{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date }}{% endif %}
+
+                </h5>
+            {% else %}
+                {% if issue.updated_at and issue.created_at != issue.updated_at %}
+                    Updated on {{ current_issue.updated_at|date }}
+                {% endif %}
+            {% endif %}
+            <ul class="unstyled issue-tags issue-typed-labels">
+                {% for label in current_issue.labels.all %}
+                    {% if label.label_type_id %}
+                        {% attributes_for_list label.label_type.labels.all "name" as label_names %}
+                        <li class="label label-info">{{ label.label_type.name }}: {{ label.typed_name }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <ul class="unstyled issue-tags issue-typed-labels">
+                {% for label in current_issue.labels.all %}
+                    {% if not label.label_type_id %}
+                        <li class="label label-default">{{ label.name }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>            
+            {% if current_issue.assignee %}<h5>Assigned to <img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url }}"> {{ current_issue.assignee.username }}</h5>{% endif %}
+        </div>
+        <div class="issue-body">
             {{ current_issue.body|safe }}
         </div>
     </article>
@@ -9,7 +47,7 @@
         <h4>Comments</h4>
         <ul>
             {% for comment in current_issue.comments.all %}
-                <li>{{ comment.body }}</li>
+                <li>{{ comment.body|safe }}</li>
             {% endfor %}
         </ul>
     </aside>

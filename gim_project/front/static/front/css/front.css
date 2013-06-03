@@ -275,8 +275,46 @@ a.box-header:focus {
 #shortcuts-window tr td:first-of-type {
     white-space: nowrap;
 }
+
 #issue {
     width: 50%;
     margin-left: 0;
     margin-right: 0;
+    padding-top: 0;
+}
+.area-top {
+    background: #fafafa;
+    padding: 10px 15px;
+    border-bottom: solid 1px #d4d4d4;
+}
+#issue .area-top {
+    margin-top: -9px;
+}
+.area-top .avatar {
+    float: left;
+    width: 40px;
+    height: 40px;
+    max-width: 40px;
+    overflow: hidden;
+    line-height: 40px;
+    text-align: center;
+}
+.area-top h3 {
+    margin-left: 50px;
+    font-size: larger;
+    line-height: 1.3em;
+}
+.area-top h5 {
+    font-weight: normal;
+    margin-left: 50px;
+    color: #999;
+}
+#issue .issue-tags {
+    margin-left: 50px;
+}
+#issue .issue-tags li {
+    display: inline-block;
+}
+#issue .issue-body {
+    padding: 10px 15px;
 }
