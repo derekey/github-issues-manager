@@ -400,3 +400,13 @@ blockquote p {
 blockquote p:last-child {
     margin-bottom: 0;
 }
+#go-to-issue-window {
+    width: 360px;
+    margin-left: -180px;
+}
+#go-to-issue-window form {
+    text-align: center;
+}
+#go-to-issue-window input {
+    margin-left: 2px;
+}

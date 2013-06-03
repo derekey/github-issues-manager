@@ -249,6 +249,7 @@
                             <li><a href="#" id="close-all-groups">Close all groups</a></li>
                             <li><a href="#" id="open-all-groups">Open all groups</a></li>
                             <li><a href="#" id="show-shortcuts" data-toggle="modal" data-target="#shortcuts-window">Show shortcuts</a></li>
+                            <li><a href="#" id="go-to-issue" data-toggle="modal" data-target="#go-to-issue-window">Open issue...</a></li>
                         <ul>
                     </li>
                 </ul>
@@ -345,8 +346,7 @@
             <h3>Shortcuts</h3>
         </div>
         <div class="modal-body">
-            <p>When an issue or a group is selected in the issues list, the following shortcuts are available:</p>
-            <p><em>Note than if there is no selected group-by, actions on groups are ignored.</em><p>
+            <p>When an issue or a group is selected in the issues list, the following shortcuts are available (note than if there is no selected group-by, actions on groups are ignored)<p>
             <div class="row-fluid">
                 <div class="span6">
                     <h4>On issues</h4>
@@ -390,10 +390,23 @@
                     <h4>Other</h4>
                     <table class="table table-condensed">
                         <tr><td><span class="label label-inverse">f</span></td><td>Toggle the fullscreen view of the main issue</td></tr>
+                        <tr><td><span class="label label-inverse">#</span> or <span class="label label-inverse">i</span></td><td>Open a window to type an issue number to open</td></tr>
                         <tr><td><span class="label label-inverse">?</span></td><td>This window</td></tr>
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="go-to-issue-window" class="modal hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h3>Go to issue</h3>
+        </div>
+        <div class="modal-body">
+            <form class="form-inline" data-base-url="{{ root_issues_url }}">
+                #<input type="text" name='issue-number' id='go-to-issue-number' placeholder="Type an issue number" />
+                <button class="btn btn-primary" type="submit">Go !</button>
+            </form>
         </div>
     </div>
 </section>

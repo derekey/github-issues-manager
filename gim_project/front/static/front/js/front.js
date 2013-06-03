@@ -1,7 +1,18 @@
 $().ready(function() {
     var $issue_container = $('#issue'),
         $issues_list_container = $('#issues-list'),
+        $go_to_issue_window = $('#go-to-issue-window'),
+        $go_to_issue_number_input = $('#go-to-issue-number'),
         current_issue_number = null;
+
+    var open_issue = (function open_issue(url, number) {
+        $.get(url, function(data) {
+            if (number != current_issue_number) { return; }
+            $issue_container.html(data);
+            $('.issue-item.active').removeClass('active');
+            $item.addClass('active');
+        });
+    }); // open_issue
 
     var on_issue_link_click = (function on_issue_link_click (e) {
         var link = this, $link = $(this), $item = $link.closest('.issue-item');
@@ -9,20 +20,17 @@ $().ready(function() {
         e.stopPropagation();
         if ($item.hasClass('active')) { return; }
         current_issue_number = $link.data('issue-number');
-        $.get(link.href, function(data) {
-            if ($link.data('issue-number') != current_issue_number) { return; }
-            $issue_container.html(data);
-            $('.issue-item.active').removeClass('active');
-            $item.addClass('active');
-        });
+        open_issue(link.href, current_issue_number);
     }); // on_issue_link_click
 
     var select_issues_group = (function select_issues_group($issues_group) {
         if (!$issues_group || !$issues_group.length) { return false; }
         $issues_group.find('.box-header').focus();
+        if (current_issue_number) {
+            $issue_container.html('<p class="empty-column">...</p>');
+        }
         current_issue_number = null;
         $('.issue-item.active').removeClass('active');
-        $issue_container.html('<p class="empty-column">...</p>');
         return true;
     }); // select_issues_group
 
@@ -60,9 +68,10 @@ $().ready(function() {
         KEY_HOME = 36, KEY_END = 35,
         KEY_J = 74, KEY_K = 75, KEY_N = 78, KEY_P=80,
         KEY_C=67, KEY_O=79, KEY_T=84, KEY_D=68, KEY_F=70,
-        KEY_QUESTION_MARK=191;
+        KEY_I=73,
+        KEY_QUESTION_MARK=191, KEY_SHARP=51;
 
-    var on_keydown = (function on_keydown (e) {
+    var on_keyup = (function on_keyup (e) {
         var something_done = false;
 
         switch (e.keyCode) {
@@ -75,6 +84,20 @@ $().ready(function() {
                 on_resize_issue_click();
                 something_done = true;
                 break;
+            case KEY_I:
+                // open go-to-issue window if a real simple i
+                if (!e.shiftKey && !e.altKey && !e.metaKey) {
+                    setTimeout(function() { $('#go-to-issue').click(); }, 10);
+                    something_done = true;
+                }
+                break;
+            case KEY_SHARP:
+                // open go-to-issue window if a "real" sharp, not just "3"
+                if (e.shiftKey || e.altKey || e.metaKey) {
+                    setTimeout(function() { $('#go-to-issue').click(); }, 10);
+                    something_done = true;
+                }
+                break;
         }
 
         if (something_done) {
@@ -85,7 +108,7 @@ $().ready(function() {
     }); // on_keydown
 
     var on_issues_list_keydown = (function on_issues_list_keydown (e) {
-        if (e.ctrlKey || e.shiftKey || e.metaKey) { return; }
+        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) { return; }
 
         var something_done = false;
 
@@ -105,7 +128,7 @@ $().ready(function() {
     }); // on_issues_list_keydown
 
     var on_issue_item_keydown = (function on_issue_item_keydown (e) {
-        if (e.ctrlKey || e.shiftKey || e.metaKey) { return; }
+        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) { return; }
 
         var $issue_item = $(this),
             something_done = false,
@@ -164,7 +187,7 @@ $().ready(function() {
     }); // on_issue_item_keydown
 
     var on_issues_group_title_click = (function on_issues_group_title_click(e) {
-        if (e.ctrlKey || e.shiftKey || e.metaKey) { return; }
+        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) { return; }
         var $group_link = $(this),
             $group = $group_link.closest('.issues-group'),
             $list = $group.children('ul'),
@@ -259,15 +282,44 @@ $().ready(function() {
         $('body').toggleClass('big-issue');
     }); // on_resize_issue_click
 
+    var on_go_to_issue_window_shown = (function on_go_to_issue_window_shown(e) {
+        $go_to_issue_number_input.focus();
+        $go_to_issue_number_input.prop('placeholder', "Type an issue number");
+    }); // on_go_to_issue_window_shown
+
+    var on_go_to_issue_window_submit = (function on_go_to_issue_window_submit(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $form = $(this),
+            number = $go_to_issue_number_input.val(),
+            fail = false;
+        if (!number) { fail = true; }
+        else if (number[0] == '#') {
+            number = number.slice(1);
+        }
+        $go_to_issue_number_input.val('');
+        if (!fail && !isNaN(number)) {
+            current_issue_number = number;
+            open_issue($form.data('base-url') + number + '/', number);
+            $go_to_issue_window.modal('hide');
+            $go_to_issue_number_input.prop('placeholder', "Type an issue number");
+        } else {
+            $go_to_issue_number_input.prop('placeholder', "Type a correct issue number");
+            $go_to_issue_number_input.focus();
+        }
+    }); // on_go_to_issue_window_submit
+
     $(document).on('click', 'a.issue-link', on_issue_link_click);
     $(document).on('keydown', '.issue-item', on_issue_item_keydown);
     $(document).on('keydown', '.issues-group .box-header', on_issues_group_title_click);
     $(document).on('keydown', '#issues-list', on_issues_list_keydown);
-    $(document).on('keydown', on_keydown);
+    $(document).on('keyup', on_keyup);
     $(document).on('click', '#toggle-issues-details', on_toggle_details_click);
     $(document).on('click', '#close-all-groups', on_close_all_groups_click);
     $(document).on('click', '#open-all-groups', on_open_all_groups_click);
     $(document).on('click', '#resize-issue', on_resize_issue_click);
+    $go_to_issue_window.on('shown', on_go_to_issue_window_shown);
+    $go_to_issue_window.find('form').on('submit', on_go_to_issue_window_submit);
 
     var something_selected = false;
     if (location.hash) {
