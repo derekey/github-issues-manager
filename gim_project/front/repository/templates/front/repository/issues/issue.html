@@ -47,12 +47,33 @@
         </div>
     </article>
     <aside>
-        <h4>Comments</h4>
-        <ul>
-            {% for comment in current_issue.comments.all %}
-                <li>{{ comment.body|safe }}</li>
-            {% endfor %}
-        </ul>
+        {% if current_issue.comments_count %}
+            <ul class="unstyled chatbox timeline" id="issue-comments">
+                {% attributes_for_list current_repository.collaborators.all "id" as collaborators_ids %}
+                {% for comment in current_issue.comments.all %}
+                    <li class="chatbox-entry arrow-box-left issue-comment">
+                        <div class="avatar"><img class="avatar-small img-circle" src="{{ comment.user.avatar_url }}"></div>
+                        <div class="info">
+                            <span class="name">
+                                <strong>{{ comment.user.username }}</strong>
+                                {% if comment.user.id == current_repository.owner.id %}
+                                    <span class="label label-success" title="{{ comment.user.username }} is the project's owner">owner</span>
+                                {% elif comment.user.id in collaborators_ids %}
+                                    <span class="label label-info" title="{{ comment.user.usnername }} is a collaborator in this project">collaborator</span>
+                                {% endif %}
+                                {% if comment.user.id == current_issue.user.id %}
+                                    <span class="label" title="{{ comment.user.username }} submitted this issue">submitter</span>
+                                {% endif %}                                
+                            </span>
+                            <span class="time" title="{{ comment.created_at|date }}"><i class="icon-time"></i> {{ comment.created_at|ago }}</span>
+                        </div>
+                        <div class="content">
+                            {{ comment.body|safe }}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </aside>
 {% else %}
     <p class="empty-column">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>

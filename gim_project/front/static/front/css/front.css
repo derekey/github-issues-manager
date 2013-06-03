@@ -1,3 +1,6 @@
+p:last-child {
+    margin-bottom: 0;
+}
 html, body {
     height: 100%;
     overflow: hidden;
@@ -285,11 +288,10 @@ a.box-header:focus {
     margin-right: 0;
     padding-top: 0;
     position: relative;
+    background: #fafafa;
 }
 .area-top {
-    background: #fafafa;
     padding: 10px 15px;
-    border-bottom: solid 1px #d4d4d4;
 }
 #issue .area-top {
     margin-top: -9px;
@@ -321,6 +323,9 @@ a.box-header:focus {
 }
 #issue .issue-body {
     padding: 10px 15px;
+    background: white;
+    border-top: solid 1px #d4d4d4;
+    border-bottom: solid 1px #d4d4d4;
 }
 
 body.big-issue #issues-nav {
@@ -339,4 +344,44 @@ body.big-issue #issue {
 }
 #issue-nav i {
     cursor: pointer;
+}
+#issue-comments {
+    padding: 10px 15px;
+}
+.chatbox .avatar {
+    float: left;
+    width: 40px;
+    height: 40px;
+    max-width: 40px;
+    overflow: hidden;
+    line-height: 40px;
+    text-align: center;
+}
+.chatbox .info {
+    margin-left: 50px;
+    border: solid 1px #d4d4d4;
+    border-bottom: 0;
+    padding: 8px;
+}
+.chatbox .time {
+    float: right;
+    color: #999;
+}
+.chatbox .content {
+    margin-left: 50px;
+    background: white;
+    border: solid 1px #d4d4d4;
+    padding: 10px 15px
+}
+.chatbox-entry {
+    margin-bottom: 15px;
+}
+blockquote p {
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    margin-bottom: 10px;
+}
+blockquote p:last-child {
+    margin-bottom: 0;
 }
