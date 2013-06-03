@@ -272,6 +272,9 @@ a.box-header:focus {
     width: 90%;
     margin-left: -45%;
 }
+#shortcuts-window .modal-body {
+    max-height: 430px;
+}
 #shortcuts-window tr td:first-of-type {
     white-space: nowrap;
 }
@@ -281,6 +284,7 @@ a.box-header:focus {
     margin-left: 0;
     margin-right: 0;
     padding-top: 0;
+    position: relative;
 }
 .area-top {
     background: #fafafa;
@@ -317,4 +321,22 @@ a.box-header:focus {
 }
 #issue .issue-body {
     padding: 10px 15px;
+}
+
+body.big-issue #issues-nav {
+    display: none;
+}
+body.big-issue #issues-list-container {
+    display: none;
+}
+body.big-issue #issue {
+    width: 100%;
+}
+#issue-nav {
+    position: absolute;
+    right: 2px;
+    top: 2px;
+}
+#issue-nav i {
+    cursor: pointer;
 }
