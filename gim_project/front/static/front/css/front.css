@@ -151,6 +151,12 @@ body > .navbar {
     outline: none !important;
     text-decoration: none !important;
 }
+.issue-item-assigned {
+    margin-top: 3px;
+}
+.issue-item-assigned a {
+    color: #999 !important;
+}
 
 .box-header {
     color: #666;
