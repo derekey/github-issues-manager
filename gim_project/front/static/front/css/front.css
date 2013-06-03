@@ -31,9 +31,14 @@ body > .navbar {
 }
 #issues-nav {
     border-right: solid #e5e5e5 1px;
+    width: 16.66666%;
+    margin-left: 0;
+    margin-right: 0;
 }
 #issues-list-container {
+    width: 33.333333%;
     margin-left: 0;
+    margin-right: 0;
     padding-top: 0;
     border-right: solid #e5e5e5 1px;
 }
@@ -269,4 +274,9 @@ a.box-header:focus {
 }
 #shortcuts-window tr td:first-of-type {
     white-space: nowrap;
+}
+#issue {
+    width: 50%;
+    margin-left: 0;
+    margin-right: 0;
 }
