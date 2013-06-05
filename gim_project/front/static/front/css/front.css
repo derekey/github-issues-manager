@@ -245,37 +245,37 @@ a.box-header:focus {
     color: inherit;
 }
 
-#issues-list .box-content {
+.issues-list .box-content {
     margin-bottom: -1px;
 }
-#issues-list a.box-header {
+.issues-list a.box-header {
     padding-left: 7px;
 }
-#issues-list a.box-header:focus {
+.issues-list .issues-group.active a.box-header {
     padding-left: 4px;
     border-left: solid #666 3px;
 }
 
-#issues-list.without-details .news {
+.issues-list.without-details .news {
     padding: 5px;
     padding-left: 8px;
 }
-#issues-list.without-details .news.active {
+.issues-list.without-details .news.active {
     padding-left: 5px;
 }
-#issues-list.without-details .news .avatar,
-#issues-list.without-details .news .news-time,
-#issues-list.without-details .news .news-text {
+.issues-list.without-details .news .avatar,
+.issues-list.without-details .news .news-time,
+.issues-list.without-details .news .news-text {
     display: none;
 }
-#issues-list.without-details .news .news-content {
+.issues-list.without-details .news .news-content {
     margin-left: 0;
     margin-right: 0;
 }
-#issues-list.without-details .news .news-title {
+.issues-list.without-details .news .news-title {
     margin-bottom: 0;
 }
-#issues-list.without-details .news {
+.issues-list.without-details .news {
     min-height: 20px;
 }
 #shortcuts-window {

@@ -1,335 +1,642 @@
 $().ready(function() {
-    var $issue_container = $('#issue'),
-        $issues_list_container = $('#issues-list'),
-        $go_to_issue_window = $('#go-to-issue-window'),
-        $go_to_issue_number_input = $('#go-to-issue-number'),
-        current_issue_number = null;
 
-    var open_issue = (function open_issue(url, number) {
-        $.get(url, function(data) {
-            if (number != current_issue_number) { return; }
-            $issue_container.html(data);
-            $('.issue-item.active').removeClass('active');
-            $item.addClass('active');
-        });
-    }); // open_issue
+    var Ev = {
+        stop_event_decorate: (function stop_event_decorate(callback) {
+            /* Return a function to use as a callback for an event
+               Call the callback and if it doesn't returns false (strictly), the
+               event propagation is stopped
+            */
+            var decorator = function(e) {
+                if (e.isPropagationStopped()) { return false; }
+                if (callback(e) !== false) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            };
+            return decorator;
+        }), // stop_event_decorate
 
-    var on_issue_link_click = (function on_issue_link_click (e) {
-        var link = this, $link = $(this), $item = $link.closest('.issue-item');
-        e.preventDefault();
-        e.stopPropagation();
-        if ($item.hasClass('active')) { return; }
-        current_issue_number = $link.data('issue-number');
-        open_issue(link.href, current_issue_number);
-    }); // on_issue_link_click
+        stop_event_decorate_dropdown: (function stop_event_decorate_dropdown(callback) {
+            /* Return a function to use as a callback for clicks on dropdown items
+               It will close the dropwdown before calling the callback, and will
+               return false to tell to the main decorator to stop the event
+            */
+            var decorator = function(e) {
+                var dropdown = $(e.target).closest('.dropdown');
+                if (dropdown.hasClass('open')) {
+                    dropdown.children('.dropdown-toggle').dropdown('toggle');
+                }
+                callback(e);
+                return false;
+            };
+            return Ev.stop_event_decorate(decorator);
+        }), // stop_event_decorate_dropdown
 
-    var select_issues_group = (function select_issues_group($issues_group) {
-        if (!$issues_group || !$issues_group.length) { return false; }
-        $issues_group.find('.box-header').focus();
-        if (current_issue_number) {
-            $issue_container.html('<p class="empty-column">...</p>');
-        }
-        current_issue_number = null;
-        $('.issue-item.active').removeClass('active');
-        return true;
-    }); // select_issues_group
+        key_decorate: (function key_decorate(callback) {
+            /* Return a function to use as a callback for a jwery event
+               Will cancel the call of the callback if the focus is actually on an
+               input element.
+               If not, the callback is called, and if it doesn't returns false
+               (strictly), the event propagation is stopped
+            */
+            var decorator = function(e) {
+                if ($(e.target).is(':input')) { return false; }
+                return callback(e);
+            };
+            return Ev.stop_event_decorate(decorator);
+        }) // key_decorate
+    };
 
-    var select_issue = (function select_issue($issue_link) {
-        if (!$issue_link || !$issue_link.length) { return false; }
 
-        // save the wanted issue number as the current one
-        var issue_number = $issue_link.data('issue-number');
-        current_issue_number = issue_number;
+    var IssuesListIssue = (function IssuesListIssue__constructor (node, issues_list_group) {
+        this.group = issues_list_group;
 
-        var $list = $issue_link.closest('ul');
-        var focus_and_link = function () {
-            // remove the previously event set on this function
-            $list.off('shown', focus_and_link);
-            // is the wanted issue is still the current asked one, go
-            if (issue_number == current_issue_number) {
-                $issue_link.focus().click();
-            }
+        this.node = node;
+        this.node.IssuesListIssue = this;
+        this.$node = $(node);
+        this.$link = this.$node.find(IssuesListIssue.link_selector);
+
+        this.number = this.$node.data('issue-number');
+    }); // IssuesListIssue__constructor
+
+    IssuesListIssue.selector = '.issue-item';
+    IssuesListIssue.link_selector = '.issue-link';
+
+    IssuesListIssue.on_issue_node_event = (function IssuesListIssue_on_issue_node_event (group_method, stop) {
+        var decorator = function(e) {
+            var issue_node = $(e.target).closest(IssuesListIssue.selector);
+            if (!issue_node.length || !issue_node[0].IssuesListIssue) { return false; }
+            return issue_node[0].IssuesListIssue[group_method]();
         };
+        return stop ? Ev.stop_event_decorate(decorator) : decorator;
+    }); // IssuesListIssue_on_issue_node_event
 
-        if ($list.hasClass('collapse') && !$list.hasClass('in')) {
-            // we are on a collapsed group, open it and when done, focus
-            // the link
-            $list.on('shown', focus_and_link);
-            $list.collapse('show');
+    IssuesListIssue.init_events = (function IssuesListIssue_init_events () {
+        $(document).on('click', IssuesListIssue.link_selector, IssuesListIssue.on_issue_node_event('on_click', true));
+    });
+
+    IssuesListIssue.prototype.on_click = (function IssuesListIssue__on_click (e) {
+        this.set_current(true);
+    }); // IssuesListIssue__on_click
+
+    IssuesListIssue.prototype.unset_current = (function IssuesListIssue__unset_current () {
+        this.group.current_issue = null;
+        this.$node.removeClass('active');
+    }); // IssuesListIssue__unset_current
+
+    IssuesListIssue.prototype.set_current = (function IssuesListIssue__set_current (propagate) {
+        if (propagate) {
+            this.group.list.set_current();
+            this.group.set_current();
+        }
+        if (this.group.current_issue) {
+            this.group.current_issue.unset_current();
+        }
+        this.group.current_issue = this;
+        this.group.unset_active();
+        this.$node.addClass('active');
+        this.get_html();
+        var issue = this;
+        if (this.group.collapsed) {
+            this.group.open(false, function() { issue.$link.focus(); });
         } else {
-            // normal and visible link, focus it
-            focus_and_link();
+            this.$link.focus();
         }
+    }); // IssuesListIssue__set_current
 
+    IssuesListIssue.prototype.get_html = (function IssuesListIssue__get_html (url) {
+        if (!IssuesList.can_display_issue_html(this.number)) {
+            return;
+        }
+        if (!url) { url = this.$link.attr('href'); }
+        $.ajax({
+            url: url,
+            success: this.display_html,
+            error: this.error_getting_html,
+            context: this
+        });
+    }); // IssuesListIssue__get_html
+
+    IssuesListIssue.prototype.display_html = (function IssuesListIssue__display_html (html) {
+        IssuesList.display_issue_html(html, this.number);
+    }); // IssuesListIssue__display_html
+
+    IssuesListIssue.prototype.error_getting_html = (function IssuesListIssue__error_getting_html (jqXHR) {
+        IssuesList.clear_issue_html('error ' + jqXHR.status);
+    }); // IssuesListIssue__error_getting_html
+
+
+    var IssuesListGroup = (function IssuesListGroup__constructor (node, issues_list) {
+        this.list = issues_list;
+
+        this.node = node;
+        this.node.IssuesListGroup = this;
+        this.$node = $(node);
+        this.$link = this.$node.find(IssuesListGroup.link_selector);
+        this.$issues_node = this.$node.find(IssuesListGroup.issues_list_selector);
+
+        this.collapsable = this.$issues_node.hasClass('collapse');
+        this.collapsed = this.collapsable && !this.$issues_node.hasClass('in');
+
+        var group = this;
+        this.issues = $.map(this.$node.find(IssuesListIssue.selector),
+                    function(node) { return new IssuesListIssue(node, group); });
+        this.current_issue = null;
+    }); // IssuesListGroup__constructor
+
+    IssuesListGroup.selector = '.issues-group';
+    IssuesListGroup.link_selector = '.box-header';
+    IssuesListGroup.issues_list_selector = '.issues-group-issues';
+
+    IssuesListGroup.prototype.unset_active = (function IssuesListGroup__unset_active () {
+        this.$node.removeClass('active');
+    }); // IssuesListGroup__unset_active
+
+    IssuesListGroup.prototype.set_active = (function IssuesListGroup__set_active () {
+        if (this.current_issue) {
+            this.current_issue.unset_current();
+            IssuesList.clear_issue_html();
+        }
+        this.$node.addClass('active');
+        this.$link.focus();
+    }); // IssuesListGroup__set_active
+
+    IssuesListGroup.prototype.unset_current = (function IssuesListGroup__unset_current () {
+        this.unset_active();
+        if (this.current_issue) {
+            this.current_issue.unset_current();
+        }
+        this.list.current_group = null;
+    }); // IssuesListGroup__set_current
+
+    IssuesListGroup.prototype.set_current = (function IssuesListGroup__set_current (active) {
+        if (this.list.current_group) {
+            this.list.current_group.unset_current();
+        }
+        this.list.current_group = this;
+        if (active) {
+            this.set_active();
+        }
+    }); // IssuesListGroup__set_current
+
+    IssuesListGroup.prototype.open = (function IssuesListGroup__open (set_active, on_shown_callback) {
+        if (!this.collapsable) { return false; }
+        if (!this.collapsed) { return false; }
+        if (set_active) { this.set_active(); }
+        if (on_shown_callback) {
+            var group = this,
+                on_shown = function() {
+                    group.$issues_node.off('shown', on_shown);
+                    on_shown_callback();
+                };
+            this.$issues_node.on('shown', on_shown);
+        }
+        this.$issues_node.collapse('show');
+    }); // IssuesListGroup__open
+
+    IssuesListGroup.prototype.close = (function IssuesListGroup__close (set_active) {
+        if (!this.collapsable) { return false; }
+        if (this.collapsed) { return false; }
+        if (set_active) { this.set_active(); }
+        this.$issues_node.collapse('hide');
+    }); // IssuesListGroup__close
+
+    IssuesListGroup.prototype.toggle = (function IssuesListGroup__toggle (set_active) {
+        if (!this.collapsable) { return false; }
+        return this.collapsed ? this.open(set_active) : this.close(set_active);
+    }); // IssuesListGroup__toggle
+
+    IssuesListGroup.on_group_node_event = (function IssuesListGroup_on_group_node_event (group_method, stop) {
+        var decorator = function(e) {
+            var group_node = $(e.target).closest(IssuesListGroup.selector);
+            if (!group_node.length || !group_node[0].IssuesListGroup) { return false; }
+            return group_node[0].IssuesListGroup[group_method]();
+        };
+        return stop ? Ev.stop_event_decorate(decorator): decorator;
+    }); // IssuesListGroup_on_group_node_event
+
+    IssuesListGroup.on_current_group_key_event = (function IssuesListGroup_on_current_group_key_event (group_method, param) {
+        var decorator = function(e) {
+            if (!IssuesList.current) { return false; }
+            if (!IssuesList.current.current_group) { return false; }
+            return IssuesList.current.current_group[group_method](param);
+        };
+        return Ev.key_decorate(decorator);
+    }); // IssuesListGroup_on_current_group_key_event
+
+    IssuesListGroup.init_events = (function IssuesListGroup_init_events () {
+        $(document).on('click', IssuesListGroup.link_selector, IssuesListGroup.on_group_node_event('on_click', true));
+        $(document).on('show', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_show'));
+        $(document).on('hide', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_hide'));
+        jwerty.key('o/→', IssuesListGroup.on_current_group_key_event('open', true));
+        jwerty.key('c/←', IssuesListGroup.on_current_group_key_event('close', true));
+        jwerty.key('t', IssuesListGroup.on_current_group_key_event('toggle'));
+        jwerty.key('⇞', IssuesListGroup.on_current_group_key_event('go_to_first_issue_if_opened'));
+        jwerty.key('⇟', IssuesListGroup.on_current_group_key_event('go_to_last_issue_if_opened'));
+    });
+
+    IssuesListGroup.prototype.on_click = (function IssuesListGroup__on_click (e) {
+        this.list.set_current();
+        this.set_current(true);
+        this.toggle(true);
+    }); // IssuesListGroup__on_click
+
+    IssuesListGroup.prototype.go_to_previous_item = (function IssuesListGroup__go_to_previous_item () {
+        if (this.collapsed) { return false; }
+        // if we have no current issue, abort
+        if (!this.current_issue) { return false; }
+        // try to select the previous issue
+        var previous_issue = this.get_previous_issue();
+        if (previous_issue) {
+            previous_issue.set_current();
+        } else {
+            // no previous issue, select the current group itself
+            this.set_active();
+        }
         return true;
-    }); // select_issue
+    }); // IssuesListGroup__go_to_previous_item
 
-    var KEY_UP = 38, KEY_DOWN = 40, KEY_LEFT=37, KEY_RIGHT=39,
-        KEY_HOME = 36, KEY_END = 35,
-        KEY_J = 74, KEY_K = 75, KEY_N = 78, KEY_P=80,
-        KEY_C=67, KEY_O=79, KEY_T=84, KEY_D=68, KEY_F=70,
-        KEY_I=73,
-        KEY_QUESTION_MARK=191, KEY_SHARP=51;
-
-    var on_keyup = (function on_keyup (e) {
-        var something_done = false;
-
-        switch (e.keyCode) {
-            case KEY_QUESTION_MARK:
-                setTimeout(function() { $('#show-shortcuts').click(); }, 10);
-                something_done = true;
-                break;
-            case KEY_F:
-                // toggle the full view of the main issue
-                on_resize_issue_click();
-                something_done = true;
-                break;
-            case KEY_I:
-                // open go-to-issue window if a real simple i
-                if (!e.shiftKey && !e.altKey && !e.metaKey) {
-                    setTimeout(function() { $('#go-to-issue').click(); }, 10);
-                    something_done = true;
-                }
-                break;
-            case KEY_SHARP:
-                // open go-to-issue window if a "real" sharp, not just "3"
-                if (e.shiftKey || e.altKey || e.metaKey) {
-                    setTimeout(function() { $('#go-to-issue').click(); }, 10);
-                    something_done = true;
-                }
-                break;
+    IssuesListGroup.prototype.go_to_next_item = (function IssuesListGroup__go_to_next_item () {
+        if (this.collapsed) { return false; }
+        // if we have no current issue, select the first issue if we have one
+        if (!this.current_issue) {
+            if (!this.issues.length) { return false; }
+            this.issues[0].set_current();
+            return true;
         }
+        // try to select the next issue
+        var next_issue = this.get_next_issue();
+        if (!next_issue) { return false; }
+        next_issue.set_current();
+        return true;
+    }); // IssuesListGroup__go_to_next_item
 
-        if (something_done) {
-            // stop event only if we did something with it
-            e.preventDefault();
-            e.stopPropagation();
+    IssuesListGroup.prototype.go_to_first_issue = (function IssuesListGroup__go_to_first_issue () {
+        if (this.collapsed || !this.issues.length) { return false; }
+        this.issues[0].set_current();
+    }); // IssuesListGroup__go_to_first_issue
+
+    IssuesListGroup.prototype.go_to_first_issue_if_opened = (function IssuesListGroup__go_to_first_issue_if_opened () {
+        if (!this.current_issue) { return false; }
+        return this.go_to_first_issue();
+    }); // IssuesListGroup__go_to_first_issue_if_opened
+
+    IssuesListGroup.prototype.go_to_last_issue = (function IssuesListGroup__go_to_last_issue () {
+        if (this.collapsed || !this.issues.length) { return false; }
+        this.issues[this.issues.length-1].set_current();
+    }); // IssuesListGroup__go_to_last_issue
+
+    IssuesListGroup.prototype.go_to_last_issue_if_opened = (function IssuesListGroup__go_to_last_issue_if_opened () {
+        if (!this.current_issue) { return false; }
+        return this.go_to_last_issue();
+    }); // IssuesListGroup__go_to_last_issue_if_opened
+
+    IssuesListGroup.prototype.get_previous_issue = (function IssuesListGroup__get_previous_issue () {
+        if (!this.current_issue) { return false; }
+        var pos = this.issues.indexOf(this.current_issue);
+        if (pos < 1) { return null; }
+        return this.issues[pos - 1];
+    }); // IssuesListGroup__get_previous_issue
+
+    IssuesListGroup.prototype.get_next_issue = (function IssuesListGroup__get_next_issue () {
+        if (!this.current_issue) {
+            if (!this.issues.length) { return null; }
+            return this.issues[0];
         }
-    }); // on_keydown
+        var pos = this.issues.indexOf(this.current_issue);
+        if (pos == this.issues.length - 1) { return null; }
+        return this.issues[pos + 1];
+    }); // IssuesListGroup__get_next_issue
 
-    var on_issues_list_keydown = (function on_issues_list_keydown (e) {
-        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) { return; }
+    IssuesListGroup.prototype.on_show = (function IssuesListGroup__on_show () {
+        this.collapsed = false;
+    }); // IssuesListGroup__on_show
 
-        var something_done = false;
+    IssuesListGroup.prototype.on_hide = (function IssuesListGroup__on_hide () {
+        this.collapsed = true;
+    }); // IssuesListGroup__on_hide
 
-        switch (e.keyCode) {
-            case KEY_D:
-                // toggle the detail view of issues
-                on_toggle_details_click();
-                something_done = true;
+    IssuesListGroup.prototype.get_issue_by_number = (function IssuesListGroup__get_issue_by_number(number) {
+        var issue = null;
+        for (var i = 0; i < this.issues.length; i++) {
+            if (this.issues[i].number == number) {
+                issue = this.issues[i];
                 break;
+            }
         }
+        return issue;
+    }); // IssuesListGroup__get_issue_by_number
 
-        if (something_done) {
-            // stop event only if we did something with it
-            e.preventDefault();
-            e.stopPropagation();
+
+    var IssuesList = (function IssuesList__constructor (node) {
+        this.node = node;
+        this.node.IssuesList = this;
+        this.$node = $(node);
+
+        var list = this;
+        this.groups = $.map(this.$node.find(IssuesListGroup.selector),
+                        function(node) { return new IssuesListGroup(node, list); });
+        this.current_group = null;
+    }); // IssuesList__constructor
+
+    IssuesList.selector = '.issues-list';
+    IssuesList.modal_window = $('#modal-issue-view');
+    IssuesList.modal_window_body = IssuesList.modal_window.children('.modal-body');
+    IssuesList.issue_container = $('.main-issue-container');
+    IssuesList.all = [];
+    IssuesList.current = null;
+
+    IssuesList.prototype.unset_current = (function IssuesList__unset_current () {
+    }); // IssuesList__unset_current
+
+    IssuesList.prototype.set_current = (function IssuesList__set_current () {
+        if (IssuesList.current) {
+            IssuesList.current.unset_current();
         }
-    }); // on_issues_list_keydown
+        IssuesList.current = this;
+    }); // IssuesList__set_current
 
-    var on_issue_item_keydown = (function on_issue_item_keydown (e) {
-        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) { return; }
-
-        var $issue_item = $(this),
-            something_done = false,
-            $issue_link, $list, $group;
-
-        switch (e.keyCode) {
-            case KEY_UP:
-            case KEY_K:
-            case KEY_P:
-                // focus and click on the previous issue, or if no one, try to
-                // go on the title of the current group
-                $issue_link = $issue_item.prev().find('.issue-link').first();
-                if (!$issue_link.length) {
-                    select_issues_group($issue_item.closest('.issues-group'));
-                }
-                break;
-            case KEY_DOWN:
-            case KEY_J:
-            case KEY_N:
-                // focus and click on the next issue, or if no one, try to go on
-                // the title of the next group
-                $issue_link = $issue_item.next().find('.issue-link').first();
-                if (!$issue_link.length) {
-                    select_issues_group($issue_item.closest('.issues-group').next());
-                }
-                break;
-            case KEY_HOME:
-                // focus and click on the first issue on the group
-                $issue_link = $issue_item.closest('.issues-group').find('.issue-link').first();
-                break;
-            case KEY_END:
-                // focus and click on the last issue on the group
-                $issue_link = $issue_item.closest('.issues-group').find('.issue-link').last();
-                break;
-            case KEY_LEFT:
-            case KEY_C:
-                // close the current group
-                $list = $issue_item.closest('ul');
-                if ($list.hasClass('collapse') && $list.hasClass('in')) {
-                    $list.collapse('hide');
-                    select_issues_group($issue_item.closest('.issues-group'));
-                }
-                break;
-        } // switch
-
-        if ($issue_link && $issue_link.length) {
-            // doing stuff if a new issue link must be focused
-            something_done = select_issue($issue_link);
+    IssuesList.init_all = (function IssuesList_init_all () {
+        IssuesList.all = $.map($(IssuesList.selector),
+                            function(node) { return new IssuesList(node); });
+        if (IssuesList.all.length) {
+            IssuesList.all[0].set_current();
         }
+        IssuesListIssue.init_events();
+        IssuesListGroup.init_events();
+        IssuesList.init_events();
+    }); // IssuesList_init_all
 
-        if (something_done) {
-            // stop event only if we did something with it
-            e.preventDefault();
-            e.stopPropagation();
+    IssuesList.on_current_list_key_event = (function IssuesList_key_decorate (list_method) {
+        var decorator = function(e) {
+            if (!IssuesList.current) { return false; }
+            return IssuesList.current[list_method]();
+        };
+        return Ev.key_decorate(decorator);
+    });
+
+    IssuesList.init_events = (function IssuesList_init_event () {
+        jwerty.key('p/k/↑', IssuesList.on_current_list_key_event('go_to_previous_item'));
+        jwerty.key('n/j/↓', IssuesList.on_current_list_key_event('go_to_next_item'));
+        jwerty.key('⇞', IssuesList.on_current_list_key_event('go_to_first_group'));
+        jwerty.key('⇟', IssuesList.on_current_list_key_event('go_to_last_group'));
+        jwerty.key('d', Ev.key_decorate(IssuesList.toggle_details));
+    }); // IssuesList_init_event
+
+    IssuesList.prototype.go_to_previous_item = (function IssuesList__go_to_previous_item () {
+        // if we have no current group, abort
+        if (!this.current_group) { return false; }
+        // try to select the previous issue on the current group
+        if (this.current_group.go_to_previous_item()) {
+            return true;
         }
-    }); // on_issue_item_keydown
-
-    var on_issues_group_title_click = (function on_issues_group_title_click(e) {
-        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) { return; }
-        var $group_link = $(this),
-            $group = $group_link.closest('.issues-group'),
-            $list = $group.children('ul'),
-            can_collapse = $list.hasClass('collapse'),
-            open = (!can_collapse || $list.hasClass('in')),
-            something_done = false,
-            $previous_group, $previous_list;
-
-        switch (e.keyCode) {
-            case KEY_UP:
-            case KEY_K:
-            case KEY_P:
-                // focus and click on the last issue of the previous group if
-                // it's open, or it's title if not
-                $previous_group = $group.prev();
-                $previous_list = $previous_group.children('ul');
-                if ($previous_list.length) {
-                    if (!$previous_list.hasClass('collapse') || $previous_list.hasClass('in')) {
-                        something_done = select_issue($previous_list.find('.issue-link').last());
-                    } else {
-                        something_done = select_issues_group($previous_group);
-                    }
-                    something_done = true;
-                }
-                break;
-            case KEY_DOWN:
-            case KEY_J:
-            case KEY_N:
-                // focus and click on the first issue of the group if open, or
-                // focus on the title of the next group if not
-                if (open) {
-                    something_done = select_issue($group.find('.issue-link').first());
-                } else {
-                    something_done = select_issues_group($group.next());
-                }
-                break;
-            case KEY_LEFT:
-            case KEY_C:
-                // close the group if open
-                if (can_collapse && open) {
-                    $list.collapse('hide');
-                    something_done = true;
-                }
-                break;
-            case KEY_RIGHT:
-            case KEY_O:
-                // open the group if closed
-                if (can_collapse || !open) {
-                    $list.collapse('show');
-                    something_done = true;
-                }
-                break;
-            case KEY_T:
-                // open the group if closed, close it if open
-                if (can_collapse) {
-                    $list.collapse(open ? 'hide' : 'show');
-                    something_done = true;
-                }
-                break;
-            case KEY_HOME:
-                // go to the title of the first group
-                something_done = select_issues_group($issues_list_container.find('.issues-group').first());
-                break;
-            case KEY_END:
-                // go to the title of the last group
-                something_done = select_issues_group($issues_list_container.find('.issues-group').last());
-                break;
-
-        } // switch
-
-        if (something_done) {
-            // stop event only if we did something with it
-            e.preventDefault();
-            e.stopPropagation();
+        // no previous issue on the current group, try to select the previous group
+        var previous_group = this.get_previous_group();
+        if (!previous_group) { return false; }
+        if (previous_group.collapsed) {
+            previous_group.set_current(true);
+        } else {
+            previous_group.set_current();
+            previous_group.go_to_last_issue();
         }
+        return true;
+    }); // IssuesList__go_to_previous_item
 
-    }); // on_issues_group_title_click
+    IssuesList.prototype.go_to_next_item = (function IssuesList__go_to_next_item () {
+        // if we have no current group, select the first group if we have one
+        if (!this.current_group) {
+            if (!this.groups.length) { return false; }
+            this.groups[0].set_current(true);
+            return true;
+        }
+        // try to select the next issue on the current group
+        if (this.current_group.go_to_next_item()) {
+            return true;
+        }
+        // no next issue on the current group, try to select the next group
+        var next_group = this.get_next_group();
+        if (!next_group) { return false; }
+        next_group.set_current(true);
+        return true;
+    }); // IssuesList__go_to_next_item
 
-    var on_close_all_groups_click = (function on_close_all_groups_click(e) {
-        $issues_list_container.find('.collapse').each(function() { $(this). collapse('hide'); });
-    }); // on_close_all_groups_click
+    IssuesList.prototype.get_previous_group = (function IssuesList__get_previous_group () {
+        if (!this.current_group) { return null; }
+        var pos = this.groups.indexOf(this.current_group);
+        if (pos < 1) { return null; }
+        return this.groups[pos - 1];
+    }); // IssuesList__get_previous_group
 
-    var on_open_all_groups_click = (function on_open_all_groups_click(e) {
-        $issues_list_container.find('.collapse').each(function() { $(this). collapse('show'); });
-    }); // on_open_all_groups_click
+    IssuesList.prototype.get_next_group = (function IssuesList__get_next_group () {
+        if (!this.current_group) {
+            if (!this.groups.length) { return null; }
+            return this.groups[0];
+        }
+        var pos = this.groups.indexOf(this.current_group);
+        if (pos == this.groups.length - 1) { return null; }
+        return this.groups[pos + 1];
+    }); // IssuesList__get_next_group
 
-    var on_toggle_details_click = (function on_toggle_details_click(e) {
-        $issues_list_container.toggleClass('without-details');
-    }); // on_toggle_details_click
+    IssuesList.prototype.go_to_first_group = (function IssuesList__go_to_first_group () {
+        if (!this.groups.length) { return false; }
+        this.groups[0].set_current(true);
+    }); // IssuesList__go_to_first_group
+
+    IssuesList.prototype.go_to_last_group = (function IssuesList__go_to_last_group () {
+        if (!this.groups.length) { return false; }
+        this.groups[this.groups.length - 1].set_current(true);
+    }); // IssuesList__go_to_last_group
+
+    IssuesList.get_issue_html_container = (function IssuesList_get_issue_html_container () {
+        if (IssuesList.issue_container.length) {
+            return {
+                $window: null,
+                $node: IssuesList.issue_container
+            };
+        } else {
+            return {
+                $window: IssuesList.modal_window,
+                $node: IssuesList.modal_window_body
+            };
+        }
+    }); // IssuesList_get_issue_html_container
+
+    IssuesList.can_display_issue_html = (function IssuesList_can_display_issue_html (issue_number) {
+        var container = IssuesList.get_issue_html_container();
+        if (container.$node.data('issue-number') == issue_number) { return false; }
+        container.$node.data('issue-number', issue_number);
+        return true;
+    }); // IssuesList_can_display_issue_html
+
+    IssuesList.display_issue_html = (function IssuesList_display_issue_html (html, issue_number) {
+        var container = IssuesList.get_issue_html_container();
+        if (container.$node.data('issue-number') != issue_number) { return; }
+        container.$node.html(html);
+        if (container.$window) {
+            container.$window.modal("show");
+        }
+    }); // IssuesList_display_issue_html
+
+    IssuesList.clear_issue_html = (function IssuesList_clear_issue_html (code) {
+        var container = IssuesList.get_issue_html_container();
+        container.$node.data('issue-number', 0);
+        container.$node.html('<p class="empty-column">' + (code ? code + ' :(' : '...') + '</p>');
+    }); // IssuesList_clear_issue_html
+
+    IssuesList.toggle_details = (function IssuesList_toggle_details () {
+        for (var i = 0; i < IssuesList.all.length; i++) {
+            var list = IssuesList.all[i];
+            list.$node.toggleClass('without-details');
+        }
+    }); // IssuesList_toggle_details
+
+    IssuesList.close_all_groups = (function IssuesList_close_all_groups () {
+        for (var i = 0; i < IssuesList.all.length; i++) {
+            var list = IssuesList.all[i];
+            list.close_all_groups();
+        }
+    }); // IssuesList_close_all_groups
+
+    IssuesList.prototype.close_all_groups = (function IssuesList__close_all_groups () {
+        for (var i = 0; i < this.groups.length; i++) {
+            var group = this.groups[i];
+            group.close();
+        }
+    }); // IssuesList__close_all_groups
+
+    IssuesList.open_all_groups = (function IssuesList_open_all_groups () {
+        for (var i = 0; i < IssuesList.all.length; i++) {
+            var list = IssuesList.all[i];
+            list.open_all_groups();
+        }
+    }); // IssuesList_open_all_groups
+
+    IssuesList.prototype.open_all_groups = (function IssuesList__open_all_groups () {
+        for (var i = 0; i < this.groups.length; i++) {
+            var group = this.groups[i];
+            group.open();
+        }
+    }); // IssuesList__open_all_groups
+
+    IssuesList.get_issue_by_number = (function IssuesList_get_issue_by_number(number) {
+        var issue = null;
+        for (var i = 0; i < IssuesList.all.length; i++) {
+            issue = IssuesList.all[i].get_issue_by_number(number);
+            if (issue) { break; }
+        }
+        return issue;
+    }); // IssuesList_get_issue_by_number
+
+    IssuesList.prototype.get_issue_by_number = (function IssuesList__get_issue_by_number(number) {
+        var issue = null;
+        for (var i = 0; i < this.groups.length; i++) {
+            issue = this.groups[i].get_issue_by_number(number);
+            if (issue) { break; }
+        }
+        return issue;
+    }); // IssuesList__get_issue_by_number
+
+    IssuesList.init_all();
+
+    var IssueByNumber = {
+        $window: $('#go-to-issue-window'),
+        $form: $('#go-to-issue-window form'),
+        $input: $('#go-to-issue-window form input'),
+        open: (function IssueByNumber_open () {
+            IssueByNumber.$window.modal('show');
+        }), // IssueByNumber_open
+        on_show: (function IssueByNumber_on_show (e) {
+            IssueByNumber.$input.val('');
+        }), // IssueByNumber_on_show
+        on_shown: (function IssueByNumber_on_shown (e) {
+            IssueByNumber.$input.focus();
+            IssueByNumber.$input.prop('placeholder', "Type an issue number");
+
+        }), //IssueByNumber_on_shown
+        on_submit: (function IssueByNumber_on_submit (e) {
+            var number = IssueByNumber.$input.val(),
+                fail = false;
+            if (!number) {
+                fail = true;
+            } else if (number[0] == '#') {
+                number = number.slice(1);
+            }
+            IssueByNumber.$input.val('');
+            if (!fail && !isNaN(number)) {
+                IssueByNumber.$window.modal('hide');
+                IssueByNumber.$input.prop('placeholder', "Type an issue number");
+                IssueByNumber.open_issue(number);
+            } else {
+                IssueByNumber.$input.prop('placeholder', "Type a correct issue number");
+            IssueByNumber.$input.focus();
+            }
+        }), // IssueByNumber_on_submit
+        open_issue: (function IssueByNumber_open_issue (number) {
+            var issue = IssuesList.get_issue_by_number(number);
+            if (issue) {
+                issue.set_current(true);
+            } else {
+                var url = IssueByNumber.$input.data('base-url') + number + '/';
+                issue = new IssuesListIssue({}, null);
+                issue.number = number;
+                issue.get_html(url);
+            }
+        }), // IssueByNumber_on_submit
+        init_events: (function IssueByNumber_init_events () {
+            $(document).on('keyup', Ev.key_decorate(function(e) {
+                // manage the special case of # that cannot be handled correctly by jwerty
+                if (e.keyCode == 51) { jwerty.fire('i'); }
+                else { return false; }
+            }));
+            jwerty.key('i', Ev.key_decorate(IssueByNumber.open));
+            IssueByNumber.$window.on('show', IssueByNumber.on_show);
+            IssueByNumber.$window.on('shown', IssueByNumber.on_shown);
+            IssueByNumber.$form.on('submit', Ev.stop_event_decorate(IssueByNumber.on_submit));
+        }) // IssueByNumber_init_events
+    };
+
+    IssueByNumber.init_events();
 
     var on_resize_issue_click = (function on_resize_issue_click(e) {
         $('body').toggleClass('big-issue');
     }); // on_resize_issue_click
 
-    var on_go_to_issue_window_shown = (function on_go_to_issue_window_shown(e) {
-        $go_to_issue_number_input.focus();
-        $go_to_issue_number_input.prop('placeholder', "Type an issue number");
-    }); // on_go_to_issue_window_shown
+    var on_help = (function on_help(e) {
+        $('#show-shortcuts').click();
+    }); // on_help
 
-    var on_go_to_issue_window_submit = (function on_go_to_issue_window_submit(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var $form = $(this),
-            number = $go_to_issue_number_input.val(),
-            fail = false;
-        if (!number) { fail = true; }
-        else if (number[0] == '#') {
-            number = number.slice(1);
-        }
-        $go_to_issue_number_input.val('');
-        if (!fail && !isNaN(number)) {
-            current_issue_number = number;
-            open_issue($form.data('base-url') + number + '/', number);
-            $go_to_issue_window.modal('hide');
-            $go_to_issue_number_input.prop('placeholder', "Type an issue number");
+    // keyboard events
+    jwerty.key('f', Ev.key_decorate(on_resize_issue_click));
+    jwerty.key('?', Ev.key_decorate(on_help));
+    $(document).on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
+    $(document).on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
+    $(document).on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));
+
+
+    // select the issue given in the url's hash, or an active one in the html,
+    // or the first item of the current list
+    if (IssuesList.all.length) {
+        IssuesList.all[0].set_current();
+        var issue_to_select = null;
+        if (location.hash && /^#issue\-\d+$/.test(location.hash)) {
+            issue_to_select = $(location.hash);
+            if (issue_to_select.length && issue_to_select[0].IssuesListIssue) {
+                issue_to_select[0].IssuesListIssue.set_current(true);
+            } else {
+                issue_to_select = null;
+            }
         } else {
-            $go_to_issue_number_input.prop('placeholder', "Type a correct issue number");
-            $go_to_issue_number_input.focus();
+            issue_to_select = $(IssuesListIssue.selector + '.active');
+            if (issue_to_select.length) {
+                issue_to_select.removeClass('active');
+                issue_to_select[0].IssuesListIssue.set_current(true);
+            } else {
+                issue_to_select = null;
+            }
         }
-    }); // on_go_to_issue_window_submit
-
-    $(document).on('click', 'a.issue-link', on_issue_link_click);
-    $(document).on('keydown', '.issue-item', on_issue_item_keydown);
-    $(document).on('keydown', '.issues-group .box-header', on_issues_group_title_click);
-    $(document).on('keydown', '#issues-list', on_issues_list_keydown);
-    $(document).on('keyup', on_keyup);
-    $(document).on('click', '#toggle-issues-details', on_toggle_details_click);
-    $(document).on('click', '#close-all-groups', on_close_all_groups_click);
-    $(document).on('click', '#open-all-groups', on_open_all_groups_click);
-    $(document).on('click', '#resize-issue', on_resize_issue_click);
-    $go_to_issue_window.on('shown', on_go_to_issue_window_shown);
-    $go_to_issue_window.find('form').on('submit', on_go_to_issue_window_submit);
-
-    var something_selected = false;
-    if (location.hash) {
-        var issue = $(location.hash);
-        if (issue.length && issue.hasClass('issue-item')) {
-            something_selected = true;
-            select_issue(issue.find('.issue-link'));
+        if (!issue_to_select) {
+            IssuesList.current.go_to_next_item();
         }
-    }
-    if (!something_selected) {
-        select_issues_group($issues_list_container.find('.issues-group').first());
     }
 });

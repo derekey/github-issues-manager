@@ -255,7 +255,7 @@
                 </ul>
             </div>
         </nav>
-        <div id="issues-list">
+        <div id="issues-list" class='issues-list'>
             {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
             {% for group in issues_groups %}
                 <div class='box issues-group'>
@@ -273,7 +273,7 @@
                                     <li><span class="label label-green">{{ group.list|length }}</span></li>
                                 </ul>
                             </a>
-                            <ul class="unstyled box-content collapse" id="groupby-list-{{ uidname}}-{{ uidvalue }}">
+                            <ul class="unstyled box-content issues-group-issues collapse" id="groupby-list-{{ uidname}}-{{ uidvalue }}">
                         {% endwith %}
                     {% else %}
                         <a class="box-header" href='#'>
@@ -282,10 +282,10 @@
                                 <li><span class="label label-green">{{ group.list|length }}</span></li>
                             </ul>
                         </a>
-                        <ul class="unstyled box">
+                        <ul class="unstyled box issues-group-issues">
                     {% endif %}
                         {% for issue in group.list %}
-                            <li id="issue-{{ issue.number }}" class="box-section news issue-item{% if current_issue.id == issue.id %} active{% endif %}">
+                            <li id="issue-{{ issue.number }}" class="box-section news issue-item{% if current_issue.id == issue.id %} active{% endif %}" data-issue-number="{{ issue.number }}">
                                 <a href="{% if issues_filter.objects.current_created == issue.user.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_created:issue.user }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" class="avatar" title="Click to {% if issues_filter.objects.current_created == issue.user.username %}stop filtering{% else %}filter{% endif %} issues created by {{ issue.user.username }}"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}" alt="{{ issue.user.username }}"></a>
                                 <div class="news-time">
                                     <span title="Created on {{ issue.created_at|date }}">{{ issue.created_at|ago }}</span>
@@ -403,15 +403,19 @@
             <h3>Go to issue</h3>
         </div>
         <div class="modal-body">
-            <form class="form-inline" data-base-url="{{ root_issues_url }}">
-                #<input type="text" name='issue-number' id='go-to-issue-number' placeholder="Type an issue number" />
+            <form class="form-inline">
+                #<input data-base-url="{{ root_issues_url }}" type="text" name='issue-number' placeholder="Type an issue number" />
                 <button class="btn btn-primary" type="submit">Go !</button>
             </form>
         </div>
     </div>
+    <div id="modal-issue-view" class="modal hide fade"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %} tabindex="-1">
+        <div class="modal-body">
+        </div>
+    </div>
 </section>
 
-<section id="issue" class="span6">
+<section id="issue" class="span6 main-issue-container"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %}>
     {% include "front/repository/issues/issue.html" %}
 </section>
 
