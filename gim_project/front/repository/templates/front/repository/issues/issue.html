@@ -39,11 +39,11 @@
                         <li class="label label-default">{{ label.name }}</li>
                     {% endif %}
                 {% endfor %}
-            </ul>            
+            </ul>
             {% if current_issue.assignee %}<h5>Assigned to <img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url }}"> {{ current_issue.assignee.username }}</h5>{% endif %}
         </div>
-        <div class="issue-body">
-            {{ current_issue.body|safe }}
+        <div class="issue-body{% if not current_issue.body %} empty{% endif %}" >
+            {% if current_issue.body %}{{ current_issue.body|safe }}{% else %}No description for this issue !{% endif %}
         </div>
     </article>
     <aside>

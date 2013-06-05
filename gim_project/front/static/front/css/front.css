@@ -335,6 +335,10 @@ a.box-header:focus {
     border-bottom: solid 1px #d4d4d4;
     box-shadow: 0 1px 3px -1px rgba(0, 0, 0, 0.1);
 }
+#issue .issue-body.empty {
+    font-style: italic;
+    color: #999;
+}
 
 body.big-issue #issues-nav {
     display: none;
