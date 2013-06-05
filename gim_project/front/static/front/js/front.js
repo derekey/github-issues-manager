@@ -417,6 +417,7 @@ $().ready(function() {
         // no next issue on the current group, try to select the next group
         var next_group = this.get_next_group();
         if (!next_group) { return false; }
+        this.current_group.unset_current();
         next_group.set_current(true);
         return true;
     }); // IssuesList__go_to_next_item
