@@ -319,7 +319,8 @@ class IssuesView(BaseRepositoryView):
 
 class UserIssuesView(IssuesView):
     url_name = 'user_issues'
-    user_filter_types = ['assigned', 'created', ]
+    user_filter_types = ['assigned', 'created', 'closed']
+    user_filter_types_matching = {'created': 'user', 'assigned': 'assignee', 'closed': 'closed_by'}
     allowed_filters = IssuesView.allowed_filters + user_filter_types
 
     def _get_user_filter(self, repository, qs_parts):
@@ -346,7 +347,7 @@ class UserIssuesView(IssuesView):
     def get_issues_for_context(self, context):
         """
         Update the previously done queryset by filtering by a user as assigned
-        to issues, or their creator
+        to issues, or their creator or the one who closed them
         """
         queryset, filter_context = super(UserIssuesView, self).get_issues_for_context(context)
         repository = context['current_repository']
@@ -357,7 +358,7 @@ class UserIssuesView(IssuesView):
             filter_context['filter_objects']['user'] = user
             filter_context['filter_objects']['user_filter_type'] = user_filter_type
             filter_context['qs_filters']['user_filter_type'] = user_filter_type
-            filter_field = 'user' if user_filter_type == 'created' else 'assignee'
+            filter_field = self.user_filter_types_matching[user_filter_type]
             if user == 'none':
                 filter_context['qs_filters']['username'] = user
                 queryset = queryset.filter(**{'%s__isnull' % filter_field: True})
