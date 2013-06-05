@@ -16,7 +16,7 @@ class IssuesView(BaseRepositoryView):
                        'group_by', 'group_by_direction', 'pr']
     allowed_states = ['open', 'closed']
     allowed_prs = ['no', 'yes']
-    allowed_sort_fields = ['created', 'updated']
+    allowed_sort_fields = ['created', 'updated', ]
     allowed_sort_orders = ['asc', 'desc']
     allowed_group_by_fields = ['state', 'creator', 'assigned', 'closed by', 'milestone', 'pull-request']
     allowed_group_by_fields_matching = {'creator': 'user', 'assigned': 'assignee', 'pull-request': 'is_pull_request', 'closed by': 'closed_by'}
@@ -214,16 +214,9 @@ class IssuesView(BaseRepositoryView):
         repository = context['current_repository']
 
         # get the lists of people
-        users_lists = {
-            'collaborators': [],
-            'issues_creators': [],
-        }
-        for filter_type, repo_field in (('created', 'issues_creators'), ('assigned', 'collaborators')):
-            users = getattr(repository, repo_field).all()
-            for user in users:
-                url = repository.get_issues_user_filter_url_for_username(filter_type, user.username)
-                setattr(user, '%s_filter_url' % filter_type, url)
-                users_lists[repo_field].append(user)
+        users_lists = {}
+        for repo_field in ('issues_creators', 'collaborators'):
+            users_lists[repo_field] = getattr(repository, repo_field).all()
 
         # get the list of issues
         issues, filter_context = self.get_issues_for_context(context)
@@ -316,8 +309,8 @@ class IssuesView(BaseRepositoryView):
 
 class UserIssuesView(IssuesView):
     url_name = 'user_issues'
-    user_filter_types = ['assigned', 'created', 'closed']
-    user_filter_types_matching = {'created': 'user', 'assigned': 'assignee', 'closed': 'closed_by'}
+    user_filter_types = ['assigned', 'created_by', 'closed_by']
+    user_filter_types_matching = {'created_by': 'user', 'assigned': 'assignee', 'closed_by': 'closed_by'}
     allowed_filters = IssuesView.allowed_filters + user_filter_types
 
     def _get_user_filter(self, repository, qs_parts):

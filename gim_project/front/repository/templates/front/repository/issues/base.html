@@ -15,19 +15,19 @@
         <li class="divider"></li>
 
 
-        <li class="nav-header" data-toggle="collapse" data-target="#filter-created">
+        <li class="nav-header" data-toggle="collapse" data-target="#filter-created_by">
             Creators
-            {% if issues_filter.objects.current_created %}
-                <span class="selection">{{ issues_filter.objects.current_created }}</span>
+            {% if issues_filter.objects.current_created_by %}
+                <span class="selection">{{ issues_filter.objects.current_created_by }}</span>
             {% endif %}
         </li>
         <li>
-            <ul class="nav nav-list collapse" id="filter-created">
+            <ul class="nav nav-list collapse" id="filter-created_by">
                 {% for creator in issues_creators %}
-                    {% if issues_filter.objects.current_created == creator.username %}
+                    {% if issues_filter.objects.current_created_by == creator.username %}
                         <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
                     {% else %}
-                        <li><a href="{{ current_repository|base_url_issues_filtered_by_created:creator }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
+                        <li><a href="{{ current_repository|base_url_issues_filtered_by_created_by:creator }}{{ issues_filter.querystring }}">{{ creator }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -60,19 +60,19 @@
         <li class="divider"></li>
 
 
-        <li class="nav-header" data-toggle="collapse" data-target="#filter-closed">
+        <li class="nav-header" data-toggle="collapse" data-target="#filter-closed_by">
             Closed by
-            {% if issues_filter.objects.current_closed %}
-                <span class="selection">{{ issues_filter.objects.current_closed }}</span>
+            {% if issues_filter.objects.current_closed_by %}
+                <span class="selection">{{ issues_filter.objects.current_closed_by }}</span>
             {% endif %}
         </li>
         <li>
-            <ul class="nav nav-list collapse" id="filter-closed">
+            <ul class="nav nav-list collapse" id="filter-closed_by">
                 {% for collaborator in collaborators %}
-                    {% if issues_filter.objects.current_closed == collaborator.username %}
+                    {% if issues_filter.objects.current_closed_by == collaborator.username %}
                         <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
                     {% else %}
-                        <li><a href="{{ current_repository|base_url_issues_filtered_by_closed:collaborator }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
+                        <li><a href="{{ current_repository|base_url_issues_filtered_by_closed_by:collaborator }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -326,7 +326,7 @@
                     {% endif %}
                         {% for issue in group.list %}
                             <li id="issue-{{ issue.number }}" class="box-section news issue-item{% if current_issue.id == issue.id %} active{% endif %}" data-issue-number="{{ issue.number }}">
-                                <a href="{% if issues_filter.objects.current_created == issue.user.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_created:issue.user }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" class="avatar" title="Click to {% if issues_filter.objects.current_created == issue.user.username %}stop filtering{% else %}filter{% endif %} issues created by {{ issue.user.username }}"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}" alt="{{ issue.user.username }}"></a>
+                                <a href="{% if issues_filter.objects.current_created_by == issue.user.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_created_by:issue.user }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" class="avatar" title="Click to {% if issues_filter.objects.current_created_by == issue.user.username %}stop filtering{% else %}filter{% endif %} issues created by {{ issue.user.username }}"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}" alt="{{ issue.user.username }}"></a>
                                 <div class="news-time">
                                     <span title="Created on {{ issue.created_at|date }}">{{ issue.created_at|ago }}</span>
                                     {% if issue.state == 'closed' %}

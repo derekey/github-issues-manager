@@ -12,8 +12,8 @@ def _base_url_issues_for_user(repository, user, filter_type):
 
 
 @register.filter
-def base_url_issues_filtered_by_created(repository, user):
-    return _base_url_issues_for_user(repository, user, 'created')
+def base_url_issues_filtered_by_created_by(repository, user):
+    return _base_url_issues_for_user(repository, user, 'created_by')
 
 
 @register.filter
@@ -22,5 +22,5 @@ def base_url_issues_filtered_by_assigned(repository, user):
 
 
 @register.filter
-def base_url_issues_filtered_by_closed(repository, user):
-    return _base_url_issues_for_user(repository, user, 'closed')
+def base_url_issues_filtered_by_closed_by(repository, user):
+    return _base_url_issues_for_user(repository, user, 'closed_by')
