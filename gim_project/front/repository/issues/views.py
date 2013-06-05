@@ -18,7 +18,8 @@ class IssuesView(BaseRepositoryView):
     allowed_prs = ['no', 'yes']
     allowed_sort_fields = ['created', 'updated']
     allowed_sort_orders = ['asc', 'desc']
-    allowed_group_by_fields = ['state', 'creator', 'assigned', 'milestone', 'pull-request']
+    allowed_group_by_fields = ['state', 'creator', 'assigned', 'closed by', 'milestone', 'pull-request']
+    allowed_group_by_fields_matching = {'creator': 'user', 'assigned': 'assignee', 'pull-request': 'is_pull_request', 'closed by': 'closed_by'}
     default_sort = ('created', 'desc')
 
     def _get_state(self, repository, qs_parts):
@@ -81,11 +82,7 @@ class IssuesView(BaseRepositoryView):
         if group_by in self.allowed_group_by_fields:
 
             # group by a simple field
-            group_by = {
-                'creator': 'user',
-                'assigned': 'assignee',
-                'pull-request': 'is_pull_request'
-            }.get(group_by, group_by)
+            group_by = self.allowed_group_by_fields_matching.get(group_by, group_by)
 
         elif group_by and group_by.startswith('type:'):
 
