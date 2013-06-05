@@ -281,7 +281,9 @@
                         {% with uidname=issues_filter.objects.group_by.id|default:issues_filter.objects.group_by uidvalue=group.grouper.id|default:group.grouper|default:"none" %}
                             <a class="box-header" href='#' data-toggle="collapse" data-target="#groupby-list-{{ uidname}}-{{ uidvalue }}">
                                 <span class="title">
-                                    {% if group.grouper %}
+                                    {% if issues_filter.objects.group_by_field == 'is_pull_request' %}
+                                        {% if group.grouper %}Pull-requests{% else %}Issues{% endif %}
+                                    {% elif group.grouper %}
                                         {{ group.grouper.typed_name|default:group.grouper }}
                                     {% else %}
                                         No {{ issues_filter.objects.group_by|lower }}
