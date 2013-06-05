@@ -78,6 +78,24 @@
         <li class="divider"></li>
 
 
+        <li class="nav-header" data-toggle="collapse" data-target="#filter-pr">
+            Pull-request
+            {% if issues_filter.parts.pr %}
+                <span class="selection">{{ issues_filter.parts.pr }}</span>
+            {% endif %}
+        </li>
+        <li>
+            <ul class="nav nav-list collapse" id="filter-pr">
+                {% for pr in view.allowed_prs %}
+                    <li{% toggle_value_if_in_querystring "pr" pr " class='active'" %}>
+                        <a href="{{ current_issues_url }}{% toggle_in_querystring "pr" pr %}">{{ pr|capfirst }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+        <li class="divider"></li>
+
+
         <li class="nav-header" data-toggle="collapse" data-target="#filter-milestone">
             Milestone
             {% if issues_filter.objects.milestone %}

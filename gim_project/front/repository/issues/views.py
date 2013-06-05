@@ -13,8 +13,9 @@ class IssuesView(BaseRepositoryView):
     default_qs = 'state=open'
 
     allowed_filters = ['milestone', 'state', 'labels', 'sort', 'direction',
-                       'group_by', 'group_by_direction']
+                       'group_by', 'group_by_direction', 'pr']
     allowed_states = ['open', 'closed']
+    allowed_prs = ['no', 'yes']
     allowed_sort_fields = ['created', 'updated']
     allowed_sort_orders = ['asc', 'desc']
     allowed_group_by_fields = ['state', 'creator', 'assigned', 'milestone']
@@ -27,6 +28,15 @@ class IssuesView(BaseRepositoryView):
         state = qs_parts.get('state', None)
         if state in self.allowed_states:
             return state
+        return None
+
+    def _get_is_pull_request(self, repository, qs_parts):
+        """
+        Return the valid "is_pull_request" flag to use, or None
+        """
+        is_pull_request = qs_parts.get('pr', None)
+        if is_pull_request in self.allowed_prs:
+            return True if is_pull_request == 'yes' else False
         return None
 
     def _get_milestone(self, repository, qs_parts):
@@ -126,6 +136,12 @@ class IssuesView(BaseRepositoryView):
         state = self._get_state(repository, qs_parts)
         if state is not None:
             qs_filters['state'] = filter_objects['state'] = query_filters['state'] = state
+
+        # filter by pull request status
+        is_pull_request = self._get_is_pull_request(repository, qs_parts)
+        if is_pull_request is not None:
+            qs_filters['pr'] = self.allowed_prs[is_pull_request]
+            filter_objects['pr'] = query_filters['is_pull_request'] = is_pull_request
 
         # filter by milestone
         milestone = self._get_milestone(repository, qs_parts)
