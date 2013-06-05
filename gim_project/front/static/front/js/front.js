@@ -584,12 +584,7 @@ $().ready(function() {
             }
         }), // IssueByNumber_on_submit
         init_events: (function IssueByNumber_init_events () {
-            $(document).on('keyup', Ev.key_decorate(function(e) {
-                // manage the special case of # that cannot be handled correctly by jwerty
-                if (e.keyCode == 51) { jwerty.fire('i'); }
-                else { return false; }
-            }));
-            jwerty.key('i', Ev.key_decorate(IssueByNumber.open));
+            jwerty.key('i/⇧+#', Ev.key_decorate(IssueByNumber.open));  // "#" is shift-3 ?!?
             IssueByNumber.$window.on('show', IssueByNumber.on_show);
             IssueByNumber.$window.on('shown', IssueByNumber.on_shown);
             IssueByNumber.$form.on('submit', Ev.stop_event_decorate(IssueByNumber.on_submit));
@@ -608,7 +603,7 @@ $().ready(function() {
 
     // keyboard events
     jwerty.key('f', Ev.key_decorate(on_resize_issue_click));
-    jwerty.key('?', Ev.key_decorate(on_help));
+    jwerty.key('?/⇧+slash', Ev.key_decorate(on_help));  // slash is "/"
     $(document).on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
     $(document).on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
     $(document).on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));

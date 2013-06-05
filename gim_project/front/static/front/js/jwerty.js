@@ -194,7 +194,10 @@
             // Apostraphe, or Quote, or '
             '\'': 222,
             quote: 222,
-            apostraphe: 222
+            apostraphe: 222,
+            // # (sharp)
+            '#': 51,
+            sharp: 51
         }
 
     };
