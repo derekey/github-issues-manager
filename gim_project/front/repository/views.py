@@ -36,7 +36,7 @@ class BaseRepositoryView(BaseFrontView):
             'name': repository_name
         }
 
-        repository = get_object_or_404(queryset, **filters)
+        repository = get_object_or_404(queryset.select_related('owner'), **filters)
 
         return repository
 
@@ -70,7 +70,7 @@ class BaseRepositoryView(BaseFrontView):
         repository = context['current_repository']
 
         # we need a list of availables repositories
-        all_repositories = self.get_queryset().all()
+        all_repositories = self.get_queryset().all().select_related('owner')
 
         # we also need a list of all main views for this repository
         repo_main_views = []

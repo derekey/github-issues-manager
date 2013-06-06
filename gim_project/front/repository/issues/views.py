@@ -157,7 +157,12 @@ class IssuesView(BaseRepositoryView):
                 query_filters['milestone__number'] = milestone.number
 
         # the base queryset with the current filter
-        queryset = repository.issues.filter(**query_filters).prefetch_related('labels__label_type', 'user', 'assignee', 'milestone')
+        queryset = repository.issues.filter(**query_filters).select_related(
+                'user',  # we may have a lot of different ones
+            ).prefetch_related(
+                'assignee', 'closed_by', 'milestone',  # we should have only a few ones for each
+                'labels__label_type'
+            )
 
         # now filter by labels
         labels = self._get_labels(repository, qs_parts)
@@ -388,7 +393,11 @@ class IssueView(UserIssuesView):
         issue = None
         if 'issue_number' in self.kwargs:
             repository = context['current_repository']
-            issue = repository.issues.get(number=self.kwargs['issue_number'])
+            issue = repository.issues.select_related(
+                    'user',  'assignee', 'closed_by', 'milestone',
+                ).prefetch_related(
+                    'labels__label_type'
+                ).get(number=self.kwargs['issue_number'])
         return issue
 
     def get_involved_people(self, issue, comments, context):
@@ -453,7 +462,7 @@ class IssueView(UserIssuesView):
                 current_issue_state = 'undefined'
 
         # fetch other useful data
-        comments = list(current_issue.comments.all().prefetch_related('user'))
+        comments = list(current_issue.comments.select_related('user'))
         involved = self.get_involved_people(current_issue, comments, context)
 
         # final context

@@ -65,7 +65,6 @@
     <aside>
         {% if current_issue.comments_count %}
             <ul class="unstyled chatbox timeline" id="issue-comments">
-                {% attributes_for_list current_repository_collaborators "id" as collaborators_ids %}
                 {% for comment in current_issue_comments %}
                     <li class="chatbox-entry arrow-box-left issue-comment">
                         <div class="avatar"><img class="avatar-small img-circle" src="{{ comment.user.avatar_url }}"></div>
