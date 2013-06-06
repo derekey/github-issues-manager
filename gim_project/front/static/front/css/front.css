@@ -333,7 +333,7 @@ a.box-header:focus {
 #issue .issue-involved {
     margin-left: 50px;
 }
-#issue .issue-involved li {
+#issue .issue-involved ul, #issue .issue-involved li {
     display: inline-block;
 }
 #issue .issue-involved img {

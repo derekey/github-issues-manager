@@ -420,11 +420,16 @@ class IssueView(UserIssuesView):
             if not current_issue:
                 current_issue_state = 'undefined'
 
-        # some additional data
+        # fetch comments and their related data
         comments = list(current_issue.comments.all().prefetch_related('user'))
 
+        # get a list of all involved persons, with number of comments
         involved = SortedDict({
             current_issue.user_id: {'count': 0, 'user': current_issue.user}})
+        if current_issue.assignee_id and current_issue.assignee_id not in involved:
+            involved[current_issue.assignee_id] = {'count': 0, 'user': current_issue.assignee}
+        if current_issue.state == 'closed' and current_issue.closed_by_id and current_issue.closed_by_id not in involved:
+            involved[current_issue.closed_by_id] = {'count': 0, 'user': current_issue.closed_by}
         for comment in comments:
             if comment.user_id not in involved:
                 involved[comment.user_id] = {'count': 0, 'user': comment.user}

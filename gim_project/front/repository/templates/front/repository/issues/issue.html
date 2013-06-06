@@ -42,12 +42,15 @@
             </ul>
             {% if current_issue.assignee %}<p>Assigned to <img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url }}"> {{ current_issue.assignee.username }}</p>{% endif %}
             {% if current_issue_involved|length > 1 %}
-                <ul class="unstyled issue-involved desc">
-                    Involved:
-                    {% for involved_user in current_issue_involved %}
-                        <li class="avatar"><img class="avatar-small img-circle" src="{{ involved_user.user.avatar_url }}" title="{{ involved_user.user.username }}, {{ involved_user.count }} comment{{ involved_user.count|pluralize }}"></li>
-                    {% endfor %}
-                </ul>
+                <div class="issue-involved desc">
+                    <ul class="unstyled">
+                        Involved:
+                        {% for involved_user in current_issue_involved %}
+                            <li class="avatar"><img class="avatar-small img-circle" src="{{ involved_user.user.avatar_url }}" title="{{ involved_user.user.username }}, {{ involved_user.count }} comment{{ involved_user.count|pluralize }}"></li>
+                        {% endfor %}
+                    </ul>
+                    , total of {{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}
+                </div>
             {% endif %}
         </div>
         <div class="issue-body{% if not current_issue.body %} empty{% endif %}" >
