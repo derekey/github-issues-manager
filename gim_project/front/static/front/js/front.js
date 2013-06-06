@@ -604,6 +604,7 @@ $().ready(function() {
 
     // keyboard events
     jwerty.key('f', Ev.key_decorate(on_resize_issue_click));
+    $(document).on('click', '#resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
     jwerty.key('?/⇧+slash', Ev.key_decorate(on_help));  // slash is "/"
     $(document).on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
     $(document).on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
