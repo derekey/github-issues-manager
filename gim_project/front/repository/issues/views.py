@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse_lazy
+from django.utils.datastructures import SortedDict
 
 from core.models import Issue, GithubUser, LabelType, Milestone
 
@@ -419,10 +420,22 @@ class IssueView(UserIssuesView):
             if not current_issue:
                 current_issue_state = 'undefined'
 
+        # some additional data
+        comments = list(current_issue.comments.all().prefetch_related('user'))
+
+        involved = SortedDict({
+            current_issue.user_id: {'count': 0, 'user': current_issue.user}})
+        for comment in comments:
+            if comment.user_id not in involved:
+                involved[comment.user_id] = {'count': 0, 'user': comment.user}
+            involved[comment.user_id]['count'] += 1
+
         # final context
         context.update({
             'current_issue': current_issue,
             'current_issue_state': current_issue_state,
+            'current_issue_comments': comments,
+            'current_issue_involved': involved.values(),
         })
 
         return context

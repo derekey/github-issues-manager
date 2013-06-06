@@ -303,7 +303,7 @@ a.box-header:focus {
 #issue .area-top {
     margin-top: -9px;
 }
-.area-top .avatar {
+.area-top > .avatar {
     float: left;
     width: 40px;
     height: 44px;
@@ -317,16 +317,28 @@ a.box-header:focus {
     font-size: larger;
     line-height: 1.3em;
 }
-.area-top h5 {
+.area-top h5, .area-top p, .area-top .desc {
     font-weight: normal;
     margin-left: 50px;
+    margin: 10px 0 10px 50px;
     color: #999;
+    font-size: 14px;
 }
 #issue .issue-tags {
     margin-left: 50px;
 }
 #issue .issue-tags li {
     display: inline-block;
+}
+#issue .issue-involved {
+    margin-left: 50px;
+}
+#issue .issue-involved li {
+    display: inline-block;
+}
+#issue .issue-involved img {
+    max-width: 20px;
+    max-height: 20px;
 }
 #issue .issue-body {
     padding: 10px 15px;
