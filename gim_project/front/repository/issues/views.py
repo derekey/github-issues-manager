@@ -214,11 +214,6 @@ class IssuesView(BaseRepositoryView):
         context = super(IssuesView, self).get_context_data(**kwargs)
         repository = context['current_repository']
 
-        # get the lists of people
-        users_lists = {}
-        for repo_field in ('issues_creators', 'collaborators'):
-            users_lists[repo_field] = getattr(repository, repo_field).all()
-
         # get the list of issues
         issues, filter_context = self.get_issues_for_context(context)
 
@@ -234,8 +229,7 @@ class IssuesView(BaseRepositoryView):
             'root_issues_url': issues_url,
             'current_issues_url': issues_url,
             'issues_filter': issues_filter,
-            'collaborators': users_lists['collaborators'],
-            'issues_creators': users_lists['issues_creators'],
+            'issues_creators': repository.issues_creators.all(),
             'no_assigned_filter_url': repository.get_issues_user_filter_url_for_username('assigned', 'none'),
             'qs_parts_for_ttags': issues_filter['parts'],
             'label_types': label_types,
@@ -397,6 +391,44 @@ class IssueView(UserIssuesView):
             issue = repository.issues.get(number=self.kwargs['issue_number'])
         return issue
 
+    def get_involved_people(self, issue, comments, context):
+        """
+        Return a list with a dict for each people involved in the issue, with
+        the submitter first, the assignee, the the closed_by, and all comments
+        authors, with only one entry per person, with, for each dict, the
+        user, the comment's count as "count", and a list of types (one or many
+        of "owner", "collaborator", "submitter") as "types"
+        """
+        repository = context['current_repository']
+        collaborators_ids = [c.id for c in context['current_repository_collaborators']]
+
+        involved = SortedDict({
+            issue.user_id: {'user': issue.user, 'count': 0}
+        })
+
+        if issue.assignee_id and issue.assignee_id not in involved:
+            involved[issue.assignee_id] = {'user': issue.assignee, 'count': 0}
+
+        if issue.state == 'closed' and issue.closed_by_id and issue.closed_by_id not in involved:
+            involved[issue.closed_by_id] = {'user': issue.closed_by, 'count': 0}
+
+        for comment in comments:
+            if comment.user_id not in involved:
+                involved[comment.user_id] = {'user': comment.user, 'count': 0}
+            involved[comment.user_id]['count'] += 1
+
+        involved = involved.values()
+        for involved_user in involved:
+            involved_user['types'] = []
+            if involved_user['user'].id == repository.owner_id:
+                involved_user['types'].append('owner')
+            elif involved_user['user'].id in collaborators_ids:
+                involved_user['types'].append('collaborator')
+            if involved_user['user'].id == issue.user_id:
+                involved_user['types'].append('submitter')
+
+        return involved
+
     def get_context_data(self, **kwargs):
         """
         Add the selected view in the context
@@ -420,27 +452,16 @@ class IssueView(UserIssuesView):
             if not current_issue:
                 current_issue_state = 'undefined'
 
-        # fetch comments and their related data
+        # fetch other useful data
         comments = list(current_issue.comments.all().prefetch_related('user'))
-
-        # get a list of all involved persons, with number of comments
-        involved = SortedDict({
-            current_issue.user_id: {'count': 0, 'user': current_issue.user}})
-        if current_issue.assignee_id and current_issue.assignee_id not in involved:
-            involved[current_issue.assignee_id] = {'count': 0, 'user': current_issue.assignee}
-        if current_issue.state == 'closed' and current_issue.closed_by_id and current_issue.closed_by_id not in involved:
-            involved[current_issue.closed_by_id] = {'count': 0, 'user': current_issue.closed_by}
-        for comment in comments:
-            if comment.user_id not in involved:
-                involved[comment.user_id] = {'count': 0, 'user': comment.user}
-            involved[comment.user_id]['count'] += 1
+        involved = self.get_involved_people(current_issue, comments, context)
 
         # final context
         context.update({
             'current_issue': current_issue,
             'current_issue_state': current_issue_state,
             'current_issue_comments': comments,
-            'current_issue_involved': involved.values(),
+            'current_issue_involved': involved,
         })
 
         return context

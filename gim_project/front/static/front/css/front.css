@@ -330,13 +330,17 @@ a.box-header:focus {
 #issue .issue-tags li {
     display: inline-block;
 }
-#issue .issue-involved {
+#issue .issue-involved-and-comments-count {
     margin-left: 50px;
 }
-#issue .issue-involved ul, #issue .issue-involved li {
+#issue .issue-involved-and-comments-count ul, #issue .issue-involved-and-comments-count li {
     display: inline-block;
 }
-#issue .issue-involved img {
+#issue .issue-involved-and-comments-count li {
+    position: relative;
+    top: -2px;
+}
+#issue .issue-involved-and-comments-count img {
     max-width: 20px;
     max-height: 20px;
 }

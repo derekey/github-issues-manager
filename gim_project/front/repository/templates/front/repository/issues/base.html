@@ -48,7 +48,7 @@
                 {% else %}
                     <li><a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
                 {% endif %}
-                {% for collaborator in collaborators %}
+                {% for collaborator in current_repository_collaborators %}
                     {% if issues_filter.objects.current_assigned == collaborator.username %}
                         <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
                     {% else %}
@@ -68,7 +68,7 @@
         </li>
         <li>
             <ul class="nav nav-list collapse" id="filter-closed_by">
-                {% for collaborator in collaborators %}
+                {% for collaborator in current_repository_collaborators %}
                     {% if issues_filter.objects.current_closed_by == collaborator.username %}
                         <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
                     {% else %}
