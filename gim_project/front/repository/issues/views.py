@@ -462,8 +462,12 @@ class IssueView(UserIssuesView):
                 current_issue_state = 'undefined'
 
         # fetch other useful data
-        comments = list(current_issue.comments.select_related('user'))
-        involved = self.get_involved_people(current_issue, comments, context)
+        if current_issue:
+            comments = list(current_issue.comments.select_related('user'))
+            involved = self.get_involved_people(current_issue, comments, context)
+        else:
+            comments = []
+            involved = []
 
         # final context
         context.update({
