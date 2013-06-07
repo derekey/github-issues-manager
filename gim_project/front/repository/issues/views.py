@@ -1,5 +1,8 @@
+from math import ceil
+
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
+from django.db import DatabaseError
 
 from core.models import Issue, GithubUser, LabelType, Milestone
 
@@ -270,8 +273,27 @@ class IssuesView(BaseRepositoryView):
         Return a final list of issues usable in the view.
         Actually simply order ("group") by a label_type if asked
         """
-        if not issues:
-            return issues
+        issues_count = issues.count()
+
+        if not issues_count:
+            return []
+
+        try:
+            issues = list(issues.all())
+        except DatabaseError, e:
+            # sqlite limits the vars passed in the request to 999, and
+            # prefetch_related use a in(...), and with more than 999 issues
+            # sqlite raises an error.
+            # In this case, we loop on the data by slice of 999 issues
+            if e.message != 'too many SQL variables':
+                raise
+            queryset = issues
+            issues = []
+            per_fetch = 999
+
+            iterations = int(ceil(issues_count / float(per_fetch)))
+            for iteration in range(0, iterations):
+                issues += list(queryset[iteration * per_fetch:(iteration + 1) * per_fetch])
 
         label_type = context['issues_filter']['objects'].get('group_by', None)
         attribute = context['issues_filter']['objects'].get('group_by_field', None)
@@ -279,7 +301,7 @@ class IssuesView(BaseRepositoryView):
 
             # regroup issues by label from the lab
             issues_dict = {}
-            for issue in issues.all():
+            for issue in issues:
                 add_to = None
 
                 for label in issue.labels.all():  # thanks prefetch_related
