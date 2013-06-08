@@ -87,7 +87,6 @@ class BaseRepositoryView(BaseFrontView):
         context.update({
             'all_repositories': all_repositories,
             'repository_main_views': repo_main_views,
-            'current_repository_collaborators': repository.collaborators.all(),
         })
 
         return context

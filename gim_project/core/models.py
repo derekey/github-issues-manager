@@ -357,9 +357,7 @@ class Repository(GithubObjectWithId):
     owner = models.ForeignKey(GithubUser, related_name='owned_repositories')
     name = models.TextField(db_index=True)
     description = models.TextField(blank=True, null=True)
-    collaborators = models.ManyToManyField(GithubUser, related_name='repositories')
 
-    collaborators_fetched_at = models.DateTimeField(blank=True, null=True)
     milestones_fetched_at = models.DateTimeField(blank=True, null=True)
     labels_fetched_at = models.DateTimeField(blank=True, null=True)
     issues_fetched_at = models.DateTimeField(blank=True, null=True)
@@ -391,21 +389,26 @@ class Repository(GithubObjectWithId):
         return GithubUser.objects.filter(created_issues__repository=self.id).distinct()
 
     @property
+    def issues_assigned(self):
+        """
+        Shortcut to return a queryset for users assigned to issues on this repository
+        """
+        return GithubUser.objects.filter(assigned_issues__repository=self.id).distinct()
+
+    @property
+    def issues_closers(self):
+        """
+        Shortcut to return a queryset for users who closed issues on this repository
+        """
+        return GithubUser.objects.filter(closed_issues__repository=self.id).distinct()
+
+    @property
     def github_callable_identifiers(self):
         return [
             'repos',
             self.owner.username,
             self.name,
         ]
-
-    @property
-    def github_callable_identifiers_for_collaborators(self):
-        return self.github_callable_identifiers + [
-            'collaborators',
-        ]
-
-    def fetch_collaborators(self, auth, force_fetch=False):
-        return self._fetch_many('collaborators', auth, force_fetch=force_fetch)
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -467,7 +470,6 @@ class Repository(GithubObjectWithId):
 
     def fetch_all(self, auth, force_fetch=False):
         super(Repository, self).fetch_all(auth, force_fetch=force_fetch)
-        self.fetch_collaborators(auth, force_fetch=force_fetch)
         self.fetch_labels(auth, force_fetch=force_fetch)
         self.fetch_milestones(auth, force_fetch=force_fetch)
         self.fetch_issues(auth, force_fetch=force_fetch)

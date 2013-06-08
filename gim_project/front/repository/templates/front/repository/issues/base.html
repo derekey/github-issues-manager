@@ -3,8 +3,6 @@
 
 {% block main %}
 
-{% attributes_for_list current_repository_collaborators "id" as collaborators_ids %}
-
 <nav id="issues-nav" class="span2">
 
     <ul class="nav nav-list">
@@ -25,21 +23,12 @@
         </li>
         <li>
             <ul class="nav nav-list collapse" id="filter-created_by">
-                {% for collaborator in current_repository_collaborators %}
-                    {% if issues_filter.objects.current_created_by == collaborator.username %}
-                        <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator }}</a></li>
-                    {% else %}
-                        <li><a href="{{ current_repository|base_url_issues_filtered_by_created_by:collaborator }}{{ issues_filter.querystring }}">{{ collaborator.username }}</a></li>
-                    {% endif %}
-                {% endfor %}
                 {% if issues_creators %}
-                    {% for creator in issues_creators %}
-                        {% if creator.id not in collaborators_ids %}
-                            {% if issues_filter.objects.current_created_by == creator.username %}
-                                <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ creator.username }}</a></li>
-                            {% else %}
-                                <li><a href="{{ current_repository|base_url_issues_filtered_by_created_by:creator }}{{ issues_filter.querystring }}">{{ creator.username }}</a></li>
-                            {% endif %}
+                    {% for user in issues_creators %}
+                        {% if issues_filter.objects.current_created_by == user.username %}
+                            <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
+                        {% else %}
+                            <li><a href="{{ current_repository|base_url_issues_filtered_by_created_by:user }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
                         {% endif %}
                     {% endfor %}
                 {% endif %}
@@ -61,11 +50,11 @@
                 {% else %}
                     <li><a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">No one assigned</a></li>
                 {% endif %}
-                {% for collaborator in current_repository_collaborators %}
-                    {% if issues_filter.objects.current_assigned == collaborator.username %}
-                        <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator.username }}</a></li>
+                {% for user in issues_assigned %}
+                    {% if issues_filter.objects.current_assigned == user.username %}
+                        <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
                     {% else %}
-                        <li><a href="{{ current_repository|base_url_issues_filtered_by_assigned:collaborator }}{{ issues_filter.querystring }}">{{ collaborator.username }}</a></li>
+                        <li><a href="{{ current_repository|base_url_issues_filtered_by_assigned:user }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -81,11 +70,11 @@
         </li>
         <li>
             <ul class="nav nav-list collapse" id="filter-closed_by">
-                {% for collaborator in current_repository_collaborators %}
-                    {% if issues_filter.objects.current_closed_by == collaborator.username %}
-                        <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ collaborator.username }}</a></li>
+                {% for user in issues_closers %}
+                    {% if issues_filter.objects.current_closed_by == user.username %}
+                        <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
                     {% else %}
-                        <li><a href="{{ current_repository|base_url_issues_filtered_by_closed_by:collaborator }}{{ issues_filter.querystring }}">{{ collaborator.username }}</a></li>
+                        <li><a href="{{ current_repository|base_url_issues_filtered_by_closed_by:user }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>

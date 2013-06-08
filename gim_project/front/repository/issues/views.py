@@ -238,6 +238,8 @@ class IssuesView(BaseRepositoryView):
             'current_issues_url': issues_url,
             'issues_filter': issues_filter,
             'issues_creators': repository.issues_creators.all(),
+            'issues_assigned': repository.issues_assigned.all(),
+            'issues_closers': repository.issues_closers.all(),
             'no_assigned_filter_url': repository.get_issues_user_filter_url_for_username('assigned', 'none'),
             'qs_parts_for_ttags': issues_filter['parts'],
             'label_types': label_types,
