@@ -312,6 +312,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     token = models.TextField()
     avatar_url = models.TextField()
     is_organization = models.BooleanField(default=False)
+    organizations = models.ManyToManyField('self', related_name='members')
+    organizations_fetched_at = models.DateTimeField(blank=True, null=True)
 
     objects = GithubUserManager()
 
@@ -331,6 +333,24 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             'users',
             self.username,
         ]
+
+    @property
+    def github_callable_identifiers_for_organizations(self):
+        return self.github_callable_identifiers + [
+            'orgs',
+        ]
+
+    def fetch_organizations(self, auth, force_fetch=False):
+        if self.is_organization:
+            # an organization cannot belong to an other organization
+            return 0
+        return self._fetch_many('organizations', auth,
+                                defaults={'simple': {'is_organization': True}},
+                                force_fetch=force_fetch)
+
+    def fetch_all(self, auth, force_fetch=False):
+        super(GithubUser, self).fetch_all(auth, force_fetch=force_fetch)
+        self.fetch_organizations(auth, force_fetch=force_fetch)
 
 
 class Repository(GithubObjectWithId):
