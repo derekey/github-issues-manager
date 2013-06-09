@@ -357,6 +357,7 @@ class Repository(GithubObjectWithId):
     owner = models.ForeignKey(GithubUser, related_name='owned_repositories')
     name = models.TextField(db_index=True)
     description = models.TextField(blank=True, null=True)
+    private = models.BooleanField(default=False)
 
     milestones_fetched_at = models.DateTimeField(blank=True, null=True)
     labels_fetched_at = models.DateTimeField(blank=True, null=True)
