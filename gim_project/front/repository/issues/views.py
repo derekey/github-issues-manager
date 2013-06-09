@@ -433,7 +433,7 @@ class IssueView(UserIssuesView):
         of "owner", "collaborator", "submitter") as "types"
         """
         repository = context['current_repository']
-        collaborators_ids = [c.id for c in context['current_repository_collaborators']]
+        collaborators_ids = context['collaborators_ids']
 
         involved = SortedDict({
             issue.user_id: {'user': issue.user, 'count': 0}
@@ -487,6 +487,8 @@ class IssueView(UserIssuesView):
 
         # fetch other useful data
         if current_issue:
+            repository = context['current_repository']
+            context['collaborators_ids'] = repository.collaborators.all().values_list('id', flat=True)
             comments = list(current_issue.comments.select_related('user'))
             involved = self.get_involved_people(current_issue, comments, context)
         else:
