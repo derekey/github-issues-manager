@@ -1,6 +1,5 @@
 
 import re
-import dateutil.parser
 from datetime import datetime
 
 from django.db import models, IntegrityError
@@ -268,7 +267,7 @@ class GithubObjectManager(models.Manager):
                 # we need to convert a datetimefield
                 if value:
                     # all github datetime are utc, so we can remove the timezome
-                    fields['simple'][field_name] = dateutil.parser.parse(value).replace(tzinfo=None)
+                    fields['simple'][field_name] = Connection.parse_date(value)
                 else:
                     fields['simple'][field_name] = None
 

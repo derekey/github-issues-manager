@@ -148,7 +148,7 @@ class GitHub(object):
             is_json = self._process_resp(response.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(response.headers.dict.copy())
-                print 'RESPONSE', 200, response_headers
+            print 'RESPONSE', 200, response_headers
             content = response.read()
             if is_json:
                 return _parse_json(content)
@@ -158,7 +158,7 @@ class GitHub(object):
             is_json = self._process_resp(e.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(e.headers.dict.copy())
-                print 'RESPONSE', e.code, response_headers
+            print 'RESPONSE', e.code, response_headers
             if is_json:
                 _json = _parse_json(e.read())
             else:

@@ -4,12 +4,16 @@ from itertools import product
 from datetime import datetime
 from dateutil import tz
 import re
+from operator import itemgetter
+import json
+import zlib
+import base64
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 
-from .ghpool import parse_header_links, ApiError
+from .ghpool import parse_header_links, ApiError, Connection
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager)
@@ -309,11 +313,13 @@ class GithubObjectWithId(GithubObject):
 
 class GithubUser(GithubObjectWithId, AbstractUser):
     # username will hold the github "login"
-    token = models.TextField()
-    avatar_url = models.TextField()
+    token = models.TextField(blank=True, null=True)
+    avatar_url = models.TextField(blank=True, null=True)
     is_organization = models.BooleanField(default=False)
     organizations = models.ManyToManyField('self', related_name='members')
     organizations_fetched_at = models.DateTimeField(blank=True, null=True)
+    _available_repositories = models.TextField(blank=True, null=True)
+    available_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
 
     objects = GithubUserManager()
 
@@ -351,6 +357,118 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     def fetch_all(self, auth, force_fetch=False):
         super(GithubUser, self).fetch_all(auth, force_fetch=force_fetch)
         self.fetch_organizations(auth, force_fetch=force_fetch)
+
+    def get_connection(self):
+        return Connection.get(username=self.username, access_token=self.token)
+
+    def fetch_available_repositories(self):
+        """
+        Save the list of reositories that the current user can manage in
+        Github, and so here. For a repository to be available, it must have
+        issues activated, nd the user must at least have "push" access.
+        The list is grouped by organizations, with "__self__" the first entry
+        listing it's available repositories not in any organization.
+        """
+        if not self.token:
+            return
+
+        gh = self.get_connection()
+
+        def get_repos(identifiers, page, repos_list):
+            """
+            Function that fetch a page for the given identifiers, adding data to
+            the given list, and returning the next page to fetch if any (or None
+            if not)
+            """
+            response_headers = {}
+            parameters = {
+                'sort': 'pushed',
+                'direction': 'desc',
+                'page': page,
+                'per_page': 100,
+            }
+
+            data = Repository.objects.get_data_from_github(
+                        gh=gh,
+                        identifiers=identifiers,
+                        parameters=parameters,
+                        response_headers=response_headers)
+
+            # loop on each returned repository
+            for datum in data:
+                permissions = datum.get('permissions', {'admin': False, 'pull': True, 'push': False})
+                can_admin = permissions.get('admin', False)
+                can_push = permissions.get('push', False)
+                has_issues = datum.get('has_issues', False)
+
+                if has_issues and (can_admin or can_push):
+                    repos_list.append({
+                        'name': datum['name'],
+                        'owner': datum['owner']['login'],
+                        'private': datum.get('private', False),
+                        'pushed_at': datum['pushed_at'],
+                        'can_admin': can_admin,
+                    })
+
+            # check if we have a next page
+            if 'link' in response_headers:
+                links = parse_header_links(response_headers['link'])
+                if 'next' in links and 'url' in links['next']:
+                    next_page = parse_qs(urlsplit(links['next']['url']).query).get('page', [])
+                    if len(next_page):
+                        return next_page[0]
+
+            # no next page !
+            return None
+
+        # final lit that will be returned
+        all_repos = []
+
+        # get all lists, one for repos out of any organization ("__self__"), and
+        # one for each organization
+        repos_lists = [('__self__', ('users', self.username, 'repos'))] + [
+            (o['login'], ('orgs', o['login'], 'repos'))
+                for o in
+                    GithubUser.objects.get_data_from_github(gh,
+                        ['users', self.username, 'orgs'], {'per_page': 100})
+        ]
+
+        for list_name, identifiers in repos_lists:
+            repos_list = {'name': list_name,  'repos': []}
+            next_page = 1
+            while True:
+                next_page = get_repos(identifiers, next_page, repos_list['repos'])
+                if not next_page:
+                    break
+
+            # add the list only if it contains available repositories
+            if repos_list['repos']:
+                repos_list['repos'].sort(key=itemgetter('pushed_at'), reverse=True)
+                all_repos.append(repos_list)
+
+        # save data and fetch date
+        self.available_repositories = all_repos
+        self.available_repositories_fetched_at = datetime.utcnow()
+
+        self.save(update_fields=['_available_repositories', 'available_repositories_fetched_at'])
+
+    def _set_available_repositories(self, data):
+        """
+        Setter for the compressed _available_repositories field
+        """
+        if not data:
+            data = []
+        self._available_repositories = base64.encodestring(zlib.compress(json.dumps(data), 9))
+
+    def _get_available_repositories(self):
+        """
+        Getter for the compressed _available_repositories field
+        """
+        if not self._available_repositories:
+            return []
+        return json.loads(zlib.decompress(base64.decodestring(self._available_repositories)))
+
+    available_repositories = property(_get_available_repositories, _set_available_repositories)
 
 
 class Repository(GithubObjectWithId):

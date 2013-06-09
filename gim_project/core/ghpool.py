@@ -1,3 +1,5 @@
+import dateutil.parser
+
 from github import GitHub, ApiError, ApiAuthError, ApiNotFoundError
 
 
@@ -10,6 +12,10 @@ class Connection(GitHub):
     ApiError = ApiError
     ApiAuthError = ApiAuthError
     ApiNotFoundError = ApiNotFoundError
+
+    @staticmethod
+    def parse_date(value):
+        return dateutil.parser.parse(value).replace(tzinfo=None)
 
     @classmethod
     def get(cls, **auth):
