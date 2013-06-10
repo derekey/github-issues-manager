@@ -27,15 +27,12 @@ class GithubObjectManager(models.Manager):
             result = result(identifier)
         return result
 
-    def get_from_github(self, auth, identifiers, defaults=None, parameters=None,
+    def get_from_github(self, gh, identifiers, defaults=None, parameters=None,
                         request_headers=None, response_headers=None):
         """
         Trying to get data for the model related to this manager, by using
-        identifiers to generate the API call. auth is a dictionnary used to
-        call Connection.get.
+        identifiers to generate the API call. gh is the connection to use.
         """
-        gh = Connection.get(**auth)
-
         data = self.get_data_from_github(gh, identifiers, parameters,
                                          request_headers, response_headers)
 
