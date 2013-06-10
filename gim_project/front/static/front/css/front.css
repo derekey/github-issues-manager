@@ -430,3 +430,8 @@ blockquote p:last-child {
 #go-to-issue-window input {
     margin-left: 2px;
 }
+
+#available-repositories th:not(:first-child),
+#available-repositories td:not(:first-child) {
+    text-align: center;
+}
