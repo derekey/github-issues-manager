@@ -69,7 +69,7 @@ class GithubObjectManager(models.Manager):
         """
         return self.model.github_matching.get(field_name, field_name)
 
-    def create_or_update_from_list(self, data, defaults):
+    def create_or_update_from_list(self, data, defaults=None):
         """
         Take a list of json objects, call create_or_update for each one, and
         return the list of touched objects. Objects that cannot be created are
@@ -103,7 +103,7 @@ class GithubObjectManager(models.Manager):
         except self.model.DoesNotExist:
             return None
 
-    def create_or_update_from_dict(self, data, defaults):
+    def create_or_update_from_dict(self, data, defaults=None):
         """
         Taking a dict (passed in the data argument), try to update an existing
         object that match some fields, or create a new one.
@@ -198,7 +198,7 @@ class GithubObjectManager(models.Manager):
 
         return obj
 
-    def get_object_fields_from_dict(self, data, defaults):
+    def get_object_fields_from_dict(self, data, defaults=None):
         """
         Taking a dict (passed in the data argument), return the fields to use
         to update or create an object. The returned dict contains 3 entries:
@@ -296,7 +296,7 @@ class WithRepositoryManager(GithubObjectManager):
     repository belongs the object.
     """
 
-    def get_object_fields_from_dict(self, data, defaults):
+    def get_object_fields_from_dict(self, data, defaults=None):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
         repository the objects belongs to, from the url found in the data given
@@ -329,7 +329,7 @@ class GithubUserManager(GithubObjectManager, UserManager):
     flag.
     """
 
-    def get_object_fields_from_dict(self, data, defaults):
+    def get_object_fields_from_dict(self, data, defaults=None):
         """
         In addition to the default get_object_fields_from_dict, set the
         is_organization flag based on the value of the User field given by the
@@ -438,7 +438,7 @@ class IssueManager(WithRepositoryManager):
         number = self.get_number_from_url(url)
         return self.get_by_repository_and_number(repository, number)
 
-    def get_object_fields_from_dict(self, data, defaults):
+    def get_object_fields_from_dict(self, data, defaults=None):
         """
         Override the default "get_object_fields_from_dict" by adding default
         value for the repository of labels, milestone and comments, if one is
@@ -473,7 +473,7 @@ class IssueCommentManager(GithubObjectManager):
     get_object_fields_from_dict method, to get the issue and the repository.
     """
 
-    def get_object_fields_from_dict(self, data, defaults):
+    def get_object_fields_from_dict(self, data, defaults=None):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
         issue the comment belongs to, from the issue_url found in the data given

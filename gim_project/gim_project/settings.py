@@ -1,6 +1,7 @@
 # Django settings for gim_project project.
 
 import os.path
+from django.core.urlresolvers import reverse_lazy
 
 DJANGO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -142,6 +143,8 @@ INSTALLED_APPS = (
     'template_timings_panel',
     'core',
     'front',
+    'front.auth',
+    'front.dashboard',
     'front.repository',  # at least for specific templates
     'front.repository.issues',  # for its templatetags
 )
@@ -194,3 +197,18 @@ LOGGING = {
         },
     }
 }
+
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'front.auth.backends.GithubBackend',
+)
+
+LOGIN_URL = reverse_lazy('front:auth:start')
+
+# define settings below in local_settings.py
+GITHUB_CLIENT_ID = None
+GITHUB_CLIENT_SECRET = None
+GITHUB_SCOPE = 'repo'
+
+from local_settings import *

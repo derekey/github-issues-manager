@@ -1,0 +1,17 @@
+{% extends "front/base.html" %}
+
+{% block title %}GIM's home{% endblock title %}
+
+{% block main %}
+<div class="span12">
+    <h1>Welcome to GIM</h1>
+
+    <p>
+        {% if user.is_authenticated %}
+            Hi {{ user.username }}. <a href="{% url "front:dashboard:home" %}">Dashboard</a>
+        {% else %}
+            <a href="{% url "front:auth:login" %}">Login</a>
+        {% endif %}
+    </p>
+</div>
+{% endblock main %}
