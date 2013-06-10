@@ -5,6 +5,8 @@
 {% block main %}
 <div class="span12">
     <h1>Welcome on your dashboard, {{ user.username }}</h1>
-    <a href="{% url "front:dashboard:add_repository" %} ">Add repository</a>
+    <a href="{% url "front:dashboard:repositories:list" %} ">List your repositories</a>
+    |
+    <a href="{% url "front:dashboard:repositories:choose" %} ">Add a repository</a>
 </div>
 {% endblock main %}

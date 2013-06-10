@@ -5,6 +5,15 @@
 {% block main %}
 <div class="span12">
     <h1>So, you want to add a repository, {{ user.username }}</h1>
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }} [{{ message.tags }}]</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
     <h2>Here is the list of repositories you can add:</h2>
     {% with available_repositories=user.available_repositories %}
         <table class="table table-normal" id="available-repositories">
@@ -25,7 +34,13 @@
                             {% if repo.owner == user.username %}<td title="You are the owner of this repository"><i class="icon-user"> </i></td>{% else %}<td>&nbsp;</td>{% endif %}
                             {% if repo.private %}<td title="This repository is private"><i class="icon-eye-close"> </i></td>{% else %}<td>&nbsp;</td>{% endif %}
                             {% if repo.can_admin %}<td title="You can admin this repository"><i class="icon-wrench"> </i></td>{% else %}<td>&nbsp;</td>{% endif %}
-                            <td><a class="btn btn-mini" href="" title="Add this repository"><i class="icon-plus"> </i></td>
+                            <td>
+                                <form action="{% url "front:dashboard:repositories:add" %}" method="post">
+                                    {% csrf_token %}
+                                    <input id="id_name" name="name" type="hidden" value="{{ repo.owner }}/{{ repo.name }}" />
+                                    <button type="submit" class="btn btn-mini" href="" title="Add this repository"><i class="icon-plus"> </i></button>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

@@ -145,6 +145,7 @@ INSTALLED_APPS = (
     'front',
     'front.auth',
     'front.dashboard',
+    'front.dashboard.repositories',
     'front.repository',  # at least for specific templates
     'front.repository.issues',  # for its templatetags
 )

@@ -435,3 +435,7 @@ blockquote p:last-child {
 #available-repositories td:not(:first-child) {
     text-align: center;
 }
+#available-repositories form {
+    margin: 0;
+    padding: 0;
+}
