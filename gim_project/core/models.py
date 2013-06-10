@@ -424,13 +424,13 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         # final lit that will be returned
         all_repos = []
 
+        self.fetch_organizations(gh)
+
         # get all lists, one for repos out of any organization ("__self__"), and
         # one for each organization
         repos_lists = [('__self__', ('users', self.username, 'repos'))] + [
-            (o['login'], ('orgs', o['login'], 'repos'))
-                for o in
-                    GithubUser.objects.get_data_from_github(gh,
-                        ['users', self.username, 'orgs'], {'per_page': 100})
+            (org_name, ('orgs', org_name, 'repos'))
+                for org_name in self.organizations.values_list('username', flat=True)
         ]
 
         for list_name, identifiers in repos_lists:
