@@ -1,0 +1,25 @@
+{% extends "front/base.html" %}
+
+{% block title %}GIM's dashboard{% endblock title %}
+
+{% block main %}
+<div class="span12">
+    <h1>So, you want to add a repository, {{ user.username }}</h1>
+    <h2>So, choose one:</h2>
+    {% with available_repositories=user.available_repositories %}
+        {% for org in user.available_repositories %}
+            <h3>{% if org.name == '__self__' %}Your repositories{% else %}{{ org.name }}{% endif %}</h3>
+            <ul>
+                {% for repo in org.repos %}
+                    <li>
+                        {{ repo.owner }}/{{ repo.name }}
+                        {% if repo.owner == user.username %} [yours]{% endif %}
+                        {% if repo.private %} [private]{% endif %}
+                        {% if repo.can_admin %} [can-admin]{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endwith %}
+</div>
+{% endblock main %}
