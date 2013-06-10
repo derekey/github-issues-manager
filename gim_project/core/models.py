@@ -428,7 +428,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
         # get all lists, one for repos out of any organization ("__self__"), and
         # one for each organization
-        repos_lists = [('__self__', ('users', self.username, 'repos'))] + [
+        repos_lists = [('__self__', ('user', 'repos'))] + [
             (org_name, ('orgs', org_name, 'repos'))
                 for org_name in self.organizations.values_list('username', flat=True)
         ]
