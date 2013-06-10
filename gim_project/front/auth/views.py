@@ -94,9 +94,10 @@ class ConfirmView(BaseGithubAuthView):
         if not user_infos:
             return False, "Cannot get user informations"
 
-        # get a user with the username
+        # create/update and get a user with the given infos and token
         try:
-            user = GithubUser.objects.create_or_update_from_dict(user_infos)
+            user = GithubUser.objects.create_or_update_from_dict(user_infos,
+                                        defaults={'simple': {'token': token}})
         except:
             return False, "Cannot save user informations"
 
