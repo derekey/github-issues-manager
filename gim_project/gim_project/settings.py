@@ -204,7 +204,7 @@ AUTHENTICATION_BACKENDS = (
     'front.auth.backends.GithubBackend',
 )
 
-LOGIN_URL = reverse_lazy('front:auth:start')
+LOGIN_URL = reverse_lazy('front:auth:login')
 
 # define settings below in local_settings.py
 GITHUB_CLIENT_ID = None
