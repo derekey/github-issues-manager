@@ -13,7 +13,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 
-from .ghpool import parse_header_links, ApiError, Connection
+from .ghpool import parse_header_links, ApiError, ApiNotFoundError, Connection
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager)
@@ -469,6 +469,59 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         return json.loads(zlib.decompress(base64.decodestring(self._available_repositories)))
 
     available_repositories = property(_get_available_repositories, _set_available_repositories)
+
+    def can_use_repository(self, repository):
+        """
+        Return True if the user can use this repository.
+        The repository can be a real repository object, a tuple with two entries
+        (the owner's username and the repository name), or a string on the
+        github format: "username/reponame"
+        The use can use this repository if it has issues and admin or push
+        rights.
+        It's done by fetching the repository via the github api, and if the
+        users can use it, the repository is updated (if it's a real repository
+        object).
+        The result will be None if a problem occured during the check.
+        """
+        gh = self.get_connection()
+
+        is_real_repository = isinstance(repository, Repository)
+
+        if is_real_repository:
+            identifiers = repository.github_callable_identifiers
+        else:
+            if isinstance(repository, basestring):
+                parts = repository.split('/')
+            else:
+                parts = list(repository)
+            identifiers = ['repos'] + parts
+
+        gh_callable = Repository.objects.get_github_callable(gh, identifiers)
+        try:
+            repo_infos = gh_callable.get()
+        except ApiNotFoundError:
+            return False
+        except ApiError, e:
+            if e.response and e.response.code and str(e.response.code) in ('401', '403'):
+                return False
+            return None
+        except:
+            return None
+
+        if not repo_infos:
+            return False
+
+        permissions = repo_infos.get('permissions', {'admin': False, 'pull': True, 'push': False})
+        can_admin = permissions.get('admin', False)
+        can_push = permissions.get('push', False)
+        has_issues = repo_infos.get('has_issues', False)
+
+        if has_issues and (can_admin or can_push):
+            if is_real_repository:
+                Repository.objects.create_or_update_from_dict(repo_infos)
+            return True
+
+        return False
 
 
 class Repository(GithubObjectWithId):
