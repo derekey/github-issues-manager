@@ -7,18 +7,16 @@
         <div class="navbar-inner">
             <a class="brand" href="/" title="Github Issues Manager">G.I.M</a>
             <ul class="nav">
-                {% if all_repositories|length == 1 %}
-                    <li class="active">{{ current_repository }}</li>
-                {% else %}
-                    <li class="dropdown">
-                        <a id="repository-switcher" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ current_repository }} <b class="caret"></b></a>
-                        <ul class="dropdown-menu" role="menu" aria-labelledby="repository-switcher">
-                            {% for repository in all_repositories %}
-                                <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}">{{ repository }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                {% endif %}
+                <li class="dropdown">
+                    <a id="repository-switcher" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ current_repository }} <b class="caret"></b></a>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="repository-switcher">
+                        {% for repository in all_repositories %}
+                            <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}">{{ repository }}</a></li>
+                        {% endfor %}
+                        <li class="divider"></li>
+                        <li><a href="{% url "front:dashboard:repositories:choose" %}">Add a repository</a></li>
+                    </ul>
+                </li>
             </ul>
             <ul class="nav">
                 {% for main_view in repository_main_views %}
