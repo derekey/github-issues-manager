@@ -49,10 +49,34 @@
                                 {% endwith %}
                             {% endif %}
                         {% endnospaces %}">
-                            <td>{{ repo_fullname }}</td>
-                            {% if repo.owner == user.username %}<td title="You are the owner of this repository"><i class="icon-user"> </i></td>{% else %}<td>&nbsp;</td>{% endif %}
-                            {% if repo.private %}<td title="This repository is private"><i class="icon-eye-close"> </i></td>{% else %}<td>&nbsp;</td>{% endif %}
-                            {% if repo.can_admin %}<td title="You can admin this repository"><i class="icon-wrench"> </i></td>{% else %}<td>&nbsp;</td>{% endif %}
+                            <td>
+                                {% if repo_fullname in subscriptions %}
+                                    {% with subscription=subscriptions|dict_item:repo_fullname %}
+                                        {% if subscription.state != 3 %}
+                                            <a href="{{ subscription.repository.get_absolute_url }}" title="View this repository">{{ repo_fullname }}</a>
+                                        {% else %}
+                                            {{ repo_fullname }}
+                                        {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    {{ repo_fullname }}
+                                {% endif %}
+                            </td>
+                            {% if repo.owner == user.username %}
+                                <td title="You are the owner of this repository"><i class="icon-user"> </i></td>
+                            {% else %}
+                                <td>&nbsp;</td>
+                            {% endif %}
+                            {% if repo.private %}
+                                <td title="This repository is private"><i class="icon-eye-close"> </i></td>
+                            {% else %}
+                                <td>&nbsp;</td>
+                            {% endif %}
+                            {% if repo.can_admin %}
+                                <td title="You can admin this repository"><i class="icon-wrench"> </i></td>
+                            {% else %}
+                                <td>&nbsp;</td>
+                            {% endif %}
                             {% if repo_fullname in waiting_subscriptions %}
                                 <td title="You already asked to add this repository">
                                     {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
