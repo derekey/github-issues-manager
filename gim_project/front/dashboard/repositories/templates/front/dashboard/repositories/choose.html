@@ -60,12 +60,14 @@
                                         {% if subscription.can_add_again %}
                                             {% include "front/dashboard/repositories/include_add_form.html" %}
                                         {% endif %}
+                                        {% include "front/dashboard/repositories/include_remove_form.html" %}
                                     {% endwith %}
                                 </td>
                             {% elif repo_fullname in subscriptions %}
                                 <td title="This repository is already added">
                                     {% with subscription=subscriptions|dict_item:repo_fullname %}
                                         {{ subscription.get_state_display }}
+                                        {% include "front/dashboard/repositories/include_remove_form.html" %}
                                     {% endwith %}
                                 </td>
                             {% else %}

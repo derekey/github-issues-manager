@@ -4,11 +4,14 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 
 from subscriptions.models import WaitingSubscription, WAITING_SUBSCRIPTION_STATES
-from .forms import AddRepositoryForm
+from .forms import AddRepositoryForm, RemoveRepositoryForm
 
 
-class AddRepositoryView(FormView):
-    form_class = AddRepositoryForm
+class ToggleRepositoryBaseView(FormView):
+    """
+    Base view to use to add/remove a repository
+    """
+
     success_url = reverse_lazy('front:dashboard:repositories:choose')
     http_method_names = [u'post']
 
@@ -16,7 +19,7 @@ class AddRepositoryView(FormView):
         """
         Add the current request's user in the kwargs to use in the form
         """
-        kwargs = super(AddRepositoryView, self).get_form_kwargs()
+        kwargs = super(ToggleRepositoryBaseView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -27,6 +30,10 @@ class AddRepositoryView(FormView):
         """
         messages.error(self.request, form.get_main_error_message())
         return redirect(self.get_success_url())
+
+
+class AddRepositoryView(ToggleRepositoryBaseView):
+    form_class = AddRepositoryForm
 
     def form_valid(self, form):
         name = form.cleaned_data['name']
@@ -43,7 +50,22 @@ class AddRepositoryView(FormView):
             subscription.state = WAITING_SUBSCRIPTION_STATES.WAITING
             subscription.save()
 
+        messages.success(self.request, '%s will be added shortly' % name)
+
         return super(AddRepositoryView, self).form_valid(form)
+
+
+class RemoveRepositoryView(ToggleRepositoryBaseView):
+    form_class = RemoveRepositoryForm
+
+    def form_valid(self, form):
+        name = form.cleaned_data['name']
+
+        form.subscription.delete()
+
+        messages.success(self.request, '%s is now removed' % name)
+
+        return super(RemoveRepositoryView, self).form_valid(form)
 
 
 class ChooseRepositoryView(TemplateView):
