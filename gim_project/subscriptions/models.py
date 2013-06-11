@@ -22,7 +22,7 @@ class WaitingSubscription(models.Model):
         default=WAITING_SUBSCRIPTION_STATES.WAITING)
 
     class Meta:
-        unique_together = ('user', 'repository_name')
+        unique_together = [('user', 'repository_name'), ]
 
     def __unicode__(self):
         return u'%s for %s (%s)' % (self.repository_name,
@@ -77,7 +77,8 @@ class Subscription(models.Model):
         default=SUBSCRIPTION_STATES.SIMPLE)
 
     class Meta:
-        unique_together = ('user', 'repository')
+        unique_together = [('user', 'repository'), ]
+        index_together = [('user', 'state'), ]
 
     def __unicode__(self):
         return u'%s for %s (%s)' % (self.repository.name,

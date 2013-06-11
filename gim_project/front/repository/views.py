@@ -4,6 +4,7 @@ from django.utils.decorators import classonlymethod
 
 from ..views import BaseFrontView
 from core.models import Repository
+from subscriptions.models import SUBSCRIPTION_STATES
 
 
 class BaseRepositoryView(BaseFrontView):
@@ -19,6 +20,15 @@ class BaseRepositoryView(BaseFrontView):
 
     # internal attributes
     main_views = []
+
+    def get_queryset(self):
+        """
+        Limit repositories to the ones subscribed by the user
+        """
+        queryset = super(BaseRepositoryView, self).get_queryset()
+        repo_ids = self.request.user.subscriptions.exclude(
+            state=SUBSCRIPTION_STATES.NORIGHTS).values_list('repository_id', flat=True)
+        return queryset.filter(id__in=repo_ids)
 
     def get_object(self, queryset=None):
         """
