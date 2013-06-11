@@ -438,4 +438,5 @@ blockquote p:last-child {
 #available-repositories form {
     margin: 0;
     padding: 0;
+    display: inline-block;
 }

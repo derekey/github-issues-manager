@@ -472,7 +472,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
     def can_use_repository(self, repository):
         """
-        Return True if the user can use this repository.
+        Return 'admin' or 'push' if the user can use this repository ('admin' if
+        he has admin rights, else 'push')
         The repository can be a real repository object, a tuple with two entries
         (the owner's username and the repository name), or a string on the
         github format: "username/reponame"
@@ -519,7 +520,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         if has_issues and (can_admin or can_push):
             if is_real_repository:
                 Repository.objects.create_or_update_from_dict(repo_infos)
-            return True
+            return 'admin' if can_admin else 'push'
 
         return False
 
@@ -546,6 +547,10 @@ class Repository(GithubObjectWithId):
         ordering = ('owner', 'name', )
 
     def __unicode__(self):
+        return self.full_name
+
+    @property
+    def full_name(self):
         return u'%s/%s' % (self.owner.username if self.owner else '?', self.name)
 
     @property

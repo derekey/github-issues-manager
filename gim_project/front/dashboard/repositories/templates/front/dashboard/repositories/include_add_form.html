@@ -1,0 +1,5 @@
+<form action="{% url "front:dashboard:repositories:add" %}" method="post">
+    {% csrf_token %}
+    <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+    <button type="submit" class="btn btn-mini" href="" title="Add this repository"><i class="icon-plus"> </i></button>
+</form>

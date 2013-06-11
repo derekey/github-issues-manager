@@ -4,6 +4,7 @@ dynamic_group comes from http://djangosnippets.org/snippets/2511/
 from itertools import groupby
 from datetime import datetime
 import time
+import re
 
 from pytimeago.english import english as english_ago
 
@@ -142,3 +143,40 @@ def ago(date):
         return ''
 
 register.filter('ago', ago)
+
+
+class NoSpacesNode(template.Node):
+    """
+    """
+    spaces = re.compile('\s')
+
+    def __init__(self, nodelist):
+        self.nodelist = nodelist
+
+    def render(self, context):
+        return self.spaces.sub('', self.nodelist.render(context).strip())
+
+
+@register.tag
+def nospaces(parser, token):
+    """
+    Removes all spaces in the templatetag
+
+    Example usage::
+
+        <div class="{% nospaces %}
+            {% if foo %}
+                foo
+            {% else %}
+                bar
+            {% endif %}
+        {% endnospaces %}">
+
+
+    This example would return this HTML::
+
+        <div class="foo">
+    """
+    nodelist = parser.parse(('endnospaces',))
+    parser.delete_first_token()
+    return NoSpacesNode(nodelist)

@@ -4,6 +4,8 @@ from django.db import models
 from core import models as core_models
 from core.utils import contribute_to_model
 
+from subscriptions import models as subscriptions_models
+
 
 class _Repository(models.Model):
     class Meta:
@@ -60,3 +62,17 @@ class _Issue(models.Model):
         return reverse_lazy('front:repository:issue', kwargs=self.get_reverse_kwargs())
 
 contribute_to_model(_Issue, core_models.Issue)
+
+
+class _WaitingSubscription(models.Model):
+    class Meta:
+        abstract = True
+
+    def can_add_again(self):
+        """
+        Return True if the user can add the reposiory again (it is allowed if
+        the state is FAILED)
+        """
+        return self.state in (subscriptions_models.WAITING_SUBSCRIPTION_STATES.FAILED,)
+
+contribute_to_model(_WaitingSubscription, subscriptions_models.WaitingSubscription)
