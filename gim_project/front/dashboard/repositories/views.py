@@ -3,7 +3,9 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 
+from core.models import Repository
 from subscriptions.models import WaitingSubscription, WAITING_SUBSCRIPTION_STATES
+
 from .forms import AddRepositoryForm, RemoveRepositoryForm
 
 
@@ -49,6 +51,15 @@ class AddRepositoryView(ToggleRepositoryBaseView):
             # the subscription already exists, force the state and updated_at
             subscription.state = WAITING_SUBSCRIPTION_STATES.WAITING
             subscription.save()
+
+        # if the repository exists (and fetched), convert into a real subscription
+        try:
+            repository = subscription.repository
+        except Repository.DoesNotExist:
+            pass
+        else:
+            if repository.fetched_at:
+                subscription.convert()
 
         messages.success(self.request, '%s will be added shortly' % name)
 
