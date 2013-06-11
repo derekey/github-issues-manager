@@ -4,5 +4,6 @@ django-extensions
 ipython
 git+ssh://git@github.com/twidi/pytimeago.git#egg=pytimeago
 django-debug-toolbar
-git+ssh://git@github.com/twidi/django-debug-toolbar-template-timings.git#egg=template_timings
+git+git://github.com/twidi/django-debug-toolbar-template-timings.git#egg=template_timings
 git+git://github.com/twidi/django-decorator-include.git#egg=django-decorator-include
+git+git://github.com/twidi/django-extended-choices.git#egg=django-extended-choices

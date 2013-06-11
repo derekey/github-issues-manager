@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'template_timings_panel',
     'core',
+    'subscriptions',
     'front',
     'front.auth',
     'front.dashboard',
