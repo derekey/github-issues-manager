@@ -141,12 +141,42 @@ body > .navbar {
 #issues-list {
     overflow: auto;
     position: absolute;
-    top: 61px;
+    top: 62px;
     left: 0;
     right: 0;
     bottom: 0;
 }
-
+#filter-search-issues {
+    margin: 0;
+    padding: 0;    
+}
+#filter-search-issues label {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 100%;
+    display: block;
+    height: 28px;
+}
+#filter-search-issues label span.add-on {
+    border: 0;
+    border-radius: 0;
+    border-right: solid 1px #d4d4d4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 16px;
+}
+#filter-search-issues input#filter-issues {
+    border: 0;
+    border-radius: 0;
+    display: block;
+    width: auto;
+    position: absolute;
+    left: 27px;
+    top: 0;
+    right: 0;
+}
 .issue-item .issue-link {
     outline: none !important;
     text-decoration: none !important;

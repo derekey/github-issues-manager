@@ -295,6 +295,14 @@
             </div>
         </nav>
         <div id="issues-list" class='issues-list'>
+            <div class="control-group" id="filter-search-issues">
+                <div class="controls">
+                    <label class="input-prepend">
+                        <span class="add-on"><i class="icon-search"></i></span>
+                        <input type="text" id="filter-issues" class="quicksearch" data-target="#issues-list .issue-item" placeholder="Search (titles)"/>
+                    </label>
+                </div>
+            </div>
             {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
             {% for group in issues_groups %}
                 <div class='box issues-group'>
