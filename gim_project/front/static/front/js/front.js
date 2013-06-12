@@ -636,4 +636,24 @@ $().ready(function() {
             IssuesList.current.go_to_next_item();
         }
     }
+
+    var activate_quicksearches = (function activate_quicksearches () {
+        $('input.quicksearch').each(function() {
+            var input, target, content, options, qs;
+            $input = $(this);
+            if (!$input.data('quicksearch')) {
+                target = $input.data('target'),
+                content = $input.data('content'),
+                options = {};
+                if (target) {
+                    if (content) {
+                        options.selector = content;
+                    }
+                    qs = $input.quicksearch(target, options);
+                    $input.data('quicksearch', qs);
+                }
+            }
+        });
+    });
+    activate_quicksearches();
 });

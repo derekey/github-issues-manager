@@ -16,94 +16,108 @@
 {% endif %}
 
     <h2>Here is the list of repositories you can add:</h2>
-    <table class="table table-normal" id="available-repositories">
-        {% for org in user.available_repositories %}
-            <thead>
-                <tr>
-                    <th>{% if org.name == '__self__' %}Your (or others){% else %}{{ org.name }}'s{% endif %} repositories</th>
-                    <th>Yours</th>
-                    <th>Private</th>
-                    <th>Admin</th>
-                    <th>Add</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for repo in org.repos %}
-                    {% with repo_fullname=repo.owner|add:"/"|add:repo.name %}
-                        <tr class="{% nospaces %}
-                            {% if repo_fullname in waiting_subscriptions %}
-                                {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
-                                    {% if subscription.state == 3%}
-                                        error
-                                    {% else %}
-                                        warning
-                                    {% endif %}
-                                {% endwith %}
-                            {% elif repo_fullname in subscriptions %}
-                                {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                    {% if subscription.state == 3%}
-                                        error
-                                    {% else %}
-                                        success
-                                    {% endif %}
-                                {% endwith %}
-                            {% endif %}
-                        {% endnospaces %}">
-                            <td>
-                                {% if repo_fullname in subscriptions %}
-                                    {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                        {% if subscription.state != 3 %}
-                                            <a href="{{ subscription.repository.get_absolute_url }}" title="View this repository">{{ repo_fullname }}</a>
-                                        {% else %}
-                                            {{ repo_fullname }}
-                                        {% endif %}
-                                    {% endwith %}
-                                {% else %}
-                                    {{ repo_fullname }}
-                                {% endif %}
-                            </td>
-                            {% if repo.owner == user.username %}
-                                <td title="You are the owner of this repository"><i class="icon-user"> </i></td>
-                            {% else %}
-                                <td>&nbsp;</td>
-                            {% endif %}
-                            {% if repo.private %}
-                                <td title="This repository is private"><i class="icon-eye-close"> </i></td>
-                            {% else %}
-                                <td>&nbsp;</td>
-                            {% endif %}
-                            {% if repo.can_admin %}
-                                <td title="You can admin this repository"><i class="icon-wrench"> </i></td>
-                            {% else %}
-                                <td>&nbsp;</td>
-                            {% endif %}
-                            {% if repo_fullname in waiting_subscriptions %}
-                                <td title="You already asked to add this repository">
+
+    {% if available_repositories %}
+        <div class="control-group">
+            <div class="controls">
+                <label class="input-prepend">
+                    <span class="add-on"><i class="icon-search"></i></span>
+                    <input type="text" id="filter-available-repositories" class="quicksearch" data-target="#available-repositories tbody tr" data-content="td:first-child" placeholder="Filter"/>
+                </label>
+            </div>
+        </div>
+
+        <table class="table table-normal" id="available-repositories">
+            {% for org in available_repositories %}
+                <thead>
+                    <tr>
+                        <th>{% if org.name == '__self__' %}Your (or others){% else %}{{ org.name }}'s{% endif %} repositories</th>
+                        <th>Yours</th>
+                        <th>Private</th>
+                        <th>Admin</th>
+                        <th>Add</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repo in org.repos %}
+                        {% with repo_fullname=repo.owner|add:"/"|add:repo.name %}
+                            <tr class="{% nospaces %}
+                                {% if repo_fullname in waiting_subscriptions %}
                                     {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
-                                        {{ subscription.get_state_display }}
-                                        {% if subscription.can_add_again %}
-                                            {% include "front/dashboard/repositories/include_add_form.html" %}
+                                        {% if subscription.state == 3%}
+                                            error
+                                        {% else %}
+                                            warning
                                         {% endif %}
-                                        {% include "front/dashboard/repositories/include_remove_form.html" %}
                                     {% endwith %}
-                                </td>
-                            {% elif repo_fullname in subscriptions %}
-                                <td title="This repository is already added">
+                                {% elif repo_fullname in subscriptions %}
                                     {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                        {{ subscription.get_state_display }}
-                                        {% include "front/dashboard/repositories/include_remove_form.html" %}
+                                        {% if subscription.state == 3%}
+                                            error
+                                        {% else %}
+                                            success
+                                        {% endif %}
                                     {% endwith %}
-                                </td>
-                            {% else %}
+                                {% endif %}
+                            {% endnospaces %}">
                                 <td>
-                                    {% include "front/dashboard/repositories/include_add_form.html" %}
+                                    {% if repo_fullname in subscriptions %}
+                                        {% with subscription=subscriptions|dict_item:repo_fullname %}
+                                            {% if subscription.state != 3 %}
+                                                <a href="{{ subscription.repository.get_absolute_url }}" title="View this repository">{{ repo_fullname }}</a>
+                                            {% else %}
+                                                {{ repo_fullname }}
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        {{ repo_fullname }}
+                                    {% endif %}
                                 </td>
-                            {% endif %}
-                        </tr>
-                    {% endwith %}
-                {% endfor %}
-            </tbody>
-        {% endfor %}
-    </table>
+                                {% if repo.owner == user.username %}
+                                    <td title="You are the owner of this repository"><i class="icon-user"> </i></td>
+                                {% else %}
+                                    <td>&nbsp;</td>
+                                {% endif %}
+                                {% if repo.private %}
+                                    <td title="This repository is private"><i class="icon-eye-close"> </i></td>
+                                {% else %}
+                                    <td>&nbsp;</td>
+                                {% endif %}
+                                {% if repo.can_admin %}
+                                    <td title="You can admin this repository"><i class="icon-wrench"> </i></td>
+                                {% else %}
+                                    <td>&nbsp;</td>
+                                {% endif %}
+                                {% if repo_fullname in waiting_subscriptions %}
+                                    <td title="You already asked to add this repository">
+                                        {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
+                                            {{ subscription.get_state_display }}
+                                            {% if subscription.can_add_again %}
+                                                {% include "front/dashboard/repositories/include_add_form.html" %}
+                                            {% endif %}
+                                            {% include "front/dashboard/repositories/include_remove_form.html" %}
+                                        {% endwith %}
+                                    </td>
+                                {% elif repo_fullname in subscriptions %}
+                                    <td title="This repository is already added">
+                                        {% with subscription=subscriptions|dict_item:repo_fullname %}
+                                            {{ subscription.get_state_display }}
+                                            {% include "front/dashboard/repositories/include_remove_form.html" %}
+                                        {% endwith %}
+                                    </td>
+                                {% else %}
+                                    <td>
+                                        {% include "front/dashboard/repositories/include_add_form.html" %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            {% endfor %}
+        </table>
+    {% else %}
+        You have no repositories available to use !
+    {% endif %}
 </div>
 {% endblock main %}
