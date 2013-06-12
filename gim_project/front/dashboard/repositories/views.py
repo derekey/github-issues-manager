@@ -52,6 +52,7 @@ class AddRepositoryView(ToggleRepositoryBaseView):
             subscription.state = WAITING_SUBSCRIPTION_STATES.WAITING
             subscription.save()
 
+        message = '%s will be added shortly'
         # if the repository exists (and fetched), convert into a real subscription
         try:
             repository = subscription.repository
@@ -59,9 +60,10 @@ class AddRepositoryView(ToggleRepositoryBaseView):
             pass
         else:
             if repository.fetched_at:
+                message = '%s was just added'
                 subscription.convert()
 
-        messages.success(self.request, '%s will be added shortly' % name)
+        messages.success(self.request, message % name)
 
         return super(AddRepositoryView, self).form_valid(form)
 
