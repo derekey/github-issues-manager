@@ -157,6 +157,7 @@ body > .navbar {
     width: 100%;
     display: block;
     height: 28px;
+    background: white;
 }
 #filter-search-issues label span.add-on {
     border: 0;
@@ -171,11 +172,17 @@ body > .navbar {
     border: 0;
     border-radius: 0;
     display: block;
-    width: auto;
+    width: 100%;
     position: absolute;
-    left: 27px;
+    left: 0;
     top: 0;
     right: 0;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+    padding-left: 33px;
+    background: transparent;
+    height: 28px;
 }
 .issue-item .issue-link {
     outline: none !important;
