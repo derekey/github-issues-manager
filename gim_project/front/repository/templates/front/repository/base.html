@@ -12,7 +12,7 @@
                     <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}">{{ repository }}</a></li>
                 {% endfor %}
                 <li class="divider"></li>
-                <li><a href="{% url "front:dashboard:repositories:choose" %}">Add a repository</a></li>
+                <li><a href="{% url "front:dashboard:repositories:choose" %}">Manage your subscriptions</a></li>
             </ul>
         </li>
     </ul>
