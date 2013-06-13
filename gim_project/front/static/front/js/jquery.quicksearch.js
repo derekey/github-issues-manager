@@ -71,7 +71,7 @@
 		 * */
 		this.search = function (submittedVal) {
 			val = submittedVal;
-			e.trigger();
+			e.trigger_search();
 		};
 		
 		/*
@@ -147,7 +147,7 @@
 			return this.go();
 		};
 		
-		this.trigger = function () {
+		this.trigger_search = function () {
 			this.loader(true);
 			options.onBefore();
 			
@@ -172,7 +172,7 @@
 			$(this).on(options.bind, function () {
 				
 				val = $(this).val();
-				e.trigger();
+				e.trigger_search();
 			});
 		});
 		
