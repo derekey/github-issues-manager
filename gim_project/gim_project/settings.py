@@ -141,14 +141,21 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'debug_toolbar',
     'template_timings_panel',
+
     'core',
     'subscriptions',
+
     'front',
     'front.auth',
+
     'front.dashboard',
     'front.dashboard.repositories',
-    'front.repository',  # at least for specific templates
-    'front.repository.issues',  # for its templatetags
+
+    'front.repository',
+    'front.repository.issues',
+    'front.repository.dashboard',
+    'front.repository.timeline',
+    'front.repository.workflow',
 )
 
 DEBUG_TOOLBAR_PANELS = (
@@ -163,6 +170,9 @@ DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.signals.SignalDebugPanel',
     'debug_toolbar.panels.logger.LoggingPanel',
 )
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
 
 CACHES = {
     'default': {
