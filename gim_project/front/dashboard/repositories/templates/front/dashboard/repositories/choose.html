@@ -16,6 +16,8 @@
 {% endif %}
 
     <h2>Here is the list of repositories you can add:</h2>
+    {% url "front:dashboard:repositories:add" as repository_add_url %}
+    {% url "front:dashboard:repositories:remove" as repository_remove_url %}
 
     {% if available_repositories %}
         {% include "front/include_quicksearch.html" with target="#available-repositories tbody tr" content="td:first-child" only %}
@@ -86,21 +88,37 @@
                                         {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
                                             {{ subscription.get_state_display }}
                                             {% if subscription.can_add_again %}
-                                                {% include "front/dashboard/repositories/include_add_form.html" %}
+                                                <form action="{{ repository_add_url }}" method="post">
+                                                    <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                                                    <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+                                                    <button type="submit" class="btn btn-mini" href="" title="Add this repository"><i class="icon-plus"> </i></button>
+                                                </form>
                                             {% endif %}
-                                            {% include "front/dashboard/repositories/include_remove_form.html" %}
+                                            <form action="{{ repository_remove_url }}" method="post">
+                                                <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                                                <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+                                                <button type="submit" class="btn btn-mini" href="" title="Remove this repository"><i class="icon-remove"> </i></button>
+                                            </form>
                                         {% endwith %}
                                     </td>
                                 {% elif repo_fullname in subscriptions %}
                                     <td title="This repository is already added">
                                         {% with subscription=subscriptions|dict_item:repo_fullname %}
                                             {{ subscription.get_state_display }}
-                                            {% include "front/dashboard/repositories/include_remove_form.html" %}
+                                            <form action="{{ repository_remove_url }}" method="post">
+                                                <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                                                <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+                                                <button type="submit" class="btn btn-mini" href="" title="Remove this repository"><i class="icon-remove"> </i></button>
+                                            </form>
                                         {% endwith %}
                                     </td>
                                 {% else %}
                                     <td>
-                                        {% include "front/dashboard/repositories/include_add_form.html" %}
+                                        <form action="{{ repository_add_url }}" method="post">
+                                            <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                                            <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+                                            <button type="submit" class="btn btn-mini" href="" title="Add this repository"><i class="icon-plus"> </i></button>
+                                        </form>
                                     </td>
                                 {% endif %}
                             </tr>
