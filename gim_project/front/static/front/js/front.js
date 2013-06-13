@@ -629,6 +629,7 @@ $().ready(function() {
         $input: $('#go-to-issue-window form input'),
         open: (function IssueByNumber_open () {
             IssueByNumber.$window.modal('show');
+            return false; // stop event propagation
         }), // IssueByNumber_open
         on_show: (function IssueByNumber_on_show (e) {
             IssueByNumber.$input.val('');
@@ -655,6 +656,7 @@ $().ready(function() {
                 IssueByNumber.$input.prop('placeholder', "Type a correct issue number");
             IssueByNumber.$input.focus();
             }
+            return false; // stop event propagation
         }), // IssueByNumber_on_submit
         open_issue: (function IssueByNumber_open_issue (number) {
             var issue = IssuesList.get_issue_by_number(number);
