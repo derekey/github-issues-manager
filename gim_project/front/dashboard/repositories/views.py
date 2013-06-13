@@ -52,7 +52,7 @@ class AddRepositoryView(ToggleRepositoryBaseView):
             subscription.state = WAITING_SUBSCRIPTION_STATES.WAITING
             subscription.save()
 
-        message = '%s will be added shortly'
+        message = 'Your subscription to <strong>%s</strong> will be added shortly'
         # if the repository exists (and fetched), convert into a real subscription
         try:
             repository = subscription.repository
@@ -60,7 +60,7 @@ class AddRepositoryView(ToggleRepositoryBaseView):
             pass
         else:
             if repository.fetched_at:
-                message = '%s was just added'
+                message = 'Your subscription to <strong>%s</strong> was just added'
                 subscription.convert()
 
         messages.success(self.request, message % name)
@@ -76,7 +76,7 @@ class RemoveRepositoryView(ToggleRepositoryBaseView):
 
         form.subscription.delete()
 
-        messages.success(self.request, '%s is now removed' % name)
+        messages.success(self.request, 'Your subscription to <strong>%s</strong> was just removed' % name)
 
         return super(RemoveRepositoryView, self).form_valid(form)
 
