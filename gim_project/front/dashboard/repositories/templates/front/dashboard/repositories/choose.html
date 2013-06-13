@@ -7,14 +7,6 @@
 <div class="span12">
     <h1>So, you want to add a repository, {{ user.username }}</h1>
 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }} [{{ message.tags }}]</li>
-    {% endfor %}
-</ul>
-{% endif %}
-
     <h2>Here is the list of repositories you can add:</h2>
     {% url "front:dashboard:repositories:add" as repository_add_url %}
     {% url "front:dashboard:repositories:remove" as repository_remove_url %}
