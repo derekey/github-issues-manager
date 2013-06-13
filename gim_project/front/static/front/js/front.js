@@ -416,14 +416,15 @@ $().ready(function() {
             var issues_list = IssuesList.all[i];
             if (issues_list.$search_input.length) {
                 issues_list.$search_input.on('quicksearch.after', $.proxy(issues_list.on_filter_done, issues_list));
-                issues_list.$search_input.on('keydown', jwerty.event('↓', issues_list.go_to_first_group, issues_list));
+                issues_list.$search_input.on('keydown', jwerty.event('↑', issues_list.go_to_previous_item, issues_list));
+                issues_list.$search_input.on('keydown', jwerty.event('↓', issues_list.go_to_next_item, issues_list));
                 issues_list.$search_input.on('keydown', jwerty.event('ctrl+u', issues_list.clear_search_input, issues_list));
             }
         }
     }); // IssuesList_init_event
 
     IssuesList.prototype.on_filter_done = (function IssuesList__on_filter_done () {
-        var continue_issue_search = true;
+        var continue_issue_search = this.$search_input.val() !== '';
         for (var i = 0; i < this.groups.length; i++) {
             var group = this.groups[i];
             group.update_filtered_issues();
@@ -435,7 +436,7 @@ $().ready(function() {
             }
         }
         if (continue_issue_search !== false) {
-            this.go_to_next_item();
+            this.go_to_first_group();
             this.$search_input.focus();
         }
 
