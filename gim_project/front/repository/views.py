@@ -1,15 +1,13 @@
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import classonlymethod
+from django.views.generic import DetailView
 
-from ..views import BaseFrontView
-from core.models import Repository
-from subscriptions.models import SUBSCRIPTION_STATES
+from ..views import SubscribedRepositoriesMixin
 
 
-class BaseRepositoryView(BaseFrontView):
+class BaseRepositoryView(SubscribedRepositoriesMixin, DetailView):
     # details vue attributes
-    model = Repository
     template_name = 'front/repository/base.html'
     context_object_name = 'current_repository'
 
@@ -20,15 +18,6 @@ class BaseRepositoryView(BaseFrontView):
 
     # internal attributes
     main_views = []
-
-    def get_queryset(self):
-        """
-        Limit repositories to the ones subscribed by the user
-        """
-        queryset = super(BaseRepositoryView, self).get_queryset()
-        repo_ids = self.request.user.subscriptions.exclude(
-            state=SUBSCRIPTION_STATES.NORIGHTS).values_list('repository_id', flat=True)
-        return queryset.filter(id__in=repo_ids)
 
     def get_object(self, queryset=None):
         """
@@ -79,10 +68,7 @@ class BaseRepositoryView(BaseFrontView):
         # quick access to repository
         repository = context['current_repository']
 
-        # we need a list of availables repositories
-        all_repositories = self.get_queryset().all().select_related('owner')
-
-        # we also need a list of all main views for this repository
+        # we need a list of all main views for this repository
         repo_main_views = []
         reverse_kwargs = repository.get_reverse_kwargs()
         for view_class in BaseRepositoryView.main_views:
@@ -94,9 +80,6 @@ class BaseRepositoryView(BaseFrontView):
             }
             repo_main_views.append(main_view)
 
-        context.update({
-            'all_repositories': all_repositories,
-            'repository_main_views': repo_main_views,
-        })
+        context['repository_main_views'] = repo_main_views
 
         return context

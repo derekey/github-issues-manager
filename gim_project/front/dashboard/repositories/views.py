@@ -6,10 +6,11 @@ from django.core.urlresolvers import reverse_lazy
 from core.models import Repository
 from subscriptions.models import WaitingSubscription, WAITING_SUBSCRIPTION_STATES
 
+from ...views import BaseFrontViewMixin
 from .forms import AddRepositoryForm, RemoveRepositoryForm
 
 
-class ToggleRepositoryBaseView(FormView):
+class ToggleRepositoryBaseView(BaseFrontViewMixin, FormView):
     """
     Base view to use to add/remove a repository
     """

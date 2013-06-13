@@ -1,10 +1,11 @@
 from copy import deepcopy
 from urlparse import parse_qs
 
-from django.views.generic import DetailView
+from core.models import Repository
+from subscriptions.models import SUBSCRIPTION_STATES
 
 
-class BaseFrontView(DetailView):
+class BaseFrontViewMixin(object):
 
     def get_qs_parts(self, context):
         """
@@ -19,8 +20,8 @@ class BaseFrontView(DetailView):
         By default, simply split the querystring in parts for use in other
         views, and put the parts and the whole querystring in the context
         """
-        context = super(BaseFrontView, self).get_context_data(**kwargs)
-        
+        context = super(BaseFrontViewMixin, self).get_context_data(**kwargs)
+
         # put querystring parts in a dict
         qs = self.request.META.get('QUERY_STRING', '')
         qs_dict = parse_qs(qs)
@@ -39,5 +40,34 @@ class BaseFrontView(DetailView):
             'querystring_parts': qs_parts,
             'querystring': qs,
         })
+
+        return context
+
+
+class SubscribedRepositoriesMixin(BaseFrontViewMixin):
+    """
+    Mixin to use when needing to list the subscribed repositories.
+    Provide the model to use, the get_queryset method, and add
+    'subscribed_repositories' in the context
+    """
+    model = Repository
+
+    def get_queryset(self):
+        """
+        Limit repositories to the ones subscribed by the user
+        """
+        queryset = super(SubscribedRepositoriesMixin, self).get_queryset()
+        repo_ids = self.request.user.subscriptions.exclude(
+            state=SUBSCRIPTION_STATES.NORIGHTS).values_list('repository_id', flat=True)
+        return queryset.filter(id__in=repo_ids)
+
+    def get_context_data(self, **kwargs):
+        """
+        Add the list of subscribed repositories in the context, in a variable
+        named "subscribed_repositories". The list is not lazy !
+        """
+        context = super(SubscribedRepositoriesMixin, self).get_context_data(**kwargs)
+
+        context['subscribed_repositories'] = list(self.get_queryset().all().select_related('owner'))
 
         return context
