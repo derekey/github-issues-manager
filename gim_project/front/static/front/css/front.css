@@ -145,7 +145,7 @@ body > .navbar {
 #issues-list {
     overflow: auto;
     position: absolute;
-    top: 90px;
+    top: 91px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -157,6 +157,7 @@ body > .navbar {
     top: 62px;
     left: 0;
     right: 0;
+    border-bottom: solid 1px #d4d4d4;
 }
 #filter-search-issues label {
     margin: 0;
@@ -309,6 +310,9 @@ a.box-header:focus {
 }
 .issues-list a.box-header {
     padding-left: 7px;
+}
+.issues-list .issues-group:first-child .box-header {
+    border-top: 0;
 }
 .issues-list .issues-group.active a.box-header {
     padding-left: 4px;
