@@ -5,6 +5,18 @@
 {% block main %}
 <div class="span12">
     <h1>Welcome on your dashboard, {{ user.username }}</h1>
-    <a href="{% url "front:dashboard:repositories:choose" %} ">Add a repository</a>
+    <h2>Your subscribed repositories</h2>
+    {% if subscribed_repositories|length %}
+        <ul>
+        {% for repository in subscribed_repositories %}
+            <li>
+                <a href="{{ repository.get_absolute_url }}" title="View this repository">{{ repository }}</a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        You didn't subscribe to any repositories !
+    {% endif %}
+    <a href="{% url "front:dashboard:repositories:choose" %} ">Manage your subscriptions to repositories</a>
 </div>
 {% endblock main %}
