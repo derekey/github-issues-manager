@@ -43,7 +43,7 @@
         {% for message in messages %}
             <li class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
-                {{ message }}
+                {{ message|safe }}
             </li>
         {% endfor %}
     </ul>
