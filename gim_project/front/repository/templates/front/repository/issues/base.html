@@ -25,7 +25,7 @@
             <ul class="nav nav-list collapse" id="filter-created_by">
                 {% if issues_creators %}
                     <li>
-                    {% if issues_creators|length > 1 %}
+                    {% if issues_creators|length > 10 %}
                         {% include "front/include_quicksearch.html" with id="filter-issues-creators" target="#filter-created_by li.creator" only %}
                     {% endif %}
                     </li>
