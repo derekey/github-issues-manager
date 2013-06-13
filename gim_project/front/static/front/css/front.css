@@ -5,6 +5,10 @@ html, body {
     height: 100%;
     overflow: hidden;
 }
+.input-prepend.input-append .add-on:first-child,
+.input-prepend.input-append .btn:first-child {
+    margin-left: 0;
+}
 .navbar-inner {
   -webkit-border-radius: 0;
      -moz-border-radius: 0;
@@ -163,7 +167,7 @@ body > .navbar {
     height: 28px;
     background: white;
 }
-#filter-search-issues label span.add-on {
+#filter-search-issues label .add-on {
     border: 0;
     border-radius: 0;
     border-right: solid 1px #d4d4d4;
@@ -171,8 +175,9 @@ body > .navbar {
     top: 0;
     left: 0;
     width: 16px;
+    z-index: 10;
 }
-#filter-search-issues input#filter-issues {
+#filter-search-issues input {
     border: 0;
     border-radius: 0;
     display: block;
@@ -185,8 +190,21 @@ body > .navbar {
        -moz-box-sizing: border-box;
             box-sizing: border-box;
     padding-left: 33px;
+    padding-right: 31px;
     background: transparent;
     height: 28px;
+    z-index: 20;
+}
+#filter-search-issues label .btn {
+    border: 0;
+    border-radius: 0;
+    border-left: solid 1px #d4d4d4;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 0;
+    padding: 4px 6px;
+    z-index: 30;
 }
 .issue-item .issue-link {
     outline: none !important;

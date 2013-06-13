@@ -418,7 +418,6 @@ $().ready(function() {
                 issues_list.$search_input.on('quicksearch.after', $.proxy(issues_list.on_filter_done, issues_list));
                 issues_list.$search_input.on('keydown', jwerty.event('↑', issues_list.go_to_previous_item, issues_list));
                 issues_list.$search_input.on('keydown', jwerty.event('↓', issues_list.go_to_next_item, issues_list));
-                issues_list.$search_input.on('keydown', jwerty.event('ctrl+u', issues_list.clear_search_input, issues_list));
             }
         }
     }); // IssuesList_init_event
@@ -451,7 +450,7 @@ $().ready(function() {
     IssuesList.prototype.clear_search_input = (function IssuesList__clear_search_input () {
         if (!this.$search_input.length) { return; }
         this.$search_input.val('');
-        this.$search_input.data('quicksearch').trigger_search();
+        this.$search_input.trigger('quicksearch.refresh');
         return false;
     }); // IssuesList__clear_search_input
 
@@ -728,9 +727,13 @@ $().ready(function() {
             var input, target, content, options, qs;
             $input = $(this);
             if (!$input.data('quicksearch')) {
-                target = $input.data('target'),
-                content = $input.data('content'),
+                target = $input.data('target');
+                if (!target) { return; }
+
+                content = $input.data('content');
+
                 options = {
+                    bind: 'keyup quicksearch.refresh',
                     show: function () {
                         this.style.display = "";
                         $(this).removeClass('hidden');
@@ -746,12 +749,26 @@ $().ready(function() {
                         $input.trigger('quicksearch.after');
                     }
                 };
-                if (target) {
-                    if (content) {
-                        options.selector = content;
-                    }
-                    qs = $input.quicksearch(target, options);
-                    $input.data('quicksearch', qs);
+                if (content) {
+                    options.selector = content;
+                }
+
+                qs = $input.quicksearch(target, options);
+                $input.data('quicksearch', qs);
+
+                var clear_input = function(e) {
+                    $input.val('');
+                    $input.trigger('quicksearch.refresh');
+                    $input.focus();
+                    e.stopPropagation();
+                    e.preventDefault();
+                };
+                $input.on('keydown', jwerty.event('ctrl+u', clear_input));
+
+                var clear_btn = $input.next('.btn');
+                if (clear_btn.length) {
+                    clear_btn.on('click', clear_input);
+                    clear_btn.on('keyup', jwerty.event('space', clear_input));
                 }
             }
         });
