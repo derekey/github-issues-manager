@@ -10,7 +10,7 @@
     {# <link href="{% static "front/css/application.css" %}" rel="stylesheet"> #}
     <link href="{% static "front/css/front.css" %}" rel="stylesheet">
 </head>
-<body>
+<body id="{% block body_id %}{% endblock %}" class="{% block body_classes %}{% endblock %}">
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container-fluid">
