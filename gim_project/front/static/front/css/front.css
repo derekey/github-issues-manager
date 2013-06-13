@@ -503,3 +503,9 @@ blockquote p:last-child {
     padding: 0;
     display: inline-block;
 }
+
+body > header img.avatar {
+    max-height: 30px;
+    max-width: 30px;
+    margin: -9px 5px -7px 0;
+}
