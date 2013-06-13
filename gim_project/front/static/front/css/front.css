@@ -516,3 +516,41 @@ body > header img.avatar {
     right: 16px;
     z-index: 50;
 }
+
+#issues-nav .quicksearch-widget {
+    margin-bottom: 5px;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+#issues-nav .quicksearch-widget label {
+    margin-bottom: 0;
+    position: relative;
+    background: white;
+    border-radius: 4px;
+}
+#issues-nav .quicksearch-widget .add-on,
+#issues-nav .quicksearch-widget .btn {
+    padding: 1px 0 1px 2px;
+    position: absolute;
+    top: 0;
+}
+#issues-nav .quicksearch-widget .add-on {
+    left: 0;
+    z-index: 10;
+}
+#issues-nav .quicksearch-widget .btn {
+    right: 0;
+    z-index: 20;
+}
+#issues-nav .quicksearch-widget input {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+    height: 24px;
+    display: block;
+    width: 100%;
+    background: transparent;
+    border-radius: 4px;
+    padding-left: 23px;
+    padding-right:; 23px;
+}

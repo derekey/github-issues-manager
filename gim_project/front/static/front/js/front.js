@@ -726,7 +726,7 @@ $().ready(function() {
 
     var activate_quicksearches = (function activate_quicksearches () {
         $('input.quicksearch').each(function() {
-            var input, target, content, options, qs;
+            var $input, target, content, options, qs;
             $input = $(this);
             if (!$input.data('quicksearch')) {
                 target = $input.data('target');
@@ -764,6 +764,7 @@ $().ready(function() {
                     $input.focus();
                     e.stopPropagation();
                     e.preventDefault();
+                    return false;
                 };
                 $input.on('keydown', jwerty.event('ctrl+u', clear_input));
 
@@ -776,4 +777,5 @@ $().ready(function() {
         });
     });
     activate_quicksearches();
+
 });

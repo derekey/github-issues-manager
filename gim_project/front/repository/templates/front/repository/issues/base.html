@@ -24,11 +24,16 @@
         <li>
             <ul class="nav nav-list collapse" id="filter-created_by">
                 {% if issues_creators %}
+                    <li>
+                    {% if issues_creators|length > 1 %}
+                        {% include "front/include_quicksearch.html" with id="filter-issues-creators" target="#filter-created_by li.creator" only %}
+                    {% endif %}
+                    </li>
                     {% for user in issues_creators %}
                         {% if issues_filter.objects.current_created_by == user.username %}
-                            <li class="active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
+                            <li class="creator active"><a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
                         {% else %}
-                            <li><a href="{{ current_repository|base_url_issues_filtered_by_created_by:user }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
+                            <li class="creator"><a href="{{ current_repository|base_url_issues_filtered_by_created_by:user }}{{ issues_filter.querystring }}">{{ user.username }}</a></li>
                         {% endif %}
                     {% endfor %}
                 {% endif %}
