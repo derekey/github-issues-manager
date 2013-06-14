@@ -23,6 +23,10 @@ class _Repository(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('front:repository:home', kwargs=self.get_reverse_kwargs())
 
+    def get_view_url(self, url_name):
+        return reverse_lazy('front:repository:%s' % url_name,
+                                  kwargs=self.get_reverse_kwargs())
+
     def get_issues_user_filter_url_for_username(self, filter_type, username):
         """
         Return the url to filter issues of this repositories by filter_type, for

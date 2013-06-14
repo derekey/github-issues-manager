@@ -1,22 +1,96 @@
 {% extends "front/dashboard/base.html" %}
+{% load staticfiles repository_tags issues_tags %}
 
 {% block body_id %}dashboard_home{% endblock %}
+{% block extra_css %}
+    <link href="{% static "front/css/pages/dashboard/dashboard-home.css" %}" rel="stylesheet">
+{% endblock extra_css %}
 
 {% block main %}
 <div class="span12">
-    <h1>Welcome on your dashboard, {{ user.username }}</h1>
-    <h2>Your subscribed repositories</h2>
+    <div class="area-top">
+        <a class="btn btn-inverse pull-right" href="{% url "front:dashboard:repositories:choose" %} ">Manage your subscriptions to repositories</a>
+        <h3>Your dashboard</h3>
+    </div>
+
     {% if subscribed_repositories|length %}
-        <ul>
+        <div id="summary">
+            <ul class="unstyled row-fluid">
+                <li class="span1">Total:</li>
+                {% with count=total_counts.assigned label="assigned" %}
+                    <li class="span2">
+                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                        {{ label }}
+                    </li>
+                {% endwith %}
+                {% with count=total_counts.created label="created" %}
+                    <li class="span2">
+                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                        {{ label }}
+                    </li>
+                {% endwith %}
+                {% with count=total_counts.prs label="PRs" %}
+                    <li class="span2">
+                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                        {{ label }}
+                    </li>
+                {% endwith %}
+                <li class="span5"></li>
+            </ul>
+        </div>
+        <ul class="unstyled" id="subscribed_repositories">
         {% for repository in subscribed_repositories %}
-            <li>
-                <a href="{{ repository.get_absolute_url }}" title="View this repository">{{ repository }}</a>
-            </li>
+            {% with assigned_url=repository|base_url_issues_filtered_by_assigned:user createdy_url=repository|base_url_issues_filtered_by_created_by:user issues_url=repository|repository_view_url:'issues' %}
+                <li>
+                    <a href="{{ repository.get_absolute_url }}" title="View this repository">{{ repository }}</a>
+                    <div class="action-nav-normal row-fluid">
+                        {% with count=repository.user_counts_open.assigned label="Assigned" icon="user" %}
+                            <div class="action-nav-button span2 offset1">
+                                <a href="{{ assigned_url }}?state=open">
+                                    <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
+                                </a>
+                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                            </div>
+                        {% endwith %}
+                        {% with count=repository.user_counts_open.created label="Created" icon="pencil" %}
+                            <div class="action-nav-button span2">
+                                <a href="{{ createdy_url }}?state=open">
+                                    <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
+                                </a>
+                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                            </div>
+                        {% endwith %}
+                        {% with count=repository.user_counts_open.prs label="PRs" icon="plus" %}
+                            <div class="action-nav-button span2">
+                                <a href="{{ createdy_url }}?state=open&amp;pr=yes">
+                                    <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
+                                </a>
+                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                            </div>
+                        {% endwith %}
+                        {% with count=repository.user_counts_open.all_prs label="All PRs" icon="plus" %}
+                            <div class="action-nav-button span2 offset1">
+                                <a href="{{ issues_url }}?state=open&amp;pr=yes">
+                                     <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
+                                </a>
+                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                            </div>
+                        {% endwith %}
+                        {% with count=repository.user_counts_open.all label="All open" icon="th-list" %}
+                            <div class="action-nav-button span2">
+                                <a href="{{ issues_url }}?state=open">
+                                     <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
+                                </a>
+                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                            </div>
+                        {% endwith %}
+                    </div>
+                </li>
+            {% endwith %}
         {% endfor %}
         </ul>
     {% else %}
-        You didn't subscribe to any repositories !
+        <div class="empty-area">You didn't subscribe to any repositories !</div>
     {% endif %}
-    <a href="{% url "front:dashboard:repositories:choose" %} ">Manage your subscriptions to repositories</a>
 </div>
 {% endblock main %}

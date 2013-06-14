@@ -229,8 +229,7 @@ class IssuesView(BaseRepositoryView):
         label_types = repository.label_types.all().prefetch_related('labels')
 
         # final context
-        issues_url = reverse_lazy('front:repository:%s' % IssuesView.url_name,
-                                  kwargs=repository.get_reverse_kwargs())
+        issues_url = repository.get_view_url(IssuesView.url_name)
 
         issues_filter = self.prepare_issues_filter_context(filter_context)
         context.update({

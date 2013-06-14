@@ -1,0 +1,48 @@
+/* line 4, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+.area-top .btn {
+  margin-top: 6px;
+}
+
+/* line 10, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories > li {
+  overflow: auto;
+  padding: 10px 0 10px 5px;
+  border-bottom: solid 1px #d4d4d4;
+}
+/* line 14, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories > li:first-of-type {
+  border-top: solid 1px #d4d4d4;
+}
+/* line 17, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories > li > a {
+  font-size: larger;
+  line-height: 56px;
+  font-weight: bold;
+  display: inline-block;
+  color: #666666;
+}
+/* line 23, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories > li > a:hover {
+  color: #4d4d4d;
+  text-decoration: none;
+}
+/* line 28, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories > li:hover {
+  background: #fafafa;
+}
+/* line 32, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories .action-nav-normal {
+  float: right;
+  max-width: 600px;
+}
+
+/* line 38, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#summary {
+  overflow: auto;
+}
+/* line 40, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#summary ul {
+  float: right;
+  max-width: 600px;
+  text-align: center;
+}
