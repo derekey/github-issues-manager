@@ -8,3 +8,14 @@
   padding: 0;
   display: inline-block;
 }
+
+/* line 15, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#dashboard_subscriptions .area-top {
+  margin-left: -20px;
+  margin-right: -20px;
+  margin-bottom: 15px;
+}
+/* line 20, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#dashboard_subscriptions .quicksearch-widget {
+  margin-top: 6px;
+}

@@ -9,15 +9,19 @@
 
 {% block main %}
 <div class="span12">
-    <h1>So, you want to subscribe to a repository, {{ user.username }}</h1>
-
-    <h2>Here is the list of repositories you can subscribe to:</h2>
+    <div class="area-top">
+        {% if available_repositories %}
+            {% include "front/include_quicksearch.html" with target="#available-repositories tbody tr" content="td:first-child" class="pull-right" only %}
+        {% endif %}
+        <h3>Manage your subscriptions</h3>
+    </div>
+    <p>
+        Below is the list of all the repositories for which you are able to manage issues.
+    </p>
     {% url "front:dashboard:repositories:add" as repository_add_url %}
     {% url "front:dashboard:repositories:remove" as repository_remove_url %}
 
     {% if available_repositories %}
-        {% include "front/include_quicksearch.html" with target="#available-repositories tbody tr" content="td:first-child" only %}
-
         <table class="table table-normal" id="available-repositories">
             {% for org in available_repositories %}
                 <thead>
@@ -124,7 +128,7 @@
             {% endfor %}
         </table>
     {% else %}
-        You have no repositories available to use !
+        <div class="empty-area">You have no repositories available to use !</div>
     {% endif %}
 </div>
 {% endblock main %}
