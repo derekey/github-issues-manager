@@ -11,3 +11,4 @@ share/
 *.db-journal
 *.sublime-workspace
 *.sublime-project
+.sass-cache
