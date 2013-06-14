@@ -1,0 +1,10 @@
+#shortcuts-window {
+    width: 90%;
+    margin-left: -45%;
+    .modal-body {
+        max-height: 430px;
+    }
+    tr td:first-of-type {
+        white-space: nowrap;
+    }
+}

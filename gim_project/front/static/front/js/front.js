@@ -388,9 +388,8 @@ $().ready(function() {
     IssuesList.init_all = (function IssuesList_init_all () {
         IssuesList.all = $.map($(IssuesList.selector),
                             function(node) { return new IssuesList(node); });
-        if (IssuesList.all.length) {
-            IssuesList.all[0].set_current();
-        }
+        if (!IssuesList.all.length) { return; }
+        IssuesList.all[0].set_current();
         IssuesListIssue.init_events();
         IssuesListGroup.init_events();
         IssuesList.init_events();
@@ -560,7 +559,7 @@ $().ready(function() {
     IssuesList.clear_issue_html = (function IssuesList_clear_issue_html (code) {
         var container = IssuesList.get_issue_html_container();
         container.$node.data('issue-number', 0);
-        container.$node.html('<p class="empty-column">' + (code ? code + ' :(' : '...') + '</p>');
+        container.$node.html('<p class="empty-area">' + (code ? code + ' :(' : '...') + '</p>');
     }); // IssuesList_clear_issue_html
 
     IssuesList.toggle_details = (function IssuesList_toggle_details () {
@@ -670,6 +669,7 @@ $().ready(function() {
             }
         }), // IssueByNumber_on_submit
         init_events: (function IssueByNumber_init_events () {
+            if (!IssueByNumber.$window.length) { return; }
             jwerty.key('i/⇧+#', Ev.key_decorate(IssueByNumber.open));  // "#" is shift-3 ?!?
             IssueByNumber.$window.on('show', IssueByNumber.on_show);
             IssueByNumber.$window.on('shown', IssueByNumber.on_shown);
@@ -692,10 +692,13 @@ $().ready(function() {
     // keyboard events
     jwerty.key('f', Ev.key_decorate(on_resize_issue_click));
     $(document).on('click', '#resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
-    jwerty.key('?/⇧+slash', Ev.key_decorate(on_help));  // slash is "/"
     $(document).on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
     $(document).on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
     $(document).on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));
+
+    if ($('#show-shortcuts').length) {
+        jwerty.key('?/⇧+slash', Ev.key_decorate(on_help));  // slash is "/" (shift+/ = "?" on qwerty keyboard)
+    }
 
 
     // select the issue given in the url's hash, or an active one in the html,

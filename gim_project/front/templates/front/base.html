@@ -8,7 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{% static "front/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     {# <link href="{% static "front/css/application.css" %}" rel="stylesheet"> #}
-    <link href="{% static "front/css/front.css" %}" rel="stylesheet">
+    <link href="{% static "front/css/main.css" %}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
 </head>
 <body id="{% block body_id %}{% endblock %}" class="{% block body_classes %}{% endblock %}">
     <header class="navbar navbar-inverse navbar-fixed-top">
@@ -49,6 +50,7 @@
     </ul>
     {% endif %}
 
+    {% block modal-windows %}{% endblock %}
     <main id="main" class="container-fluid">
         <div class="row-fluid" id="main-inner">
             {% block main %}{% endblock main %}

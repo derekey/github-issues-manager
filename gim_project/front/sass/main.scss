@@ -1,0 +1,52 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+
+@import "bootstrap-correct";
+
+@import "variables";
+
+@import "widgets/avatar";
+@import "widgets/box";
+@import "widgets/news";
+@import "widgets/chatbox";
+@import "widgets/areatop";
+
+body > header {
+    // no margin below the header to let content snap to it
+    margin-bottom: 0;
+    // let the avatar take almost the full height
+    img.avatar {
+        max-height: 30px;
+        max-width: 30px;
+        margin: -9px 5px -7px 0;
+    }
+}
+
+// leave room at the top for the fixed sidebar
+#main-inner {
+    padding-top: 40px;
+}
+
+// message are positionned on the top right corner
+#messages {
+    position: fixed;
+    top: 60px;
+    right: 16px;
+    z-index: 50;
+}
+
+// big empty area with big text light colored
+.empty-area {
+    color: $light-text-color;
+    font-size: 300%;
+    font-weight: bold;
+    text-align: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    line-height: 2em;
+    margin-top: -1em;
+}

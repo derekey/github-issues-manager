@@ -1,8 +1,11 @@
 {% extends "front/dashboard/base.html" %}
-{% load frontutils %}
+{% load staticfiles frontutils %}
 
 {% block body_id %}dashboard_subscriptions{% endblock %}
 {% block title %}Subscritions | {{ block.super }}{% endblock title %}
+{% block extra_css %}
+    <link href="{% static "front/css/pages/dashboard/available-repositories.css" %}" rel="stylesheet">
+{% endblock extra_css %}
 
 {% block main %}
 <div class="span12">

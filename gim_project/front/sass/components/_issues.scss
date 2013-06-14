@@ -1,0 +1,112 @@
+@import "variables";
+@import "compass/css3/border-radius";
+@import "compass/css3/box-sizing";
+
+$active-issue-color: #666;
+.issues-list {
+    .box-content {
+        margin-bottom: -1px;
+    }
+    a.box-header {
+        padding-left: 7px;
+    }
+    .issues-group {
+        &:first-child .box-header {
+            border-top: 0;
+        }
+        &.active a.box-header {
+            padding-left: 4px;
+            border-left: solid $active-issue-color 3px;
+        }
+    }
+    &.without-details {
+        .news {
+            padding: 5px;
+            padding-left: 8px;
+            min-height: 20px;
+            &.active {
+                padding-left: 5px;            
+            }
+            .avatar, .news-time, .news-text {
+                display: none;            
+            }
+            .news-content {
+                margin-left: 0;
+                margin-right: 0;
+            }
+            .news-title {
+                margin-bottom: 0;
+            }
+        } // .news
+    } // &.without-details
+} // .issues-list
+
+.issue-item {
+    .issue-link {
+        outline: none !important;
+        text-decoration: none !important;
+    }
+}
+.issue-item-assigned {
+    margin-top: 3px;
+    a {
+        color: #999 !important;
+    }
+}
+.box-section.issue-item {
+    padding-left: 13px;
+        &.active {
+            padding-left: 10px;
+            border-left: solid $active-issue-color 3px;
+        }
+}
+.issue-closed {
+    text-decoration: line-through;
+}
+
+
+// the quicksearch filter use the full width of the column
+.issues-quicksearch {
+    margin: 0;
+    padding: 0;
+    label {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        width: 100%;
+        display: block;
+        height: 28px;
+        background: white;
+    }
+    .add-on, input, .btn {
+        border: 0;
+        @include border-radius(0);
+        position: absolute;
+        top: 0;
+    }
+    .add-on {
+        border-right: solid 1px $box-border-color;
+        left: 0;
+        width: 16px;
+        z-index: 10;
+    }
+    input {
+        display: block;
+        width: 100%;
+        left: 0;
+        right: 0;
+        @include box-sizing(border-box);
+        padding-left: 33px;
+        padding-right: 31px;
+        background: transparent;
+        height: 28px;
+        z-index: 20;
+    }
+    .btn {
+        border-left: solid 1px $box-border-color;
+        right: 0;
+        margin-right: 0;
+        padding: 4px 6px;
+        z-index: 30;
+    }
+} // .issues-quicksearch

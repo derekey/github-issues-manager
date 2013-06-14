@@ -1,0 +1,12 @@
+#available-repositories {
+    th, td {
+        &:not(:first-child) {
+            text-align: center;
+        }
+    }
+    form {
+        margin: 0;
+        padding: 0;
+        display: inline-block;
+    }
+}

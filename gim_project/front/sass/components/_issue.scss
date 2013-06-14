@@ -1,0 +1,67 @@
+@import "variables";
+@import "compass/css3/box-shadow";
+@import "widgets/avatar";
+
+#issue {
+    position: relative;
+    background: $secondary-background-color;
+
+    .area-top {
+        margin-top: -9px;
+        h3, h5, p, .desc {
+            margin-left: 50px;
+        }
+        & > .avatar {
+            @include avatar-small-container;
+            float: left;
+        }
+    }
+
+    .issue-tags {
+        margin-left: 50px;
+        li {
+            display: inline-block;
+        }
+    }
+
+    .issue-involved-and-comments-count {
+        margin-left: 50px;
+        ul, li {
+            display: inline-block;
+        }
+        li {
+            position: relative;
+            top: -2px;
+        }
+        img {
+            max-width: 20px;
+            max-height: 20px;
+        }
+    }
+
+    .issue-body {
+        padding: 10px 15px;
+        background: white;
+        border-bottom: solid 1px $box-border-color;
+        @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
+        &.empty {
+            font-style: italic;
+            color: $light-text-color;
+        }
+    }
+
+} // #issue
+
+// the toolbar of an issue is placed on the top right corner
+#issue-nav {
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    i {
+        cursor: pointer;
+    }
+}
+
+#issue-comments {
+    padding: 15px 15px;
+}

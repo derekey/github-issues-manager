@@ -1,0 +1,36 @@
+@import "compass/css3/border-radius";
+
+// correct left margin of inputs with prepend and append
+input-prepend.input-append {
+    .add-on,.btn {
+        &:first-child {
+            margin-left: 0;
+        }
+    }
+}
+
+// bockquote inherit from their parents
+blockquote p {
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    margin-bottom: 10px;
+    &:last-child {
+        margin-bottom: 0;        
+    }
+}
+
+// navars without rounded corners
+.navbar.navbar-no-rounded .navbar-inner {
+    @include border-radius(0)
+}
+
+// allow multiple items in a dropdown menu to be near each other horizontally
+// use the same 12 columns as bootstrap: use horizontal-{1-12} to define the width
+@for $i from 1 through 12 {
+    .dropdown-menu > li.horizontal-#{$i} {
+        display: inline-block;
+        text-align: center;
+        width: (100% / 12 * $i);
+    }
+}

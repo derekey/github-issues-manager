@@ -1,0 +1,40 @@
+@import "variables";
+
+.box-header {
+    color: $box-text-color;
+    text-transform: capitalize;
+    padding-left: 1ex;
+    background: $box-background-color;
+    border-top: solid 1px $box-border-color;
+    border-bottom: solid 1px $box-border-color;
+    display: block;
+    &[data-toggle="collapse"] {
+        cursor: pointer;
+    }
+    .title {
+        padding: 0.5ex 1ex;
+        display: inline-block;
+        font-weight: bold;        
+    }
+}
+
+a.box-header {
+    &:active, &:focus, &:visited, &:hover {
+        color: $box-text-color;
+        text-decoration: none;
+    }
+    &:focus {
+        outline: none;        
+    }
+}
+
+.box-toolbar {
+    float: right;
+    margin: 0.5ex 1ex;
+}
+
+.box-section {
+    padding: 10px;
+    border-bottom: solid 1px $box-border-color;
+    min-height: 80px;
+}
