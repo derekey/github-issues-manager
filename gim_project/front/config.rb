@@ -7,6 +7,8 @@ sass_dir = "sass"
 images_dir = "static/front/css/images"
 javascripts_dir = "static/front/js"
 
+add_import_path "core-admin/stylesheets"
+
 # You can select your preferred output style here (can be overridden via the command line):
 # output_style = :expanded or :nested or :compact or :compressed
 

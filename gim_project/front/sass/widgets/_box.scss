@@ -2,7 +2,6 @@
 
 .box-header {
     color: $box-text-color;
-    text-transform: capitalize;
     padding-left: 1ex;
     background: $box-background-color;
     border-top: solid 1px $box-border-color;
@@ -12,7 +11,7 @@
         cursor: pointer;
     }
     .title {
-        padding: 0.5ex 1ex;
+        padding: 10px;
         display: inline-block;
         font-weight: bold;        
     }
@@ -30,7 +29,12 @@ a.box-header {
 
 .box-toolbar {
     float: right;
-    margin: 0.5ex 1ex;
+    margin: 0;
+    & > li {
+        margin-left: 10px;
+        padding-right: 10px;
+        line-height: 37px;
+    }
 }
 
 .box-section {

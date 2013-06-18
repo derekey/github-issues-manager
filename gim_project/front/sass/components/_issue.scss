@@ -7,11 +7,11 @@
     background: $secondary-background-color;
 
     .area-top {
-        margin-top: -9px;
+        @include box-shadow(rgba(black, 0.07) 0 1px 1px -1px );
         h3, h5, p, .desc {
             margin-left: 50px;
         }
-        & > .avatar {
+        header .avatar {
             @include avatar-small-container;
             float: left;
         }
@@ -40,7 +40,8 @@
     }
 
     .issue-body {
-        padding: 10px 15px;
+        margin-top: -15px;
+        padding: 15px;
         background: white;
         border-bottom: solid 1px $box-border-color;
         @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
@@ -57,6 +58,7 @@
     position: absolute;
     right: 2px;
     top: 2px;
+    z-index: 20;
     i {
         cursor: pointer;
         color: $body-text-color;
@@ -65,4 +67,7 @@
 
 #issue-comments {
     padding: 15px 15px;
+    .chat-box-entry {
+        margin-left: 50px;
+    }
 }

@@ -10,32 +10,45 @@
 @import "variables";
 
 @import "widgets/avatar";
-@import "widgets/box";
-@import "widgets/news";
-@import "widgets/chatbox";
-@import "widgets/areatop";
-@import "widgets/navbutton";
 
-body > header {
-    // no margin below the header to let content snap to it
-    margin-bottom: 0;
-    // let the avatar take almost the full height
-    img.avatar {
-        max-height: 30px;
-        max-width: 30px;
-        margin: -9px 5px -7px 0;
+@import "internal-widgets";
+// @import "core-admin-widgets";
+
+body {
+    font-size: 13px;
+    & > header {
+        // no margin below the header to let content snap to it
+        margin-bottom: 0;
+        // leave room on each side
+        .navbar-inner {
+            padding: 0 20px !important;
+        }
+        .user_avatar {
+            @if $widgets_base == 'internal' {
+                // let the avatar take almost the full height
+                img.avatar {
+                    max-height: 32px;
+                    max-width: 32px;
+                    margin: -10px 5px -8px 0;
+                }
+            }
+            .caret {
+                vertical-align: middle;
+                margin-top: -3px !important;
+            }
+        }
     }
 }
 
 // leave room at the top for the fixed sidebar
 #main-inner {
-    padding-top: 40px;
+    padding-top: $header-top;
 }
 
 // message are positionned on the top right corner
 #messages {
     position: fixed;
-    top: 60px;
+    top: $header-top + 20px;
     right: 16px;
     z-index: 50;
 }
@@ -52,4 +65,15 @@ body > header {
     top: 50%;
     line-height: 2em;
     margin-top: -1em;
+}
+
+// style for readble blocks
+.content {
+    color: $content-text-color;
+    br { // leave some space around BRs
+        margin: 3px 0;
+    }
+    p:last-child {
+        margin-bottom: 0;
+    }
 }

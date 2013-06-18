@@ -1,0 +1,15 @@
+$widgets_base: "core-admin";
+
+$header-top: 47px;
+
+@import "base";
+@import "badges";
+@import "box";
+@import "news";
+@import "chat-box";
+@import "sidebar";
+@import "action_nav";
+@import "dropdowns";
+@import "navigation";
+
+@import "core-admin-correct";

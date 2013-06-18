@@ -1,25 +1,26 @@
+@import url(font-awesome.css);
 /* Welcome to Compass.
  * In this file you should write your main styles. (or centralize your imports)
  * Import this file using the following HTML or equivalent:
  * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
-/* line 6, ../../../sass/_bootstrap-correct.scss */
+/* line 7, ../../../sass/_bootstrap-correct.scss */
 input-prepend.input-append .add-on:first-child, input-prepend.input-append .btn:first-child {
   margin-left: 0;
 }
 
-/* line 13, ../../../sass/_bootstrap-correct.scss */
+/* line 14, ../../../sass/_bootstrap-correct.scss */
 blockquote p {
   font-size: inherit;
   font-weight: inherit;
   line-height: inherit;
   margin-bottom: 10px;
 }
-/* line 18, ../../../sass/_bootstrap-correct.scss */
+/* line 19, ../../../sass/_bootstrap-correct.scss */
 blockquote p:last-child {
   margin-bottom: 0;
 }
 
-/* line 24, ../../../sass/_bootstrap-correct.scss */
+/* line 25, ../../../sass/_bootstrap-correct.scss */
 .navbar.navbar-no-rounded .navbar-inner {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
@@ -28,88 +29,93 @@ blockquote p:last-child {
   border-radius: 0;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-1 {
   display: inline-block;
   text-align: center;
   width: 8.33333%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-2 {
   display: inline-block;
   text-align: center;
   width: 16.66667%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-3 {
   display: inline-block;
   text-align: center;
   width: 25%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-4 {
   display: inline-block;
   text-align: center;
   width: 33.33333%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-5 {
   display: inline-block;
   text-align: center;
   width: 41.66667%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-6 {
   display: inline-block;
   text-align: center;
   width: 50%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-7 {
   display: inline-block;
   text-align: center;
   width: 58.33333%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-8 {
   display: inline-block;
   text-align: center;
   width: 66.66667%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-9 {
   display: inline-block;
   text-align: center;
   width: 75%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-10 {
   display: inline-block;
   text-align: center;
   width: 83.33333%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-11 {
   display: inline-block;
   text-align: center;
   width: 91.66667%;
 }
 
-/* line 31, ../../../sass/_bootstrap-correct.scss */
+/* line 32, ../../../sass/_bootstrap-correct.scss */
 .dropdown-menu > li.horizontal-12 {
   display: inline-block;
   text-align: center;
   width: 100%;
+}
+
+/* line 39, ../../../sass/_bootstrap-correct.scss */
+.btn i:first-child:last-child {
+  color: #707070;
 }
 
 /* line 3, ../../../sass/widgets/_avatar.scss */
@@ -130,41 +136,46 @@ blockquote p:last-child {
 /* line 3, ../../../sass/widgets/_box.scss */
 .box-header {
   color: #666666;
-  text-transform: capitalize;
   padding-left: 1ex;
   background: whitesmoke;
   border-top: solid 1px #d4d4d4;
   border-bottom: solid 1px #d4d4d4;
   display: block;
 }
-/* line 11, ../../../sass/widgets/_box.scss */
+/* line 10, ../../../sass/widgets/_box.scss */
 .box-header[data-toggle="collapse"] {
   cursor: pointer;
 }
-/* line 14, ../../../sass/widgets/_box.scss */
+/* line 13, ../../../sass/widgets/_box.scss */
 .box-header .title {
-  padding: 0.5ex 1ex;
+  padding: 10px;
   display: inline-block;
   font-weight: bold;
 }
 
-/* line 22, ../../../sass/widgets/_box.scss */
+/* line 21, ../../../sass/widgets/_box.scss */
 a.box-header:active, a.box-header:focus, a.box-header:visited, a.box-header:hover {
   color: #666666;
   text-decoration: none;
 }
-/* line 26, ../../../sass/widgets/_box.scss */
+/* line 25, ../../../sass/widgets/_box.scss */
 a.box-header:focus {
   outline: none;
 }
 
-/* line 31, ../../../sass/widgets/_box.scss */
+/* line 30, ../../../sass/widgets/_box.scss */
 .box-toolbar {
   float: right;
-  margin: 0.5ex 1ex;
+  margin: 0;
+}
+/* line 33, ../../../sass/widgets/_box.scss */
+.box-toolbar > li {
+  margin-left: 10px;
+  padding-right: 10px;
+  line-height: 37px;
 }
 
-/* line 36, ../../../sass/widgets/_box.scss */
+/* line 40, ../../../sass/widgets/_box.scss */
 .box-section {
   padding: 10px;
   border-bottom: solid 1px #d4d4d4;
@@ -200,12 +211,13 @@ a.box-header:focus {
 /* line 8, ../../../sass/widgets/_news.scss */
 .news-time {
   float: right;
-  max-width: 4em;
   color: #bbbbbb;
   font-weight: bold;
   text-align: center;
-  font-size: smaller;
-  line-height: 15px;
+}
+/* line 13, ../../../sass/widgets/_news.scss */
+.news-time span {
+  display: block;
 }
 
 /* line 17, ../../../sass/widgets/_news.scss */
@@ -219,8 +231,9 @@ a.box-header:focus {
   color: #666666;
   font-weight: bold;
   margin-bottom: 1ex;
+  font-size: larger;
 }
-/* line 25, ../../../sass/widgets/_news.scss */
+/* line 26, ../../../sass/widgets/_news.scss */
 .news-title a {
   color: inherit;
 }
@@ -241,7 +254,7 @@ a.box-header:focus {
 }
 
 /* line 6, ../../../sass/widgets/_chatbox.scss */
-.chatbox-entry {
+.chat-box-entry {
   margin-left: 50px;
   margin-bottom: 15px;
   border: solid 1px #d4d4d4;
@@ -258,7 +271,7 @@ a.box-header:focus {
 }
 
 /* line 16, ../../../sass/widgets/_chatbox.scss */
-.chatbox .avatar {
+.chat-box .avatar {
   width: 40px;
   height: 44px;
   max-width: 40px;
@@ -270,18 +283,18 @@ a.box-header:focus {
   left: -50px;
 }
 /* line 22, ../../../sass/widgets/_chatbox.scss */
-.chatbox .info {
+.chat-box .info {
   border-bottom: 0;
   padding: 3px 5px;
   background: whitesmoke;
 }
 /* line 27, ../../../sass/widgets/_chatbox.scss */
-.chatbox .time {
+.chat-box .time {
   float: right;
   color: #999999;
 }
 /* line 31, ../../../sass/widgets/_chatbox.scss */
-.chatbox .content {
+.chat-box .content {
   border-top: solid 1px #d4d4d4;
   padding: 10px 15px;
 }
@@ -289,15 +302,16 @@ a.box-header:focus {
 /* line 3, ../../../sass/widgets/_areatop.scss */
 .area-top {
   padding: 10px 15px;
+  margin-bottom: 15px;
   background: whitesmoke;
   border-bottom: solid 1px #d4d4d4;
 }
-/* line 7, ../../../sass/widgets/_areatop.scss */
+/* line 8, ../../../sass/widgets/_areatop.scss */
 .area-top h3 {
-  font-size: larger;
+  font-size: 16px;
   line-height: 1.3em;
 }
-/* line 11, ../../../sass/widgets/_areatop.scss */
+/* line 12, ../../../sass/widgets/_areatop.scss */
 .area-top h5, .area-top p, .area-top .desc {
   font-weight: normal;
   margin: 10px 0 10px 0;
@@ -305,7 +319,7 @@ a.box-header:focus {
   font-size: 14px;
 }
 
-/* line 19, ../../../sass/widgets/_areatop.scss */
+/* line 20, ../../../sass/widgets/_areatop.scss */
 #main-inner > .span12 > .area-top {
   margin-left: -20px;
   margin-right: -20px;
@@ -363,22 +377,35 @@ a.box-header:focus {
 }
 
 /* line 17, ../../../sass/main.scss */
+body {
+  font-size: 13px;
+}
+/* line 19, ../../../sass/main.scss */
 body > header {
   margin-bottom: 0;
 }
-/* line 21, ../../../sass/main.scss */
-body > header img.avatar {
-  max-height: 30px;
-  max-width: 30px;
-  margin: -9px 5px -7px 0;
+/* line 23, ../../../sass/main.scss */
+body > header .navbar-inner {
+  padding: 0 20px !important;
+}
+/* line 29, ../../../sass/main.scss */
+body > header .user_avatar img.avatar {
+  max-height: 32px;
+  max-width: 32px;
+  margin: -10px 5px -8px 0;
+}
+/* line 35, ../../../sass/main.scss */
+body > header .user_avatar .caret {
+  vertical-align: middle;
+  margin-top: -3px !important;
 }
 
-/* line 29, ../../../sass/main.scss */
+/* line 44, ../../../sass/main.scss */
 #main-inner {
   padding-top: 40px;
 }
 
-/* line 34, ../../../sass/main.scss */
+/* line 49, ../../../sass/main.scss */
 #messages {
   position: fixed;
   top: 60px;
@@ -386,7 +413,7 @@ body > header img.avatar {
   z-index: 50;
 }
 
-/* line 42, ../../../sass/main.scss */
+/* line 57, ../../../sass/main.scss */
 .empty-area {
   color: #bbbbbb;
   font-size: 300%;
@@ -398,4 +425,17 @@ body > header img.avatar {
   top: 50%;
   line-height: 2em;
   margin-top: -1em;
+}
+
+/* line 71, ../../../sass/main.scss */
+.content {
+  color: #505050;
+}
+/* line 73, ../../../sass/main.scss */
+.content br {
+  margin: 3px 0;
+}
+/* line 76, ../../../sass/main.scss */
+.content p:last-child {
+  margin-bottom: 0;
 }

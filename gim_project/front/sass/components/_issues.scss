@@ -2,13 +2,46 @@
 @import "compass/css3/border-radius";
 @import "compass/css3/box-sizing";
 
-$active-issue-color: #666;
+$active-issue-color: $dark-border-color;
 .issues-list {
+    .box {
+        margin-bottom: 0;
+        @include border-radius(0);
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+    }
     .box-content {
         margin-bottom: -1px;
     }
     a.box-header {
         padding-left: 7px;
+        @include border-radius(0);
+        .title {
+            font-size: 13px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            text-transform: capitalize;
+        }
+        .box-toolbar {
+            & > li {
+                line-height: 27px;
+                padding-right: 5px
+            }
+        }
+    }
+    .box-section {
+        padding: 5px;
+    }
+    .news-time {
+        line-height: 15px;
+        width: 5em;
+        span {
+            font-size: 11px;
+        }
+    }
+    .news-content {
+        margin-right: 65px;
     }
     .issues-group {
         &:first-child .box-header {

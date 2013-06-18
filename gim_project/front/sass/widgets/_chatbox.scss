@@ -3,7 +3,7 @@
 @import "compass/css3/box-shadow";
 @import "widgets/avatar";
 
-.chatbox-entry {
+.chat-box-entry {
     margin-left: 50px;
     margin-bottom: 15px;
     border: solid 1px $box-border-color;
@@ -12,7 +12,7 @@
     @include border-radius(2px);
     @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
 }
-.chatbox {
+.chat-box {
     .avatar {
         @include avatar-small-container;
         position: absolute;

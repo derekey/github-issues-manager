@@ -2,10 +2,11 @@
 
 .area-top {
     padding: 10px 15px;
+    margin-bottom: 15px;
     background: $box-background-color;
     border-bottom: solid 1px $box-border-color;
     h3 {
-        font-size: larger;
+        font-size: 16px;
         line-height: 1.3em;
     }
     h5, p, .desc {

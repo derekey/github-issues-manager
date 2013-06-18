@@ -1,0 +1,57 @@
+@import "compass/css3/text-shadow";
+@import "mixin_helpers";
+@import "badges";
+
+// allow a box-header to be a link
+.box {
+    a.box-header {
+        display: block;
+        &:focus {
+            outline: none;
+        }
+    }
+}
+
+// white background for chatbox content
+.chat-box {
+    font-size: 13px;
+    &.timeline {
+        .content {
+            background: white;
+        }
+    }
+}
+
+// style for active elements in dropdowns
+.dropdown {
+    li {
+        font-size: 12px;
+        &.active {
+            a {
+                color: #475967;
+                &:hover {
+                    color: #404040;
+                }
+            }
+            a, a:hover {
+                @include std-bg(#e5e5e5 0%, lighten(#e5e5e5, 3));
+            }
+        }
+        a > i:first-child:last-child {
+            color: inherit;
+        }
+    }
+}
+
+// info/success/error/warning style for badges and labels
+$label-match-colors: success green, important red, info blue, warning purple, inverse gray;
+@each $pair in $label-match-colors {
+  .label-#{nth($pair, 1)} {
+    @extend .label-#{nth($pair, 2)};
+  }
+}
+
+// better shadow for news-titles
+.news-title {
+    @include text-shadow(white 0 1px);
+}

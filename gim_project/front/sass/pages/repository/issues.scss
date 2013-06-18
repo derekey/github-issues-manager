@@ -35,11 +35,11 @@ html, body {
 }
 #issues-filters { // col 1
     width: (100%/12*2); // 2 cols of 12
-    border-right: solid 1px $box-border-color;
+    border-right: solid 1px $dark-border-color;
 }
 #issues-list-container { // col 2
     width: (100%/12*4); // 4 cols of 12
-    border-right: solid 1px $box-border-color;
+    border-right: solid 1px $dark-border-color;
 }
 #issue { // col3
     width: (100%/12*6); // 6 cols of 12
@@ -192,6 +192,15 @@ html, body {
     // assume all text will only be on one ligne
     height: 60px;
 }
+
+.news-title {
+    font-size: 14px;
+    margin-bottom: 5px;
+    .label {
+        margin-left: 3px;
+    }
+}
+
 
 // third column: the issue
 

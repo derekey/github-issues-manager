@@ -7,12 +7,12 @@
 }
 .news-time {
     float: right;
-    max-width: 4em;
     color: $light-text-color;
     font-weight: bold;
     text-align: center;
-    font-size: smaller;
-    line-height: 15px;
+    span {
+        display: block;        
+    }
 }
 .news-content {
     margin-left: 50px;
@@ -22,6 +22,7 @@
     color: $box-text-color;
     font-weight: bold;
     margin-bottom: 1ex;
+    font-size: larger;
     a {
         color: inherit;        
     }

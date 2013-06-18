@@ -1,6 +1,7 @@
 {% load staticfiles %}<!doctype html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700">
     <meta charset="utf-8">
     <title>{% block title %}{% endblock title %} | Github Issues Manager</title>
     <meta name="description" content="Github Issues Manager">
@@ -16,13 +17,17 @@
             <div class="container-fluid">
                 <a class="brand" href="/" title="Github Issues Manager">G.I.M</a>
                 {% block header_nav %}{% endblock header_nav %}
-                <ul class="nav pull-right">
+                <ul class="nav full pull-right">
                     {% if user and user.is_authenticated %}
-                        <li class="dropdown">
+                        <li class="dropdown user_avatar">
                             <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
-                                <img src="{{ user.avatar_url }}" class="img-rounded avatar" />
-                                {{ user.username }}
-                                <b class="caret"></b>
+                                <span>
+                                    <img src="{{ user.avatar_url }}" class="img-rounded menu-avatar avatar" />
+                                    <span>
+                                        {{ user.username }}
+                                        <span class="caret"></span>
+                                    </span>
+                                </span>
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url "front:dashboard:home" %}"><i class="icon-dashboard"> </i> Your dashboard</a></li>
