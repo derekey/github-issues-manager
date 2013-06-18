@@ -1,0 +1,40 @@
+.primary-sidebar {
+    ul {
+        margin: 0;
+    }
+    .nav {
+        padding-left: 0;
+        padding-right: 0;
+        margin: 0;
+        a {
+            padding: 5px 0;
+            padding-left: 15px;
+            margin-left: -15px;
+            margin: 0;
+            display: block;
+            &:hover {
+                text-decoration: none;
+                background: #eee;
+            };
+            &:focus {
+                text-decoration: none;
+            }
+        }
+        & > li {
+            & > a {
+                padding-left: 15px;
+                color: #999;
+                font-weight: bold;
+                &:focus {
+                    outline: none;
+                }
+            }
+            border-bottom: solid #e5e5e5 1px;
+            padding: 9px 0;
+            li.active > a {
+                background: #0088CC;
+                color: white;
+            }
+        }
+    }
+}

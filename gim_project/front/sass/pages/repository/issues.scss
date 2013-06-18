@@ -48,32 +48,16 @@ html, body {
 
 // first column: the filters
 #issues-filters {
-    padding-top: 15px;
-    li.divider {
-        // no margin for elements of a divider
-        margin-left: -15px;
-        margin-right: -15px;
-        &:last-of-type {
-            margin-bottom: 0;
-        }
-    }
-    & > ul.nav-list > li > ul.nav-list {
-        // no margin for elements of a filter
-        margin-left: -15px;
-        margin-right: -15px;
-    }
-    li.nav-header span.selection {
+    .selection {
         // current selection of a filter
         display: block;
+        padding: 0 15px;
+        line-height: 10px;
         font-weight: normal;
-        text-transform: none;
-        padding-left: 15px;
     }
     .quicksearch-widget {
         // quicksearch widgets for filters use the full width (minus 5px on each side)
-        margin-bottom: 5px;
-        margin-left: -10px;
-        margin-right: -10px;
+        margin: 5px 10px;
         label {
             margin-bottom: 0;
             position: relative;
@@ -83,15 +67,26 @@ html, body {
         .add-on,.btn {
             padding: 1px 0 1px 2px;
             position: absolute;
-            top: 0;
+            top: 1px;
+            bottom: 0;
+            &:after, &:before {
+                display: none;
+            }
+            border: none;
         }
         .add-on {
+            @include border-radius(4px 0 0 4px);
             left: 0;
             z-index: 10;
         }
         .btn {
+            @include border-radius(0 4px 4px 0);
             right: 0;
             z-index: 20;
+            padding: 0;
+            i {
+                height: 22px
+            }
         }
         input {
             @include box-sizing(border-box);

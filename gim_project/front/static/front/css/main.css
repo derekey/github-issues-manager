@@ -118,6 +118,17 @@ blockquote p:last-child {
   color: #707070;
 }
 
+/* line 44, ../../../sass/_bootstrap-correct.scss */
+.accordion-group {
+  margin-bottom: 0;
+  border: none;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+}
+
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar-small {
   max-height: 36px;
@@ -297,6 +308,54 @@ a.box-header:focus {
 .chat-box .content {
   border-top: solid 1px #d4d4d4;
   padding: 10px 15px;
+}
+
+/* line 2, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar ul {
+  margin: 0;
+}
+/* line 5, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar .nav {
+  padding-left: 0;
+  padding-right: 0;
+  margin: 0;
+}
+/* line 9, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar .nav a {
+  padding: 5px 0;
+  padding-left: 15px;
+  margin-left: -15px;
+  margin: 0;
+  display: block;
+}
+/* line 15, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar .nav a:hover {
+  text-decoration: none;
+  background: #eee;
+}
+/* line 19, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar .nav a:focus {
+  text-decoration: none;
+}
+/* line 23, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar .nav > li {
+  border-bottom: solid #e5e5e5 1px;
+  padding: 9px 0;
+}
+/* line 24, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar .nav > li > a {
+  padding-left: 15px;
+  color: #999;
+  font-weight: bold;
+}
+/* line 28, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar .nav > li > a:focus {
+  outline: none;
+}
+/* line 34, ../../../sass/widgets/_primary_sidebar.scss */
+.primary-sidebar .nav > li li.active > a {
+  background: #0088CC;
+  color: white;
 }
 
 /* line 3, ../../../sass/widgets/_areatop.scss */
