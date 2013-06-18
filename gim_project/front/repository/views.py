@@ -73,6 +73,7 @@ class BaseRepositoryView(SubscribedRepositoriesMixin, DetailView):
         reverse_kwargs = repository.get_reverse_kwargs()
         for view_class in BaseRepositoryView.main_views:
             main_view = {
+                'url_name': view_class.url_name,
                 'url': reverse_lazy('front:repository:%s' % view_class.url_name, kwargs=reverse_kwargs),
                 'qs': view_class.default_qs,
                 'is_current': self.main_url_name == view_class.url_name,

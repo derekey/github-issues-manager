@@ -173,8 +173,8 @@ html, body {
     font-size: smaller;
     color: $box-light-text-color;
     text-align: center;
-    i { // icon is too black !
-        opacity: 0.5;
+    i {
+        font-size: smaller;
     }
 } // #issues-list-options span.selection
 #issues-list-options .navbar-inner {

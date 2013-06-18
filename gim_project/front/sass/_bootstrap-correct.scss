@@ -1,4 +1,5 @@
 @import "compass/css3/border-radius";
+@import "variables";
 
 // correct left margin of inputs with prepend and append
 input-prepend.input-append {
@@ -33,4 +34,8 @@ blockquote p {
         text-align: center;
         width: (100% / 12 * $i);
     }
+}
+
+.btn i:first-child:last-child {
+    color: $body-text-color;
 }

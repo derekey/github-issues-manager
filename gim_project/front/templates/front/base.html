@@ -25,13 +25,13 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url "front:dashboard:home" %}">Your dashboard</a></li>
+                                <li><a href="{% url "front:dashboard:home" %}"><i class="icon-dashboard"> </i> Your dashboard</a></li>
                                 <li class="divider"></li>
-                                <li><a href="{% url "front:auth:logout" %}">Logout</a></li>
+                                <li><a href="{% url "front:auth:logout" %}"><i class="icon-signout"> </i> Logout</a></li>
                             </ul>
                         </li>
                     {% else %}
-                        <li><a href="{% url "front:auth:login" %}">Login with Github</a></li>
+                        <li><a href="{% url "front:auth:login" %}"><i class="icon-github"> </i> Login with Github</a></li>
                     {% endif %}
                 </ul>
             </div>

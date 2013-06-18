@@ -1,0 +1,9 @@
+$widgets_base: "internal";
+
+$header-top: 40px;
+
+@import "widgets/box";
+@import "widgets/news";
+@import "widgets/chatbox";
+@import "widgets/areatop";
+@import "widgets/navbutton";

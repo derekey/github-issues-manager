@@ -214,7 +214,7 @@
                             {% if issues_filter.parts.sort %}
                                 <span class="selection">
                                     {{ issues_filter.parts.sort|capfirst }}
-                                    <i class="icon-arrow-{% if issues_filter.parts.direction == "asc" %}down{% else %}up{% endif %}"> </i>
+                                    <i class="icon-chevron-{% if issues_filter.parts.direction == "asc" %}down{% else %}up{% endif %}" title="{% if issues_filter.parts.direction == "asc" %}Ascending order{% else %}Descending order{% endif %}"> </i>
                                 </span>
                             {% endif %}
                         </a>
@@ -227,10 +227,10 @@
                             {% if issues_filter.parts.sort %}
                                 <li class="divider"></li>
                                 <li class="horizontal-6{% if issues_filter.parts.direction == "asc" %} active{% endif %}">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><i class="icon-arrow-down"> </i></a>
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><i class="icon-chevron-down" title="Ascending order"> </i></a>
                                 </li><!--
                                 --><li class="horizontal-6{% if issues_filter.parts.direction == "desc" %} active{% endif %}">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><i class="icon-arrow-up"> </i></a>
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><i class="icon-chevron-up" title="Descending order"> </i></a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -249,7 +249,7 @@
                                     {% else %}
                                         {{ issues_filter.objects.group_by|capfirst }}
                                     {% endif %}
-                                    <i class="icon-arrow-{% if issues_filter.parts.group_by_direction == "asc" %}down{% else %}up{% endif %}"> </i>
+                                    <i class="icon-chevron-{% if issues_filter.parts.group_by_direction == "asc" %}down{% else %}up{% endif %}" title="{% if issues_filter.parts.group_by_direction == "asc" %}Ascending order{% else %}Descending order{% endif %}"> </i>
                                 {% else %}
                                     No group by
                                 {% endif %}
@@ -275,11 +275,11 @@
                             {% endif %}
                             {% if issues_filter.parts.group_by %}
                                 <li class="divider"></li>
-                                <li class="horizontal-6{% if issues_filter.parts.group_by_direction == "asc" %} active"{% endif %}"">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><i class="icon-arrow-down"> </i></a>
+                                <li class="horizontal-6{% if issues_filter.parts.group_by_direction == "asc" %} active{% endif %}">
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><i class="icon-chevron-down" title="Ascending order"> </i></a>
                                 </li><!--
-                                --><li class="horizontal-6{% if issues_filter.parts.group_by_direction == "desc" %} active"{% endif %}"">
-                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><i class="icon-arrow-up"> </i></a>
+                                --><li class="horizontal-6{% if issues_filter.parts.group_by_direction == "desc" %} active{% endif %}">
+                                    <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><i class="icon-chevron-up" title="Descending order"> </i></a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -303,7 +303,7 @@
                 </ul>
             </div>
         </nav>
-        {% include "front/include_quicksearch.html" with id="issues-list-search" class="issues-quicksearch" target="#issues-list .issue-item" placeholder="Search (titles)" only %}
+        {% include "front/include_quicksearch.html" with id="issues-list-search" class="issues-quicksearch" target="#issues-list .issue-item" placeholder="Filter by title" only %}
         <div id="issues-list" class='issues-list' data-quicksearch="#issues-list-search input">
             {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
             {% for group in issues_groups %}
@@ -321,7 +321,7 @@
                                     {% endif %}
                                 </span>
                                 <ul class="unstyled box-toolbar">
-                                    <li><span class="label label-green issues-count">{{ group.list|length }}</span></li>
+                                    <li><span class="label label-inverse issues-count">{{ group.list|length }}</span></li>
                                 </ul>
                             </a>
                             <ul class="unstyled box-content issues-group-issues collapse" id="groupby-list-{{ uidname}}-{{ uidvalue }}">
@@ -330,7 +330,7 @@
                         <a class="box-header" href='#'>
                             <span class="title">{% if issues_filter.parts.keys|length > 2%}Filtered{% else %}All{% endif %} issues</span>
                             <ul class="unstyled box-toolbar">
-                                <li><span class="label label-green issues-count">{{ group.list|length }}</span></li>
+                                <li><span class="label label-inverse issues-count">{{ group.list|length }}</span></li>
                             </ul>
                         </a>
                         <ul class="unstyled box issues-group-issues">
