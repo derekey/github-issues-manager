@@ -364,7 +364,7 @@ html, body {
 }
 
 /* line 32, ../../../../../sass/pages/repository/issues.scss */
-#issues-filters, #issues-list-container, #issue {
+#issues-list-container, #issue {
   margin-left: 0;
   margin-right: 0;
   height: 100%;
@@ -375,35 +375,41 @@ html, body {
 /* line 39, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters {
   width: 160px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
   border-right: solid 1px #666666;
   float: none;
   position: absolute;
-  left: 0px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
 }
 
-/* line 47, ../../../../../sass/pages/repository/issues.scss */
+/* line 50, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-container {
   width: 41.66667%;
   border-right: solid 1px #666666;
 }
 
-/* line 51, ../../../../../sass/pages/repository/issues.scss */
+/* line 54, ../../../../../sass/pages/repository/issues.scss */
 #issue {
   width: 58.33333%;
 }
 
-/* line 58, ../../../../../sass/pages/repository/issues.scss */
+/* line 61, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .selection {
   display: block;
   padding: 0 15px;
   line-height: 10px;
   font-weight: normal;
 }
-/* line 65, ../../../../../sass/pages/repository/issues.scss */
+/* line 68, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .quicksearch-widget {
   margin: 5px 10px;
 }
-/* line 68, ../../../../../sass/pages/repository/issues.scss */
+/* line 71, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .quicksearch-widget label {
   margin-bottom: 0;
   position: relative;
@@ -414,7 +420,7 @@ html, body {
   -o-border-radius: 4px;
   border-radius: 4px;
 }
-/* line 74, ../../../../../sass/pages/repository/issues.scss */
+/* line 77, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .quicksearch-widget .add-on, #issues-filters .quicksearch-widget .btn {
   padding: 1px 0 1px 2px;
   position: absolute;
@@ -422,11 +428,11 @@ html, body {
   bottom: 0;
   border: none;
 }
-/* line 79, ../../../../../sass/pages/repository/issues.scss */
+/* line 82, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .quicksearch-widget .add-on:after, #issues-filters .quicksearch-widget .add-on:before, #issues-filters .quicksearch-widget .btn:after, #issues-filters .quicksearch-widget .btn:before {
   display: none;
 }
-/* line 84, ../../../../../sass/pages/repository/issues.scss */
+/* line 87, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .quicksearch-widget .add-on {
   -webkit-border-radius: 4px 0 0 4px;
   -moz-border-radius: 4px 0 0 4px;
@@ -436,7 +442,7 @@ html, body {
   left: 0;
   z-index: 10;
 }
-/* line 89, ../../../../../sass/pages/repository/issues.scss */
+/* line 92, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .quicksearch-widget .btn {
   -webkit-border-radius: 0 4px 4px 0;
   -moz-border-radius: 0 4px 4px 0;
@@ -447,11 +453,11 @@ html, body {
   z-index: 20;
   padding: 0;
 }
-/* line 94, ../../../../../sass/pages/repository/issues.scss */
+/* line 97, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .quicksearch-widget .btn i {
   height: 22px;
 }
-/* line 98, ../../../../../sass/pages/repository/issues.scss */
+/* line 101, ../../../../../sass/pages/repository/issues.scss */
 #issues-filters .quicksearch-widget input {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -469,7 +475,7 @@ html, body {
   padding-right: 23px;
 }
 
-/* line 117, ../../../../../sass/pages/repository/issues.scss */
+/* line 120, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options {
   position: absolute;
   top: 0;
@@ -477,7 +483,7 @@ html, body {
   right: 0;
 }
 
-/* line 125, ../../../../../sass/pages/repository/issues.scss */
+/* line 128, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-search {
   position: absolute;
   top: 62px;
@@ -486,7 +492,7 @@ html, body {
   border-bottom: solid 1px #d4d4d4;
 }
 
-/* line 134, ../../../../../sass/pages/repository/issues.scss */
+/* line 137, ../../../../../sass/pages/repository/issues.scss */
 #issues-list {
   position: absolute;
   top: 91px;
@@ -496,39 +502,39 @@ html, body {
   overflow: auto;
 }
 
-/* line 144, ../../../../../sass/pages/repository/issues.scss */
+/* line 147, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options .nav {
   float: none;
   margin-right: 0;
 }
-/* line 148, ../../../../../sass/pages/repository/issues.scss */
+/* line 151, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options .nav > li[class*="span"] {
   width: 33.33333%;
   margin-left: 0;
   margin-right: 0;
 }
 
-/* line 154, ../../../../../sass/pages/repository/issues.scss */
+/* line 157, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options a.no-selection {
   line-height: 40px;
 }
-/* line 157, ../../../../../sass/pages/repository/issues.scss */
+/* line 160, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options a.no-selection span {
   vertical-align: middle;
 }
-/* line 159, ../../../../../sass/pages/repository/issues.scss */
+/* line 162, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options a.no-selection span.caret {
   margin-top: -5px;
 }
 
-/* line 164, ../../../../../sass/pages/repository/issues.scss */
+/* line 167, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options .dropdown-toggle > span:not(.selection) {
   text-align: center;
   display: block;
   padding-left: 5px;
 }
 
-/* line 170, ../../../../../sass/pages/repository/issues.scss */
+/* line 173, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options span.selection {
   display: block;
   font-weight: normal;
@@ -537,12 +543,12 @@ html, body {
   color: #999999;
   text-align: center;
 }
-/* line 178, ../../../../../sass/pages/repository/issues.scss */
+/* line 181, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options span.selection i {
   font-size: smaller;
 }
 
-/* line 182, ../../../../../sass/pages/repository/issues.scss */
+/* line 185, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options .navbar-inner {
   padding-left: 0;
   padding-right: 0;
@@ -550,36 +556,36 @@ html, body {
   border-right: none;
 }
 
-/* line 190, ../../../../../sass/pages/repository/issues.scss */
+/* line 193, ../../../../../sass/pages/repository/issues.scss */
 #issues-list-options .divider-vertical {
   margin-left: -1px;
   margin-right: -1px;
   height: 60px;
 }
 
-/* line 198, ../../../../../sass/pages/repository/issues.scss */
+/* line 201, ../../../../../sass/pages/repository/issues.scss */
 .news-title {
   font-size: 14px;
   margin-bottom: 5px;
 }
-/* line 201, ../../../../../sass/pages/repository/issues.scss */
+/* line 204, ../../../../../sass/pages/repository/issues.scss */
 .news-title .label {
   margin-left: 3px;
 }
 
-/* line 212, ../../../../../sass/pages/repository/issues.scss */
+/* line 215, ../../../../../sass/pages/repository/issues.scss */
 body.big-issue #main-inner {
   padding-left: 0;
 }
-/* line 215, ../../../../../sass/pages/repository/issues.scss */
+/* line 218, ../../../../../sass/pages/repository/issues.scss */
 body.big-issue #issues-filters {
   display: none;
 }
-/* line 218, ../../../../../sass/pages/repository/issues.scss */
+/* line 221, ../../../../../sass/pages/repository/issues.scss */
 body.big-issue #issues-list-container {
   display: none;
 }
-/* line 221, ../../../../../sass/pages/repository/issues.scss */
+/* line 224, ../../../../../sass/pages/repository/issues.scss */
 body.big-issue #issue {
   width: 100%;
 }
