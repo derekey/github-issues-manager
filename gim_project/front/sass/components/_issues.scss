@@ -61,7 +61,7 @@ $active-issue-color: $dark-border-color;
             &.active {
                 padding-left: 5px;            
             }
-            .avatar, .news-time, .news-text {
+            .avatar, .pull-request, .news-time, .news-text {
                 display: none;            
             }
             .news-content {
@@ -91,6 +91,11 @@ $active-issue-color: $dark-border-color;
         i {
             font-size: 20px;
             color: $state-open-color;
+        }
+    }
+    &.active {
+        .pull-request {
+            left: 10px;
         }
     }
     &:after {
