@@ -2,6 +2,7 @@
 @import "compass/css3/border-radius";
 @import "compass/css3/box-sizing";
 @import "compass/css3/box-shadow";
+@import "compass/css3/text-shadow";
 
 $active-issue-color: $dark-border-color;
 .issues-list {
@@ -31,25 +32,6 @@ $active-issue-color: $dark-border-color;
             }
         }
     }
-    .news-time {
-        white-space: nowrap;
-        line-height: 15px;
-        padding: 1px 5px 3px 5px;
-        background: #eee;
-        @include border-radius(0 0 0 2px);
-        span {
-            display: inline;
-            font-size: 11px;
-        }
-        i {
-            position: relative;
-            top: 2px;
-            width: 0.3em;
-        }
-    }
-    .news-content {
-        margin-right: 10px;
-    }
     .issues-group {
         &:first-child .box-header {
             border-top: 0;
@@ -60,15 +42,15 @@ $active-issue-color: $dark-border-color;
         }
     }
     &.without-details {
-        .news {
+        .issue-item {
             padding: 5px;
             padding-left: 8px;
             min-height: 20px;
             &.active {
-                padding-left: 5px;            
+                padding-left: 5px;
             }
-            .avatar, .pull-request, .news-time, .news-text {
-                display: none;            
+            .issue-item-header, .avatar, .issue-item-assignee, .issue-item-labels {
+                display: none;
             }
             .news-content {
                 margin-left: 0;
@@ -76,6 +58,7 @@ $active-issue-color: $dark-border-color;
             }
             .news-title {
                 margin-bottom: 0;
+                min-height: 0;
             }
         } // .news
     } // &.without-details
@@ -85,51 +68,100 @@ $active-issue-color: $dark-border-color;
     padding: 5px;
     padding-top: 0;
     position: relative;
-    .issue-header {
+    min-height: 0;
+
+    // the header with : pull-request flag, milestone, and time
+    .issue-item-header {
         margin-top: -1px;
-        margin-bottom: 4px;
+        margin-bottom: 5px;
         overflow: auto;
+        font-size: 11px;
+        line-height: 15px;
+        a {
+            color: inherit;
+        }
+    }
+    .issue-item-pull-request, .issue-item-milestone, .issue-item-times {
+        @include text-shadow(0 1px rgba(#fff, 0.5));
+    }
+    .issue-item-pull-request {
+        float: left;
+        padding: 1px 0 3px;
+        text-align: center;
+        width: 30px;
+        line-height: 14px;
+        margin-left: 3px;
+        min-height: 10px; // to keep the block even if no pull request
+        &.is-pull-request {
+            background: #eee;
+            @include border-radius(0 0 2px 2px);
+        }
+        i {
+            font-size: 14px;
+        }
+    }
+    .issue-item-milestone {
+        margin-left: 50px;
+        margin-right: 95px;
+        padding: 0;
+        overflow: hidden;
+        &.has-milestone {
+            a {
+                display: inline-block;
+                padding: 1px 10px 3px;
+                background: #eee;
+                @include border-radius(0 0 2px 2px);
+            }
+        }
+    }
+    .issue-item-times {
+        float: right;
+        white-space: nowrap;
+        padding: 1px 5px 3px;
+        background: #eee;
+        @include border-radius(0 0 0 2px);
+        i {
+            font-size: inherit;
+            color: #bbb;
+            width: auto;
+        }
+    }
+    .news-content {
+        margin-right: 5px;
+    }
+    .news-title {
+        font-size: 14px;
+        margin-bottom: 5px;
+        min-height: 40px;
+        .label {
+            margin-left: 3px;
+        }
     }
     .issue-link {
         outline: none !important;
         text-decoration: none !important;
     }
-    .issue-labels {
+    .issue-item-footer {
+        overflow: auto;
+    }
+    .issue-item-assignee {
+        float: right;
+        margin-right: 5px;
+        i {
+            font-size: 11px;
+            position: relative;
+            top: 2px;
+            color: #bbb;
+        }
+        width: 38px;
+    }
+    .issue-item-labels {
         padding-right: 7px;
         a {
             display: inline-block;
             white-space: nowrap;
             margin: 1px 0;
             padding: 0 3px;
-        }
-    }
-    .issue-pull-request {
-        text-align: center;
-        width: 30px;
-        float: left;
-        i {
-            font-size: 14px;
-            // color: $state-open-color;
-        }
-        margin-left: 3px;
-        @include border-radius(0 0 2px 2px);
-        min-height: 10px;
-        &.is-pull-request {
-            background: #eee;            
-        }
-        color: #bbb;
-        a {
-            color: inherit;
-        }
-    }
-    .issue-milestone {
-        margin-left: 18px;
-        float: left;
-        @include border-radius(0 0 2px 2px);
-        padding: 0 10px;
-        background: #eee;            
-        color: #bbb;
-        a {
             color: inherit;
         }
     }
@@ -150,18 +182,10 @@ $active-issue-color: $dark-border-color;
         &:after {
             background-color: $state-closed-color;
         }
-        // .issue-pull-request {
-        //     i {
-        //         color: $state-closed-color;
-        //     }
-        // }
     }
 }
 .issues-list.without-details .issue-item:after {
     width: 3px;
-}
-.issue-item-assigned {
-    float: right;
 }
 .box-section.issue-item {
     padding-left: 13px;
