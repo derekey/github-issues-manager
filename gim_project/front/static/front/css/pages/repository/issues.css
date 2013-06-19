@@ -105,11 +105,11 @@
 }
 /* line 92, ../../../../../sass/components/_issues.scss */
 .issue-item.state-open:after {
-  background-color: #1aff69;
+  background-color: #8cc079;
 }
 /* line 95, ../../../../../sass/components/_issues.scss */
 .issue-item.state-closed:after {
-  background-color: #ff9999;
+  background-color: #b35d5d;
 }
 /* line 98, ../../../../../sass/components/_issues.scss */
 .issue-item .pull-request {
@@ -123,7 +123,7 @@
 /* line 105, ../../../../../sass/components/_issues.scss */
 .issue-item .pull-request i {
   font-size: 20px;
-  color: #8CC079;
+  color: #8cc079;
 }
 
 /* line 111, ../../../../../sass/components/_issues.scss */
@@ -137,7 +137,7 @@
 }
 /* line 116, ../../../../../sass/components/_issues.scss */
 .issue-item-assigned a {
-  color: #999999 !important;
+  color: #999 !important;
 }
 
 /* line 120, ../../../../../sass/components/_issues.scss */

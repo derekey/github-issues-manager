@@ -104,7 +104,7 @@ $active-issue-color: $dark-border-color;
         left: 13px;
         i {
             font-size: 20px;
-            color: #8CC079;
+            color: $state-open-color;
         }
     }
 }
