@@ -449,7 +449,6 @@
                                     <div class="news-title">
                                         <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}#issue-{{ issue.number }}" class="issue-link" data-issue-number="{{ issue.number }}" title="{% if issue.is_pull_request %}Pull-request. {% endif %}State: {{ issue.state }}">
                                             <strong>#{{ issue.number }}</strong> - {{ issue.title }}
-                                            {% if issue.comments_count %}<span class="label label-inverse" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">{{ issue.comments_count }}</span>{% endif %}
                                         </a>
                                     </div>
                                 </div>
@@ -458,6 +457,11 @@
                                         {% cache 60 isses-list-assignee current_repository.id issues_filter.querystring_with_user issue.assignee.id %}
                                             <a href="{% if issues_filter.objects.current_assigned == issue.assignee.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_assigned:issue.assignee }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" title="Assigned to {{ issue.assignee.username }}. Click to {% if issues_filter.objects.current_assigned == issue.assignee.username %}stop filtering{% else %}filter{% endif %} issues assigned to {{ issue.assignee.username }}" class="issue-item-assignee"><i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url }}"></a>
                                         {% endcache %}
+                                    {% endif %}
+                                    {% if issue.comments_count %}
+                                        <div class="issue-item-comments-count" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">
+                                            <i class="icon-comments-alt"> </i>{{ issue.comments_count }}
+                                        </div>
                                     {% endif %}
                                     <div class="issue-item-labels"><!--
                                         {% for label in issue.labels.all %}

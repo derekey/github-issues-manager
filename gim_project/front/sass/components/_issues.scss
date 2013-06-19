@@ -49,7 +49,7 @@ $active-issue-color: $dark-border-color;
             &.active {
                 padding-left: 5px;
             }
-            .issue-item-header, .avatar, .issue-item-assignee, .issue-item-labels {
+            .issue-item-header, .avatar, .issue-item-footer {
                 display: none;
             }
             .news-content {
@@ -69,6 +69,7 @@ $active-issue-color: $dark-border-color;
     padding-top: 0;
     position: relative;
     min-height: 0;
+    color: $body-text-color;
 
     // the header with : pull-request flag, milestone, and time
     .issue-item-header {
@@ -120,6 +121,7 @@ $active-issue-color: $dark-border-color;
         padding: 1px 5px 3px;
         background: #eee;
         @include border-radius(0 0 0 2px);
+        cursor: default;
         i {
             font-size: inherit;
             color: #bbb;
@@ -144,6 +146,14 @@ $active-issue-color: $dark-border-color;
     .issue-item-footer {
         overflow: auto;
     }
+    .issue-item-comments-count {
+        float: right;
+        margin-right: 5px;
+        line-height: 22px;
+        cursor: default;
+        position: relative;
+        top: 2px;
+    }
     .issue-item-assignee {
         float: right;
         margin-right: 5px;
@@ -156,7 +166,7 @@ $active-issue-color: $dark-border-color;
         width: 38px;
     }
     .issue-item-labels {
-        padding-right: 7px;
+        padding-right: 5px;
         a {
             display: inline-block;
             white-space: nowrap;
