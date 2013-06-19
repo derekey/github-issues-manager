@@ -81,20 +81,6 @@ $active-issue-color: $dark-border-color;
         outline: none !important;
         text-decoration: none !important;
     }
-    &:after {
-        content: "";
-        position: absolute;
-        right: 0px;
-        top: -1px;
-        bottom: -1px;
-        width: 5px;
-    }
-    &.state-open:after {
-        background-color: $state-open-color;
-    }
-    &.state-closed:after {
-        background-color: $state-closed-color;
-    }
     .pull-request {
         text-align: center;
         width: 40px;
@@ -105,6 +91,29 @@ $active-issue-color: $dark-border-color;
         i {
             font-size: 20px;
             color: $state-open-color;
+        }
+    }
+    &:after {
+        content: "";
+        position: absolute;
+        right: 0px;
+        top: -1px;
+        bottom: -1px;
+        width: 5px;
+    }
+    &.state-open {
+        &:after {
+            background-color: $state-open-color;
+        }
+    }
+    &.state-closed {
+        &:after {
+            background-color: $state-closed-color;
+        }
+        .pull-request {
+            i {
+                color: $state-closed-color;
+            }
         }
     }
 }

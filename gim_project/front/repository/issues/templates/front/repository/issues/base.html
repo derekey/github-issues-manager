@@ -434,7 +434,7 @@
                                 </div>
                                 <div class="news-content">
                                     <div class="news-title">
-                                        <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}#issue-{{ issue.number }}" class="issue-link" data-issue-number="{{ issue.number }}" title="State: {{ issue.state }}">
+                                        <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}#issue-{{ issue.number }}" class="issue-link" data-issue-number="{{ issue.number }}" title="{% if issue.is_pull_request %}Pull-request. {% endif %}State: {{ issue.state }}">
                                             <strong>#{{ issue.number }}</strong> - {{ issue.title }}
                                             {% if issue.comments_count %}<span class="label label-inverse" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">{{ issue.comments_count }}</span>{% endif %}
                                         </a>
