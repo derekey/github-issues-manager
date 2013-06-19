@@ -1,4 +1,4 @@
-/* line 7, ../../../../../sass/components/_issues.scss */
+/* line 8, ../../../../../sass/components/_issues.scss */
 .issues-list .box {
   margin-bottom: 0;
   -webkit-border-radius: 0;
@@ -10,11 +10,11 @@
   border-left: 0;
   border-right: 0;
 }
-/* line 14, ../../../../../sass/components/_issues.scss */
+/* line 15, ../../../../../sass/components/_issues.scss */
 .issues-list .box-content {
   margin-bottom: -1px;
 }
-/* line 17, ../../../../../sass/components/_issues.scss */
+/* line 18, ../../../../../sass/components/_issues.scss */
 .issues-list a.box-header {
   padding-left: 7px;
   -webkit-border-radius: 0;
@@ -23,104 +23,125 @@
   -o-border-radius: 0;
   border-radius: 0;
 }
-/* line 20, ../../../../../sass/components/_issues.scss */
+/* line 21, ../../../../../sass/components/_issues.scss */
 .issues-list a.box-header .title {
   font-size: 13px;
   padding-top: 5px;
   padding-bottom: 5px;
   text-transform: capitalize;
 }
-/* line 27, ../../../../../sass/components/_issues.scss */
+/* line 28, ../../../../../sass/components/_issues.scss */
 .issues-list a.box-header .box-toolbar > li {
   line-height: 27px;
   padding-right: 5px;
 }
-/* line 33, ../../../../../sass/components/_issues.scss */
+/* line 34, ../../../../../sass/components/_issues.scss */
 .issues-list .box-section {
   padding: 5px;
 }
-/* line 36, ../../../../../sass/components/_issues.scss */
+/* line 37, ../../../../../sass/components/_issues.scss */
 .issues-list .news-time {
   line-height: 15px;
   width: 5em;
 }
-/* line 39, ../../../../../sass/components/_issues.scss */
+/* line 40, ../../../../../sass/components/_issues.scss */
 .issues-list .news-time span {
   font-size: 11px;
 }
-/* line 43, ../../../../../sass/components/_issues.scss */
+/* line 44, ../../../../../sass/components/_issues.scss */
 .issues-list .news-content {
   margin-right: 65px;
 }
-/* line 47, ../../../../../sass/components/_issues.scss */
+/* line 48, ../../../../../sass/components/_issues.scss */
 .issues-list .issues-group:first-child .box-header {
   border-top: 0;
 }
-/* line 50, ../../../../../sass/components/_issues.scss */
+/* line 51, ../../../../../sass/components/_issues.scss */
 .issues-list .issues-group.active a.box-header {
   padding-left: 4px;
   border-left: solid #666666 3px;
 }
-/* line 56, ../../../../../sass/components/_issues.scss */
+/* line 57, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .news {
   padding: 5px;
   padding-left: 8px;
   min-height: 20px;
 }
-/* line 60, ../../../../../sass/components/_issues.scss */
+/* line 61, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .news.active {
   padding-left: 5px;
 }
-/* line 63, ../../../../../sass/components/_issues.scss */
+/* line 64, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .news .avatar, .issues-list.without-details .news .news-time, .issues-list.without-details .news .news-text {
   display: none;
 }
-/* line 66, ../../../../../sass/components/_issues.scss */
+/* line 67, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .news .news-content {
   margin-left: 0;
   margin-right: 0;
 }
-/* line 70, ../../../../../sass/components/_issues.scss */
+/* line 71, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .news .news-title {
   margin-bottom: 0;
 }
 
 /* line 78, ../../../../../sass/components/_issues.scss */
+.issue-item {
+  position: relative;
+}
+/* line 80, ../../../../../sass/components/_issues.scss */
 .issue-item .issue-link {
   outline: none !important;
   text-decoration: none !important;
 }
+/* line 84, ../../../../../sass/components/_issues.scss */
+.issue-item:after {
+  content: "";
+  position: absolute;
+  right: 0px;
+  top: -1px;
+  bottom: -1px;
+  width: 5px;
+}
+/* line 92, ../../../../../sass/components/_issues.scss */
+.issue-item.state-open:after {
+  background-color: #1aff69;
+}
+/* line 95, ../../../../../sass/components/_issues.scss */
+.issue-item.state-closed:after {
+  background-color: #ff9999;
+}
 
-/* line 83, ../../../../../sass/components/_issues.scss */
+/* line 99, ../../../../../sass/components/_issues.scss */
+.issues-list.without-details .issue-item:after {
+  width: 3px;
+}
+
+/* line 102, ../../../../../sass/components/_issues.scss */
 .issue-item-assigned {
   margin-top: 3px;
 }
-/* line 85, ../../../../../sass/components/_issues.scss */
+/* line 104, ../../../../../sass/components/_issues.scss */
 .issue-item-assigned a {
   color: #999999 !important;
 }
 
-/* line 89, ../../../../../sass/components/_issues.scss */
+/* line 108, ../../../../../sass/components/_issues.scss */
 .box-section.issue-item {
   padding-left: 13px;
 }
-/* line 91, ../../../../../sass/components/_issues.scss */
+/* line 110, ../../../../../sass/components/_issues.scss */
 .box-section.issue-item.active {
   padding-left: 10px;
   border-left: solid #666666 3px;
 }
 
-/* line 96, ../../../../../sass/components/_issues.scss */
-.issue-closed {
-  text-decoration: line-through;
-}
-
-/* line 102, ../../../../../sass/components/_issues.scss */
+/* line 118, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch {
   margin: 0;
   padding: 0;
 }
-/* line 105, ../../../../../sass/components/_issues.scss */
+/* line 121, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch label {
   margin: 0;
   padding: 0;
@@ -130,7 +151,7 @@
   height: 28px;
   background: white;
 }
-/* line 114, ../../../../../sass/components/_issues.scss */
+/* line 130, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .add-on, .issues-quicksearch input, .issues-quicksearch .btn {
   border: 0;
   -webkit-border-radius: 0;
@@ -141,14 +162,14 @@
   position: absolute;
   top: 0;
 }
-/* line 120, ../../../../../sass/components/_issues.scss */
+/* line 136, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .add-on {
   border-right: solid 1px #d4d4d4;
   left: 0;
   width: 16px;
   z-index: 10;
 }
-/* line 126, ../../../../../sass/components/_issues.scss */
+/* line 142, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch input {
   display: block;
   width: 100%;
@@ -163,7 +184,7 @@
   height: 28px;
   z-index: 20;
 }
-/* line 138, ../../../../../sass/components/_issues.scss */
+/* line 154, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .btn {
   border-left: solid 1px #d4d4d4;
   right: 0;

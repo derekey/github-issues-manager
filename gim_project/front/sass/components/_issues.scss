@@ -1,6 +1,7 @@
 @import "variables";
 @import "compass/css3/border-radius";
 @import "compass/css3/box-sizing";
+@import "compass/css3/box-shadow";
 
 $active-issue-color: $dark-border-color;
 .issues-list {
@@ -75,10 +76,28 @@ $active-issue-color: $dark-border-color;
 } // .issues-list
 
 .issue-item {
+    position: relative;
     .issue-link {
         outline: none !important;
         text-decoration: none !important;
     }
+    &:after {
+        content: "";
+        position: absolute;
+        right: 0px;
+        top: -1px;
+        bottom: -1px;
+        width: 5px;
+    }
+    &.state-open:after {
+        background-color: $state-open-color;
+    }
+    &.state-closed:after {
+        background-color: $state-closed-color;
+    }
+}
+.issues-list.without-details .issue-item:after {
+    width: 3px;
 }
 .issue-item-assigned {
     margin-top: 3px;
@@ -92,9 +111,6 @@ $active-issue-color: $dark-border-color;
             padding-left: 10px;
             border-left: solid $active-issue-color 3px;
         }
-}
-.issue-closed {
-    text-decoration: line-through;
 }
 
 
