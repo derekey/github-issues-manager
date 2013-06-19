@@ -7,6 +7,7 @@ import time
 import re
 
 from pytimeago.english import english as english_ago
+from pytimeago.english_short import english_short as english_short_ago
 
 from django import template
 from django.template import TemplateSyntaxError
@@ -136,9 +137,10 @@ one of it's attributes
 
 
 @register.filter
-def ago(date):
+def ago(date, short=False):
+    method = english_short_ago if short else english_ago
     try:
-        return english_ago(time.mktime(datetime.now().timetuple()) - time.mktime(date.timetuple()))
+        return method(time.mktime(datetime.now().timetuple()) - time.mktime(date.timetuple()))
     except:
         return ''
 

@@ -31,18 +31,24 @@ $active-issue-color: $dark-border-color;
             }
         }
     }
-    .box-section {
-        padding: 5px;
-    }
     .news-time {
+        white-space: nowrap;
         line-height: 15px;
-        width: 5.1em;
+        padding: 1px 5px 3px 5px;
+        background: #eee;
+        @include border-radius(0 0 0 2px);
         span {
+            display: inline;
             font-size: 11px;
+        }
+        i {
+            position: relative;
+            top: 2px;
+            width: 0.3em;
         }
     }
     .news-content {
-        margin-right: 65px;
+        margin-right: 10px;
     }
     .issues-group {
         &:first-child .box-header {
@@ -76,26 +82,55 @@ $active-issue-color: $dark-border-color;
 } // .issues-list
 
 .issue-item {
+    padding: 5px;
+    padding-top: 0;
     position: relative;
+    .issue-header {
+        margin-top: -1px;
+        margin-bottom: 4px;
+        overflow: auto;
+    }
     .issue-link {
         outline: none !important;
         text-decoration: none !important;
     }
-    .pull-request {
-        text-align: center;
-        width: 40px;
-        display: inline-block;
-        position: absolute;
-        top: 50px;
-        left: 13px;
-        i {
-            font-size: 20px;
-            color: $state-open-color;
+    .issue-labels {
+        padding-right: 7px;
+        a {
+            display: inline-block;
+            white-space: nowrap;
+            margin: 1px 0;
+            padding: 0 3px;
         }
     }
-    &.active {
-        .pull-request {
-            left: 10px;
+    .issue-pull-request {
+        text-align: center;
+        width: 30px;
+        float: left;
+        i {
+            font-size: 14px;
+            // color: $state-open-color;
+        }
+        margin-left: 3px;
+        @include border-radius(0 0 2px 2px);
+        min-height: 10px;
+        &.is-pull-request {
+            background: #eee;            
+        }
+        color: #bbb;
+        a {
+            color: inherit;
+        }
+    }
+    .issue-milestone {
+        margin-left: 18px;
+        float: left;
+        @include border-radius(0 0 2px 2px);
+        padding: 0 10px;
+        background: #eee;            
+        color: #bbb;
+        a {
+            color: inherit;
         }
     }
     &:after {
@@ -115,21 +150,18 @@ $active-issue-color: $dark-border-color;
         &:after {
             background-color: $state-closed-color;
         }
-        .pull-request {
-            i {
-                color: $state-closed-color;
-            }
-        }
+        // .issue-pull-request {
+        //     i {
+        //         color: $state-closed-color;
+        //     }
+        // }
     }
 }
 .issues-list.without-details .issue-item:after {
     width: 3px;
 }
 .issue-item-assigned {
-    margin-top: 3px;
-    a {
-        color: #999 !important;
-    }
+    float: right;
 }
 .box-section.issue-item {
     padding-left: 13px;

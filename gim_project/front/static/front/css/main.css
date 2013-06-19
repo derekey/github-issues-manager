@@ -140,8 +140,8 @@ blockquote p:last-child {
 
 /* line 8, ../../../sass/widgets/_avatar.scss */
 .avatar-tiny {
-  max-height: 16px;
-  max-width: 16px;
+  max-height: 24px;
+  max-width: 24px;
 }
 
 /* line 3, ../../../sass/widgets/_box.scss */
@@ -204,8 +204,8 @@ a.box-header:focus {
 
 /* line 8, ../../../sass/widgets/_avatar.scss */
 .avatar-tiny {
-  max-height: 16px;
-  max-width: 16px;
+  max-height: 24px;
+  max-width: 24px;
 }
 
 /* line 4, ../../../sass/widgets/_news.scss */
@@ -260,8 +260,8 @@ a.box-header:focus {
 
 /* line 8, ../../../sass/widgets/_avatar.scss */
 .avatar-tiny {
-  max-height: 16px;
-  max-width: 16px;
+  max-height: 24px;
+  max-width: 24px;
 }
 
 /* line 6, ../../../sass/widgets/_chatbox.scss */
