@@ -413,6 +413,11 @@
                                 {% cache 60 isses-list-user current_repository.id issues_filter.querystring_with_user issue.user.id %}
                                 <a href="{% if issues_filter.objects.current_created_by == issue.user.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_created_by:issue.user }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" class="avatar" title="Click to {% if issues_filter.objects.current_created_by == issue.user.username %}stop filtering{% else %}filter{% endif %} issues created by {{ issue.user.username }}"><img class="avatar-small img-circle" src="{{ issue.user.avatar_url }}" alt="{{ issue.user.username }}"></a>
                                 {% endcache %}
+                                {% if issue.is_pull_request %}
+                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "pr" "yes" %}#issue-{{ issue.number }}" class="pull-request" title="Click to {% if issues_filter.objects.pr %}stop displaying only pull requests{% else %}display only pull requests{% endif %}">
+                                        <i class="icon-random"> </i>
+                                    </a>
+                                {% endif %}
                                 <div class="news-time">
                                     <span title="Created on {{ issue.created_at|date }}">{{ issue.created_at|ago }}</span>
                                     {% if issue.state == 'closed' %}
@@ -431,7 +436,6 @@
                                     <div class="news-title">
                                         <a href="{{ issue.get_absolute_url }}{{ issues_filter.querystring_with_user|default:issues_filter.querystring }}#issue-{{ issue.number }}" class="issue-link" data-issue-number="{{ issue.number }}" title="State: {{ issue.state }}">
                                             <strong>#{{ issue.number }}</strong> - {{ issue.title }}
-                                            {% if issue.is_pull_request %}<span class="label label-success" title="It's a pull-request">PR</span>{% endif %}
                                             {% if issue.comments_count %}<span class="label label-inverse" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">{{ issue.comments_count }}</span>{% endif %}
                                         </a>
                                     </div>

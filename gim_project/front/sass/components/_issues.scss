@@ -36,7 +36,7 @@ $active-issue-color: $dark-border-color;
     }
     .news-time {
         line-height: 15px;
-        width: 5em;
+        width: 5.1em;
         span {
             font-size: 11px;
         }
@@ -94,6 +94,18 @@ $active-issue-color: $dark-border-color;
     }
     &.state-closed:after {
         background-color: $state-closed-color;
+    }
+    .pull-request {
+        text-align: center;
+        width: 40px;
+        display: inline-block;
+        position: absolute;
+        top: 50px;
+        left: 13px;
+        i {
+            font-size: 20px;
+            color: #8CC079;
+        }
     }
 }
 .issues-list.without-details .issue-item:after {

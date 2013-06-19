@@ -42,7 +42,7 @@
 /* line 37, ../../../../../sass/components/_issues.scss */
 .issues-list .news-time {
   line-height: 15px;
-  width: 5em;
+  width: 5.1em;
 }
 /* line 40, ../../../../../sass/components/_issues.scss */
 .issues-list .news-time span {
@@ -111,37 +111,51 @@
 .issue-item.state-closed:after {
   background-color: #ff9999;
 }
+/* line 98, ../../../../../sass/components/_issues.scss */
+.issue-item .pull-request {
+  text-align: center;
+  width: 40px;
+  display: inline-block;
+  position: absolute;
+  top: 50px;
+  left: 13px;
+}
+/* line 105, ../../../../../sass/components/_issues.scss */
+.issue-item .pull-request i {
+  font-size: 20px;
+  color: #8CC079;
+}
 
-/* line 99, ../../../../../sass/components/_issues.scss */
+/* line 111, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .issue-item:after {
   width: 3px;
 }
 
-/* line 102, ../../../../../sass/components/_issues.scss */
+/* line 114, ../../../../../sass/components/_issues.scss */
 .issue-item-assigned {
   margin-top: 3px;
 }
-/* line 104, ../../../../../sass/components/_issues.scss */
+/* line 116, ../../../../../sass/components/_issues.scss */
 .issue-item-assigned a {
   color: #999999 !important;
 }
 
-/* line 108, ../../../../../sass/components/_issues.scss */
+/* line 120, ../../../../../sass/components/_issues.scss */
 .box-section.issue-item {
   padding-left: 13px;
 }
-/* line 110, ../../../../../sass/components/_issues.scss */
+/* line 122, ../../../../../sass/components/_issues.scss */
 .box-section.issue-item.active {
   padding-left: 10px;
   border-left: solid #666666 3px;
 }
 
-/* line 118, ../../../../../sass/components/_issues.scss */
+/* line 130, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch {
   margin: 0;
   padding: 0;
 }
-/* line 121, ../../../../../sass/components/_issues.scss */
+/* line 133, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch label {
   margin: 0;
   padding: 0;
@@ -151,7 +165,7 @@
   height: 28px;
   background: white;
 }
-/* line 130, ../../../../../sass/components/_issues.scss */
+/* line 142, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .add-on, .issues-quicksearch input, .issues-quicksearch .btn {
   border: 0;
   -webkit-border-radius: 0;
@@ -162,14 +176,14 @@
   position: absolute;
   top: 0;
 }
-/* line 136, ../../../../../sass/components/_issues.scss */
+/* line 148, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .add-on {
   border-right: solid 1px #d4d4d4;
   left: 0;
   width: 16px;
   z-index: 10;
 }
-/* line 142, ../../../../../sass/components/_issues.scss */
+/* line 154, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch input {
   display: block;
   width: 100%;
@@ -184,7 +198,7 @@
   height: 28px;
   z-index: 20;
 }
-/* line 154, ../../../../../sass/components/_issues.scss */
+/* line 166, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .btn {
   border-left: solid 1px #d4d4d4;
   right: 0;
