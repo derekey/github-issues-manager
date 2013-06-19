@@ -7,7 +7,7 @@
 {% endblock extra_css %}
 {% block main %}
 
-<nav id="issues-filters" class="span2">
+<nav id="issues-filters">
     <div class="primary-sidebar">
 
         <ul id="issues-filters-accordion" class="nav nav-collapse collapse nav-collapse-primary">
@@ -273,7 +273,7 @@
     </div>
 
 </nav>
-<section id="issues-list-container" class="span4">
+<section id="issues-list-container" class="span5">
     {% if issues %}
         <nav id="issues-list-options" class="navbar navbar-no-rounded">
             <div class="navbar-inner">
@@ -478,7 +478,7 @@
     {% endif %}
 </section>
 
-<section id="issue" class="span6 main-issue-container"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %}>
+<section id="issue" class="span7 main-issue-container"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %}>
     {% include "front/repository/issues/issue.html" %}
 </section>
 

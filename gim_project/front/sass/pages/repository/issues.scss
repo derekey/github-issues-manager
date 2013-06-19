@@ -7,6 +7,7 @@
 @import "modals/shortcuts";
 @import "modals/gotoissue";
 
+$sidebar-width: 160px;
 
 // enforce height to tell columns to scroll in this height
 html, body {
@@ -22,6 +23,8 @@ html, body {
 #main-inner {
     height: 100%;
     @include box-sizing(border-box);
+    position: relative;
+    padding-left: $sidebar-width;
 }
 
 
@@ -33,16 +36,20 @@ html, body {
     overflow: auto;
     position: relative;
 }
-#issues-filters { // col 1
-    width: (100%/12*2); // 2 cols of 12
+#issues-filters { // col 1, sidebar with fixed width
+    width: $sidebar-width;
     border-right: solid 1px $dark-border-color;
+    float: none;
+    position: absolute;
+    // top: 0px;
+    left: 0px;
 }
 #issues-list-container { // col 2
-    width: (100%/12*4); // 4 cols of 12
+    width: (100%/12*5); // 5 cols of 12
     border-right: solid 1px $dark-border-color;
 }
 #issue { // col3
-    width: (100%/12*6); // 6 cols of 12
+    width: (100%/12*7); // 7 cols of 12
 }
 
 
@@ -202,6 +209,9 @@ html, body {
 
 // full screen issue: hide the two first columns
 body.big-issue {
+    #main-inner {
+        padding-left: 0;
+    }
     #issues-filters {
         display: none;
     }
