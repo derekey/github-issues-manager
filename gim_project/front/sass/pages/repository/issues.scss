@@ -127,7 +127,7 @@ html, body {
 // second row: quicksearch filter
 #issues-list-search {
     position: absolute;
-    top: 62px;
+    top: 48px;
     left: 0;
     right: 0;
     border-bottom: solid 1px $box-border-color;
@@ -136,7 +136,7 @@ html, body {
 // last row, full height: list of isses
 #issues-list {
     position: absolute;
-    top: 91px;
+    top: 77px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -152,6 +152,10 @@ html, body {
         width: (100%/3);
         margin-left: 0;
         margin-right: 0;
+        a {
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
     }
 }
 #issues-list-options a.no-selection {
@@ -195,7 +199,7 @@ html, body {
     margin-left: -1px;
     margin-right: -1px;
     // assume all text will only be on one ligne
-    height: 60px;
+    height: 46px;
 }
 
 

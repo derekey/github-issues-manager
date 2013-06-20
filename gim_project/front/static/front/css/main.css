@@ -498,8 +498,3 @@ body > header .user_avatar .caret {
 .content p:last-child {
   margin-bottom: 0;
 }
-
-/* line 90, ../../../sass/main.scss */
-#issues-filters .primary-sidebar {
-  margin-top: 40px;
-}
