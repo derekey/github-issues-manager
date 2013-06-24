@@ -131,6 +131,8 @@ blockquote p:last-child {
 
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar-small {
+  height: 36px;
+  width: 36px;
   max-height: 36px;
   max-width: 36px;
   -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
@@ -138,8 +140,10 @@ blockquote p:last-child {
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
 }
 
-/* line 8, ../../../sass/widgets/_avatar.scss */
+/* line 10, ../../../sass/widgets/_avatar.scss */
 .avatar-tiny {
+  height: 24px;
+  width: 24px;
   max-height: 24px;
   max-width: 24px;
 }
@@ -195,6 +199,8 @@ a.box-header:focus {
 
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar-small {
+  height: 36px;
+  width: 36px;
   max-height: 36px;
   max-width: 36px;
   -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
@@ -202,8 +208,10 @@ a.box-header:focus {
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
 }
 
-/* line 8, ../../../sass/widgets/_avatar.scss */
+/* line 10, ../../../sass/widgets/_avatar.scss */
 .avatar-tiny {
+  height: 24px;
+  width: 24px;
   max-height: 24px;
   max-width: 24px;
 }
@@ -251,6 +259,8 @@ a.box-header:focus {
 
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar-small {
+  height: 36px;
+  width: 36px;
   max-height: 36px;
   max-width: 36px;
   -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
@@ -258,8 +268,10 @@ a.box-header:focus {
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
 }
 
-/* line 8, ../../../sass/widgets/_avatar.scss */
+/* line 10, ../../../sass/widgets/_avatar.scss */
 .avatar-tiny {
+  height: 24px;
+  width: 24px;
   max-height: 24px;
   max-width: 24px;
 }

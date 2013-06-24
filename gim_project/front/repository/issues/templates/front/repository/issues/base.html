@@ -468,7 +468,7 @@
                                             {% if label.label_type_id %}
                                                 {% cache 60 isses-list-label current_repository.id issues_filter.querystring_with_user label.id %}
                                                     {% attributes_for_list label.label_type.labels.all "name" as label_names %}
-                                                    --><a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}#issue-{{ issue.number }}" title="Click to {% if label.name in issues_filter.parts.labels %}stop filtering{% else %}filter{% endif %} on this {{ label.label_type.name }}" style="border-bottom: solid 3px #{{ label.color }}">
+                                                    --><a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}#issue-{{ issue.number }}" title="Click to {% if label.name in issues_filter.parts.labels %}stop filtering{% else %}filter{% endif %} on this {{ label.label_type.name }}" style="border-bottom-color: #{{ label.color }}">
                                                         <strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}
                                                     </a><!--
                                                 {% endcache %}

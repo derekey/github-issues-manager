@@ -1,6 +1,12 @@
+@import "variables";
+
 @import "compass/css3/border-radius";
 @import "compass/css3/box-sizing";
+@import "compass/css3/box-shadow";
+@import "compass/css3/text-shadow";
 
+@import "widgets/avatar";
+@import "components/issues_mixins";
 @import "components/issues";
 @import "components/issue";
 

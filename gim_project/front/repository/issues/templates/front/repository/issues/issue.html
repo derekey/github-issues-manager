@@ -4,7 +4,7 @@
         <i id="resize-issue" class="icon-fullscreen" title="Toggle fullscreen view"> </i>
     </nav>
     <article>
-        <div class="area-top">
+        <div class="area-top state-{{ current_issue.state }}">
             <header class="header">
                 <div class="avatar">
                     <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url }}" alt="{{ current_issue.user.username }}">
@@ -12,52 +12,53 @@
                 <h3>#{{ current_issue.number }} - {{ current_issue.title }}</h3>
                 <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date }}</h5>
             </header>
-            <ul class="unstyled issue-tags issue-main-tags">
-                <li class="label label-{% if current_issue.state == 'open' %}success{% else %}important{% endif %}">{{ current_issue.state }}</li>
-                {% if current_issue.is_pull_request %}<li class="label label-success" title="It's a pull-request">pull request</li>{% endif %}
-                {% if current_issue.milestone %}<li class="label label-inverse">Milestone: {{ current_issue.milestone.title }}</li>{% endif %}
-            </ul>
+            {% if current_issue.is_pull_request %}<i class="icon-upload-alt issue-pull-request" title="It's a pull-request"> </i>{% endif %}
+            {% if current_issue.milestone %}<ul class="unstyled issue-milestone"><li class="label label-inverse">Milestone: {{ current_issue.milestone.title }}</li></ul>{% endif %}
             {% if current_issue.state == 'closed' %}
-                <p>
+                <p class="state-closed">
                     Closed{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date }}{% endif %}
-
                 </p>
             {% else %}
                 {% if issue.updated_at and issue.created_at != issue.updated_at %}
                     Updated on {{ current_issue.updated_at|date }}
                 {% endif %}
             {% endif %}
-            <ul class="unstyled issue-tags issue-typed-labels">
-                {% for label in current_issue.labels.all %}
-                    {% if label.label_type_id %}
-                        {% attributes_for_list label.label_type.labels.all "name" as label_names %}
-                        <li class="label label-info">{{ label.label_type.name }}: {{ label.typed_name }}</li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-            <ul class="unstyled issue-tags issue-typed-labels">
-                {% for label in current_issue.labels.all %}
-                    {% if not label.label_type_id %}
-                        <li class="label label-default">{{ label.name }}</li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-            {% if current_issue.assignee %}<p>Assigned to <img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url }}"> {{ current_issue.assignee.username }}</p>{% endif %}
-            <div class="issue-involved-and-comments-count desc">
-                {% if current_issue.comments_count and current_issue_involved|length > 1 %}
-                    <ul class="unstyled">
-                        Involved:
-                        {% for involved_user in current_issue_involved %}
-                            <li class="avatar"><img class="avatar-small img-circle" src="{{ involved_user.user.avatar_url }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}, {{ involved_user.count }} comment{{ involved_user.count|pluralize }}"></li>
-                        {% endfor %}
-                        /
-                    </ul>
+            <div class="issue-footer">
+                {% if current_issue.comments_count or current_issue.assignee or current_issue_involved|length > 1  %}
+                    <div class="issue-footer-infos">
+                        {% if current_issue.comments_count %}
+                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}" href="#issue-comments">
+                                <i class="icon-comments-alt"> </i>{{ current_issue.comments_count }}
+                            </a>
+                        {% endif %}
+                        {% if current_issue.assignee %}
+                            <span class="issue-footer-info-part issue-assignee" title="Assigned to {{ current_issue.assignee.username }}">
+                                <i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url }}" />
+                            </span>
+                        {% endif %}
+                        {% if current_issue_involved|length > 1 %}
+                            <ul class="unstyled issue-footer-info-part issue-involved">
+                                <span>With</span>
+                                {% for involved_user in current_issue_involved %}
+                                    <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}, {{ involved_user.count }} comment{{ involved_user.count|pluralize }}"></li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
                 {% endif %}
-                {% if current_issue.comments_count %}
-                    {{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}
-                {% else %}
-                    No comments
-                {% endif %}
+
+                <ul class="unstyled issue-labels">
+                    {% for label in current_issue.labels.all %}
+                        {% if label.label_type_id %}
+                            <li style="border-bottom-color: #{{ label.color }}"><strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}</li>
+                        {% endif %}
+                    {% endfor %}
+                    {% for label in current_issue.labels.all %}
+                        {% if not label.label_type_id %}
+                            <li style="border-bottom-color: #{{ label.color }}">{{ label.name }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
             </div>
         </div>
         <div class="content issue-body{% if not current_issue.body %} empty{% endif %}" >

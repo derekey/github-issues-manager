@@ -1,9 +1,3 @@
-@import "variables";
-@import "compass/css3/border-radius";
-@import "compass/css3/box-sizing";
-@import "compass/css3/box-shadow";
-@import "compass/css3/text-shadow";
-
 $active-issue-color: $dark-border-color;
 .issues-list {
     .box {
@@ -147,52 +141,22 @@ $active-issue-color: $dark-border-color;
         overflow: auto;
     }
     .issue-item-comments-count {
+        @extend %issue-comments-count;
         float: right;
         margin-right: 5px;
-        line-height: 22px;
+        line-height: 24px;
         cursor: default;
-        position: relative;
-        top: 2px;
     }
     .issue-item-assignee {
+        @extend %issue-assignee;
         float: right;
         margin-right: 5px;
-        i {
-            font-size: 11px;
-            position: relative;
-            top: 2px;
-            color: #bbb;
-        }
-        width: 38px;
     }
     .issue-item-labels {
+        @extend %issue-labels;
         padding-right: 5px;
-        a {
-            display: inline-block;
-            white-space: nowrap;
-            margin: 1px 0;
-            padding: 0 3px;
-            color: inherit;
-        }
     }
-    &:after {
-        content: "";
-        position: absolute;
-        right: 0px;
-        top: -1px;
-        bottom: -1px;
-        width: 5px;
-    }
-    &.state-open {
-        &:after {
-            background-color: $state-open-color;
-        }
-    }
-    &.state-closed {
-        &:after {
-            background-color: $state-closed-color;
-        }
-    }
+    @extend %issue-state-marker;
 }
 .issues-list.without-details .issue-item:after {
     width: 3px;

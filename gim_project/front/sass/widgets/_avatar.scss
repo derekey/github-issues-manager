@@ -1,11 +1,15 @@
 @import "compass/css3/box-shadow";
 
 .avatar-small {
+    height: 36px;
+    width: 36px;
     max-height: 36px;
     max-width: 36px;
     @include box-shadow(rgba(black, 0.2) 0px 1px 3px -1px);
 }
 .avatar-tiny {
+    height: 24px;
+    width: 24px;
     max-height: 24px;
     max-width: 24px;
 }
