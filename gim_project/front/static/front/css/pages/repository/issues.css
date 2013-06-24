@@ -116,8 +116,8 @@ p.state-closed {
 }
 /* line 33, ../../../../../sass/components/_issues.scss */
 .issues-list .issues-group.active a.box-header {
-  padding-left: 4px;
-  border-left: solid #666666 3px;
+  padding-left: 2px;
+  border-left: solid #7bc8d7 5px;
 }
 /* line 39, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .issue-item {
@@ -279,8 +279,8 @@ p.state-closed {
 }
 /* line 166, ../../../../../sass/components/_issues.scss */
 .box-section.issue-item.active {
-  padding-left: 10px;
-  border-left: solid #666666 3px;
+  padding-left: 8px;
+  border-left: solid #7bc8d7 5px;
 }
 
 /* line 174, ../../../../../sass/components/_issues.scss */
