@@ -46,3 +46,19 @@ blockquote p {
     border: none;
     @include border-radius(0)
 }
+
+// text color for table cells
+td {
+    &.status-important, &.status-error {
+        color: #9d261d;
+    }
+    &.status-warning {
+        color: #f89406;
+    }
+    &.status-success {
+        color: #46a546;
+    }
+    &.status-info {
+        color: #049cdb;
+    }
+}

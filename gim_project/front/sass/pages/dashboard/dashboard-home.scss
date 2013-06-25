@@ -7,39 +7,25 @@
 }
 
 #subscribed_repositories {
-    & > li {
-        overflow: auto;
-        padding: 10px 0 10px 5px;
-        border-bottom: solid 1px $box-border-color;
-        &:first-of-type {
-            border-top: solid 1px $box-border-color;            
-        }
-        & > a {
-            font-size: larger;
-            line-height: 56px;
-            font-weight: bold;
-            display: inline-block;
-            color: $box-text-color;
-            &:hover {
-                color: darken($box-text-color, 10%);
-                text-decoration: none;
-            }            
-        }
-        &:hover {
-            background: #fafafa;
+    td:not(:first-child) {
+        text-align: center;        
+    }
+    tbody tr:not(.total) td:not(:first-child) {
+        padding: 0;
+        a {
+            color: inherit;
+            display: block;
+            line-height: 34px;
         }
     }
-.action-nav-normal {
-        float: right;
-        max-width: 600px;
+    tr.total {
+        // font-style: italic;
+        font-weight: bold;
     }
-}
+    .empty-area {
+        position: static;
+        font-size: 150%;
+        margin: 0;
 
-#summary {
-    overflow: auto;
-    ul {
-        float: right;
-        max-width: 600px;
-        text-align: center;
     }
 }

@@ -129,6 +129,23 @@ blockquote p:last-child {
   border-radius: 0;
 }
 
+/* line 52, ../../../sass/_bootstrap-correct.scss */
+td.status-important, td.status-error {
+  color: #9d261d;
+}
+/* line 55, ../../../sass/_bootstrap-correct.scss */
+td.status-warning {
+  color: #f89406;
+}
+/* line 58, ../../../sass/_bootstrap-correct.scss */
+td.status-success {
+  color: #46a546;
+}
+/* line 61, ../../../sass/_bootstrap-correct.scss */
+td.status-info {
+  color: #049cdb;
+}
+
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar-small {
   height: 36px;

@@ -12,85 +12,101 @@
         <a class="btn btn-inverse pull-right" href="{% url "front:dashboard:repositories:choose" %} ">Manage your subscriptions to repositories</a>
         <h3>Your dashboard</h3>
     </div>
+</div>
 
-    {% if subscribed_repositories|length %}
-        <div id="summary">
-            <ul class="unstyled row-fluid">
-                <li class="span1">Total:</li>
-                {% with count=total_counts.assigned label="assigned" %}
-                    <li class="span2">
-                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
-                        {{ label }}
-                    </li>
-                {% endwith %}
-                {% with count=total_counts.created label="created" %}
-                    <li class="span2">
-                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
-                        {{ label }}
-                    </li>
-                {% endwith %}
-                {% with count=total_counts.prs label="PRs" %}
-                    <li class="span2">
-                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
-                        {{ label }}
-                    </li>
-                {% endwith %}
-                <li class="span5"></li>
+<div class="span6">
+    <div class="box" id="subscribed_repositories">
+        <div class="box-header">
+            <span class="title">Open issues for your subscribed repositories</span>
+            <ul class="box-toolbar">
+                <li><span class="label label-blue">{{ subscribed_repositories|length }} repo{{ subscribed_repositories|pluralize }}</span></li>
             </ul>
         </div>
-        <ul class="unstyled" id="subscribed_repositories">
-        {% for repository in subscribed_repositories %}
-            {% with assigned_url=repository|base_url_issues_filtered_by_assigned:user createdy_url=repository|base_url_issues_filtered_by_created_by:user issues_url=repository|repository_view_url:'issues' %}
-                <li>
-                    <a href="{{ repository.get_absolute_url }}" title="View this repository">{{ repository }}</a>
-                    <div class="action-nav-normal row-fluid">
-                        {% with count=repository.user_counts_open.assigned label="Assigned" icon="user" %}
-                            <div class="action-nav-button span2 offset1">
-                                <a href="{{ assigned_url }}?state=open">
-                                    <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
-                                </a>
-                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
-                            </div>
-                        {% endwith %}
-                        {% with count=repository.user_counts_open.created label="Created" icon="pencil" %}
-                            <div class="action-nav-button span2">
-                                <a href="{{ createdy_url }}?state=open">
-                                    <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
-                                </a>
-                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
-                            </div>
-                        {% endwith %}
-                        {% with count=repository.user_counts_open.prs label="PRs" icon="plus" %}
-                            <div class="action-nav-button span2">
-                                <a href="{{ createdy_url }}?state=open&amp;pr=yes">
-                                    <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
-                                </a>
-                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
-                            </div>
-                        {% endwith %}
-                        {% with count=repository.user_counts_open.all_prs label="All PRs" icon="plus" %}
-                            <div class="action-nav-button span2 offset1">
-                                <a href="{{ issues_url }}?state=open&amp;pr=yes">
-                                     <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
-                                </a>
-                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
-                            </div>
-                        {% endwith %}
-                        {% with count=repository.user_counts_open.all label="All open" icon="th-list" %}
-                            <div class="action-nav-button span2">
-                                <a href="{{ issues_url }}?state=open">
-                                     <i class="icon-{{ icon }}"> </i><span>{{ label }}</span>
-                                </a>
-                                <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
-                            </div>
-                        {% endwith %}
-                    </div>
-                </li>
-            {% endwith %}
-        {% endfor %}
-        </ul>
-    {% else %}
-        <div class="empty-area">You didn't subscribe to any repositories !</div>
-    {% endif %}
+        <div class="box-content">
+            {% if subscribed_repositories|length %}
+                <table class="table table-normal">
+                    <thead>
+                        <tr>
+                            <td>Repository</td>
+                            <td>Assigned</td>
+                            <td>Created</td>
+                            <td>PRs</td>
+                            <td>All PRs</td>
+                            <td>All open</td>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr class="total">
+                            <td>
+                                Total
+                            </td>
+                            {% with count=total_counts.assigned %}
+                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    {{ count }}
+                                </td>
+                            {% endwith %}
+                            {% with count=total_counts.created %}
+                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    {{ count }}
+                                </td>
+                            {% endwith %}
+                            {% with count=total_counts.prs %}
+                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    {{ count }}
+                                </td>
+                            {% endwith %}
+                            {% with count=total_counts.all_prs %}
+                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    {{ count }}
+                                </td>
+                            {% endwith %}
+                            {% with count=total_counts.all %}
+                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    {{ count }}
+                                </td>
+                            {% endwith %}
+                        </tr>
+                        {% for repository in subscribed_repositories %}
+                            {% with assigned_url=repository|base_url_issues_filtered_by_assigned:user createdy_url=repository|base_url_issues_filtered_by_created_by:user issues_url=repository|repository_view_url:'issues' %}
+                            <tr>
+                                <td>
+                                    <a href="{{ repository.get_absolute_url }}" title="View this repository">{{ repository }}</a>
+                                </td>
+                                {% with count=repository.user_counts_open.assigned %}
+                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                        <a href="{{ assigned_url }}?state=open">{{ count }}</a>
+                                    </td>
+                                {% endwith %}
+                                {% with count=repository.user_counts_open.created %}
+                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                        <a href="{{ createdy_url }}?state=open">{{ count }}</a>
+                                    </td>
+                                {% endwith %}
+                                {% with count=repository.user_counts_open.prs %}
+                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                        <a href="{{ createdy_url }}?state=open&amp;pr=yes">{{ count }}</a>
+                                    </td>
+                                {% endwith %}
+                                {% with count=repository.user_counts_open.all_prs %}
+                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                        <a href="{{ issues_url }}?state=open&amp;pr=yes">{{ count }}</a>
+                                    </td>
+                                {% endwith %}
+                                {% with count=repository.user_counts_open.all %}
+                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                        <a href="{{ issues_url }}?state=open">{{ count }}</a>
+                                    </td>
+                                {% endwith %}
+                            </tr>
+                            {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-area">You didn't subscribe to any repositories !</div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock main %}
