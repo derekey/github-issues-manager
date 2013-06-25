@@ -56,10 +56,18 @@ $label-match-colors: success green, important red, info blue, warning purple, in
     @include text-shadow(white 0 1px);
 }
 
+// Make colors of area-top a little darker
 .area-top {
     .header {
         h3, h5 {
             color: #5f5f5f;
         }
+    }
+}
+
+// replace the white color of active item in navbar menu
+.navbar-inverse .nav .active {
+    & > a, & > a:hover, & > a:focus {
+        color: inherit;
     }
 }
