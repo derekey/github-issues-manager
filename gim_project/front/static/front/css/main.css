@@ -129,20 +129,23 @@ blockquote p:last-child {
   border-radius: 0;
 }
 
-/* line 52, ../../../sass/_bootstrap-correct.scss */
-td.status-important, td.status-error {
+/* line 51, ../../../sass/_bootstrap-correct.scss */
+.status-important, .status-error {
   color: #9d261d;
 }
-/* line 55, ../../../sass/_bootstrap-correct.scss */
-td.status-warning {
+
+/* line 54, ../../../sass/_bootstrap-correct.scss */
+.status-warning {
   color: #f89406;
 }
-/* line 58, ../../../sass/_bootstrap-correct.scss */
-td.status-success {
+
+/* line 57, ../../../sass/_bootstrap-correct.scss */
+.status-success {
   color: #46a546;
 }
-/* line 61, ../../../sass/_bootstrap-correct.scss */
-td.status-info {
+
+/* line 60, ../../../sass/_bootstrap-correct.scss */
+.status-info {
   color: #049cdb;
 }
 

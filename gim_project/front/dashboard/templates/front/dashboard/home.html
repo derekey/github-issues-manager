@@ -18,7 +18,7 @@
     <div class="box" id="subscribed_repositories">
         <div class="box-header">
             <span class="title">Open issues for your subscribed repositories</span>
-            <ul class="box-toolbar">
+            <ul class="unstyled box-toolbar">
                 <li><span class="label label-blue">{{ subscribed_repositories|length }} repo{{ subscribed_repositories|pluralize }}</span></li>
             </ul>
         </div>
@@ -42,27 +42,27 @@
                                 Total
                             </td>
                             {% with count=total_counts.assigned %}
-                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
                                     {{ count }}
                                 </td>
                             {% endwith %}
                             {% with count=total_counts.created %}
-                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
                                     {{ count }}
                                 </td>
                             {% endwith %}
                             {% with count=total_counts.prs %}
-                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
                                     {{ count }}
                                 </td>
                             {% endwith %}
                             {% with count=total_counts.all_prs %}
-                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
                                     {{ count }}
                                 </td>
                             {% endwith %}
                             {% with count=total_counts.all %}
-                                <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
                                     {{ count }}
                                 </td>
                             {% endwith %}
@@ -74,27 +74,27 @@
                                     <a href="{{ repository.get_absolute_url }}" title="View this repository">{{ repository }}</a>
                                 </td>
                                 {% with count=repository.user_counts_open.assigned %}
-                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
                                         <a href="{{ assigned_url }}?state=open">{{ count }}</a>
                                     </td>
                                 {% endwith %}
                                 {% with count=repository.user_counts_open.created %}
-                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
                                         <a href="{{ createdy_url }}?state=open">{{ count }}</a>
                                     </td>
                                 {% endwith %}
                                 {% with count=repository.user_counts_open.prs %}
-                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
                                         <a href="{{ createdy_url }}?state=open&amp;pr=yes">{{ count }}</a>
                                     </td>
                                 {% endwith %}
                                 {% with count=repository.user_counts_open.all_prs %}
-                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
                                         <a href="{{ issues_url }}?state=open&amp;pr=yes">{{ count }}</a>
                                     </td>
                                 {% endwith %}
                                 {% with count=repository.user_counts_open.all %}
-                                    <td class="status-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
+                                    <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
                                         <a href="{{ issues_url }}?state=open">{{ count }}</a>
                                     </td>
                                 {% endwith %}
