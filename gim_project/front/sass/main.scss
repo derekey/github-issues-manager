@@ -5,15 +5,10 @@
 
 @import "compass/css3/box-sizing";
 @import "font-awesome.css";
-
 @import "bootstrap-correct";
-
 @import "variables";
-
 @import "widgets/avatar";
-
-@import "internal-widgets";
-// @import "core-admin-widgets";
+@import "core-admin-widgets";
 
 body {
     font-size: 13px;
@@ -23,22 +18,8 @@ body {
         // leave room on each side
         .navbar-inner {
             padding: 0 20px !important;
-            @if $widgets_base == 'internal' {
-                .container-fluid {
-                    padding-top: 4px;
-                    padding-bottom: 3px;
-                }
-            }
         }
         .user_avatar {
-            @if $widgets_base == 'internal' {
-                // let the avatar take almost the full height
-                img.avatar {
-                    max-height: 32px;
-                    max-width: 32px;
-                    margin: -10px 5px -8px 0;
-                }
-            }
             .caret {
                 vertical-align: middle;
                 margin-top: -3px !important;
@@ -50,10 +31,6 @@ body {
 // leave room at the top for the fixed sidebar
 #main {
     padding-top: $header-top;
-    @if $widgets_base == 'internal' {
-        padding-right: 0;
-        padding-left: 0;
-    }
 }
 
 // leave a margin arround main rows
@@ -101,15 +78,3 @@ body {
     }
 }
 
-@if $widgets_base == 'core-admin' {
-    #issues-filters {
-        background: #11161A;
-        .primary-sidebar {
-            width: 100%;
-        }
-    }
-}
-
-#issues-filters .primary-sidebar {
-    margin-top: $header-top;
-}

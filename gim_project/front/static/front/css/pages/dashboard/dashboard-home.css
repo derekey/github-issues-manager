@@ -1,27 +1,27 @@
-/* line 4, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 2, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 .area-top .btn {
   margin-top: 6px;
 }
 
-/* line 10, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 8, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories td:not(:first-child) {
   text-align: center;
 }
-/* line 13, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 11, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories tbody tr:not(.total) td:not(:first-child) {
   padding: 0;
 }
-/* line 15, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 13, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories tbody tr:not(.total) td:not(:first-child) a {
   color: inherit;
   display: block;
   line-height: 34px;
 }
-/* line 21, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 19, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories tr.total {
   font-weight: bold;
 }
-/* line 25, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 22, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .empty-area {
   position: static;
   font-size: 150%;

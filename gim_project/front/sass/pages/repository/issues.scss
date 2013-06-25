@@ -69,6 +69,11 @@ body#repository_issues #main-inner {
 
 // first column: the filters
 #issues-filters {
+    background: #11161A;
+    .primary-sidebar {
+        width: 100%;
+        margin-top: $header-top;
+    }
     .selection {
         // current selection of a filter
         display: block;
