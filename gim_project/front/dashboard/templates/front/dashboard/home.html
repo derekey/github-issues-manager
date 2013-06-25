@@ -7,8 +7,10 @@
 {% endblock extra_css %}
 
 {% block dashboard-header %}
-    <a class="btn btn-inverse pull-right" href="{% url "front:dashboard:repositories:choose" %} ">Manage your subscriptions to repositories</a>
-    <h3>Your dashboard</h3>
+    <a class="btn btn-inverse pull-right" href="{% url "front:dashboard:repositories:choose" %}">Manage your subscriptions</a>
+    <div class="header">
+        <h3><i class="icon-dashboard"> </i> Your dashboard</h3>
+    </div>
 {% endblock dashboard-header %}
 
 {% block dashboard-main %}
@@ -24,7 +26,7 @@
                             </li>
                         </ul>
                     {% endif %}
-                </div>
+                </div>{# .box-header #}
                 <div class="box-content">
                     {% if subscribed_repositories|length %}
                         <table class="table table-normal">
@@ -109,8 +111,11 @@
                     {% else %}
                         <div class="empty-area">You didn't subscribe to any repositories !</div>
                     {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+                    <div class="box-footer padded">
+                        <a class="btn btn-blue btn-small" href="{% url "front:dashboard:repositories:choose" %}">Manage your subscriptions</a>
+                    </div>
+                </div>{# .box-content #}
+            </div>{# #subscribed_repositories.box #}
+        </div>{# .span6 #}
+    </div>{# .row-fluid #}
 {% endblock dashboard-main %}d

@@ -11,8 +11,10 @@
     {% if available_repositories %}
         {% include "front/include_quicksearch.html" with target="#available-repositories tbody tr" content="td:first-child" class="pull-right" only %}
     {% endif %}
-    <h3>Manage your subscriptions</h3>
-    <h5>Below is the list of all the repositories for which you are able to manage issues.</h5>
+    <div class="header">
+        <h3><i class="icon-reorder"> </i> Manage your subscriptions</h3>
+        <h5>Below is the list of all the repositories for which you are able to manage issues.</h5>
+    </div>
 {% endblock dashboard-header %}
 
 {% block dashboard-main %}
@@ -30,7 +32,7 @@
                                     <td>Yours</td>
                                     <td>Private</td>
                                     <td>Admin</td>
-                                    <td>Subscribe</td>
+                                    <td>Action</td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,29 +88,29 @@
                                             {% if repo_fullname in waiting_subscriptions %}
                                                 <td title="You already asked to subscribe to this repository">
                                                     {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
-                                                        {{ subscription.get_state_display }}
+                                                        {# {{ subscription.get_state_display }} #}
                                                         {% if subscription.can_add_again %}
                                                             <form action="{{ repository_add_url }}" method="post">
                                                                 <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                                                                 <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
-                                                                <button type="submit" class="btn btn-mini" href="" title="Subscribe to this repository again"><i class="icon-plus"> </i></button>
+                                                                <button type="submit" class="btn btn-mini rounded" href="" title="Subscribe to this repository again"><i class="icon-plus"> </i></button>
                                                             </form>
                                                         {% endif %}
                                                         <form action="{{ repository_remove_url }}" method="post">
                                                             <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                                                             <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
-                                                            <button type="submit" class="btn btn-mini" href="" title="Cancel your subscription to this repository"><i class="icon-remove"> </i></button>
+                                                            <button type="submit" class="btn btn-mini rounded" href="" title="Cancel your subscription to this repository"><i class="icon-remove"> </i></button>
                                                         </form>
                                                     {% endwith %}
                                                 </td>
                                             {% elif repo_fullname in subscriptions %}
                                                 <td title="You already subscribed to this repository">
                                                     {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                                        {{ subscription.get_state_display }}
+                                                        {# {{ subscription.get_state_display }} #}
                                                         <form action="{{ repository_remove_url }}" method="post">
                                                             <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                                                             <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
-                                                            <button type="submit" class="btn btn-mini" href="" title="Cancel your subscription to this repository"><i class="icon-remove"> </i></button>
+                                                            <button type="submit" class="btn btn-mini rounded" href="" title="Cancel your subscription to this repository"><i class="icon-remove"> </i></button>
                                                         </form>
                                                     {% endwith %}
                                                 </td>
@@ -117,7 +119,7 @@
                                                     <form action="{{ repository_add_url }}" method="post">
                                                         <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                                                         <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
-                                                        <button type="submit" class="btn btn-mini" href="" title="Subscribe to this repository"><i class="icon-plus"> </i></button>
+                                                        <button type="submit" class="btn btn-mini rounded" href="" title="Subscribe to this repository"><i class="icon-plus"> </i></button>
                                                     </form>
                                                 </td>
                                             {% endif %}

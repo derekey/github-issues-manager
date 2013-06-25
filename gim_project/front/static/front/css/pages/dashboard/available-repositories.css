@@ -1,15 +1,30 @@
-/* line 2, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 4, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#available-repositories thead td:first-child {
+  text-align: left;
+}
+/* line 7, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #available-repositories td:not(:first-child) {
   text-align: center;
 }
-/* line 5, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 10, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #available-repositories form {
   margin: 0;
   padding: 0;
   display: inline-block;
 }
 
-/* line 13, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 18, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #dashboard_subscriptions .quicksearch-widget {
   margin-top: 6px;
+}
+
+/* line 23, ../../../../../sass/pages/dashboard/available-repositories.scss */
+.btn.rounded {
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
 }
