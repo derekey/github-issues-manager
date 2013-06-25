@@ -410,13 +410,6 @@ a.box-header:focus {
   font-size: 14px;
 }
 
-/* line 20, ../../../sass/widgets/_areatop.scss */
-#main-inner > .span12 > .area-top {
-  margin-left: -20px;
-  margin-right: -20px;
-  margin-bottom: 15px;
-}
-
 /* line 5, ../../../sass/widgets/_navbutton.scss */
 .action-nav-normal {
   text-align: center;
@@ -494,44 +487,71 @@ a.box-header:focus {
   padding: 4px 6px;
 }
 
-/* line 17, ../../../sass/main.scss */
+/* line 11, ../../../sass/_internal-widgets.scss */
+table > thead > tr > td {
+  background: #eee;
+  font-weight: bold;
+}
+
+/* line 18, ../../../sass/main.scss */
 body {
   font-size: 13px;
 }
-/* line 19, ../../../sass/main.scss */
+/* line 20, ../../../sass/main.scss */
 body > header {
   margin-bottom: 0;
 }
-/* line 23, ../../../sass/main.scss */
+/* line 24, ../../../sass/main.scss */
 body > header .navbar-inner {
   padding: 0 20px !important;
 }
-/* line 29, ../../../sass/main.scss */
+/* line 27, ../../../sass/main.scss */
+body > header .navbar-inner .container-fluid {
+  padding-top: 4px;
+  padding-bottom: 3px;
+}
+/* line 36, ../../../sass/main.scss */
 body > header .user_avatar img.avatar {
   max-height: 32px;
   max-width: 32px;
   margin: -10px 5px -8px 0;
 }
-/* line 35, ../../../sass/main.scss */
+/* line 42, ../../../sass/main.scss */
 body > header .user_avatar .caret {
   vertical-align: middle;
   margin-top: -3px !important;
 }
 
-/* line 44, ../../../sass/main.scss */
-#main-inner {
-  padding-top: 40px;
+/* line 51, ../../../sass/main.scss */
+#main {
+  padding-top: 47px;
+  padding-right: 0;
+  padding-left: 0;
 }
 
-/* line 49, ../../../sass/main.scss */
+/* line 60, ../../../sass/main.scss */
+#main > .row-fluid {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0 22px;
+}
+
+/* line 65, ../../../sass/main.scss */
+#main > .row-fluid.row-header {
+  padding: 0;
+  margin-bottom: 7px;
+}
+
+/* line 72, ../../../sass/main.scss */
 #messages {
   position: fixed;
-  top: 60px;
+  top: 67px;
   right: 16px;
   z-index: 50;
 }
 
-/* line 57, ../../../sass/main.scss */
+/* line 80, ../../../sass/main.scss */
 .empty-area {
   color: #bbbbbb;
   font-size: 300%;
@@ -545,20 +565,20 @@ body > header .user_avatar .caret {
   margin-top: -1em;
 }
 
-/* line 71, ../../../sass/main.scss */
+/* line 94, ../../../sass/main.scss */
 .content {
   color: #505050;
 }
-/* line 73, ../../../sass/main.scss */
+/* line 96, ../../../sass/main.scss */
 .content br {
   margin: 3px 0;
 }
-/* line 76, ../../../sass/main.scss */
+/* line 99, ../../../sass/main.scss */
 .content p:last-child {
   margin-bottom: 0;
 }
 
-/* line 90, ../../../sass/main.scss */
+/* line 113, ../../../sass/main.scss */
 #issues-filters .primary-sidebar {
-  margin-top: 40px;
+  margin-top: 47px;
 }

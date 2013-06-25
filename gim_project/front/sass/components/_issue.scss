@@ -75,7 +75,6 @@
     }
 
     .issue-comments-count {
-        @extend %issue-comments-count;
         top: 0;
         color: inherit;
     }

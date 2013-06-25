@@ -7,128 +7,130 @@
     <link href="{% static "front/css/pages/dashboard/available-repositories.css" %}" rel="stylesheet">
 {% endblock extra_css %}
 
-{% block main %}
-<div class="span12">
-    <div class="area-top">
-        {% if available_repositories %}
-            {% include "front/include_quicksearch.html" with target="#available-repositories tbody tr" content="td:first-child" class="pull-right" only %}
-        {% endif %}
-        <h3>Manage your subscriptions</h3>
-    </div>
-    <p>
-        Below is the list of all the repositories for which you are able to manage issues.
-    </p>
+{% block dashboard-header %}
+    {% if available_repositories %}
+        {% include "front/include_quicksearch.html" with target="#available-repositories tbody tr" content="td:first-child" class="pull-right" only %}
+    {% endif %}
+    <h3>Manage your subscriptions</h3>
+    <h5>Below is the list of all the repositories for which you are able to manage issues.</h5>
+{% endblock dashboard-header %}
+
+{% block dashboard-main %}
     {% url "front:dashboard:repositories:add" as repository_add_url %}
     {% url "front:dashboard:repositories:remove" as repository_remove_url %}
-
-    {% if available_repositories %}
-        <table class="table table-normal" id="available-repositories">
-            {% for org in available_repositories %}
-                <thead>
-                    <tr>
-                        <th>{% if org.name == '__self__' %}Your (or others){% else %}{{ org.name }}'s{% endif %} repositories</th>
-                        <th>Yours</th>
-                        <th>Private</th>
-                        <th>Admin</th>
-                        <th>Subscribe</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for repo in org.repos %}
-                        {% with repo_fullname=repo.owner|add:"/"|add:repo.name %}
-                            <tr class="{% nospaces %}
-                                {% if repo_fullname in waiting_subscriptions %}
-                                    {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
-                                        {% if subscription.state == 3%}
-                                            error
-                                        {% else %}
-                                            warning
-                                        {% endif %}
-                                    {% endwith %}
-                                {% elif repo_fullname in subscriptions %}
-                                    {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                        {% if subscription.state == 3%}
-                                            error
-                                        {% else %}
-                                            success
-                                        {% endif %}
-                                    {% endwith %}
-                                {% endif %}
-                            {% endnospaces %}">
-                                <td>
-                                    {% if repo_fullname in subscriptions %}
-                                        {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                            {% if subscription.state != 3 %}
-                                                <a href="{{ subscription.repository.get_absolute_url }}" title="View this repository">{{ repo_fullname }}</a>
+    <div class="row-fluid">
+        <div class="span12">
+            {% if available_repositories %}
+                <div class="box" id="available-repositories">
+                    <table class="table table-normal">
+                        {% for org in available_repositories %}
+                            <thead>
+                                <tr>
+                                    <td>{% if org.name == '__self__' %}Your (or others){% else %}{{ org.name }}'s{% endif %} repositories</td>
+                                    <td>Yours</td>
+                                    <td>Private</td>
+                                    <td>Admin</td>
+                                    <td>Subscribe</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for repo in org.repos %}
+                                    {% with repo_fullname=repo.owner|add:"/"|add:repo.name %}
+                                        <tr class="{% nospaces %}
+                                            {% if repo_fullname in waiting_subscriptions %}
+                                                {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
+                                                    {% if subscription.state == 3%}
+                                                        error
+                                                    {% else %}
+                                                        warning
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% elif repo_fullname in subscriptions %}
+                                                {% with subscription=subscriptions|dict_item:repo_fullname %}
+                                                    {% if subscription.state == 3%}
+                                                        error
+                                                    {% else %}
+                                                        success
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% endnospaces %}">
+                                            <td>
+                                                {% if repo_fullname in subscriptions %}
+                                                    {% with subscription=subscriptions|dict_item:repo_fullname %}
+                                                        {% if subscription.state != 3 %}
+                                                            <a href="{{ subscription.repository.get_absolute_url }}" title="View this repository">{{ repo_fullname }}</a>
+                                                        {% else %}
+                                                            {{ repo_fullname }}
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    {{ repo_fullname }}
+                                                {% endif %}
+                                            </td>
+                                            {% if repo.owner == user.username %}
+                                                <td title="You are the owner of this repository"><i class="icon-user"> </i></td>
                                             {% else %}
-                                                {{ repo_fullname }}
+                                                <td>&nbsp;</td>
                                             {% endif %}
-                                        {% endwith %}
-                                    {% else %}
-                                        {{ repo_fullname }}
-                                    {% endif %}
-                                </td>
-                                {% if repo.owner == user.username %}
-                                    <td title="You are the owner of this repository"><i class="icon-user"> </i></td>
-                                {% else %}
-                                    <td>&nbsp;</td>
-                                {% endif %}
-                                {% if repo.private %}
-                                    <td title="This repository is private"><i class="icon-eye-close"> </i></td>
-                                {% else %}
-                                    <td>&nbsp;</td>
-                                {% endif %}
-                                {% if repo.can_admin %}
-                                    <td title="You can admin this repository"><i class="icon-wrench"> </i></td>
-                                {% else %}
-                                    <td>&nbsp;</td>
-                                {% endif %}
-                                {% if repo_fullname in waiting_subscriptions %}
-                                    <td title="You already asked to subscribe to this repository">
-                                        {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
-                                            {{ subscription.get_state_display }}
-                                            {% if subscription.can_add_again %}
-                                                <form action="{{ repository_add_url }}" method="post">
-                                                    <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
-                                                    <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
-                                                    <button type="submit" class="btn btn-mini" href="" title="Subscribe to this repository again"><i class="icon-plus"> </i></button>
-                                                </form>
+                                            {% if repo.private %}
+                                                <td title="This repository is private"><i class="icon-eye-close"> </i></td>
+                                            {% else %}
+                                                <td>&nbsp;</td>
                                             {% endif %}
-                                            <form action="{{ repository_remove_url }}" method="post">
-                                                <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
-                                                <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
-                                                <button type="submit" class="btn btn-mini" href="" title="Cancel your subscription to this repository"><i class="icon-remove"> </i></button>
-                                            </form>
-                                        {% endwith %}
-                                    </td>
-                                {% elif repo_fullname in subscriptions %}
-                                    <td title="You already subscribed to this repository">
-                                        {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                            {{ subscription.get_state_display }}
-                                            <form action="{{ repository_remove_url }}" method="post">
-                                                <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
-                                                <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
-                                                <button type="submit" class="btn btn-mini" href="" title="Cancel your subscription to this repository"><i class="icon-remove"> </i></button>
-                                            </form>
-                                        {% endwith %}
-                                    </td>
-                                {% else %}
-                                    <td>
-                                        <form action="{{ repository_add_url }}" method="post">
-                                            <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
-                                            <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
-                                            <button type="submit" class="btn btn-mini" href="" title="Subscribe to this repository"><i class="icon-plus"> </i></button>
-                                        </form>
-                                    </td>
-                                {% endif %}
-                            </tr>
-                        {% endwith %}
-                    {% endfor %}
-                </tbody>
-            {% endfor %}
-        </table>
-    {% else %}
-        <div class="empty-area">You have no repositories available to use !</div>
-    {% endif %}
-</div>
-{% endblock main %}
+                                            {% if repo.can_admin %}
+                                                <td title="You can admin this repository"><i class="icon-wrench"> </i></td>
+                                            {% else %}
+                                                <td>&nbsp;</td>
+                                            {% endif %}
+                                            {% if repo_fullname in waiting_subscriptions %}
+                                                <td title="You already asked to subscribe to this repository">
+                                                    {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
+                                                        {{ subscription.get_state_display }}
+                                                        {% if subscription.can_add_again %}
+                                                            <form action="{{ repository_add_url }}" method="post">
+                                                                <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                                                                <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+                                                                <button type="submit" class="btn btn-mini" href="" title="Subscribe to this repository again"><i class="icon-plus"> </i></button>
+                                                            </form>
+                                                        {% endif %}
+                                                        <form action="{{ repository_remove_url }}" method="post">
+                                                            <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                                                            <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+                                                            <button type="submit" class="btn btn-mini" href="" title="Cancel your subscription to this repository"><i class="icon-remove"> </i></button>
+                                                        </form>
+                                                    {% endwith %}
+                                                </td>
+                                            {% elif repo_fullname in subscriptions %}
+                                                <td title="You already subscribed to this repository">
+                                                    {% with subscription=subscriptions|dict_item:repo_fullname %}
+                                                        {{ subscription.get_state_display }}
+                                                        <form action="{{ repository_remove_url }}" method="post">
+                                                            <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                                                            <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+                                                            <button type="submit" class="btn btn-mini" href="" title="Cancel your subscription to this repository"><i class="icon-remove"> </i></button>
+                                                        </form>
+                                                    {% endwith %}
+                                                </td>
+                                            {% else %}
+                                                <td>
+                                                    <form action="{{ repository_add_url }}" method="post">
+                                                        <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                                                        <input id="id_name" name="name" type="hidden" value="{{ repo_fullname }}" />
+                                                        <button type="submit" class="btn btn-mini" href="" title="Subscribe to this repository"><i class="icon-plus"> </i></button>
+                                                    </form>
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endwith %}
+                                {% endfor %}
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-area">You have no repositories available to use !</div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock dashboard-main %}

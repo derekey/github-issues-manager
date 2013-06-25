@@ -1,7 +1,5 @@
 $widgets_base: "internal";
 
-$header-top: 40px;
-
 @import "widgets/box";
 @import "widgets/news";
 @import "widgets/chatbox";
@@ -9,3 +7,8 @@ $header-top: 40px;
 @import "widgets/areatop";
 @import "widgets/navbutton";
 @import "widgets/quicksearch";
+
+table > thead > tr > td {
+    background: #eee;
+    font-weight: bold;
+}

@@ -141,7 +141,6 @@ $active-issue-color: #7BC8D7;
         overflow: auto;
     }
     .issue-item-comments-count {
-        @extend %issue-comments-count;
         float: right;
         margin-right: 5px;
         line-height: 24px;

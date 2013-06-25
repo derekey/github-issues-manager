@@ -25,8 +25,11 @@ html, body {
     overflow: hidden;
     padding-right: 0;
     padding-left: 0;
+    padding-top: 0;
 }
-#main-inner {
+body#repository_issues #main-inner {
+    padding: 0;
+    padding-top: $header-top;
     height: 100%;
     @include box-sizing(border-box);
     position: relative;
@@ -37,9 +40,9 @@ html, body {
 // 3 columns, full height, each one is scrollable
 #issues-list-container, #issue {
     margin-left: 0;
-    margin-right: 0;    
+    margin-right: 0;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     position: relative;
 }
 #issues-filters { // col 1, sidebar with fixed width
@@ -56,9 +59,11 @@ html, body {
 #issues-list-container { // col 2
     width: (100%/12*5); // 5 cols of 12
     border-right: solid 1px $dark-border-color;
+    overflow: auto;
 }
 #issue { // col3
     width: (100%/12*7); // 7 cols of 12
+    overflow: auto;
 }
 
 

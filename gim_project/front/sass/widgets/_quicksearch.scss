@@ -1,0 +1,24 @@
+.quicksearch-widget {
+    margin: 0;
+    label {
+        margin: 0;
+    }
+    &.small {
+        $height: 14px;
+        input {
+            width: 103px;
+            height: $height;
+            font-size: 13px;
+        }
+        .input-append .add-on {
+            height: $height;
+            line-height: $height;
+            padding: 4px 1px;
+        }
+        .btn {
+            height: $height;
+            line-height: $height;
+            padding: 4px 6px;
+        }
+    }
+}

@@ -3,6 +3,7 @@
  * Import this file using the following HTML or equivalent:
  * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
 
+@import "compass/css3/box-sizing";
 @import "font-awesome.css";
 
 @import "bootstrap-correct";
@@ -22,6 +23,12 @@ body {
         // leave room on each side
         .navbar-inner {
             padding: 0 20px !important;
+            @if $widgets_base == 'internal' {
+                .container-fluid {
+                    padding-top: 4px;
+                    padding-bottom: 3px;
+                }
+            }
         }
         .user_avatar {
             @if $widgets_base == 'internal' {
@@ -41,8 +48,24 @@ body {
 }
 
 // leave room at the top for the fixed sidebar
-#main-inner {
+#main {
     padding-top: $header-top;
+    @if $widgets_base == 'internal' {
+        padding-right: 0;
+        padding-left: 0;
+    }
+}
+
+// leave a margin arround main rows
+#main > .row-fluid {
+    @include box-sizing(border-box);
+    padding: 0 22px;
+}
+// but not for header ones
+#main > .row-fluid.row-header {
+    padding: 0;
+    margin-bottom: 7px;
+
 }
 
 // message are positionned on the top right corner

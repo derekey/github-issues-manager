@@ -1,15 +1,15 @@
-/* line 3, ../../../../../sass/pages/dashboard/available-repositories.scss */
-#available-repositories th:not(:first-child), #available-repositories td:not(:first-child) {
+/* line 2, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#available-repositories td:not(:first-child) {
   text-align: center;
 }
-/* line 7, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 5, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #available-repositories form {
   margin: 0;
   padding: 0;
   display: inline-block;
 }
 
-/* line 15, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 13, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #dashboard_subscriptions .quicksearch-widget {
   margin-top: 6px;
 }
