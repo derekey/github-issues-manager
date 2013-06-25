@@ -18,9 +18,13 @@
     <div class="box" id="subscribed_repositories">
         <div class="box-header">
             <span class="title">Open issues for your subscribed repositories</span>
-            <ul class="unstyled box-toolbar">
-                <li><span class="label label-blue">{{ subscribed_repositories|length }} repo{{ subscribed_repositories|pluralize }}</span></li>
-            </ul>
+            {% if subscribed_repositories|length %}
+                <ul class="unstyled box-toolbar">
+                    <li>
+                        {% include "front/include_quicksearch.html" with target="#subscribed_repositories tbody tr" content="td:first-child" class="small" only %}
+                    </li>
+                </ul>
+            {% endif %}
         </div>
         <div class="box-content">
             {% if subscribed_repositories|length %}

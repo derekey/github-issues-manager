@@ -467,6 +467,33 @@ a.box-header:focus {
   display: block;
 }
 
+/* line 1, ../../../sass/widgets/_quicksearch.scss */
+.quicksearch-widget {
+  margin: 0;
+}
+/* line 3, ../../../sass/widgets/_quicksearch.scss */
+.quicksearch-widget label {
+  margin: 0;
+}
+/* line 8, ../../../sass/widgets/_quicksearch.scss */
+.quicksearch-widget.small input {
+  width: 103px;
+  height: 14px;
+  font-size: 13px;
+}
+/* line 13, ../../../sass/widgets/_quicksearch.scss */
+.quicksearch-widget.small .input-append .add-on {
+  height: 14px;
+  line-height: 14px;
+  padding: 4px 1px;
+}
+/* line 18, ../../../sass/widgets/_quicksearch.scss */
+.quicksearch-widget.small .btn {
+  height: 14px;
+  line-height: 14px;
+  padding: 4px 6px;
+}
+
 /* line 17, ../../../sass/main.scss */
 body {
   font-size: 13px;
