@@ -1,11 +1,26 @@
 @import "compass/css3/border-radius";
 
 #available-repositories {
-    thead td:first-child {
-        text-align: left;
+    thead {
+        td:first-child {
+            text-align: left;
+        }
+        &:not(:first-child) {
+            td {
+                border-top: solid 5px #cdcdcd;
+            }
+        }
     }
-    td:not(:first-child) {
-        text-align: center;
+    td {
+        &:not(:first-child) {
+            text-align: center;
+        }
+        a {
+            color: inherit;
+        }
+        span.smaller {
+            font-size: smaller;
+        }
     }
     form {
         margin: 0;
@@ -18,10 +33,4 @@
     .quicksearch-widget {
         margin-top: 6px;
     }
-}
-
-.btn.rounded {
-    @include border-radius(50%);
-    width: 20px;
-    height: 20px;
 }

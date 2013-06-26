@@ -21,13 +21,18 @@
 #subscribed_repositories tr.total {
   font-weight: bold;
 }
-/* line 22, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 21, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories tr.total td:first-child span {
+  font-weight: normal;
+  font-size: smaller;
+}
+/* line 26, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .empty-area {
   position: static;
   font-size: 150%;
   margin: 0;
 }
-/* line 28, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 32, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .box-footer {
   text-align: center;
 }

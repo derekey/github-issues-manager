@@ -44,7 +44,7 @@
                             <tbody>
                                 <tr class="total">
                                     <td>
-                                        Total
+                                        Total<span> ({{ subscribed_repositories|length }} repositor{{ subscribed_repositories|length|pluralize:"y,ies" }})</span>
                                     </td>
                                     {% with count=total_counts.assigned %}
                                         <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">
