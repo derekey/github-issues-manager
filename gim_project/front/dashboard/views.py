@@ -6,6 +6,7 @@ from ..views import SubscribedRepositoriesMixin
 
 class DashboardHome(SubscribedRepositoriesMixin, ListView):
     template_name = 'front/dashboard/home.html'
+    url_name = 'front:dashboard:home'
 
     def get_context_data(self, **kwargs):
         context = super(DashboardHome, self).get_context_data(**kwargs)

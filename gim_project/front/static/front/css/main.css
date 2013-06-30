@@ -3375,7 +3375,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
 }
 
 /* line 70, ../../../sass/_core-admin-correct.scss */
-.navbar-inverse .nav .active > a, .navbar-inverse .nav .active > a:hover, .navbar-inverse .nav .active > a:focus {
+.navbar-inverse .nav .dropdown .active > a, .navbar-inverse .nav .dropdown .active > a:hover, .navbar-inverse .nav .dropdown .active > a:focus {
   color: inherit;
 }
 

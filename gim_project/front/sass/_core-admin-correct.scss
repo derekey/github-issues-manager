@@ -66,7 +66,7 @@ $label-match-colors: success green, important red, info blue, warning purple, in
 }
 
 // replace the white color of active item in navbar menu
-.navbar-inverse .nav .active {
+.navbar-inverse .nav .dropdown .active {
     & > a, & > a:hover, & > a:focus {
         color: inherit;
     }

@@ -84,6 +84,7 @@ class RemoveRepositoryView(ToggleRepositoryBaseView):
 
 class ChooseRepositoryView(TemplateView):
     template_name = 'front/dashboard/repositories/choose.html'
+    url_name = 'front:dashboard:repositories:choose'
 
     def get_waiting_subscriptions(self):
         """

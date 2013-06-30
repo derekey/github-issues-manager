@@ -3,6 +3,25 @@
 {% block body_classes %}dashboard{% endblock %}
 {% block title %}Your dashboard{% endblock title %}
 
+{% block header_nav %}
+    <ul class="nav">
+        <li{% if view.url_name == "front:dashboard:home" %} class="active"{% endif %}>
+            <a role="menuitem" href="{% url "front:dashboard:home" %}">
+                <i class="icon-dashboard"> </i>
+                Dashboard
+            </a>
+        </li>
+        <li{% if view.url_name == "front:dashboard:repositories:choose" %} class="active"{% endif %}>
+            <a role="menuitem" href="{% url "front:dashboard:repositories:choose" %}">
+                <i class="icon-ok-sign"> </i>
+                Subscriptions
+            </a>
+        </li>
+
+    </ul>
+{% endblock header_nav %}
+
+
 {% block main %}
     <div class="row-fluid row-header">
         <div class="span12">
