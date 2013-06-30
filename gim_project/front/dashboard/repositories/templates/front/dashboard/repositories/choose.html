@@ -12,8 +12,8 @@
         {% include "front/include_quicksearch.html" with target="#available-repositories tbody tr" content="td:first-child" class="pull-right" only %}
     {% endif %}
     <div class="header">
-        <h3><i class="icon-reorder"> </i> Manage your subscriptions</h3>
-        <h5>Below is the list of all the repositories for which you are able to manage issues.</h5>
+        <h3><i class="icon-ok-sign"> </i> Manage your subscriptions</h3>
+        <h5>Choose for which repositories you want to manage issues.</h5>
     </div>
 {% endblock dashboard-header %}
 
@@ -21,19 +21,39 @@
     {% url "front:dashboard:repositories:add" as repository_add_url %}
     {% url "front:dashboard:repositories:remove" as repository_remove_url %}
     <div class="row-fluid">
-        <div class="span12">
+        <div class="span10 offset1">
+            <p>In this list are only shown repositories you can see/push/admin, and which can accept issues</p>
             {% if available_repositories %}
                 <div class="box" id="available-repositories">
                     <table class="table table-normal">
                         {% for org in available_repositories %}
                             <thead>
+                                {% if forloop.counter == 1 and available_repositories|length > 1 %}
+                                    <tr>
+                                        <td>
+                                            Repository
+                                        </td>
+                                        <td>Subscribed</td>
+                                        <td>Yours</td>
+                                        <td>Private</td>
+                                        <td>Admin</td>
+                                        <td>Action</td>
+                                    </tr>
+                                {% endif %}
                                 <tr>
-                                    <td>{% if org.name == '__self__' %}Your (or others){% else %}{{ org.name }}'s{% endif %} repositories</td>
-                                    <td>Subscribed</td>
-                                    <td>Yours</td>
-                                    <td>Private</td>
-                                    <td>Admin</td>
-                                    <td>Action</td>
+                                    <td colspan="6">
+                                        {% if org.name == '__self__' %}
+                                            <img class="avatar-tiny img-circle" src="{{ user.avatar_url }}" />
+                                            Repositories you own/participate
+                                        {% else %}
+                                            {% with organization=organizations_by_name|dict_item:org.name %}
+                                                {% if organization %}
+                                                    <img class="avatar-tiny img-circle" src="{{ organization.avatar_url }}" />
+                                                {% endif %}
+                                            {% endwith %}
+                                            {{ org.name }}'s repositories
+                                        {% endif %} 
+                                    </td>
                                 </tr>
                             </thead>
                             <tbody>

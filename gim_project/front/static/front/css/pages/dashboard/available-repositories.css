@@ -2,30 +2,26 @@
 #available-repositories thead td:first-child {
   text-align: left;
 }
-/* line 9, ../../../../../sass/pages/dashboard/available-repositories.scss */
-#available-repositories thead:not(:first-child) td {
-  border-top: solid 5px #cdcdcd;
-}
-/* line 15, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 10, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #available-repositories td:not(:first-child) {
   text-align: center;
 }
-/* line 18, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 13, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #available-repositories td a {
   color: inherit;
 }
-/* line 21, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 16, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #available-repositories td span.smaller {
   font-size: smaller;
 }
-/* line 25, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 20, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #available-repositories form {
   margin: 0;
   padding: 0;
   display: inline-block;
 }
 
-/* line 33, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 28, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #dashboard_subscriptions .quicksearch-widget {
   margin-top: 6px;
 }

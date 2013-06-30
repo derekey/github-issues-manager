@@ -5,11 +5,6 @@
         td:first-child {
             text-align: left;
         }
-        &:not(:first-child) {
-            td {
-                border-top: solid 5px #cdcdcd;
-            }
-        }
     }
     td {
         &:not(:first-child) {

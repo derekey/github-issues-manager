@@ -99,9 +99,11 @@ class ChooseRepositoryView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(ChooseRepositoryView, self).get_context_data(*args, **kwargs)
+        organizations_by_name = dict((org.username, org) for org in self.request.user.organizations.all())
         context.update({
             'available_repositories': self.request.user.available_repositories,
             'waiting_subscriptions': self.get_waiting_subscriptions(),
-            'subscriptions': self.get_subscriptions()
+            'subscriptions': self.get_subscriptions(),
+            'organizations_by_name': organizations_by_name,
         })
         return context
