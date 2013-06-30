@@ -44,8 +44,7 @@ class AddRepositoryView(ToggleRepositoryBaseView):
         # create the waiting subscription if not exists
         subscription, created = WaitingSubscription.objects.get_or_create(
             user=self.request.user,
-            repository_name=name,
-            is_admin=form.can_use == 'admin'
+            repository_name=name
         )
 
         if not created:
@@ -62,7 +61,7 @@ class AddRepositoryView(ToggleRepositoryBaseView):
         else:
             if repository.fetched_at:
                 message = 'Your subscription to <strong>%s</strong> was just added'
-                subscription.convert()
+                subscription.convert(form.can_use)
 
         messages.success(self.request, message % name)
 

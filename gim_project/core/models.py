@@ -397,17 +397,20 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             # loop on each returned repository
             for datum in data:
                 permissions = datum.get('permissions', {'admin': False, 'pull': True, 'push': False})
+                can_pull = permissions.get('pull', False)
                 can_admin = permissions.get('admin', False)
                 can_push = permissions.get('push', False)
                 has_issues = datum.get('has_issues', False)
 
-                if has_issues and (can_admin or can_push):
+                if can_pull:
                     repos_list.append({
                         'name': datum['name'],
                         'owner': datum['owner']['login'],
                         'private': datum.get('private', False),
                         'pushed_at': datum['pushed_at'],
-                        'can_admin': can_admin,
+                        'has_issues': has_issues,
+                        'rights': "admin" if can_admin else "push" if can_push else "read",
+                        'is_fork': datum.get('fork', False),
                     })
 
             # check if we have a next page
@@ -472,16 +475,15 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
     def can_use_repository(self, repository):
         """
-        Return 'admin' or 'push' if the user can use this repository ('admin' if
-        he has admin rights, else 'push')
+        Return 'admin', 'push' or 'read' if the user can use this repository
+        ('admin' if he has admin rights, 'push' if push rights, else 'read')
         The repository can be a real repository object, a tuple with two entries
         (the owner's username and the repository name), or a string on the
         github format: "username/reponame"
-        The use can use this repository if it has issues and admin or push
-        rights.
+        The user can use this repository if it has admin/push/read rights.
         It's done by fetching the repository via the github api, and if the
-        users can use it, the repository is updated (if it's a real repository
-        object).
+        users can push/admin it, the repository is updated (if it's a real
+        repository object).
         The result will be None if a problem occured during the check.
         """
         gh = self.get_connection()
@@ -513,14 +515,15 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             return False
 
         permissions = repo_infos.get('permissions', {'admin': False, 'pull': True, 'push': False})
-        can_admin = permissions.get('admin', False)
-        can_push = permissions.get('push', False)
-        has_issues = repo_infos.get('has_issues', False)
 
-        if has_issues and (can_admin or can_push):
-            if is_real_repository:
+        if permissions.get('pull', False):
+            can_admin = permissions.get('admin', False)
+            can_push = permissions.get('push', False)
+
+            if is_real_repository and (can_admin or can_push):
                 Repository.objects.create_or_update_from_dict(repo_infos)
-            return 'admin' if can_admin else 'push'
+
+            return 'admin' if can_admin else 'push' if can_push else 'read'
 
         return False
 

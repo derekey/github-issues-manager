@@ -22,7 +22,6 @@
     {% url "front:dashboard:repositories:remove" as repository_remove_url %}
     <div class="row-fluid">
         <div class="span10 offset1">
-            <p>In this list are only shown repositories you can see/push/admin, and which can accept issues</p>
             {% if available_repositories %}
                 <div class="box" id="available-repositories">
                     <table class="table table-normal">
@@ -36,12 +35,13 @@
                                         <td>Subscribed</td>
                                         <td>Yours</td>
                                         <td>Private</td>
-                                        <td>Admin</td>
+                                        <td>Infos</td>
+                                        <td>Rights</td>
                                         <td>Action</td>
                                     </tr>
                                 {% endif %}
                                 <tr>
-                                    <td colspan="6">
+                                    <td colspan="7">
                                         {% if org.name == '__self__' %}
                                             <img class="avatar-tiny img-circle" src="{{ user.avatar_url }}" />
                                             Repositories you own/participate
@@ -93,7 +93,7 @@
                                             </td>
                                             {% if repo_fullname in subscriptions %}
                                                 {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                                    <td><i class="icon-ok"> </i> <span class="smaller">(as {{ subscription.get_state_display|lower }})</span></td>
+                                                    <td><i class="icon-ok"> </i> <span class="smaller">({{ subscription.get_state_display|lower }})</span></td>
                                                 {% endwith %}
                                             {% elif repo_fullname in waiting_subscriptions %}
                                                 {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
@@ -112,8 +112,22 @@
                                             {% else %}
                                                 <td>&nbsp;</td>
                                             {% endif %}
-                                            {% if repo.can_admin %}
+                                            <td title="This repository{% if repo.is_fork %} is a fork and{% endif %} can have pull-requests {% if repo.has_issues %} and issues{% else %} but no issues{% endif %}">
+                                                {% if repo.is_fork %}
+                                                    <i class="icon-random"> </i>
+                                                {% endif %}
+                                                {% if repo.has_issues %}
+                                                    <i class="icon-ok"> </i>
+                                                {% else %}
+                                                    <i class="icon-remove"> </i>
+                                                {% endif %}
+                                            </td>
+                                            {% if repo.rights == "admin" %}
                                                 <td title="You can admin this repository"><i class="icon-wrench"> </i></td>
+                                            {% elif repo.rights == "push" %}
+                                                <td title="You can work on this repository"><i class="icon-pencil"> </i></td>
+                                            {% elif repo.rights == "read" %}
+                                                <td title="You can read this repository"><i class="icon-eye-open"> </i></td>
                                             {% else %}
                                                 <td>&nbsp;</td>
                                             {% endif %}

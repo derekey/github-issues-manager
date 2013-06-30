@@ -86,11 +86,10 @@ class AddRepositoryForm(ToggleRepositoryBaseForm):
             self.can_use = self.user.can_use_repository(name)
             if self.can_use is None:
                 raise forms.ValidationError('Cannot check if you are allowed '
-                                            'to work on this repository')
+                                            'to subscribe to this repository')
             elif not self.can_use:
-                raise forms.ValidationError('You are not allowed to work on '
-                                            'this repository (or it has no '
-                                            'issues)')
+                raise forms.ValidationError('You are not allowed to subscribe '
+                                            'to this repository')
 
         return cleaned_data
 
