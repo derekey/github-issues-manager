@@ -551,6 +551,7 @@ $().ready(function() {
         var container = IssuesList.get_issue_html_container();
         if (container.$node.data('issue-number') != issue_number) { return; }
         container.$node.html(html);
+        container.$node.scrollTop(0);
         if (container.$window) {
             container.$window.modal("show");
         }
