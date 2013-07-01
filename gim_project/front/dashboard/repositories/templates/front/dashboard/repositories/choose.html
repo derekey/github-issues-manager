@@ -67,7 +67,7 @@
                                                 <tr class="{% nospaces %}
                                                     {% if repo_fullname in waiting_subscriptions %}
                                                         {% with subscription=waiting_subscriptions|dict_item:repo_fullname %}
-                                                            {% if subscription.state == 3%}
+                                                            {% if subscription.state == 3 %}
                                                                 status-error
                                                             {% else %}
                                                                 status-warning
@@ -75,7 +75,7 @@
                                                         {% endwith %}
                                                     {% elif repo_fullname in subscriptions %}
                                                         {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                                            {% if subscription.state == 3%}
+                                                            {% if subscription.state == 4 %}
                                                                 status-error
                                                             {% else %}
                                                                 status-success
@@ -86,7 +86,7 @@
                                                     <td>
                                                         {% if repo_fullname in subscriptions %}
                                                             {% with subscription=subscriptions|dict_item:repo_fullname %}
-                                                                {% if subscription.state != 3 %}
+                                                                {% if subscription.state != 4 %}
                                                                     <a href="{{ subscription.repository.get_absolute_url }}" title="View this repository">{{ repo_fullname }}</a>
                                                                 {% else %}
                                                                     {{ repo_fullname }}
