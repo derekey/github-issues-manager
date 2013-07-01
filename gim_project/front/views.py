@@ -52,13 +52,19 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
     """
     model = Repository
 
+    @property
+    def subscriptions(self):
+        if not hasattr(self, '_subscriptions'):
+            self._subscriptions = list(self.request.user.subscriptions.exclude(
+                                            state=SUBSCRIPTION_STATES.NORIGHTS))
+        return self._subscriptions
+
     def get_queryset(self):
         """
         Limit repositories to the ones subscribed by the user
         """
         queryset = super(SubscribedRepositoriesMixin, self).get_queryset()
-        repo_ids = self.request.user.subscriptions.exclude(
-            state=SUBSCRIPTION_STATES.NORIGHTS).values_list('repository_id', flat=True)
+        repo_ids = [s.id for s in self.subscriptions]
         return queryset.filter(id__in=repo_ids)
 
     def get_context_data(self, **kwargs):
@@ -68,6 +74,7 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
         """
         context = super(SubscribedRepositoriesMixin, self).get_context_data(**kwargs)
 
-        context['subscribed_repositories'] = list(self.get_queryset().all().select_related('owner'))
+        context['subscribed_repositories'] = list(
+                            self.get_queryset().all().select_related('owner'))
 
         return context
