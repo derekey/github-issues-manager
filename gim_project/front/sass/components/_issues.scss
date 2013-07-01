@@ -62,7 +62,7 @@ $active-issue-color: #7BC8D7;
     padding: 5px;
     padding-top: 0;
     position: relative;
-    min-height: 0;
+    min-height: 80px;
     color: $body-text-color;
 
     // the header with : pull-request flag, milestone, and time
@@ -128,10 +128,12 @@ $active-issue-color: #7BC8D7;
     .news-title {
         font-size: 14px;
         margin-bottom: 5px;
-        min-height: 40px;
         .label {
             margin-left: 3px;
         }
+    }
+    .avatar {
+        margin-bottom: 5px;
     }
     .issue-link {
         outline: none !important;
@@ -139,6 +141,9 @@ $active-issue-color: #7BC8D7;
     }
     .issue-item-footer {
         overflow: auto;
+    }
+    .issue-item-footer.with-labels {
+        clear: both;
     }
     .issue-item-comments-count {
         float: right;

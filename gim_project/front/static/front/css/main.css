@@ -125,7 +125,14 @@ blockquote p:last-child {
 }
 
 /* line 3, ../../../sass/widgets/_avatar.scss */
+.avatar img {
+  display: inline-block;
+}
+
+/* line 6, ../../../sass/widgets/_avatar.scss */
 .avatar-small {
+  display: inline-block;
+  overflow: hidden;
   height: 36px;
   width: 36px;
   max-height: 36px;
@@ -135,8 +142,10 @@ blockquote p:last-child {
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
 }
 
-/* line 10, ../../../sass/widgets/_avatar.scss */
+/* line 15, ../../../sass/widgets/_avatar.scss */
 .avatar-tiny {
+  display: inline-block;
+  overflow: hidden;
   height: 24px;
   width: 24px;
   max-height: 24px;

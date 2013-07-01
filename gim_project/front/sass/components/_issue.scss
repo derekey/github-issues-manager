@@ -17,6 +17,7 @@
         }
         @extend %issue-state-marker;
         padding-bottom: 5px;
+        min-height: 95px;
     }
     .issue-pull-request {
         position: absolute;

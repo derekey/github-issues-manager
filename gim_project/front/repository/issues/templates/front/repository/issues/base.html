@@ -454,39 +454,41 @@
                                             </a>
                                         </div>
                                     </div>
-                                    <div class="issue-item-footer">
-                                        {% if issue.assignee %}
-                                            {% cache 60 isses-list-assignee current_repository.id issues_filter.querystring_with_user issue.assignee.id %}
-                                                <a href="{% if issues_filter.objects.current_assigned == issue.assignee.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_assigned:issue.assignee }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" title="Assigned to {{ issue.assignee.username }}. Click to {% if issues_filter.objects.current_assigned == issue.assignee.username %}stop filtering{% else %}filter{% endif %} issues assigned to {{ issue.assignee.username }}" class="issue-item-assignee"><i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url }}"></a>
-                                            {% endcache %}
-                                        {% endif %}
-                                        {% if issue.comments_count %}
-                                            <div class="issue-item-comments-count" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">
-                                                <i class="icon-comments-alt"> </i>{{ issue.comments_count }}
-                                            </div>
-                                        {% endif %}
-                                        <div class="issue-item-labels"><!--
-                                            {% for label in issue.labels.all %}
-                                                {% if label.label_type_id %}
-                                                    {% cache 60 isses-list-label current_repository.id issues_filter.querystring_with_user label.id %}
-                                                        {% attributes_for_list label.label_type.labels.all "name" as label_names %}
-                                                        --><a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}#issue-{{ issue.number }}" title="Click to {% if label.name in issues_filter.parts.labels %}stop filtering{% else %}filter{% endif %} on this {{ label.label_type.name }}" style="border-bottom-color: #{{ label.color }}">
-                                                            <strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}
-                                                        </a><!--
-                                                    {% endcache %}
-                                                {% endif %}
-                                            {% endfor %}
-                                            {% for label in issue.labels.all %}
-                                                {% if not label.label_type_id %}
-                                                    {% cache 60 isses-list-label current_repository.id issues_filter.querystring_with_user label.id %}
-                                                        --><a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}#issue-{{ issue.number }}" title="Click to {% if label.name in issues_filter.parts.labels %}remove the{% else %}add a{% endif %} filter on this label" style="border-bottom: solid 3px #{{ label.color }}">
-                                                            {{ label.name }}
-                                                        </a><!--
-                                                    {% endcache %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        --></div>
-                                    </div>
+                                    {% with issue_labels=issue.labels.all %}
+                                        <div class="issue-item-footer{% if issue_labels %} with-labels{% endif %}">
+                                            {% if issue.assignee %}
+                                                {% cache 60 isses-list-assignee current_repository.id issues_filter.querystring_with_user issue.assignee.id %}
+                                                    <a href="{% if issues_filter.objects.current_assigned == issue.assignee.username %}{{ root_issues_url }}{% else %}{{ current_repository|base_url_issues_filtered_by_assigned:issue.assignee }}{% endif %}{{ issues_filter.querystring }}#issue-{{ issue.number }}" title="Assigned to {{ issue.assignee.username }}. Click to {% if issues_filter.objects.current_assigned == issue.assignee.username %}stop filtering{% else %}filter{% endif %} issues assigned to {{ issue.assignee.username }}" class="issue-item-assignee"><i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url }}"></a>
+                                                {% endcache %}
+                                            {% endif %}
+                                            {% if issue.comments_count %}
+                                                <div class="issue-item-comments-count" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">
+                                                    <i class="icon-comments-alt"> </i>{{ issue.comments_count }}
+                                                </div>
+                                            {% endif %}
+                                            <div class="issue-item-labels"><!--
+                                                {% for label in issue_labels %}
+                                                    {% if label.label_type_id %}
+                                                        {% cache 60 isses-list-label current_repository.id issues_filter.querystring_with_user label.id %}
+                                                            {% attributes_for_list label.label_type.labels.all "name" as label_names %}
+                                                            --><a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}#issue-{{ issue.number }}" title="Click to {% if label.name in issues_filter.parts.labels %}stop filtering{% else %}filter{% endif %} on this {{ label.label_type.name }}" style="border-bottom-color: #{{ label.color }}">
+                                                                <strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}
+                                                            </a><!--
+                                                        {% endcache %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% for label in issue_labels %}
+                                                    {% if not label.label_type_id %}
+                                                        {% cache 60 isses-list-label current_repository.id issues_filter.querystring_with_user label.id %}
+                                                            --><a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}#issue-{{ issue.number }}" title="Click to {% if label.name in issues_filter.parts.labels %}remove the{% else %}add a{% endif %} filter on this label" style="border-bottom: solid 3px #{{ label.color }}">
+                                                                {{ label.name }}
+                                                            </a><!--
+                                                        {% endcache %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            --></div>
+                                        </div>
+                                    {% endwith %}
                                 </li>
                             {% endfor %}
                         </ul>
