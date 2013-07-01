@@ -16,11 +16,20 @@
         span.smaller {
             font-size: smaller;
         }
+        form {
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+        }
     }
-    form {
-        margin: 0;
-        padding: 0;
-        display: inline-block;
+    .box-footer {
+        form {
+            margin-bottom: 0;
+            .input-append {
+                margin-bottom: 0;
+                display: block;
+            }
+        }
     }
 }
 

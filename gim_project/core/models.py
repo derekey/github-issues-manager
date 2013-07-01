@@ -534,6 +534,8 @@ class Repository(GithubObjectWithId):
     description = models.TextField(blank=True, null=True)
     collaborators = models.ManyToManyField(GithubUser, related_name='repositories')
     private = models.BooleanField(default=False)
+    is_fork = models.BooleanField(default=False)
+    has_issues = models.BooleanField(default=False)
 
     collaborators_fetched_at = models.DateTimeField(blank=True, null=True)
     milestones_fetched_at = models.DateTimeField(blank=True, null=True)
@@ -542,6 +544,11 @@ class Repository(GithubObjectWithId):
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
 
     objects = RepositoryManager()
+
+    github_matching = dict(GithubObjectWithId.github_matching)
+    github_matching.update({
+        'fork': 'is_fork',
+    })
 
     class Meta:
         unique_together = (

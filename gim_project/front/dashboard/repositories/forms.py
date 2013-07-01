@@ -89,7 +89,8 @@ class AddRepositoryForm(ToggleRepositoryBaseForm):
                                             'to subscribe to this repository')
             elif not self.can_use:
                 raise forms.ValidationError('You are not allowed to subscribe '
-                                            'to this repository')
+                                            'to this repository (maybe it does '
+                                            'not exist ?)')
 
         return cleaned_data
 

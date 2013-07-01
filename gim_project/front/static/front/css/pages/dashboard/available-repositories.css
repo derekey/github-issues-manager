@@ -14,14 +14,23 @@
 #available-repositories td span.smaller {
   font-size: smaller;
 }
-/* line 20, ../../../../../sass/pages/dashboard/available-repositories.scss */
-#available-repositories form {
+/* line 19, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#available-repositories td form {
   margin: 0;
   padding: 0;
   display: inline-block;
 }
-
+/* line 26, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#available-repositories .box-footer form {
+  margin-bottom: 0;
+}
 /* line 28, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#available-repositories .box-footer form .input-append {
+  margin-bottom: 0;
+  display: block;
+}
+
+/* line 37, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #dashboard_subscriptions .quicksearch-widget {
   margin-top: 6px;
 }

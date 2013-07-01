@@ -4,7 +4,9 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 
 from core.models import Repository
-from subscriptions.models import WaitingSubscription, WAITING_SUBSCRIPTION_STATES
+from subscriptions.models import (WaitingSubscription,
+                                  WAITING_SUBSCRIPTION_STATES,
+                                  SUBSCRIPTION_STATES, )
 
 from ...views import BaseFrontViewMixin
 from .forms import AddRepositoryForm, RemoveRepositoryForm
@@ -99,11 +101,46 @@ class ChooseRepositoryView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(ChooseRepositoryView, self).get_context_data(*args, **kwargs)
+
         organizations_by_name = dict((org.username, org) for org in self.request.user.organizations.all())
+
+        available_repos = set()
+        for org in self.request.user.available_repositories or []:
+            available_repos.update(['%s/%s' % (rep['owner'], rep['name']) for rep in org['repos']])
+
+        waiting_subscriptions = self.get_waiting_subscriptions()
+        subscriptions = self.get_subscriptions()
+
+        # manage repositories that are not in user.available_repositories
+        others_repos = {
+            'name': '__others__',
+            'repos': [],
+        }
+        for repo_name, subscription in waiting_subscriptions.iteritems():
+            if repo_name not in available_repos:
+                owner, name = subscription.repository_name.split('/')
+                others_repos['repos'].append({
+                    'no_infos': True,
+                    'owner': owner,
+                    'name': name
+                })
+        for repo_name, subscription in subscriptions.iteritems():
+            if repo_name not in available_repos:
+                others_repos['repos'].append({
+                    'owner': subscription.repository.owner.username,
+                    'name': subscription.repository.name,
+                    'private': subscription.repository.private,
+                    'is_fork': subscription.repository.is_fork,
+                    'has_issues': subscription.repository.has_issues,
+                    'rights': 'admin' if subscription.state == SUBSCRIPTION_STATES.ADMIN \
+                                      else 'push' if subscription.state == SUBSCRIPTION_STATES.USER \
+                                      else 'read'
+                })
+
         context.update({
-            'available_repositories': self.request.user.available_repositories,
-            'waiting_subscriptions': self.get_waiting_subscriptions(),
-            'subscriptions': self.get_subscriptions(),
+            'available_repositories': self.request.user.available_repositories + [others_repos],
+            'waiting_subscriptions': waiting_subscriptions,
+            'subscriptions': subscriptions,
             'organizations_by_name': organizations_by_name,
         })
         return context
