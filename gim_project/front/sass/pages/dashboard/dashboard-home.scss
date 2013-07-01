@@ -5,6 +5,9 @@
 }
 
 #subscribed_repositories {
+    table {
+        table-layout: fixed;
+    }
     td:not(:first-child) {
         text-align: center;        
     }
@@ -21,6 +24,13 @@
         td:first-child span {
             font-weight: normal;
             font-size: smaller;
+        }
+    }
+    td.repository {
+        a {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
     .empty-area {

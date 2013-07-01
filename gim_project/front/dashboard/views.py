@@ -25,16 +25,26 @@ class DashboardHome(SubscribedRepositoriesMixin, ListView):
 
         for repository in repositories:
             repository.user_counts_open = {
-                'all_prs': repository.issues.filter(state='open', is_pull_request=True).count(),
+                'all_prs': repository.issues.filter(state='open',
+                                                    is_pull_request=True).count(),
                 'all': repository.issues.filter(state='open').count(),
             }
+
+            repository.user_counts_open['created'] = repository.issues.filter(
+                                    state='open', user=self.request.user).count()
+
+            # count prs only if we have issues (no issues = no prs)
+            if repository.user_counts_open['created']:
+                repository.user_counts_open['prs'] = repository.issues.filter(
+                    state='open', is_pull_request=True, user=self.request.user).count()
+            else:
+                repository.user_counts_open['prs'] = 0
+
+            # count assigned only if owner or collaborator
             subscription = subscription_by_repo_id.get(repository.id, None)
             if subscription and subscription.state != SUBSCRIPTION_STATES.READ:
-                repository.user_counts_open.update({
-                    'assigned': repository.issues.filter(state='open', assignee=self.request.user).count(),
-                    'created': repository.issues.filter(state='open', user=self.request.user).count(),
-                    'prs': repository.issues.filter(state='open', is_pull_request=True, user=self.request.user).count(),
-                })
+                repository.user_counts_open['assigned'] = repository.issues.filter(
+                                    state='open', assignee=self.request.user).count()
 
             for key, count in repository.user_counts_open.items():
                 total_counts[key] += count
