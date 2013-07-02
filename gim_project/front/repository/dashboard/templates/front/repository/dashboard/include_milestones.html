@@ -1,0 +1,37 @@
+<div class="box" id="milestones">
+    <div class="box-header">
+        <span class="title">Milestones</span>
+    </div>{# .box-header #}
+    <div class="box-content">
+        {% if milestones|length %}
+            <table class="table table-normal">
+                <thead>
+                </thead>
+                <tbody>
+                    {% for milestone in milestones %}
+                        <tr>
+                            <td>
+                                {{ milestone.title }}
+                                <div class="progress"{% if not milestone.issues_count %} title="No issues"{% endif %}>
+                                    {% if milestone.issues_count %}
+                                        {% if milestone.closed_issues_count %}
+                                            <div class="bar bar-green" style="width: {{ milestone.closed_issues_percent }}%;" title="{{ milestone.closed_issues_count }} issue{{ milestone.closed_issues_count|pluralize }} closed"></div>
+                                        {% endif %}
+                                        {% if milestone.assigned_issues_count %}
+                                            <div class="bar bar-orange" style="width: {{ milestone.assigned_issues_percent }}%;" title="{{ milestone.assigned_issues_count }} issue{{ milestone.assigned_issues_count|pluralize }} assigned"></div>
+                                        {% endif %}
+                                        {% if milestone.non_assigned_issues_count %}
+                                            <div class="bar bar-red" style="width: {{ milestone.non_assigned_issues_percent }}%;" title="{{ milestone.non_assigned_issues_count }} issue{{ milestone.non_assigned_issues_count|pluralize }} non assigned"></div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-area">No milestones for this repository</div>
+        {% endif %}
+    </div>{# .box-content #}
+</div>{# .box#milestones #}

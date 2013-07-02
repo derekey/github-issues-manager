@@ -6,18 +6,8 @@ from django.views.generic import DetailView
 from ..views import SubscribedRepositoriesMixin
 
 
-class BaseRepositoryView(SubscribedRepositoriesMixin, DetailView):
-    # details vue attributes
-    template_name = 'front/repository/base.html'
+class RepositoryMixin(SubscribedRepositoriesMixin, DetailView):
     context_object_name = 'current_repository'
-
-    # specific attributes to define in subclasses
-    name = None
-    url_name = None
-    default_qs = None
-
-    # internal attributes
-    main_views = []
 
     def get_object(self, queryset=None):
         """
@@ -35,9 +25,22 @@ class BaseRepositoryView(SubscribedRepositoriesMixin, DetailView):
             'name': repository_name
         }
 
-        repository = get_object_or_404(queryset.select_related('owner'), **filters)
+        self.repository = get_object_or_404(queryset.select_related('owner'), **filters)
 
-        return repository
+        return self.repository
+
+
+class BaseRepositoryView(RepositoryMixin):
+    # details vue attributes
+    template_name = 'front/repository/base.html'
+
+    # specific attributes to define in subclasses
+    name = None
+    url_name = None
+    default_qs = None
+
+    # internal attributes
+    main_views = []
 
     @classonlymethod
     def as_view(cls, *args, **kwargs):
@@ -65,12 +68,9 @@ class BaseRepositoryView(SubscribedRepositoriesMixin, DetailView):
         """
         context = super(BaseRepositoryView, self).get_context_data(**kwargs)
 
-        # quick access to repository
-        repository = context['current_repository']
-
         # we need a list of all main views for this repository
         repo_main_views = []
-        reverse_kwargs = repository.get_reverse_kwargs()
+        reverse_kwargs = self.repository.get_reverse_kwargs()
         for view_class in BaseRepositoryView.main_views:
             main_view = {
                 'url_name': view_class.url_name,

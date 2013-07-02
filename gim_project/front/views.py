@@ -70,11 +70,10 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
     def get_context_data(self, **kwargs):
         """
         Add the list of subscribed repositories in the context, in a variable
-        named "subscribed_repositories". The list is not lazy !
+        named "subscribed_repositories".
         """
         context = super(SubscribedRepositoriesMixin, self).get_context_data(**kwargs)
 
-        context['subscribed_repositories'] = list(
-                            self.get_queryset().all().select_related('owner'))
+        context['subscribed_repositories'] = self.get_queryset().all().select_related('owner')
 
         return context

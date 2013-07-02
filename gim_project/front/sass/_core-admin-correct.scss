@@ -1,3 +1,4 @@
+@import "compass/css3/box-shadow";
 @import "compass/css3/text-shadow";
 @import "mixin_helpers";
 @import "badges";
@@ -69,5 +70,23 @@ $label-match-colors: success green, important red, info blue, warning purple, in
 .navbar-inverse .nav .dropdown .active {
     & > a, & > a:hover, & > a:focus {
         color: inherit;
+    }
+}
+
+// correct border of multiple parts of progress bars
+.progress {
+    .bar {
+        @include border-radius(0);
+        border-right-width : 0 !important;
+        &:first-child {
+            @include border-radius(8px 0 0 8px);
+        }
+        &:last-child {
+            @include border-radius(0 8px 8px 0);
+            border-right-width : 1px !important;
+        }
+        & + .bar {
+            @include box-shadow(none);            
+        }
     }
 }

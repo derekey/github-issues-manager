@@ -66,6 +66,14 @@ body {
     line-height: 2em;
     margin-top: -1em;
 }
+.box-content {
+    .empty-area {
+        position: static;
+        font-size: 150%;
+        margin: 0;
+
+    }
+}
 
 // style for readble blocks
 .content {

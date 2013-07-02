@@ -37,12 +37,6 @@
   text-overflow: ellipsis;
 }
 /* line 36, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#subscribed_repositories .empty-area {
-  position: static;
-  font-size: 150%;
-  margin: 0;
-}
-/* line 42, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .box-footer {
   text-align: center;
 }

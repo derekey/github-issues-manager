@@ -26,7 +26,7 @@ class IssuesView(BaseRepositoryView):
     allowed_group_by_fields_matching = {'creator': 'user', 'assigned': 'assignee', 'pull-request': 'is_pull_request', 'closed by': 'closed_by'}
     default_sort = ('created', 'desc')
 
-    def _get_state(self, repository, qs_parts):
+    def _get_state(self, qs_parts):
         """
         Return the valid state to use, or None
         """
@@ -35,7 +35,7 @@ class IssuesView(BaseRepositoryView):
             return state
         return None
 
-    def _get_is_pull_request(self, repository, qs_parts):
+    def _get_is_pull_request(self, qs_parts):
         """
         Return the valid "is_pull_request" flag to use, or None
         """
@@ -44,7 +44,7 @@ class IssuesView(BaseRepositoryView):
             return True if is_pull_request == 'yes' else False
         return None
 
-    def _get_milestone(self, repository, qs_parts):
+    def _get_milestone(self, qs_parts):
         """
         Return the valid milestone to use, or None.
         A valid milestone can be "none" or a real Milestone object, based on a
@@ -54,7 +54,7 @@ class IssuesView(BaseRepositoryView):
         if milestone_number and isinstance(milestone_number, basestring):
             if milestone_number.isdigit():
                 try:
-                    milestone = repository.milestones.get(number=milestone_number)
+                    milestone = self.repository.milestones.get(number=milestone_number)
                 except Milestone.DoesNotExist:
                     pass
                 else:
@@ -63,7 +63,7 @@ class IssuesView(BaseRepositoryView):
                 return 'none'
         return None
 
-    def _get_labels(self, repository, qs_parts):
+    def _get_labels(self, qs_parts):
         """
         Return the list of valid labels to use. The result is a list of Label
         objects, based on names found on the querystring
@@ -73,9 +73,9 @@ class IssuesView(BaseRepositoryView):
             return None
         if not isinstance(label_names, list):
             label_names = [label_names]
-        return list(repository.labels.filter(name__in=label_names))
+        return list(self.repository.labels.filter(name__in=label_names))
 
-    def _get_group_by(self, repository, qs_parts):
+    def _get_group_by(self, qs_parts):
         """
         Return the group_by field to use, and the direction.
         The group_by field can be either an allowed string, or an existing
@@ -93,7 +93,7 @@ class IssuesView(BaseRepositoryView):
             # group by a label type
             label_type_name = group_by[5:]
             try:
-                label_type = repository.label_types.get(name=label_type_name)
+                label_type = self.repository.label_types.get(name=label_type_name)
             except LabelType.DoesNotExist:
                 pass
             else:
@@ -110,7 +110,7 @@ class IssuesView(BaseRepositoryView):
 
         return None, None
 
-    def _get_sort(self, repository, qs_parts):
+    def _get_sort(self, qs_parts):
         """
         Return the sort field to use, and the direction. If one or both are
         invalid, the default ones are used
@@ -129,7 +129,6 @@ class IssuesView(BaseRepositoryView):
         and check parts that can be applied to filter issues, and return
         an issues queryset ready to use
         """
-        repository = context['current_repository']
         qs_parts = self.get_qs_parts(context)
 
         qs_filters = {}
@@ -138,18 +137,18 @@ class IssuesView(BaseRepositoryView):
         query_filters = {}
 
         # filter by state
-        state = self._get_state(repository, qs_parts)
+        state = self._get_state(qs_parts)
         if state is not None:
             qs_filters['state'] = filter_objects['state'] = query_filters['state'] = state
 
         # filter by pull request status
-        is_pull_request = self._get_is_pull_request(repository, qs_parts)
+        is_pull_request = self._get_is_pull_request(qs_parts)
         if is_pull_request is not None:
             qs_filters['pr'] = self.allowed_prs[is_pull_request]
             filter_objects['pr'] = query_filters['is_pull_request'] = is_pull_request
 
         # filter by milestone
-        milestone = self._get_milestone(repository, qs_parts)
+        milestone = self._get_milestone(qs_parts)
         if milestone is not None:
             filter_objects['milestone'] = milestone
             if milestone == 'none':
@@ -160,7 +159,7 @@ class IssuesView(BaseRepositoryView):
                 query_filters['milestone__number'] = milestone.number
 
         # the base queryset with the current filter
-        queryset = repository.issues.filter(**query_filters).select_related(
+        queryset = self.repository.issues.filter(**query_filters).select_related(
                 'user',  # we may have a lot of different ones
             ).prefetch_related(
                 'assignee', 'closed_by', 'milestone',  # we should have only a few ones for each
@@ -168,7 +167,7 @@ class IssuesView(BaseRepositoryView):
             )
 
         # now filter by labels
-        labels = self._get_labels(repository, qs_parts)
+        labels = self._get_labels(qs_parts)
         if labels:
             filter_objects['labels'] = labels
             filter_objects['current_label_types'] = {}
@@ -186,7 +185,7 @@ class IssuesView(BaseRepositoryView):
         order_by = []
 
         # do we need to group by a field ?
-        group_by, group_by_direction = self._get_group_by(repository, qs_parts)
+        group_by, group_by_direction = self._get_group_by(qs_parts)
         if group_by is not None:
             filter_objects['group_by_direction'] = qs_filters['group_by_direction'] = group_by_direction
             if isinstance(group_by, basestring):
@@ -200,7 +199,7 @@ class IssuesView(BaseRepositoryView):
                 filter_objects['group_by_field'] = 'label_type_grouper'
 
         # and finally, asked ordering
-        sort, sort_direction = self._get_sort(repository, qs_parts)
+        sort, sort_direction = self._get_sort(qs_parts)
         qs_filters['sort'] = filter_objects['sort'] = sort
         qs_filters['direction'] = filter_objects['direction'] = sort_direction
         order_by.append('%s%s_at' % ('-' if sort_direction == 'desc' else '', sort))
@@ -220,26 +219,25 @@ class IssuesView(BaseRepositoryView):
         Set default content for the issue views
         """
         context = super(IssuesView, self).get_context_data(**kwargs)
-        repository = context['current_repository']
 
         # get the list of issues
         issues, filter_context = self.get_issues_for_context(context)
 
         # get the list of label types
-        label_types = repository.label_types.all().prefetch_related('labels')
+        label_types = self.repository.label_types.all().prefetch_related('labels')
 
         # final context
-        issues_url = repository.get_view_url(IssuesView.url_name)
+        issues_url = self.repository.get_view_url(IssuesView.url_name)
 
         issues_filter = self.prepare_issues_filter_context(filter_context)
         context.update({
             'root_issues_url': issues_url,
             'current_issues_url': issues_url,
             'issues_filter': issues_filter,
-            'issues_creators': repository.issues_creators.all(),
-            'issues_assigned': repository.issues_assigned.all(),
-            'issues_closers': repository.issues_closers.all(),
-            'no_assigned_filter_url': repository.get_issues_user_filter_url_for_username('assigned', 'none'),
+            'issues_creators': self.repository.issues_creators.all(),
+            'issues_assigned': self.repository.issues_assigned.all(),
+            'issues_closers': self.repository.issues_closers.all(),
+            'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', 'none'),
             'qs_parts_for_ttags': issues_filter['parts'],
             'label_types': label_types,
         })
@@ -336,7 +334,7 @@ class UserIssuesView(IssuesView):
     user_filter_types_matching = {'created_by': 'user', 'assigned': 'assignee', 'closed_by': 'closed_by'}
     allowed_filters = IssuesView.allowed_filters + user_filter_types
 
-    def _get_user_filter(self, repository, qs_parts):
+    def _get_user_filter(self, qs_parts):
         """
         Return the user filter type used, and the user to filter on. The user
         can be either the string "none", or a GithubUser object
@@ -363,10 +361,9 @@ class UserIssuesView(IssuesView):
         to issues, or their creator or the one who closed them
         """
         queryset, filter_context = super(UserIssuesView, self).get_issues_for_context(context)
-        repository = context['current_repository']
         qs_parts = self.get_qs_parts(context)
 
-        user_filter_type, user = self._get_user_filter(repository, qs_parts)
+        user_filter_type, user = self._get_user_filter(qs_parts)
         if user_filter_type and user:
             filter_context['filter_objects']['user'] = user
             filter_context['filter_objects']['user_filter_type'] = user_filter_type
@@ -386,13 +383,12 @@ class UserIssuesView(IssuesView):
         Set the current base url for issues for this view
         """
         context = super(UserIssuesView, self).get_context_data(**kwargs)
-        repository = context['current_repository']
 
         user_filter_type = context['issues_filter']['objects'].get('user_filter_type', None)
         user_filter_user = context['issues_filter']['objects'].get('user', None)
         if user_filter_type and user_filter_user:
             context['issues_filter']['objects']['current_%s' % user_filter_type] = context['issues_filter']['parts']['username']
-            current_issues_url_kwargs = repository.get_reverse_kwargs()
+            current_issues_url_kwargs = self.repository.get_reverse_kwargs()
             current_issues_url_kwargs.update({
                 'user_filter_type': user_filter_type,
                 'username': user_filter_user,
@@ -415,8 +411,7 @@ class IssueView(UserIssuesView):
         """
         issue = None
         if 'issue_number' in self.kwargs:
-            repository = context['current_repository']
-            issue = repository.issues.select_related(
+            issue = self.repository.issues.select_related(
                     'user',  'assignee', 'closed_by', 'milestone',
                 ).prefetch_related(
                     'labels__label_type'
@@ -431,7 +426,6 @@ class IssueView(UserIssuesView):
         user, the comment's count as "count", and a list of types (one or many
         of "owner", "collaborator", "submitter") as "types"
         """
-        repository = context['current_repository']
         collaborators_ids = context['collaborators_ids']
 
         involved = SortedDict({
@@ -452,7 +446,7 @@ class IssueView(UserIssuesView):
         involved = involved.values()
         for involved_user in involved:
             involved_user['types'] = []
-            if involved_user['user'].id == repository.owner_id:
+            if involved_user['user'].id == self.repository.owner_id:
                 involved_user['types'].append('owner')
             elif involved_user['user'].id in collaborators_ids:
                 involved_user['types'].append('collaborator')
@@ -486,8 +480,7 @@ class IssueView(UserIssuesView):
 
         # fetch other useful data
         if current_issue:
-            repository = context['current_repository']
-            context['collaborators_ids'] = repository.collaborators.all().values_list('id', flat=True)
+            context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
             comments = list(current_issue.comments.select_related('user'))
             involved = self.get_involved_people(current_issue, comments, context)
         else:
