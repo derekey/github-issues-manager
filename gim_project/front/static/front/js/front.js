@@ -1,5 +1,7 @@
 $().ready(function() {
 
+    var $document = $(document);
+
     var Ev = {
         stop_event_decorate: (function stop_event_decorate(callback) {
             /* Return a function to use as a callback for an event
@@ -73,7 +75,7 @@ $().ready(function() {
     }); // IssuesListIssue_on_issue_node_event
 
     IssuesListIssue.init_events = (function IssuesListIssue_init_events () {
-        $(document).on('click', IssuesListIssue.link_selector, IssuesListIssue.on_issue_node_event('on_click', true));
+        $document.on('click', IssuesListIssue.link_selector, IssuesListIssue.on_issue_node_event('on_click', true));
     });
 
     IssuesListIssue.prototype.on_click = (function IssuesListIssue__on_click (e) {
@@ -233,9 +235,9 @@ $().ready(function() {
     }); // IssuesListGroup_on_current_group_key_event
 
     IssuesListGroup.init_events = (function IssuesListGroup_init_events () {
-        $(document).on('click', IssuesListGroup.link_selector, IssuesListGroup.on_group_node_event('on_click', true));
-        $(document).on('show', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_show'));
-        $(document).on('hide', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_hide'));
+        $document.on('click', IssuesListGroup.link_selector, IssuesListGroup.on_group_node_event('on_click', true));
+        $document.on('show', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_show'));
+        $document.on('hide', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_hide'));
         jwerty.key('o/→', IssuesListGroup.on_current_group_key_event('open', true));
         jwerty.key('c/←', IssuesListGroup.on_current_group_key_event('close', true));
         jwerty.key('t', IssuesListGroup.on_current_group_key_event('toggle'));
@@ -676,7 +678,7 @@ $().ready(function() {
             IssueByNumber.$window.on('shown', IssueByNumber.on_shown);
             IssueByNumber.$form.on('submit', Ev.stop_event_decorate(IssueByNumber.on_submit));
         }) // IssueByNumber_init_events
-    };
+    }; // IssueByNumber
 
     IssueByNumber.init_events();
 
@@ -692,10 +694,10 @@ $().ready(function() {
 
     // keyboard events
     jwerty.key('f', Ev.key_decorate(on_resize_issue_click));
-    $(document).on('click', '#resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
-    $(document).on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
-    $(document).on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
-    $(document).on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));
+    $document.on('click', '#resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
+    $document.on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
+    $document.on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
+    $document.on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));
 
     if ($('#show-shortcuts').length) {
         jwerty.key('?/⇧+slash', Ev.key_decorate(on_help));  // slash is "/" (shift+/ = "?" on qwerty keyboard)
@@ -781,5 +783,40 @@ $().ready(function() {
         });
     });
     activate_quicksearches();
+
+
+    var prepare_milestones = (function prepare_milestones (init_events) {
+        var selector = '#milestones',
+            $milestones = $(selector);
+
+        if (!$milestones.length) { return; }
+
+        $milestones.find('input[name="show-closed-milestones"]').iButton({
+            labelOn: 'With closed',
+            labelOff: 'Without closed',
+            className: 'no-text-transform'
+        });
+        $milestones.find('input[name="show-empty-milestones"]').iButton({
+            labelOn: 'With empty',
+            labelOff: 'Without empty',
+            className: 'no-text-transform'
+        });
+
+        if (init_events) {
+
+            $document.on('change', 'input[name=show-closed-milestones], input[name=show-empty-milestones]', function() {
+                $(this).closest(selector).trigger('reload');
+            });
+
+            $document.on('reloaded', selector, function() {
+                prepare_milestones();
+            });
+            
+        } // if init_events
+
+    });
+    prepare_milestones(true);
+
+    $('.deferrable').deferrable();
 
 });

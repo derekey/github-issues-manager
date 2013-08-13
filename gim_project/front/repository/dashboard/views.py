@@ -1,5 +1,6 @@
 
 from django.db.models import Count
+from django.core.urlresolvers import reverse_lazy
 
 from ..views import BaseRepositoryView, RepositoryMixin
 
@@ -25,8 +26,20 @@ class RepositoryDashboardPartView(RepositoryMixin):
 
     def get_as_deferred(self):
         return {
-            'defer_url': self.url_name
+            'defer_url': self.part_url
         }
+
+    @property
+    def part_url(self):
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        return reverse_lazy('front:repository:%s' % self.url_name, kwargs=reverse_kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RepositoryDashboardPartView, self).get_context_data(**kwargs)
+        context.update({
+            'defer_url': self.part_url,
+        })
+        return context
 
 
 class MilestonesPart(RepositoryDashboardPartView):
@@ -39,7 +52,7 @@ class MilestonesPart(RepositoryDashboardPartView):
         if not self.request.GET.get('show-closed-milestones', False):
             queryset = queryset.filter(state='open')
 
-        if not self.request.GET.get('show-emppty-milestones', False):
+        if not self.request.GET.get('show-empty-milestones', False):
             queryset = queryset.exclude(issues_count=0)
 
         milestones = list(reversed(queryset))
@@ -62,7 +75,11 @@ class MilestonesPart(RepositoryDashboardPartView):
 
     def get_context_data(self, **kwargs):
         context = super(MilestonesPart, self).get_context_data(**kwargs)
-        context['milestones'] = self.get_milestones()
+        context.update({
+            'milestones': self.get_milestones(),
+            'show_closed_milestones': self.request.GET.get('show-closed-milestones', False),
+            'show_empty_milestones': self.request.GET.get('show-empty-milestones', False),
+        })
         return context
 
 

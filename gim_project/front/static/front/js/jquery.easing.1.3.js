@@ -1,0 +1,1 @@
+../../../core-admin/javascripts/vendor/ibutton/jquery.easing.1.3.js

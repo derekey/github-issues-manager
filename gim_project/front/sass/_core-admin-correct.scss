@@ -90,3 +90,9 @@ $label-match-colors: success green, important red, info blue, warning purple, in
         }
     }
 }
+
+.ibutton-container.no-text-transform > {
+    .ibutton-label-on, .ibutton-label-off {
+        text-transform: none;
+    }
+}
