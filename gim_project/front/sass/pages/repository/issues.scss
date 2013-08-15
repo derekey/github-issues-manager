@@ -73,6 +73,14 @@ body#repository_issues #main-inner {
     .primary-sidebar {
         width: 100%;
         margin-top: $header-top;
+        .nav > li { 
+            & > a {
+                color: #bbb;
+            }
+            &:hover a {
+                color: white;
+            }
+        }
     }
     .selection {
         // current selection of a filter
