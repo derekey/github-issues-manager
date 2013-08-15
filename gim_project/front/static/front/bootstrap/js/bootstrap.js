@@ -518,18 +518,26 @@
         , scroll
         , actives
         , hasData
+        , $parent = this.$parent
 
       if (this.transitioning || this.$element.hasClass('in')) return
 
       dimension = this.dimension()
       scroll = $.camelCase(['scroll', dimension].join('-'))
-      actives = this.$parent && this.$parent.find('> .accordion-group > .in')
+      actives = $parent && $parent.find('.in')
 
       if (actives && actives.length) {
         hasData = actives.data('collapse')
         if (hasData && hasData.transitioning) return
         actives.collapse('hide')
         hasData || actives.data('collapse', null)
+        actives.each(function() {
+          var $active = $(this)
+          if (!$active.data('trigger')) {
+            $active.data('trigger', $parent.find('[data-toggle=collapse][data-target=#' + $active.attr('id') + ']'))
+          }
+          $active.data('trigger').addClass('collapsed')
+        })
       }
 
       this.$element[dimension](0)
