@@ -1,0 +1,83 @@
+{% load repository_tags issues_tags %}
+<div class="box deferrable" id="counters" data-url="{{ defer_url }}">
+    <div class="box-content">
+        <table class="table table-normal">
+            <thead>
+                <tr>
+                    <td colspan="2">Your opened issues</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:user createdy_url=current_repository|base_url_issues_filtered_by_created_by:user issues_url=current_repository|repository_view_url:'issues' %}
+                    {% if counters.assigned or counters.assigned == 0 %}
+                        <tr>
+                            <td>Assigned to you</td>
+                            {% with count=counters.assigned %}
+                                <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
+                                    <a href="{{ assigned_url }}?state=open">{{ count }}</a>
+                                </td>
+                            {% endwith %}
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td>Created by you</td>
+                        {% with count=counters.created %}
+                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
+                                <a href="{{ createdy_url }}?state=open">{{ count }}</a>
+                            </td>
+                        {% endwith %}
+                    </tr>
+                    {% comment %} Unable to actually manage urls for more than one filter on people
+                    <tr>
+                        <td>Created by you, not assigned</td>
+                        {% with count=counters.created_na %}
+                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
+                                <a href="">{{ count }}</a>
+                            </td>
+                        {% endwith %}
+                    </tr>
+                    {% endcomment %}
+                    <tr>
+                        <td>You pull requests</td>
+                        {% with count=counters.prs %}
+                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
+                                <a href="{{ createdy_url }}?state=open&amp;pr=yes">{{ count }}</a>
+                            </td>
+                        {% endwith %}
+                    </tr>
+                </tbody>
+                <thead>
+                    <tr>
+                        <td colspan="2">All opened issues</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>All opened</td>
+                        {% with count=counters.all %}
+                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
+                                <a href="{{ issues_url }}?state=open">{{ count }}</a>
+                            </td>
+                        {% endwith %}
+                    </tr>
+                    <tr>
+                        <td>All opened, not assigned</td>
+                        {% with count=counters.all_na %}
+                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
+                                <a href="{{ current_repository|base_url_issues_filtered_by_assigned:'none' }}?state=open">{{ count }}</a>
+                            </td>
+                        {% endwith %}
+                    </tr>
+                    <tr>
+                        <td>All pull requests</td>
+                        {% with count=counters.all_prs %}
+                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
+                                <a href="{{ issues_url }}?state=open&amp;pr=yes">{{ count }}</a>
+                            </td>
+                        {% endwith %}
+                    </tr>
+                {% endwith %}
+            </tbody>
+        </table>
+    </div>{# .box-content #}
+</div>{# .box#counters #}

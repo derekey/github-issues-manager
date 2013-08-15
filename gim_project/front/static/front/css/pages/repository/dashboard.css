@@ -60,3 +60,17 @@
 #milestones .box-section > h3:not(.collapsed) ~ div.progress span {
   opacity: 1;
 }
+
+/* line 56, ../../../../../sass/pages/repository/dashboard.scss */
+#counters table {
+  font-weight: bold;
+}
+/* line 59, ../../../../../sass/pages/repository/dashboard.scss */
+#counters td:last-child {
+  text-align: center;
+}
+/* line 61, ../../../../../sass/pages/repository/dashboard.scss */
+#counters td:last-child a {
+  color: inherit;
+  display: block;
+}

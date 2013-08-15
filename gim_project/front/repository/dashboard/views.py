@@ -5,6 +5,7 @@ from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy
 
 from ..views import BaseRepositoryView, RepositoryMixin
+from subscriptions.models import Subscription, SUBSCRIPTION_STATES
 
 
 class RepositoryDashboardPartView(RepositoryMixin):
@@ -102,6 +103,50 @@ class MilestonesPart(RepositoryDashboardPartView):
         return context
 
 
+class CountersPart(RepositoryDashboardPartView):
+    template_name = 'front/repository/dashboard/include_counters.html'
+    url_name = 'dashboard.counters'
+
+    def get_counters(self):
+        counters = {}
+
+        base_filter = self.repository.issues.filter(state='open')
+
+        counters['all'] = base_filter.count()
+
+        # count non assigned/prs only if we have issues (no issues = no non-assigned)
+        if counters['all']:
+            counters['all_na'] = base_filter.filter(assignee__isnull=True).count()
+            counters['all_prs'] = base_filter.filter(is_pull_request=True).count()
+        else:
+            counters['all_na'] = counters['all_prs'] = 0
+
+
+        counters['created'] = base_filter.filter(user=self.request.user).count()
+        # Unable to actually manage more urls for than one filter on people
+        # counters['created_na'] = base_filter.filter(user=self.request.user, assignee__isnull=True).count()
+
+        # count prs only if we have issues (no issues = no prs)
+        if counters['created']:
+            counters['prs'] = base_filter.filter(is_pull_request=True, user=self.request.user).count()
+        else:
+            counters['prs'] = 0
+
+        # count assigned only if owner or collaborator
+        subscription = Subscription.objects.filter(repository=self.repository, user=self.request.user)
+        if len(subscription) and subscription[0].state != SUBSCRIPTION_STATES.READ:
+            counters['assigned'] = base_filter.filter(assignee=self.request.user).count()
+
+        return counters
+
+    def get_context_data(self, **kwargs):
+        context = super(CountersPart, self).get_context_data(**kwargs)
+        context.update({
+            'counters': self.get_counters(),
+        })
+        return context
+
+
 class DashboardView(BaseRepositoryView):
     name = 'Dashboard'
     url_name = 'dashboard'
@@ -112,5 +157,6 @@ class DashboardView(BaseRepositoryView):
 
         context['parts'] = {}
         context['parts']['milestones'] = MilestonesPart().get_as_part(self)
+        context['parts']['counters'] = CountersPart().get_as_part(self)
 
         return context

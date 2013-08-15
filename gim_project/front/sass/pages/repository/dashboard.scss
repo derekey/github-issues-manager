@@ -51,3 +51,16 @@
 
     }
 }
+
+#counters {
+    table {
+        font-weight: bold;
+    }
+    td:last-child {
+        text-align: center;
+        a {
+            color: inherit;
+            display: block;
+        }
+    }
+}
