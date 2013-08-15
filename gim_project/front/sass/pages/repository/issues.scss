@@ -77,7 +77,9 @@ body#repository_issues #main-inner {
     .selection {
         // current selection of a filter
         display: block;
-        padding: 0 15px;
+        padding: 0 {
+            left: 10px;
+        }
         line-height: 10px;
         font-weight: normal;
     }
