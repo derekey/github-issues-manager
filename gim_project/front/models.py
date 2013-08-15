@@ -27,6 +27,10 @@ class _Repository(models.Model):
         return reverse_lazy('front:repository:%s' % url_name,
                                   kwargs=self.get_reverse_kwargs())
 
+    def get_issues_filter_url(self):
+        kwargs = self.get_reverse_kwargs()
+        return reverse('front:repository:issues', kwargs=kwargs)
+
     def get_issues_user_filter_url_for_username(self, filter_type, username):
         """
         Return the url to filter issues of this repositories by filter_type, for

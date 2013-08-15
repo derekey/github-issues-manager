@@ -19,13 +19,13 @@
                     <div class="progress"{% if not milestone.issues_count %} title="No issues"{% endif %}>
                         {% if milestone.issues_count %}
                             {% if milestone.closed_issues_count %}
-                                <div class="bar bar-green" style="width: {{ milestone.closed_issues_percent }}%;" title="{{ milestone.closed_issues_count }} issue{{ milestone.closed_issues_count|pluralize }} closed"><span>{{ milestone.closed_issues_count }}</span></div>
+                                <div class="bar bar-green" style="width: {{ milestone.closed_issues_percent }}%;" title="{{ milestone.closed_issues_count }} issue{{ milestone.closed_issues_count|pluralize }} closed"><a href="{{ milestone.closed_issues_url }}"><span>{{ milestone.closed_issues_count }}</span></a></div>
                             {% endif %}
                             {% if milestone.assigned_issues_count %}
-                                <div class="bar bar-orange" style="width: {{ milestone.assigned_issues_percent }}%;" title="{{ milestone.assigned_issues_count }} issue{{ milestone.assigned_issues_count|pluralize }} assigned"><span>{{ milestone.assigned_issues_count }}</span></div>
+                                <div class="bar bar-orange" style="width: {{ milestone.assigned_issues_percent }}%;" title="{{ milestone.assigned_issues_count }} issue{{ milestone.assigned_issues_count|pluralize }} assigned"><a href="{{ milestone.assigned_issues_url }}"><span>{{ milestone.assigned_issues_count }}</span></a></div>
                             {% endif %}
                             {% if milestone.non_assigned_issues_count %}
-                                <div class="bar bar-red" style="width: {{ milestone.non_assigned_issues_percent }}%;" title="{{ milestone.non_assigned_issues_count }} issue{{ milestone.non_assigned_issues_count|pluralize }} non assigned"><span>{{ milestone.non_assigned_issues_count }}</span></div>
+                                <div class="bar bar-red" style="width: {{ milestone.non_assigned_issues_percent }}%;" title="{{ milestone.non_assigned_issues_count }} issue{{ milestone.non_assigned_issues_count|pluralize }} non assigned"><a href="{{ milestone.non_assigned_issues_url }}"><span>{{ milestone.non_assigned_issues_count }}</span></a></div>
                             {% endif %}
                         {% endif %}
                     </div>

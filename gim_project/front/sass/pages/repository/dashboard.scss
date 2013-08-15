@@ -23,6 +23,10 @@
         & > div.progress {
             clear: both;
             @include transition(height 0.35s);
+            a {
+                display: block;
+                color: inherit;
+            }
             span {
                 opacity: 0;
                 font-weight: bold;
