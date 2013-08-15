@@ -1,4 +1,6 @@
 
+from markdown import markdown
+
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy
 
@@ -58,6 +60,10 @@ class MilestonesPart(RepositoryDashboardPartView):
         milestones = list(reversed(queryset))
 
         for milestone in milestones:
+            if milestone.description:
+                # no way to get the html version from github :(
+                milestone.description = markdown(milestone.description)
+
             if milestone.issues_count:
                 milestone.non_assigned_issues_count = milestone.issues.filter(state='open', assignee__isnull=True).count()
                 milestone.assigned_issues_count = milestone.issues.filter(state='open', assignee__isnull=False).count()

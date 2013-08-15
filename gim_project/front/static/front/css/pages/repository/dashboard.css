@@ -1,0 +1,57 @@
+/* line 4, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section {
+  padding: 15px;
+  padding-bottom: 0;
+}
+/* line 8, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > h3 {
+  float: left;
+  margin: 0;
+  margin-bottom: 5px;
+  font-size: 16px;
+  line-height: normal;
+  cursor: pointer;
+}
+/* line 17, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > .date {
+  float: right;
+  font-style: italic;
+  opacity: 0;
+  -webkit-transition: opacity 0.35s;
+  -moz-transition: opacity 0.35s;
+  -o-transition: opacity 0.35s;
+  transition: opacity 0.35s;
+}
+/* line 23, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > div.progress {
+  clear: both;
+  -webkit-transition: height 0.35s;
+  -moz-transition: height 0.35s;
+  -o-transition: height 0.35s;
+  transition: height 0.35s;
+}
+/* line 26, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > div.progress span {
+  opacity: 0;
+  font-weight: bold;
+  -webkit-transition: opacity 0.35s;
+  -moz-transition: opacity 0.35s;
+  -o-transition: opacity 0.35s;
+  transition: opacity 0.35s;
+}
+/* line 32, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > blockquote {
+  margin: -10px 0 15px;
+}
+/* line 37, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > h3:not(.collapsed) ~ .date {
+  opacity: 1;
+}
+/* line 40, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > h3:not(.collapsed) ~ div.progress {
+  height: 20px;
+}
+/* line 42, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > h3:not(.collapsed) ~ div.progress span {
+  opacity: 1;
+}

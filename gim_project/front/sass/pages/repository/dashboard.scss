@@ -1,0 +1,49 @@
+@import "compass/css3/transition";
+
+#milestones {
+    .box-section {
+        padding: 15px {
+            bottom: 0;
+        }
+        & > h3 {
+            float: left;
+            margin: 0 {
+                bottom: 5px;
+            }
+            font-size: 16px;
+            line-height: normal;
+            cursor: pointer;
+        }
+        & > .date {
+            float: right;
+            font-style: italic;
+            opacity: 0;
+            @include transition(opacity 0.35s);
+        }
+        & > div.progress {
+            clear: both;
+            @include transition(height 0.35s);
+            span {
+                opacity: 0;
+                font-weight: bold;
+                @include transition(opacity 0.35s);
+            }
+        }
+        & > blockquote {
+            margin: -10px 0 15px;
+        }
+
+        & > h3:not(.collapsed) {
+            & ~ .date {
+                opacity: 1;
+            }
+            & ~ div.progress {
+                height: 20px;
+                span {
+                    opacity: 1;
+                }
+            }
+        }
+
+    }
+}

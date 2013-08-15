@@ -414,16 +414,16 @@
                                 <li id="issue-{{ issue.number }}" class="box-section news issue-item{% if current_issue.id == issue.id %} active{% endif %} state-{{ issue.state }}" data-issue-number="{{ issue.number }}">
                                     <div class="issue-item-header">
                                         <div class="issue-item-times">
-                                            <span title="Created on {{ issue.created_at|date }}">{{ issue.created_at|ago:True }}</span>
+                                            <span title="Created on {{ issue.created_at|date:"DATETIME_FORMAT" }}">{{ issue.created_at|ago:True }}</span>
                                             {% if issue.state == 'closed' %}
                                                 {% if issues.updated_at > issue.closed_at %}
-                                                    <i class="icon-caret-right"> </i> <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date }}, updated on {{ issue.updated_at|date }}">{{ issue.updated_at|ago:True }}</span>
+                                                    <i class="icon-caret-right"> </i> <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date:"DATETIME_FORMAT" }}, updated on {{ issue.updated_at|date:"DATETIME_FORMAT" }}">{{ issue.updated_at|ago:True }}</span>
                                                 {% else %}
-                                                    <i class="icon-caret-right"> </i> <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date }}">{{ issue.closed_at|ago:True }}</span>
+                                                    <i class="icon-caret-right"> </i> <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date:"DATETIME_FORMAT" }}">{{ issue.closed_at|ago:True }}</span>
                                                 {% endif %}
                                             {% else %}
                                                 {% if issue.updated_at and issue.created_at != issue.updated_at %}
-                                                    <i class="icon-caret-right"> </i> <span title="Updated on {{ issue.updated_at|date }}">{{ issue.updated_at|ago:True }}</span>
+                                                    <i class="icon-caret-right"> </i> <span title="Updated on {{ issue.updated_at|date:"DATETIME_FORMAT" }}">{{ issue.updated_at|ago:True }}</span>
                                                 {% endif %}
                                             {% endif %}
                                         </div>

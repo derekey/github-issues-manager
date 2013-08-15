@@ -1,6 +1,10 @@
 {% extends "front/repository/base.html" %}
 {% load staticfiles %}
 
+{% block extra_css %}
+    <link href="{% static "front/css/pages/repository/dashboard.css" %}" rel="stylesheet">
+{% endblock extra_css %}
+
 {% block body_id %}repository_dashboard{% endblock %}
 
 {% block main %}
