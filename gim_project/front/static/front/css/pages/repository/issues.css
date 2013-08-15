@@ -140,7 +140,7 @@ p.state-closed {
 }
 /* line 43, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .issue-item.active {
-  padding-left: 5px;
+  padding-left: 3px;
 }
 /* line 46, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .issue-item .issue-item-header, .issues-list.without-details .issue-item .avatar, .issues-list.without-details .issue-item .issue-item-footer {
