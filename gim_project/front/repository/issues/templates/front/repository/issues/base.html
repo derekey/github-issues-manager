@@ -118,35 +118,37 @@
                 </li>
 
                 {# List of closed-by #}
-                <li class="accordion-group dark-nav">
-                    <span class="glow"></span>
-                    <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-closed_by">
-                        Closed by
-                        <i class="icon-caret-down"></i>
-                        {% if issues_filter.objects.current_closed_by %}
-                            <span class="selection">
-                                {{ issues_filter.objects.current_closed_by }}
-                            </span>
-                        {% endif %}
-                    </a>
-                    <ul id="filter-closed_by" class="collapse">
-                        {% for user in issues_closers %}
-                            {% if issues_filter.objects.current_closed_by == user.username %}
-                                <li class="active">
-                                    <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                        {{ user.username }}
-                                    </a>
-                                </li>
-                            {% else %}
-                                <li>
-                                    <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:user }}{{ issues_filter.querystring }}">
-                                        {{ user.username }}
-                                    </a>
-                                </li>
+                {% if issues_closers %}
+                    <li class="accordion-group dark-nav">
+                        <span class="glow"></span>
+                        <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-closed_by">
+                            Closed by
+                            <i class="icon-caret-down"></i>
+                            {% if issues_filter.objects.current_closed_by %}
+                                <span class="selection">
+                                    {{ issues_filter.objects.current_closed_by }}
+                                </span>
                             {% endif %}
-                        {% endfor %}
-                    </ul>
-                </li>
+                        </a>
+                        <ul id="filter-closed_by" class="collapse">
+                            {% for user in issues_closers %}
+                                {% if issues_filter.objects.current_closed_by == user.username %}
+                                    <li class="active">
+                                        <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
+                                            {{ user.username }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:user }}{{ issues_filter.querystring }}">
+                                            {{ user.username }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endif %}
 
                 {# The open/close states #}
                 <li class="accordion-group dark-nav">
