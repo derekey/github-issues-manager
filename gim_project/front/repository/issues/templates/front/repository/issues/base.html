@@ -63,7 +63,9 @@
                         {% if issues_filter.objects.current_assigned %}
                             <span class="selection">
                                 {% if issues_filter.objects.current_assigned == 'none' %}
-                                    No one assigned
+                                    ( No one assigned )
+                                {% elif issues_filter.objects.current_assigned == '*' %}
+                                    ( Someone )
                                 {% else %}
                                     {{ issues_filter.objects.current_assigned }}
                                 {% endif %}
@@ -74,13 +76,26 @@
                         {% if issues_filter.objects.current_assigned == 'none' %}
                             <li class="active">
                                 <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                    No one assigned
+                                    ( No one assigned )
                                 </a>
                             </li>
                         {% else %}
                             <li>
                                 <a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">
-                                    No one assigned
+                                    ( No one assigned )
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if issues_filter.objects.current_assigned == '*' %}
+                            <li class="active">
+                                <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
+                                    ( Someone )
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{{ someone_assigned_filter_url }}{{ issues_filter.querystring }}">
+                                    ( Someone )
                                 </a>
                             </li>
                         {% endif %}
@@ -188,7 +203,7 @@
                         {% if issues_filter.objects.milestone %}
                             <span class="selection">
                                 {% if issues_filter.objects.milestone == 'none' %}
-                                    No milestone
+                                    ( No milestone )
                                 {% else %}
                                     {{ issues_filter.objects.milestone }}
                                 {% endif %}
@@ -198,7 +213,7 @@
                     <ul id="filter-milestone" class="collapse">
                         <li{% if issues_filter.parts.milestone == "none" %} class="active"{% endif %}>
                             <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">
-                                No milestone
+                                ( No milestone )
                             </a>
                         </li>
                         {% for milestone in current_repository.milestones.all %}

@@ -238,6 +238,7 @@ class IssuesView(BaseRepositoryView):
             'issues_assigned': self.repository.issues_assigned.all(),
             'issues_closers': self.repository.issues_closers.all(),
             'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', 'none'),
+            'someone_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '*'),
             'qs_parts_for_ttags': issues_filter['parts'],
             'label_types': label_types,
         })
@@ -345,13 +346,14 @@ class UserIssuesView(IssuesView):
         if username and filter_type in self.user_filter_types:
             if username == 'none':
                 return filter_type, 'none'
-            if username != 'none':
-                try:
-                    user = GithubUser.objects.get(username=username)
-                except GithubUser.DoesNotExist:
-                    pass
-                else:
-                    return filter_type, user
+            elif username == '*' and filter_type == 'assigned':
+                return filter_type, '*'
+            try:
+                user = GithubUser.objects.get(username=username)
+            except GithubUser.DoesNotExist:
+                pass
+            else:
+                return filter_type, user
 
         return None, None
 
@@ -369,9 +371,11 @@ class UserIssuesView(IssuesView):
             filter_context['filter_objects']['user_filter_type'] = user_filter_type
             filter_context['qs_filters']['user_filter_type'] = user_filter_type
             filter_field = self.user_filter_types_matching[user_filter_type]
+            filter_context['qs_filters']['username'] = user
             if user == 'none':
-                filter_context['qs_filters']['username'] = user
                 queryset = queryset.filter(**{'%s__isnull' % filter_field: True})
+            elif user == '*' and user_filter_type == 'assigned':
+                queryset = queryset.filter(**{'%s__isnull' % filter_field: False})
             else:
                 filter_context['qs_filters']['username'] = user.username
                 queryset = queryset.filter(**{filter_field: user.id})
