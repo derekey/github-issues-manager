@@ -817,6 +817,8 @@ $().ready(function() {
     });
     prepare_milestones(true);
 
-    $('.deferrable').deferrable();
+    if ($().deferrable) {
+        $('.deferrable').deferrable();
+    }
 
 });
