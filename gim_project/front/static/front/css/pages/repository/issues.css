@@ -61,7 +61,7 @@
   margin: 1px 0;
   padding: 0 3px;
   color: inherit;
-  border-bottom: solid #cccccc 3px;
+  border-bottom: solid #ccc 3px;
 }
 /* line 35, ../../../../../sass/components/_issues_mixins.scss */
 .issue-item .issue-item-labels > li > a, #issue .issue-labels > li > a {
@@ -411,7 +411,7 @@ p.state-closed {
 /* line 37, ../../../../../sass/components/_issue.scss */
 #issue .issue-footer-infos {
   overflow: auto;
-  border: 1px solid #cccccc;
+  border: 1px solid #ccc;
   -webkit-box-shadow: 0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eeeeee;
   -moz-box-shadow: 0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eeeeee;
   box-shadow: 0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eeeeee;
@@ -431,7 +431,7 @@ p.state-closed {
   padding: 2px 6px;
   line-height: 26px;
   border-left: solid 1px #f0f0f0;
-  border-right: solid 1px #dddddd;
+  border-right: solid 1px #ddd;
   display: block;
   float: left;
 }
