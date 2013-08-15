@@ -822,7 +822,7 @@ class Milestone(GithubObjectWithId):
         ordering = ('number', )
 
     def __unicode__(self):
-        return u'#%d %s' % (self.number, self.title)
+        return u'%s' % self.title
 
     @property
     def github_callable_identifiers(self):
