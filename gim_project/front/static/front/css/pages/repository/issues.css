@@ -800,18 +800,18 @@ body#repository_issues #main-inner {
 }
 
 /* line 227, ../../../../../sass/pages/repository/issues.scss */
-body.big-issue #main-inner {
+body#repository_issues.big-issue #main-inner {
   padding-left: 0;
 }
 /* line 230, ../../../../../sass/pages/repository/issues.scss */
-body.big-issue #issues-filters {
+body#repository_issues.big-issue #issues-filters {
   display: none;
 }
 /* line 233, ../../../../../sass/pages/repository/issues.scss */
-body.big-issue #issues-list-container {
+body#repository_issues.big-issue #issues-list-container {
   display: none;
 }
 /* line 236, ../../../../../sass/pages/repository/issues.scss */
-body.big-issue #issue {
+body#repository_issues.big-issue #issue {
   width: 100%;
 }

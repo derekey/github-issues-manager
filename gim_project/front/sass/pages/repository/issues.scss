@@ -223,7 +223,7 @@ body#repository_issues #main-inner {
 
 
 // full screen issue: hide the two first columns
-body.big-issue {
+body#repository_issues.big-issue {
     #main-inner {
         padding-left: 0;
     }
