@@ -73,7 +73,7 @@
                                     {% endwith %}
                                 </tr>
                                 {% for repository in subscribed_repositories %}
-                                    {% with assigned_url=repository|base_url_issues_filtered_by_assigned:user createdy_url=repository|base_url_issues_filtered_by_created_by:user issues_url=repository|repository_view_url:'issues' subscription=subscription_by_repo_id|dict_item:repository.id %}
+                                    {% with assigned_url=repository|base_url_issues_filtered_by_assigned:user createdy_url=repository|base_url_issues_filtered_by_created_by:user issues_url=repository|repository_view_url:'issues' %}{#subscription=subscription_by_repo_id|dict_item:repository.id %}#}
                                     <tr>
                                         <td class="repository">
                                             <a href="{{ repository.get_absolute_url }}" title="View the repository '{{ repository }}'">

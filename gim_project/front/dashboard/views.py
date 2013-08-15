@@ -25,10 +25,15 @@ class DashboardHome(SubscribedRepositoriesMixin, ListView):
 
         for repository in repositories:
             repository.user_counts_open = {
-                'all_prs': repository.issues.filter(state='open',
-                                                    is_pull_request=True).count(),
                 'all': repository.issues.filter(state='open').count(),
             }
+
+            # count prs only if we have issues (no issues = no prs)
+            if repository.user_counts_open['all']:
+                repository.user_counts_open['all_prs'] = repository.issues.filter(
+                                                      is_pull_request=True).count()
+            else:
+                repository.user_counts_open['all_prs'] = 0
 
             repository.user_counts_open['created'] = repository.issues.filter(
                                     state='open', user=self.request.user).count()
