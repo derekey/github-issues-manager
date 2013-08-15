@@ -3947,13 +3947,21 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   border-right-width: 1px !important;
 }
 /* line 88, ../../../sass/_core-admin-correct.scss */
+.progress .bar:first-child:last-child {
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -ms-border-radius: 8px;
+  -o-border-radius: 8px;
+  border-radius: 8px;
+}
+/* line 91, ../../../sass/_core-admin-correct.scss */
 .progress .bar + .bar {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
 }
 
-/* line 95, ../../../sass/_core-admin-correct.scss */
+/* line 98, ../../../sass/_core-admin-correct.scss */
 .ibutton-container.no-text-transform > .ibutton-label-on, .ibutton-container.no-text-transform > .ibutton-label-off {
   text-transform: none;
 }

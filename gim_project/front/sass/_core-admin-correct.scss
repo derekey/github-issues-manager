@@ -85,8 +85,11 @@ $label-match-colors: success green, important red, info blue, warning purple, in
             @include border-radius(0 8px 8px 0);
             border-right-width : 1px !important;
         }
+        &:first-child:last-child {
+            @include border-radius(8px);
+        }
         & + .bar {
-            @include box-shadow(none);            
+            @include box-shadow(none);
         }
     }
 }
