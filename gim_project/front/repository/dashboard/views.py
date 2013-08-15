@@ -60,10 +60,6 @@ class MilestonesPart(RepositoryDashboardPartView):
 
         milestones = list(reversed(queryset))
 
-        base_issues_url = self.repository.get_issues_filter_url()
-        base_non_assigned_issues_url = self.repository.get_issues_user_filter_url_for_username('assigned', 'none')
-        base_someone_assigned_issues_url = self.repository.get_issues_user_filter_url_for_username('assigned', '*')
-
         for milestone in milestones:
             if milestone.description:
                 # no way to get the html version from github :(
@@ -77,15 +73,12 @@ class MilestonesPart(RepositoryDashboardPartView):
 
                 if milestone.non_assigned_issues_count:
                     milestone.non_assigned_issues_percent = 100.0 * milestone.non_assigned_issues_count / milestone.issues_count
-                    milestone.non_assigned_issues_url = '%s?milestone=%s&state=open' % (base_non_assigned_issues_url, milestone.number)
 
                 if milestone.assigned_issues_count:
                     milestone.assigned_issues_percent = 100.0 * milestone.assigned_issues_count / milestone.issues_count
-                    milestone.assigned_issues_url = '%s?milestone=%s&state=open' % (base_someone_assigned_issues_url, milestone.number)
 
                 if milestone.closed_issues_count:
                     milestone.closed_issues_percent = 100.0 * milestone.closed_issues_count / milestone.issues_count
-                    milestone.closed_issues_url = '%s?milestone=%s&state=closed' % (base_issues_url, milestone.number)
 
             else:
                 milestone.non_assigned_issues_count = milestone.assigned_issues_count = \

@@ -1,3 +1,4 @@
+{% load repository_tags issues_tags %}
 <div class="box deferrable" id="milestones" data-url="{{ defer_url }}" data-params='["input[name=show-closed-milestones]", "input[name=show-empty-milestones]"]'>
     <div class="box-header">
         <span class="title">Milestones</span>
@@ -12,32 +13,40 @@
     </div>{# .box-header #}
     <div class="box-content">
         {% if milestones|length %}
-            {% for milestone in milestones %}
-                <div class="box-section">
-                    <h3 data-toggle="collapse" data-target="#milestone-{{ milestone.id}}-details" data-parent="#milestones" class="collapsed">{{ milestone.title }}</h3>
-                    <span class="date">{% if milestone.due_on %}Due on {{ milestone.due_on|date }}{% else %}No due date{% endif %}</span>
-                    <div class="progress"{% if not milestone.issues_count %} title="No issues"{% endif %}>
-                        {% if milestone.issues_count %}
-                            {% if milestone.closed_issues_count %}
-                                <div class="bar bar-green" style="width: {{ milestone.closed_issues_percent }}%;" title="{{ milestone.closed_issues_count }} issue{{ milestone.closed_issues_count|pluralize }} closed"><a href="{{ milestone.closed_issues_url }}"><span>{{ milestone.closed_issues_count }}</span></a></div>
+            {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:'*' non_assigned_url=current_repository|base_url_issues_filtered_by_assigned:'none' issues_url=current_repository|repository_view_url:'issues' %}
+                {% for milestone in milestones %}
+                    <div class="box-section">
+                        <h3 data-toggle="collapse" data-target="#milestone-{{ milestone.id}}-details" data-parent="#milestones" class="collapsed">{{ milestone.title }}</h3>
+                        <span class="date">{% if milestone.due_on %}Due on {{ milestone.due_on|date }}{% else %}No due date{% endif %}</span>
+                        <div class="progress"{% if not milestone.issues_count %} title="No issues"{% endif %}>
+                            {% if milestone.issues_count %}
+                                {% if milestone.closed_issues_count %}
+                                    <div class="bar bar-green" style="width: {{ milestone.closed_issues_percent }}%;" title="{{ milestone.closed_issues_count }} issue{{ milestone.closed_issues_count|pluralize }} closed">
+                                        <a href="{{ issues_url }}?milestone={{ milestone.number }}&amp;state=closed"><span>{{ milestone.closed_issues_count }}</span></a>
+                                    </div>
+                                {% endif %}
+                                {% if milestone.assigned_issues_count %}
+                                    <div class="bar bar-orange" style="width: {{ milestone.assigned_issues_percent }}%;" title="{{ milestone.assigned_issues_count }} issue{{ milestone.assigned_issues_count|pluralize }} assigned">
+                                        <a href="{{ assigned_url }}?milestone={{ milestone.number }}&amp;state=open"><span>{{ milestone.assigned_issues_count }}</span></a>
+                                    </div>
+                                {% endif %}
+                                {% if milestone.non_assigned_issues_count %}
+                                    <div class="bar bar-red" style="width: {{ milestone.non_assigned_issues_percent }}%;" title="{{ milestone.non_assigned_issues_count }} issue{{ milestone.non_assigned_issues_count|pluralize }} non assigned">
+                                        <a href="{{ non_assigned_url }}?milestone={{ milestone.number }}&amp;state=open"><span>{{ milestone.non_assigned_issues_count }}</span></a>
+                                    </div>
+                                {% endif %}
                             {% endif %}
-                            {% if milestone.assigned_issues_count %}
-                                <div class="bar bar-orange" style="width: {{ milestone.assigned_issues_percent }}%;" title="{{ milestone.assigned_issues_count }} issue{{ milestone.assigned_issues_count|pluralize }} assigned"><a href="{{ milestone.assigned_issues_url }}"><span>{{ milestone.assigned_issues_count }}</span></a></div>
+                        </div>
+                        <blockquote id="milestone-{{ milestone.id}}-details" class="collapse">
+                            {% if milestone.description %}
+                                <p>{{ milestone.description|safe }}</p>
+                            {% else %}
+                                <em>No description</em>
                             {% endif %}
-                            {% if milestone.non_assigned_issues_count %}
-                                <div class="bar bar-red" style="width: {{ milestone.non_assigned_issues_percent }}%;" title="{{ milestone.non_assigned_issues_count }} issue{{ milestone.non_assigned_issues_count|pluralize }} non assigned"><a href="{{ milestone.non_assigned_issues_url }}"><span>{{ milestone.non_assigned_issues_count }}</span></a></div>
-                            {% endif %}
-                        {% endif %}
+                        </blockquote>
                     </div>
-                    <blockquote id="milestone-{{ milestone.id}}-details" class="collapse">
-                        {% if milestone.description %}
-                            <p>{{ milestone.description|safe }}</p>
-                        {% else %}
-                            <em>No description</em>
-                        {% endif %}
-                    </blockquote>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            {% endwith %}
         {% else %}
             <div class="empty-area">No milestones for this repository</div>
         {% endif %}
