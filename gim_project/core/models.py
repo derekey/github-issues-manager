@@ -570,26 +570,31 @@ class Repository(GithubObjectWithId):
         """
         return self.labels.filter(label_type__isnull=True)
 
+    def _distinct_users(self, relation):
+        return GithubUser.objects.filter(**{
+                '%s__repository' % relation: self.id
+            }).distinct()  # distinct can take the 'username' arg in postgresql
+
     @property
     def issues_creators(self):
         """
         Shortcut to return a queryset for creator of issues on this repository
         """
-        return GithubUser.objects.filter(created_issues__repository=self.id).distinct()
+        return self._distinct_users('created_issues')
 
     @property
     def issues_assigned(self):
         """
         Shortcut to return a queryset for users assigned to issues on this repository
         """
-        return GithubUser.objects.filter(assigned_issues__repository=self.id).distinct()
+        return self._distinct_users('assigned_issues')
 
     @property
     def issues_closers(self):
         """
         Shortcut to return a queryset for users who closed issues on this repository
         """
-        return GithubUser.objects.filter(closed_issues__repository=self.id).distinct()
+        return self._distinct_users('closed_issues')
 
     @property
     def github_callable_identifiers(self):

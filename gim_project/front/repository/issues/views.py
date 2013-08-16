@@ -214,6 +214,10 @@ class IssuesView(BaseRepositoryView):
         }
         return queryset, filter_context
 
+    def get_usernames(self, relation):
+        qs = getattr(self.repository, relation).order_by()
+        return sorted(qs.values_list('username', flat=True), key=unicode.lower)
+
     def get_context_data(self, **kwargs):
         """
         Set default content for the issue views
@@ -234,9 +238,9 @@ class IssuesView(BaseRepositoryView):
             'root_issues_url': issues_url,
             'current_issues_url': issues_url,
             'issues_filter': issues_filter,
-            'issues_creators': self.repository.issues_creators.all().only('username'),
-            'issues_assigned': self.repository.issues_assigned.all().only('username'),
-            'issues_closers': self.repository.issues_closers.all().only('username'),
+            'issues_creators': self.get_usernames('issues_creators'),
+            'issues_assigned': self.get_usernames('issues_assigned'),
+            'issues_closers': self.get_usernames('issues_closers'),
             'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', 'none'),
             'someone_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '*'),
             'qs_parts_for_ttags': issues_filter['parts'],

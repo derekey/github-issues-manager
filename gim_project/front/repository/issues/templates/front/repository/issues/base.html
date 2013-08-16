@@ -37,17 +37,17 @@
                                     {% include "front/include_quicksearch.html" with id="filter-issues-creators" target="#filter-created_by li.creator" only %}
                                 </li>
                             {% endif %}
-                            {% for user in issues_creators %}
-                                {% if issues_filter.objects.current_created_by == user.username %}
+                            {% for username in issues_creators %}
+                                {% if issues_filter.objects.current_created_by == username %}
                                     <li class="creator active">
                                         <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                            {{ user.username }}
+                                            {{ username }}
                                         </a>
                                     </li>
                                 {% else %}
                                     <li class="creator">
-                                        <a href="{{ current_repository|base_url_issues_filtered_by_created_by:user }}{{ issues_filter.querystring }}">
-                                            {{ user.username }}
+                                        <a href="{{ current_repository|base_url_issues_filtered_by_created_by:username }}{{ issues_filter.querystring }}">
+                                            {{ username }}
                                         </a>
                                     </li>
                                 {% endif %}
@@ -103,17 +103,17 @@
                                 </a>
                             </li>
                         {% endif %}
-                        {% for user in issues_assigned %}
-                            {% if issues_filter.objects.current_assigned == user.username %}
+                        {% for username in issues_assigned %}
+                            {% if issues_filter.objects.current_assigned == username %}
                                 <li class="active">
                                     <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                        {{ user.username }}
+                                        {{ username }}
                                     </a>
                                 </li>
                             {% else %}
                                 <li>
-                                    <a href="{{ current_repository|base_url_issues_filtered_by_assigned:user }}{{ issues_filter.querystring }}">
-                                        {{ user.username }}
+                                    <a href="{{ current_repository|base_url_issues_filtered_by_assigned:username }}{{ issues_filter.querystring }}">
+                                        {{ username }}
                                     </a>
                                 </li>
                             {% endif %}
@@ -142,17 +142,17 @@
                                     {% include "front/include_quicksearch.html" with id="filter-issues-closers" target="#filter-closed_by li.closer" only %}
                                 </li>
                             {% endif %}
-                            {% for user in issues_closers %}
-                                {% if issues_filter.objects.current_closed_by == user.username %}
+                            {% for username in issues_closers %}
+                                {% if issues_filter.objects.current_closed_by == username %}
                                     <li class="closer active">
                                         <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                            {{ user.username }}
+                                            {{ username }}
                                         </a>
                                     </li>
                                 {% else %}
                                     <li class="closer">
-                                        <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:user }}{{ issues_filter.querystring }}">
-                                            {{ user.username }}
+                                        <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:username }}{{ issues_filter.querystring }}">
+                                            {{ username }}
                                         </a>
                                     </li>
                                 {% endif %}
