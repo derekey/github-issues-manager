@@ -273,12 +273,12 @@
                                         {% endif %}
                                     {% endwith %}
                                 </a>
-                                <ul id="filter-label-type-{{ label_type.id }}" class="collapse">
+                                <ul id="filter-label-type-{{ label_type.id }}" class="collapse filter-labels">
                                     {% attributes_for_list label_type_labels "name" as label_names %}
                                     {% for label in label_type_labels %}
                                         <li{% if label.name in issues_filter.parts.labels %} class="active"{% endif %}>
                                             <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="{{ label.name }}">
-                                                {{ label.typed_name }}
+                                                <span style="border-bottom-color: #{{ label.color }}">{{ label.typed_name }}</span>
                                             </a>
                                         </li>
                                     {% endfor %}
@@ -305,7 +305,7 @@
                                     <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
                                 {% endif %}
                             </a>
-                            <ul id="filter-labels" class="collapse">
+                            <ul id="filter-labels" class="collapse filter-labels">
                                 {% if untyped_labels|length > 10 %}
                                     <li>
                                         {% include "front/include_quicksearch.html" with id="filter-labels" target="#filter-labels li.untyped_label" only %}
@@ -314,7 +314,7 @@
                                 {% for label in untyped_labels %}
                                     <li class="untyped_label{% if label.name in issues_filter.parts.labels %} active{% endif %}">
                                         <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}">
-                                            {{ label.name }}
+                                            <span style="border-bottom-color: #{{ label.color }}">{{ label.name }}</span>
                                         </a>
                                     </li>
                                 {% endfor %}
