@@ -30,7 +30,7 @@
                             {% endif %}
                         </a>
                         <ul id="filter-created_by" class="collapse">
-                            {% if issues_creators|length > 1 %}
+                            {% if issues_creators|length > 10 %}
                                 <li>
                                     {% include "front/include_quicksearch.html" with id="filter-issues-creators" target="#filter-created_by li.creator" only %}
                                 </li>
@@ -131,15 +131,20 @@
                             {% endif %}
                         </a>
                         <ul id="filter-closed_by" class="collapse">
+                            {% if issues_closers|length > 10 %}
+                                <li>
+                                    {% include "front/include_quicksearch.html" with id="filter-issues-closers" target="#filter-closed_by li.closer" only %}
+                                </li>
+                            {% endif %}
                             {% for user in issues_closers %}
                                 {% if issues_filter.objects.current_closed_by == user.username %}
-                                    <li class="active">
+                                    <li class="closer active">
                                         <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
                                             {{ user.username }}
                                         </a>
                                     </li>
                                 {% else %}
-                                    <li>
+                                    <li class="closer">
                                         <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:user }}{{ issues_filter.querystring }}">
                                             {{ user.username }}
                                         </a>
@@ -197,36 +202,45 @@
                 </li>
 
                 {# The milestones #}
-                <li class="accordion-group dark-nav">
-                    <span class="glow"></span>
-                    <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-milestone">
-                        Milestone
-                        <i class="icon-caret-down"></i>
-                        {% if issues_filter.objects.milestone %}
-                            <span class="selection">
-                                {% if issues_filter.objects.milestone == 'none' %}
-                                    (&nbsp;No&nbsp;milestone&nbsp;)
-                                {% else %}
-                                    {{ issues_filter.objects.milestone }}
+                {% with milestones=current_repository.milestones.all %}
+                    {% if milestones|length %}
+                        <li class="accordion-group dark-nav">
+                            <span class="glow"></span>
+                            <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-milestone">
+                                Milestone
+                                <i class="icon-caret-down"></i>
+                                {% if issues_filter.objects.milestone %}
+                                    <span class="selection">
+                                        {% if issues_filter.objects.milestone == 'none' %}
+                                            (&nbsp;No&nbsp;milestone&nbsp;)
+                                        {% else %}
+                                            {{ issues_filter.objects.milestone }}
+                                        {% endif %}
+                                    </span>
                                 {% endif %}
-                            </span>
-                        {% endif %}
-                    </a>
-                    <ul id="filter-milestone" class="collapse">
-                        <li{% if issues_filter.parts.milestone == "none" %} class="active"{% endif %}>
-                            <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">
-                                (&nbsp;No&nbsp;milestone&nbsp;)
                             </a>
+                            <ul id="filter-milestone" class="collapse">
+                                <li{% if issues_filter.parts.milestone == "none" %} class="active"{% endif %}>
+                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">
+                                        (&nbsp;No&nbsp;milestone&nbsp;)
+                                    </a>
+                                </li>
+                                {% if milestones|length > 10 %}
+                                    <li>
+                                        {% include "front/include_quicksearch.html" with id="filter-milestone" target="#filter-milestone li.milestone" only %}
+                                    </li>
+                                {% endif %}
+                                {% for milestone in milestones %}
+                                    <li class="milestone{% if issues_filter.objects.milestone.number == milestone.number %} active{% endif %}">
+                                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">
+                                            {{ milestone }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
                         </li>
-                        {% for milestone in current_repository.milestones.all %}
-                            <li{% if issues_filter.objects.milestone.number == milestone.number %} class="active"{% endif %}>
-                                <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">
-                                    {{ milestone }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </li>
+                    {% endif %}
+                {% endwith %}
 
                 {# The different label-types #}
                 {% for label_type in label_types %}
@@ -276,8 +290,13 @@
                                 {% endif %}
                             </a>
                             <ul id="filter-labels" class="collapse">
+                                {% if untyped_labels|length > 10 %}
+                                    <li>
+                                        {% include "front/include_quicksearch.html" with id="filter-labels" target="#filter-labels li.untyped_label" only %}
+                                    </li>
+                                {% endif %}
                                 {% for label in untyped_labels %}
-                                    <li{% if label.name in issues_filter.parts.labels %} class="active"{% endif %}>
+                                    <li class="untyped_label{% if label.name in issues_filter.parts.labels %} active{% endif %}">
                                         <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}">
                                             {{ label.name }}
                                         </a>

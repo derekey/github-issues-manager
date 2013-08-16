@@ -77,7 +77,7 @@ body#repository_issues #main-inner {
             & > a {
                 color: #bbb;
             }
-            &:hover a {
+            &:hover > a {
                 color: white;
             }
         }
@@ -121,7 +121,8 @@ body#repository_issues #main-inner {
             z-index: 20;
             padding: 0;
             i {
-                height: 22px
+                height: 22px;
+                line-height: 22px;
             }
         }
         input {
