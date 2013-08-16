@@ -1,9 +1,10 @@
 /* line 4, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section {
+  overflow: auto;
   padding: 15px;
   padding-bottom: 0;
 }
-/* line 8, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 9, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > h3 {
   float: left;
   margin: 0;
@@ -12,8 +13,8 @@
   line-height: normal;
   cursor: pointer;
 }
-/* line 17, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > .date {
+/* line 19, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > .date, #milestones .box-section > .all-issues-link {
   float: right;
   font-style: italic;
   opacity: 0;
@@ -22,7 +23,11 @@
   -o-transition: opacity 0.35s;
   transition: opacity 0.35s;
 }
-/* line 23, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 25, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > .all-issues-link {
+  margin-top: -10px;
+}
+/* line 28, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress {
   clear: both;
   -webkit-transition: height 0.35s;
@@ -30,12 +35,12 @@
   -o-transition: height 0.35s;
   transition: height 0.35s;
 }
-/* line 26, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 31, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress a {
   display: block;
   color: inherit;
 }
-/* line 30, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 35, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress span {
   opacity: 0;
   font-weight: bold;
@@ -44,32 +49,33 @@
   -o-transition: opacity 0.35s;
   transition: opacity 0.35s;
 }
-/* line 36, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 41, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > blockquote {
   margin: -10px 0 15px;
+  float: left;
 }
-/* line 41, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > h3:not(.collapsed) ~ .date {
+/* line 48, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > h3:not(.collapsed) ~ .date, #milestones .box-section > h3:not(.collapsed) ~ .all-issues-link {
   opacity: 1;
 }
-/* line 44, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 51, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > h3:not(.collapsed) ~ div.progress {
   height: 20px;
 }
-/* line 46, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 53, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > h3:not(.collapsed) ~ div.progress span {
   opacity: 1;
 }
 
-/* line 56, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 63, ../../../../../sass/pages/repository/dashboard.scss */
 #counters table {
   font-weight: bold;
 }
-/* line 59, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 66, ../../../../../sass/pages/repository/dashboard.scss */
 #counters td:last-child {
   text-align: center;
 }
-/* line 61, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 68, ../../../../../sass/pages/repository/dashboard.scss */
 #counters td:last-child a {
   color: inherit;
   display: block;

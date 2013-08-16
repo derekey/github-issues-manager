@@ -2,6 +2,7 @@
 
 #milestones {
     .box-section {
+        overflow: auto;
         padding: 15px {
             bottom: 0;
         }
@@ -14,11 +15,15 @@
             line-height: normal;
             cursor: pointer;
         }
-        & > .date {
+        & > .date,
+        & > .all-issues-link {
             float: right;
             font-style: italic;
             opacity: 0;
             @include transition(opacity 0.35s);
+        }
+        & > .all-issues-link {
+            margin-top: -10px;
         }
         & > div.progress {
             clear: both;
@@ -35,10 +40,12 @@
         }
         & > blockquote {
             margin: -10px 0 15px;
+            float: left;
         }
 
         & > h3:not(.collapsed) {
-            & ~ .date {
+            & ~ .date, 
+            & ~ .all-issues-link {
                 opacity: 1;
             }
             & ~ div.progress {

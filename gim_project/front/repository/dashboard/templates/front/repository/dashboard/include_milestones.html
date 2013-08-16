@@ -37,6 +37,7 @@
                                 {% endif %}
                             {% endif %}
                         </div>
+                        {% if milestone.issues_count %}<a class="all-issues-link" href="{{ issues_url }}?milestone={{ milestone.number }}">View all issues</a>{% endif %}
                         <blockquote id="milestone-{{ milestone.id}}-details" class="collapse">
                             {% if milestone.description %}
                                 <p>{{ milestone.description|safe }}</p>
