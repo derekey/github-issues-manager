@@ -4,6 +4,7 @@
 @import "compass/css3/box-sizing";
 @import "compass/css3/box-shadow";
 @import "compass/css3/text-shadow";
+@import "compass/css3/transition";
 
 @import "widgets/avatar";
 @import "components/issues_mixins";
@@ -73,7 +74,7 @@ body#repository_issues #main-inner {
     .primary-sidebar {
         width: 100%;
         margin-top: $header-top;
-        .nav > li { 
+        .nav > li {
             & > a {
                 color: #bbb;
             }
@@ -86,10 +87,24 @@ body#repository_issues #main-inner {
         // current selection of a filter
         display: block;
         padding: 0 {
-            left: 10px;
+            left: 5px;
         }
         line-height: 10px;
         font-weight: normal;
+    }
+    a.clear-filter {
+        position: absolute;
+        top: 22px;
+        left: 10px;
+        padding: 0;
+        margin: 0;
+        opacity: 0;
+        @include transition(opacity 0.3s);
+    }
+    & li.dark-nav:hover {
+        a.clear-filter {
+            opacity: 1;
+        }
     }
     .quicksearch-widget {
         // quicksearch widgets for filters use the full width (minus 5px on each side)

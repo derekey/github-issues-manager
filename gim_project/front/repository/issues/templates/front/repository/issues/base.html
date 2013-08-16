@@ -24,9 +24,11 @@
                             Creators
                             <i class="icon-caret-down"></i>
                             {% if issues_filter.objects.current_created_by %}
-                                <span class="selection">
-                                    {{ issues_filter.objects.current_created_by }}
-                                </span>
+                                    <span class="selection">
+                                        {{ issues_filter.objects.current_created_by }}
+                                    </span>
+                                </a>
+                                <a class="clear-filter" href="{{ root_issues_url }}{{ issues_filter.querystring }}" title="Clear this filter"><i class="icon-remove"> </i>
                             {% endif %}
                         </a>
                         <ul id="filter-created_by" class="collapse">
@@ -61,15 +63,17 @@
                         Assignees
                         <i class="icon-caret-down"></i>
                         {% if issues_filter.objects.current_assigned %}
-                            <span class="selection">
-                                {% if issues_filter.objects.current_assigned == 'none' %}
-                                    (&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)
-                                {% elif issues_filter.objects.current_assigned == '*' %}
-                                    (&nbsp;Someone&nbsp;assigned&nbsp;)
-                                {% else %}
-                                    {{ issues_filter.objects.current_assigned }}
-                                {% endif %}
-                            </span>
+                                <span class="selection">
+                                    {% if issues_filter.objects.current_assigned == 'none' %}
+                                        (&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)
+                                    {% elif issues_filter.objects.current_assigned == '*' %}
+                                        (&nbsp;Someone&nbsp;assigned&nbsp;)
+                                    {% else %}
+                                        {{ issues_filter.objects.current_assigned }}
+                                    {% endif %}
+                                </span>
+                            </a>
+                            <a class="clear-filter" href="{{ root_issues_url }}{{ issues_filter.querystring }}" title="Clear this filter"><i class="icon-remove"> </i>
                         {% endif %}
                     </a>
                     <ul id="filter-assigned" class="collapse">
@@ -125,9 +129,11 @@
                             Closed by
                             <i class="icon-caret-down"></i>
                             {% if issues_filter.objects.current_closed_by %}
-                                <span class="selection">
-                                    {{ issues_filter.objects.current_closed_by }}
-                                </span>
+                                    <span class="selection">
+                                        {{ issues_filter.objects.current_closed_by }}
+                                    </span>
+                                </a>
+                                <a class="clear-filter" href="{{ root_issues_url }}{{ issues_filter.querystring }}" title="Clear this filter"><i class="icon-remove"> </i>
                             {% endif %}
                         </a>
                         <ul id="filter-closed_by" class="collapse">
@@ -162,9 +168,11 @@
                         State
                         <i class="icon-caret-down"></i>
                         {% if issues_filter.objects.state %}
-                            <span class="selection">
-                                {{ issues_filter.objects.state }}
-                            </span>
+                                <span class="selection">
+                                    {{ issues_filter.objects.state }}
+                                </span>
+                            </a>
+                            <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "state" %}" title="Clear this filter"><i class="icon-remove"> </i>
                         {% endif %}
                     </a>
                     <ul id="filter-state" class="collapse">
@@ -185,9 +193,11 @@
                         Pull-request
                         <i class="icon-caret-down"></i>
                         {% if issues_filter.parts.pr %}
-                            <span class="selection">
-                                {{ issues_filter.parts.pr }}
-                            </span>
+                                <span class="selection">
+                                    {{ issues_filter.parts.pr }}
+                                </span>
+                            </a>
+                            <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "pr" %}" title="Clear this filter"><i class="icon-remove"> </i>
                         {% endif %}
                     </a>
                     <ul id="filter-pr" class="collapse">
@@ -210,13 +220,15 @@
                                 Milestone
                                 <i class="icon-caret-down"></i>
                                 {% if issues_filter.objects.milestone %}
-                                    <span class="selection">
-                                        {% if issues_filter.objects.milestone == 'none' %}
-                                            (&nbsp;No&nbsp;milestone&nbsp;)
-                                        {% else %}
-                                            {{ issues_filter.objects.milestone }}
-                                        {% endif %}
-                                    </span>
+                                        <span class="selection">
+                                            {% if issues_filter.objects.milestone == 'none' %}
+                                                (&nbsp;No&nbsp;milestone&nbsp;)
+                                            {% else %}
+                                                {{ issues_filter.objects.milestone }}
+                                            {% endif %}
+                                        </span>
+                                    </a>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "milestone" %}" title="Clear this filter"><i class="icon-remove"> </i>
                                 {% endif %}
                             </a>
                             <ul id="filter-milestone" class="collapse">
@@ -253,9 +265,11 @@
                                     <i class="icon-caret-down"></i>
                                     {% with current_label_type=issues_filter.objects.current_label_types|dict_item:label_type.id %}
                                         {% if current_label_type %}
-                                            <span class="selection">
-                                                {{ current_label_type.typed_name }}
-                                            </span>
+                                                <span class="selection">
+                                                    {{ current_label_type.typed_name }}
+                                                </span>
+                                            </a>
+                                            <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_type.name %}" title="Clear this filter"><i class="icon-remove"> </i>
                                         {% endif %}
                                     {% endwith %}
                                 </a>
@@ -284,9 +298,11 @@
                                 <i class="icon-caret-down"></i>
                                 {% if issues_filter.objects.current_labels %}
                                     {% attributes_for_list issues_filter.objects.current_labels "name" as current_label_names %}
-                                    <span class="selection">
-                                        {{ current_label_names|join:", " }}
-                                    </span>
+                                        <span class="selection">
+                                            {{ current_label_names|join:", " }}
+                                        </span>
+                                    </a>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
                                 {% endif %}
                             </a>
                             <ul id="filter-labels" class="collapse">

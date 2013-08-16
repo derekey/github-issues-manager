@@ -102,25 +102,31 @@ def add_to_querystring(context, key, value):
 
 
 @register.simple_tag(takes_context=True)
-def remove_from_querystring(context, key, value=None):
+def remove_from_querystring(context, key, *values):
     """
     {% remove_from_querystring "labels" "foo" %}
         => remove foo from labels
+    {% remove_from_querystring "labels" "foo" "bar" %}
+        => remove foo and bar from labels
     {% remove_from_querystring "labels" %}
         => remove the labels key
     """
     qs_parts = _get_qs_parts_from_context(context)
-    value = _coerce_value(value)
-    if value is None:
-        qs_parts.pop(key)
-    else:
-        _set_part_as_list(qs_parts, key)
-        try:
-            qs_parts[key].remove(value)
-        except ValueError:
-            pass
-        if not len(qs_parts[key]):
+    if key in qs_parts:
+        if not values:
             del qs_parts[key]
+        else:
+            _set_part_as_list(qs_parts, key)
+            if isinstance(values[0], (list, tuple)):
+                values = values[0]
+            for value in values:
+                value = _coerce_value(value)
+                try:
+                    qs_parts[key].remove(value)
+                except ValueError:
+                    pass
+            if not len(qs_parts[key]):
+                del qs_parts[key]
     return make_querystring(qs_parts)
 
 
