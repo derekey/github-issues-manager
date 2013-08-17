@@ -156,10 +156,15 @@ class LabelsPart(RepositoryDashboardPartView):
     """
 
     def get_labels_groups(self):
+        extra = {
+            'select': {'issues_count': self.issues_count_subquery},
+        }
+
+        if not self.request.GET.get('show-empty-labels', False):
+            extra['where'] = ['issues_count > 0']
+
         labels_with_count = self.repository.labels.extra(
-            select={'issues_count': self.issues_count_subquery},
-            where=['issues_count > 0']
-        ).select_related('label_type')
+                                        **extra).select_related('label_type')
 
         groups = [
             (
@@ -181,9 +186,10 @@ class LabelsPart(RepositoryDashboardPartView):
     def get_context_data(self, **kwargs):
         context = super(LabelsPart, self).get_context_data(**kwargs)
         context.update({
+            'show_empty_labels': self.request.GET.get('show-empty-labels', False),
             'labels_groups': self.get_labels_groups(),
             'without_labels': self.repository.issues.filter(
-                                    state='open', labels__isnull=True).count()
+                                    state='open', labels__isnull=True).count(),
         })
         return context
 

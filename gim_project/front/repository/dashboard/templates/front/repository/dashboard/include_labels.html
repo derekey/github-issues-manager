@@ -1,17 +1,27 @@
 {% load repository_tags %}
-<div class="box deferrable" id="labels" data-url="{{ defer_url }}">
+<div class="box deferrable" id="labels" data-url="{{ defer_url }}" data-params='["input[name=show-empty-labels]"]'>
     {% with issues_url=current_repository|repository_view_url:'issues' %}
+
+        <div class="box-header">
+            <span class="title">Labels</span>
+            <ul class="box-toolbar">
+              <li title="Check to also see labels with no issues">
+                <input name="show-empty-labels" type="checkbox" value="1"{% if show_empty_labels %} checked="checked"{% endif %}/>
+              </li>
+            </ul>
+        </div>{# .box-header #}
+
         {% for label_type, labels in labels_groups %}
-            <div class="box-header">
-                <div class="title">
-                    {% if label_type %}
-                        {{ label_type.name }}
-                    {% else %}
-                        {% if labels_groups|length > 1 %}Other labels{% else %}Labels{% endif %}
-                    {% endif %}
-                </div>
-            </div>
-            <div class="box-content">
+            <div class="box-content{% if labels_groups|length == 1 %} only{% endif %}">
+                {% if labels_groups|length > 1 %}
+                    <span class="label label-blue">
+                        {% if label_type %}
+                            {{ label_type.name }}
+                        {% else %}
+                            Others
+                        {% endif %}
+                    </span>
+                {% endif %}
                 <ul class="unstyled">
                     {% for label in labels %}
                         <li style="border-bottom-color: #{{ label.color }}">
@@ -24,10 +34,12 @@
                 </ul>
             </div>
         {% endfor %}
+
         {% if without_labels %}
             <div class="box-footer padded">
                 <a href="{{ issues_url }}?state=open&amp;labels=none">{{ without_labels }} issue{{ without_labels|pluralize }} without labels</a>
             </div>
         {% endif %}
+
     {% endwith %}
 </div>

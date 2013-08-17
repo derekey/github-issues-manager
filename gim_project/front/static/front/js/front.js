@@ -784,39 +784,6 @@ $().ready(function() {
     });
     activate_quicksearches();
 
-
-    var prepare_milestones = (function prepare_milestones (init_events) {
-        var selector = '#milestones',
-            $milestones = $(selector);
-
-        if (!$milestones.length) { return; }
-
-        $milestones.find('input[name="show-closed-milestones"]').iButton({
-            labelOn: 'With closed',
-            labelOff: 'Without closed',
-            className: 'no-text-transform'
-        });
-        $milestones.find('input[name="show-empty-milestones"]').iButton({
-            labelOn: 'With empty',
-            labelOff: 'Without empty',
-            className: 'no-text-transform'
-        });
-
-        if (init_events) {
-
-            $document.on('change', 'input[name=show-closed-milestones], input[name=show-empty-milestones]', function() {
-                $(this).closest(selector).trigger('reload');
-            });
-
-            $document.on('reloaded', selector, function() {
-                prepare_milestones();
-            });
-            
-        } // if init_events
-
-    });
-    prepare_milestones(true);
-
     if ($().deferrable) {
         $('.deferrable').deferrable();
     }

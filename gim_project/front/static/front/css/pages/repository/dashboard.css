@@ -85,25 +85,54 @@
 /* line 77, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-content {
   padding: 5px;
+  padding-top: 20px;
+  border-top: solid 1px #ddd;
+  position: relative;
 }
-/* line 80, ../../../../../sass/pages/repository/dashboard.scss */
-#labels ul {
+/* line 81, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-content.only {
+  padding-top: 5px;
+}
+/* line 86, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-content .label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  -moz-border-radius-topleft: 0;
+  -webkit-border-top-left-radius: 0;
+  border-top-left-radius: 0;
+  -moz-border-radius-topright: 0;
+  -webkit-border-top-right-radius: 0;
+  border-top-right-radius: 0;
+  -moz-border-radius-topleft: 0;
+  -webkit-border-top-left-radius: 0;
+  border-top-left-radius: 0;
+  -moz-border-radius-bottomleft: 0;
+  -webkit-border-bottom-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+/* line 93, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-content ul {
   text-align: justify;
   margin: 0;
 }
-/* line 83, ../../../../../sass/pages/repository/dashboard.scss */
-#labels ul li {
+/* line 96, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-content ul li {
   display: inline-block;
   margin: 5px 10px;
   padding-bottom: 2px;
   border-bottom: solid 3px transparent;
 }
-/* line 88, ../../../../../sass/pages/repository/dashboard.scss */
-#labels ul li span {
+/* line 101, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-content ul li span {
   margin-left: 5px;
   font-weight: bold;
 }
-/* line 94, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 108, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-header + .box-content {
+  border-top: none;
+}
+/* line 111, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-footer {
   text-align: center;
 }
