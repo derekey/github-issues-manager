@@ -118,8 +118,6 @@ class CountersPart(RepositoryDashboardPartView):
             counters['all_na'] = counters['all_prs'] = 0
 
         counters['created'] = base_filter.filter(user=self.request.user).count()
-        # Unable to actually manage more urls for than one filter on people
-        # counters['created_na'] = base_filter.filter(user=self.request.user, assignee__isnull=True).count()
 
         # count prs only if we have issues (no issues = no prs)
         if counters['created']:

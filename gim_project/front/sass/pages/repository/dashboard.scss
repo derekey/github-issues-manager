@@ -1,5 +1,6 @@
 @import "compass/css3/transition";
 @import "compass/css3/border-radius";
+@import "compass/css3/text-shadow";
 
 #milestones {
     .box-section {
@@ -61,23 +62,18 @@
 }
 
 #counters {
-    table {
-        font-weight: bold;
+    margin-bottom: 15px;
+    .action-nav-button {
+        width: 8em;
     }
-    td:last-child {
-        text-align: center;
-        a {
-            color: inherit;
-            display: block;
-        }
+    .label.left {
+        background: transparent;
+        color: inherit;
+        @include text-shadow(none);
     }
 }
 
 #labels {
-    .box-header:not(:first-child) {
-        border-top: solid 1px #ddd;
-        @include border-top-radius(0);
-    }
     .box-content {
         padding: 5px;
     }

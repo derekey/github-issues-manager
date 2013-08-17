@@ -1,83 +1,88 @@
 {% load repository_tags issues_tags %}
-<div class="box deferrable" id="counters" data-url="{{ defer_url }}">
-    <div class="box-content">
-        <table class="table table-normal">
-            <thead>
-                <tr>
-                    <td colspan="2">Your opened issues</td>
-                </tr>
-            </thead>
-            <tbody>
-                {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:user createdy_url=current_repository|base_url_issues_filtered_by_created_by:user issues_url=current_repository|repository_view_url:'issues' %}
-                    {% if counters.assigned or counters.assigned == 0 %}
-                        <tr>
-                            <td>Assigned to you</td>
-                            {% with count=counters.assigned %}
-                                <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
-                                    <a href="{{ assigned_url }}?state=open">{{ count }}</a>
-                                </td>
-                            {% endwith %}
-                        </tr>
-                    {% endif %}
-                    <tr>
-                        <td>Created by you</td>
-                        {% with count=counters.created %}
-                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
-                                <a href="{{ createdy_url }}?state=open">{{ count }}</a>
-                            </td>
+<div class="row-fluid deferrable" id="counters" data-url="{{ defer_url }}">
+    {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:user createdy_url=current_repository|base_url_issues_filtered_by_created_by:user issues_url=current_repository|repository_view_url:'issues' %}
+        <div class="action-nav-normal">
+
+            {% if counters.assigned or counters.assigned == 0 %}
+                <div class="span2">
+                    <div class="action-nav-button">
+                        <a href="{{ assigned_url }}?state=open" title="Assigned to you">
+                            <i class="icon-file-alt"></i>
+                            <span>Assigned</span>
+                        </a>
+                        {% with count=counters.assigned %}
+                            <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
                         {% endwith %}
-                    </tr>
-                    {% comment %} Unable to actually manage urls for more than one filter on people
-                    <tr>
-                        <td>Created by you, not assigned</td>
-                        {% with count=counters.created_na %}
-                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
-                                <a href="">{{ count }}</a>
-                            </td>
-                        {% endwith %}
-                    </tr>
-                    {% endcomment %}
-                    <tr>
-                        <td>You pull requests</td>
-                        {% with count=counters.prs %}
-                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
-                                <a href="{{ createdy_url }}?state=open&amp;pr=yes">{{ count }}</a>
-                            </td>
-                        {% endwith %}
-                    </tr>
-                </tbody>
-                <thead>
-                    <tr>
-                        <td colspan="2">All opened issues</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>All opened</td>
-                        {% with count=counters.all %}
-                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
-                                <a href="{{ issues_url }}?state=open">{{ count }}</a>
-                            </td>
-                        {% endwith %}
-                    </tr>
-                    <tr>
-                        <td>All opened, not assigned</td>
-                        {% with count=counters.all_na %}
-                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
-                                <a href="{{ current_repository|base_url_issues_filtered_by_assigned:'none' }}?state=open">{{ count }}</a>
-                            </td>
-                        {% endwith %}
-                    </tr>
-                    <tr>
-                        <td>All pull requests</td>
-                        {% with count=counters.all_prs %}
-                            <td class="status-{% if count > 10 %}error{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}" title="View theses issues">
-                                <a href="{{ issues_url }}?state=open&amp;pr=yes">{{ count }}</a>
-                            </td>
-                        {% endwith %}
-                    </tr>
-                {% endwith %}
-            </tbody>
-        </table>
-    </div>{# .box-content #}
+                        <span class="label left"><i class="icon-user"></i></span>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="span2{% if not counters.assigned and counters.assigned != 0 %} offset1{% endif %}">
+                <div class="action-nav-button">
+                    <a href="{{ createdy_url }}?state=open" title="Created by you">
+                        <i class="icon-file-alt"></i>
+                        <span>Created</span>
+                    </a>
+                    {% with count=counters.created %}
+                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                    {% endwith %}
+                    <span class="label left"><i class="icon-user"></i></span>
+                </div>
+            </div>
+
+            <div class="span2">
+                <div class="action-nav-button">
+                    <a href="{{ createdy_url }}?state=open&amp;pr=yes" title="Your pull requests">
+                        <i class="icon-upload-alt"></i>
+                        <span>Pull requests</span>
+                    </a>
+                    {% with count=counters.prs %}
+                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                    {% endwith %}
+                    <span class="label left"><i class="icon-user"></i></span>
+                </div>
+            </div>
+
+            <div class="span2">
+                <div class="action-nav-button">
+                    <a href="{{ issues_url }}?state=open" title="All open issues">
+                        <i class="icon-file-alt"></i>
+                        <span>Open</span>
+                    </a>
+                    {% with count=counters.all %}
+                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                    {% endwith %}
+                    <span class="label left"><i class="icon-group"></i></span>
+                </div>
+            </div>
+
+            <div class="span2">
+                <div class="action-nav-button">
+                    <a href="{{ current_repository|base_url_issues_filtered_by_assigned:'none' }}?state=open" title="All open and not assigned issues">
+                        <i class="icon-file-alt"></i>
+                        <span>Not assigned</span>
+                    </a>
+                    {% with count=counters.all_na %}
+                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                    {% endwith %}
+                    <span class="label left"><i class="icon-group"></i></span>
+                </div>
+            </div>
+
+            <div class="span2">
+                <div class="action-nav-button">
+                    <a href="{{ issues_url }}?state=open&amp;pr=yes" title="All open pull requests">
+                        <i class="icon-upload-alt"></i>
+                        <span>Pull requests</span>
+                    </a>
+                    {% with count=counters.all_prs %}
+                        <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
+                    {% endwith %}
+                    <span class="label left"><i class="icon-group"></i></span>
+                </div>
+            </div>
+
+        </div>{# .action-nav-normal #}
+    {% endwith %}
 </div>{# .box#counters #}

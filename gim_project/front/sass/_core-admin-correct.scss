@@ -11,7 +11,11 @@
             outline: none;
         }
     }
-}
+   .box-header:not(:first-child) {
+        border-top: solid 1px #ddd;
+        @include border-top-radius(0);
+    }
+ }
 
 // white background for chatbox content
 .chat-box {
@@ -97,5 +101,26 @@ $label-match-colors: success green, important red, info blue, warning purple, in
 .ibutton-container.no-text-transform > {
     .ibutton-label-on, .ibutton-label-off {
         text-transform: none;
+    }
+}
+
+.action-nav-normal {
+    .badge, .label {
+        &.top {
+            top: 3px;
+            bottom: auto;
+        }
+        &.bottom {
+            top: auto;
+            bottom: 3px;
+        }
+        &.right {
+            right: 3px;
+            left: auto;
+        }
+        &.left {
+            right: auto;
+            left: 3px;
+        }
     }
 }

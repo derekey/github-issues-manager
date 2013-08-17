@@ -1,10 +1,10 @@
-/* line 5, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 6, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section {
   overflow: auto;
   padding: 15px;
   padding-bottom: 0;
 }
-/* line 10, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 11, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > h3 {
   float: left;
   margin: 0;
@@ -13,7 +13,7 @@
   line-height: normal;
   cursor: pointer;
 }
-/* line 20, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 21, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > .date, #milestones .box-section > .all-issues-link {
   float: right;
   font-style: italic;
@@ -23,11 +23,11 @@
   -o-transition: opacity 0.35s;
   transition: opacity 0.35s;
 }
-/* line 26, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 27, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > .all-issues-link {
   margin-top: -10px;
 }
-/* line 29, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 30, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress {
   clear: both;
   -webkit-transition: height 0.35s;
@@ -35,12 +35,12 @@
   -o-transition: height 0.35s;
   transition: height 0.35s;
 }
-/* line 32, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 33, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress a {
   display: block;
   color: inherit;
 }
-/* line 36, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 37, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress span {
   opacity: 0;
   font-weight: bold;
@@ -49,70 +49,61 @@
   -o-transition: opacity 0.35s;
   transition: opacity 0.35s;
 }
-/* line 42, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 43, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > blockquote {
   margin: -10px 0 15px;
   float: left;
 }
-/* line 49, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 50, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > h3:not(.collapsed) ~ .date, #milestones .box-section > h3:not(.collapsed) ~ .all-issues-link {
   opacity: 1;
 }
-/* line 52, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 53, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > h3:not(.collapsed) ~ div.progress {
   height: 20px;
 }
-/* line 54, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 55, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > h3:not(.collapsed) ~ div.progress span {
   opacity: 1;
 }
 
 /* line 64, ../../../../../sass/pages/repository/dashboard.scss */
-#counters table {
-  font-weight: bold;
+#counters {
+  margin-bottom: 15px;
 }
-/* line 67, ../../../../../sass/pages/repository/dashboard.scss */
-#counters td:last-child {
-  text-align: center;
+/* line 66, ../../../../../sass/pages/repository/dashboard.scss */
+#counters .action-nav-button {
+  width: 8em;
 }
 /* line 69, ../../../../../sass/pages/repository/dashboard.scss */
-#counters td:last-child a {
+#counters .label.left {
+  background: transparent;
   color: inherit;
-  display: block;
+  text-shadow: none;
 }
 
 /* line 77, ../../../../../sass/pages/repository/dashboard.scss */
-#labels .box-header:not(:first-child) {
-  border-top: solid 1px #ddd;
-  -moz-border-radius-topleft: 0;
-  -webkit-border-top-left-radius: 0;
-  border-top-left-radius: 0;
-  -moz-border-radius-topright: 0;
-  -webkit-border-top-right-radius: 0;
-  border-top-right-radius: 0;
-}
-/* line 81, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-content {
   padding: 5px;
 }
-/* line 84, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 80, ../../../../../sass/pages/repository/dashboard.scss */
 #labels ul {
   text-align: justify;
   margin: 0;
 }
-/* line 87, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 83, ../../../../../sass/pages/repository/dashboard.scss */
 #labels ul li {
   display: inline-block;
   margin: 5px 10px;
   padding-bottom: 2px;
   border-bottom: solid 3px transparent;
 }
-/* line 92, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 88, ../../../../../sass/pages/repository/dashboard.scss */
 #labels ul li span {
   margin-left: 5px;
   font-weight: bold;
 }
-/* line 98, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 94, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-footer {
   text-align: center;
 }
