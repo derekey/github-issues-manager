@@ -297,15 +297,28 @@
                                 Labels
                                 <i class="icon-caret-down"></i>
                                 {% if issues_filter.objects.current_labels %}
-                                    {% attributes_for_list issues_filter.objects.current_labels "name" as current_label_names %}
-                                        <span class="selection">
-                                            {{ current_label_names|join:", " }}
-                                        </span>
-                                    </a>
-                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
+                                    {% if issues_filter.objects.current_labels|length == 1 and issues_filter.objects.current_labels.0 == 'none' %}
+                                            <span class="selection">
+                                                (&nbsp;No&nbsp;label&nbsp;)
+                                            </span>
+                                            </a>
+                                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" %}" title="Clear this filter"><i class="icon-remove"> </i>
+                                     {% else %}
+                                        {% attributes_for_list issues_filter.objects.current_labels "name" as current_label_names %}
+                                            <span class="selection">
+                                                {{ current_label_names|join:", " }}
+                                            </span>
+                                        </a>
+                                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
+                                    {% endif %}
                                 {% endif %}
                             </a>
                             <ul id="filter-labels" class="collapse filter-labels">
+                                <li{% if issues_filter.objects.current_labels|length == 1 and issues_filter.objects.current_labels.0 == 'none' %} class="active"{% endif %}>
+                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "labels" "none" %}">
+                                        (&nbsp;No&nbsp;label&nbsp;)
+                                    </a>
+                                </li>
                                 {% if untyped_labels|length > 10 %}
                                     <li>
                                         {% include "front/include_quicksearch.html" with id="filter-labels" target="#filter-labels li.untyped_label" only %}

@@ -24,5 +24,10 @@
                 </ul>
             </div>
         {% endfor %}
+        {% if without_labels %}
+            <div class="box-footer padded">
+                <a href="{{ issues_url }}?state=open&amp;labels=none">{{ without_labels }} issue{{ without_labels|pluralize }} without labels</a>
+            </div>
+        {% endif %}
     {% endwith %}
 </div>

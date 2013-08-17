@@ -73,6 +73,8 @@ class IssuesView(BaseRepositoryView):
             return None
         if not isinstance(label_names, list):
             label_names = [label_names]
+        if len(label_names) == 1 and label_names[0] == 'none':
+            return label_names
         return list(self.repository.labels.filter(name__in=label_names))
 
     def _get_group_by(self, qs_parts):
@@ -173,13 +175,19 @@ class IssuesView(BaseRepositoryView):
             filter_objects['current_label_types'] = {}
             filter_objects['current_labels'] = []
             qs_filters['labels'] = []
-            for label in labels:
-                qs_filters['labels'].append(label.name)
-                if label.label_type_id and label.label_type_id not in filter_objects['current_label_types']:
-                    filter_objects['current_label_types'][label.label_type_id] = label
-                elif not label.label_type_id:
-                    filter_objects['current_labels'].append(label)
-                queryset = queryset.filter(labels=label.id)
+            if len(labels) == 1 and labels[0] == 'none':
+                label = labels[0]
+                qs_filters['labels'].append(label)
+                filter_objects['current_labels'].append(label)
+                queryset = queryset.filter(labels__isnull=True)
+            else:
+                for label in labels:
+                    qs_filters['labels'].append(label.name)
+                    if label.label_type_id and label.label_type_id not in filter_objects['current_label_types']:
+                        filter_objects['current_label_types'][label.label_type_id] = label
+                    elif not label.label_type_id:
+                        filter_objects['current_labels'].append(label)
+                    queryset = queryset.filter(labels=label.id)
 
         # prepare order, by group then asked ordering
         order_by = []

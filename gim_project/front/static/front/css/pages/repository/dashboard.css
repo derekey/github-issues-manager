@@ -112,3 +112,7 @@
   margin-left: 5px;
   font-weight: bold;
 }
+/* line 98, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-footer {
+  text-align: center;
+}

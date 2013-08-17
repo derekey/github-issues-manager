@@ -184,6 +184,8 @@ class LabelsPart(RepositoryDashboardPartView):
         context = super(LabelsPart, self).get_context_data(**kwargs)
         context.update({
             'labels_groups': self.get_labels_groups(),
+            'without_labels': self.repository.issues.filter(
+                                    state='open', labels__isnull=True).count()
         })
         return context
 
