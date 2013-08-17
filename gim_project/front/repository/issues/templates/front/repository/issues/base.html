@@ -222,7 +222,7 @@
                                 {% if issues_filter.objects.milestone %}
                                         <span class="selection">
                                             {% if issues_filter.objects.milestone == 'none' %}
-                                                (&nbsp;No&nbsp;milestone&nbsp;)
+                                                (&nbsp;No&nbsp;milestones&nbsp;)
                                             {% else %}
                                                 {{ issues_filter.objects.milestone }}
                                             {% endif %}
@@ -234,7 +234,7 @@
                             <ul id="filter-milestone" class="collapse">
                                 <li{% if issues_filter.parts.milestone == "none" %} class="active"{% endif %}>
                                     <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">
-                                        (&nbsp;No&nbsp;milestone&nbsp;)
+                                        (&nbsp;No&nbsp;milestones&nbsp;)
                                     </a>
                                 </li>
                                 {% if milestones|length > 10 %}
@@ -299,7 +299,7 @@
                                 {% if issues_filter.objects.current_labels %}
                                     {% if issues_filter.objects.current_labels|length == 1 and issues_filter.objects.current_labels.0 == 'none' %}
                                             <span class="selection">
-                                                (&nbsp;No&nbsp;label&nbsp;)
+                                                (&nbsp;No&nbsp;labels&nbsp;)
                                             </span>
                                             </a>
                                         <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" %}" title="Clear this filter"><i class="icon-remove"> </i>
@@ -316,7 +316,7 @@
                             <ul id="filter-labels" class="collapse filter-labels">
                                 <li{% if issues_filter.objects.current_labels|length == 1 and issues_filter.objects.current_labels.0 == 'none' %} class="active"{% endif %}>
                                     <a href="{{ current_issues_url }}{% toggle_in_querystring "labels" "none" %}">
-                                        (&nbsp;No&nbsp;label&nbsp;)
+                                        (&nbsp;No&nbsp;labels&nbsp;)
                                     </a>
                                 </li>
                                 {% if untyped_labels|length > 10 %}
