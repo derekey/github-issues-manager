@@ -1,4 +1,5 @@
 @import "compass/css3/transition";
+@import "compass/css3/border-radius";
 
 #milestones {
     .box-section {
@@ -68,6 +69,30 @@
         a {
             color: inherit;
             display: block;
+        }
+    }
+}
+
+#labels {
+    .box-header:not(:first-child) {
+        border-top: solid 1px #ddd;
+        @include border-top-radius(0);
+    }
+    .box-content {
+        padding: 5px;
+    }
+    ul {
+        text-align: justify;
+        margin: 0;
+        li {
+            display: inline-block;
+            margin: 5px 10px;
+            padding-bottom: 2px;
+            border-bottom: solid 3px transparent;
+            span {
+                margin-left: 5px;
+                font-weight: bold;
+            }
         }
     }
 }

@@ -1,4 +1,7 @@
 
+from itertools import groupby
+from operator import attrgetter
+
 from markdown import markdown
 
 from django.db.models import Count
@@ -82,7 +85,7 @@ class MilestonesPart(RepositoryDashboardPartView):
 
             else:
                 milestone.non_assigned_issues_count = milestone.assigned_issues_count = \
-                milestone.open_issues_count = milestone.closed_issues_count = 0
+                    milestone.open_issues_count = milestone.closed_issues_count = 0
 
         return milestones
 
@@ -114,7 +117,6 @@ class CountersPart(RepositoryDashboardPartView):
         else:
             counters['all_na'] = counters['all_prs'] = 0
 
-
         counters['created'] = base_filter.filter(user=self.request.user).count()
         # Unable to actually manage more urls for than one filter on people
         # counters['created_na'] = base_filter.filter(user=self.request.user, assignee__isnull=True).count()
@@ -140,6 +142,52 @@ class CountersPart(RepositoryDashboardPartView):
         return context
 
 
+class LabelsPart(RepositoryDashboardPartView):
+    template_name = 'front/repository/dashboard/include_labels.html'
+    url_name = 'dashboard.labels'
+
+    issues_count_subquery = """
+        SELECT COUNT(*)
+            FROM core_issue
+                INNER JOIN core_issue_labels
+                    ON core_issue.id = core_issue_labels.issue_id
+            WHERE
+                core_issue_labels.label_id = core_label.id
+                AND
+                state = 'open'
+    """
+
+    def get_labels_groups(self):
+        labels_with_count = self.repository.labels.extra(
+            select={'issues_count': self.issues_count_subquery},
+            where=['issues_count > 0']
+        ).select_related('label_type')
+
+        groups = [
+            (
+                label_type,
+                sorted(labels, key=lambda l: l.name.lower())
+            )
+            for label_type, labels
+            in groupby(
+                labels_with_count,
+                attrgetter('label_type')
+            )
+        ]
+
+        if len(groups) > 1 and groups[0][0] is None:
+            groups = groups[1:] + groups[:1]
+
+        return groups
+
+    def get_context_data(self, **kwargs):
+        context = super(LabelsPart, self).get_context_data(**kwargs)
+        context.update({
+            'labels_groups': self.get_labels_groups(),
+        })
+        return context
+
+
 class DashboardView(BaseRepositoryView):
     name = 'Dashboard'
     url_name = 'dashboard'
@@ -151,5 +199,6 @@ class DashboardView(BaseRepositoryView):
         context['parts'] = {}
         context['parts']['milestones'] = MilestonesPart().get_as_part(self)
         context['parts']['counters'] = CountersPart().get_as_part(self)
+        context['parts']['labels'] = LabelsPart().get_as_part(self)
 
         return context

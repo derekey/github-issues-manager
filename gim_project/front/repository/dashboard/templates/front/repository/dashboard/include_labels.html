@@ -1,0 +1,28 @@
+{% load repository_tags %}
+<div class="box deferrable" id="labels" data-url="{{ defer_url }}">
+    {% with issues_url=current_repository|repository_view_url:'issues' %}
+        {% for label_type, labels in labels_groups %}
+            <div class="box-header">
+                <div class="title">
+                    {% if label_type %}
+                        {{ label_type.name }}
+                    {% else %}
+                        {% if labels_groups|length > 1 %}Other labels{% else %}Labels{% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="box-content">
+                <ul class="unstyled">
+                    {% for label in labels %}
+                        <li style="border-bottom-color: #{{ label.color }}">
+                            <a href="{{ issues_url }}?state=open&amp;labels={{ label.name }}">
+                                {{ label.typed_name }}
+                                <span>{{ label.issues_count }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% endwith %}
+</div>
