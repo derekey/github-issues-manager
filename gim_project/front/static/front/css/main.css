@@ -124,6 +124,25 @@ blockquote p:last-child {
   border-radius: 0;
 }
 
+/* line 47, ../../../sass/_bootstrap-correct.scss */
+.modal-footer > .row-fluid > [class*="span"] {
+  text-align: center;
+}
+/* line 49, ../../../sass/_bootstrap-correct.scss */
+.modal-footer > .row-fluid > [class*="span"]:first-child {
+  text-align: left;
+}
+/* line 52, ../../../sass/_bootstrap-correct.scss */
+.modal-footer > .row-fluid > [class*="span"]:last-child {
+  text-align: right;
+}
+
+/* line 58, ../../../sass/_bootstrap-correct.scss */
+.container-fluid > .alert {
+  margin-left: 22px;
+  margin-right: 22px;
+}
+
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar img {
   display: inline-block;

@@ -1,5 +1,11 @@
 $().ready(function() {
 
+    var on_popover_stop_propopagation_event = function(ev) {
+        // mandatory to avoid events beeing propagated to the modal containing this popover
+        ev.stopPropagation();
+    };
+
+
     var TestButton = {
         $button: $('#label-type-test-button'),
         initialized: false,
@@ -16,7 +22,7 @@ $().ready(function() {
             TestButton.update_content_and_show(data);
         },
         on_test_failed: function() {
-            TestButton.update_content_and_show('<div class="alert alert-error">An internal problem prevented us to do the test</div>');
+            TestButton.update_content_and_show('<div class="alert alert-error">A problem prevented us to do the test</div>');
         },
         on_popover_stop_propopagation_event: function(ev) {
             // mandatory to avoid events beeing propagated to the modal containing this popover
@@ -37,9 +43,9 @@ $().ready(function() {
         init: function() {
             TestButton.$button.popover({html: true})
                 .on('show', TestButton.on_popover_show)
-                .on('shown', TestButton.on_popover_stop_propopagation_event)
-                .on('hide', TestButton.on_popover_stop_propopagation_event)
-                .on('hidden', TestButton.on_popover_stop_propopagation_event);
+                .on('shown', on_popover_stop_propopagation_event)
+                .on('hide', on_popover_stop_propopagation_event)
+                .on('hidden', on_popover_stop_propopagation_event);
         }
     }; // TestButton
     TestButton.init();
@@ -49,6 +55,7 @@ $().ready(function() {
         $modal_body: $('#label-type-edit-form .modal-body'),
         $modal_footer: $('#label-type-edit-form .modal-footer'),
         $modal_submit: $('#label-type-edit-form .modal-footer button.submit'),
+        $modal_delete: $('#label-type-edit-form .modal-footer button.delete'),
         edit_mode_texts: {
             1: 'The more powerful mode, you can enter a real regular expression to automatically assign labels to this group',
             2: 'This intermediate mode allow you to simply construct a format to automatically assign labels to this group',
@@ -85,6 +92,7 @@ $().ready(function() {
         update: function() {
             LabelTypeForm.prepare_edit_mode_select2();
             LabelTypeForm.prepare_labels_list_select2();
+            LabelTypeForm.$modal_delete.toggle(!!LabelTypeForm.get_form().data('delete-url'));
         },
         on_sample_click: function(ev) {
             ev.preventDefault();
@@ -99,6 +107,7 @@ $().ready(function() {
         },
         on_modal_hidden: function(ev) {
             TestButton.$button.popover('hide');
+            LabelTypeForm.$modal_delete.popover('hide');
         },
         init_modal: function(ev) {
             LabelTypeForm.$modal.modal({
@@ -117,7 +126,7 @@ $().ready(function() {
             $('.label-type .box-header .title .label').remove();
         },
         on_load_failed: function($link) {
-            LabelTypeForm.update_modal_body_and_show($link, '<div class="alert alert-error">An internal problem prevented us to display the form</div>');
+            LabelTypeForm.update_modal_body_and_show($link, '<div class="alert alert-error">A problem prevented us to display the form</div>');
         },
         on_link_click: function(ev) {
             ev.preventDefault();
@@ -136,6 +145,11 @@ $().ready(function() {
                 });
 
         },
+        redraw_content: function(data) {
+            $('.container-fluid').children('.row-fluid.label-type, .alert').remove();
+            $('.container-fluid > .row-fluid.row-header').after(data);
+            LabelTypeForm.$modal.modal('hide');
+        },
         on_submit_done: function(data) {
             if (data.substr(0, 6) == '<form ') {
                 // we have an error, the whole form is returned
@@ -145,15 +159,13 @@ $().ready(function() {
                 LabelTypeForm.$modal_body.scrollTop(0);
             } else {
                 // no error, we replace the whole content
-                $('.container-fluid .row-fluid.label-type').remove();
-                $('.container-fluid .row-fluid.row-header').after(data);
-                LabelTypeForm.$modal.modal('hide');
+                LabelTypeForm.redraw_content(data);
             }
             LabelTypeForm.$modal_submit.removeClass('loading');
         },
         on_submit_failed: function() {
             LabelTypeForm.$modal_submit.removeClass('loading');
-            LabelTypeForm.$modal_footer.prepend('<div class="alert alert-error">An internal problem prevented us to save your changes</div>');
+            LabelTypeForm.$modal_footer.prepend('<div class="alert alert-error">A problem prevented us to save the group</div>');
         },
         on_form_submit: function(ev) {
             ev.preventDefault();
@@ -165,6 +177,42 @@ $().ready(function() {
                 .done(LabelTypeForm.on_submit_done)
                 .fail(LabelTypeForm.on_submit_failed);
         },
+        on_cancel_deletion: function(ev) {
+            LabelTypeForm.$modal_delete.popover('hide');
+        },
+        on_delete_done: function(data) {
+            LabelTypeForm.redraw_content(data);
+            LabelTypeForm.$modal_delete.removeClass('loading');
+        },
+        on_delete_failed: function() {
+            LabelTypeForm.$modal_delete.removeClass('loading');
+            LabelTypeForm.$modal_footer.prepend('<div class="alert alert-error">A problem prevented us to delete this group</div>');
+        },
+        on_confirm_deletion: function(ev) {
+            LabelTypeForm.$modal_delete.popover('hide');
+            LabelTypeForm.$modal_delete.addClass('loading');
+            var $edit_form = LabelTypeForm.get_form(),
+                url = $edit_form.data('delete-url'),
+                data = {
+                    csrfmiddlewaretoken: $edit_form[0].csrfmiddlewaretoken.value
+                };
+            if (url && data.csrfmiddlewaretoken) {
+                $.post(url, data)
+                    .done(LabelTypeForm.on_delete_done)
+                    .fail(LabelTypeForm.on_delete_failed);
+            } else {
+                LabelTypeForm.on_delete_failed();
+            }
+        },
+        init_deletion: function() {
+            LabelTypeForm.$modal_delete.popover()
+                .on('show', on_popover_stop_propopagation_event)
+                .on('shown', on_popover_stop_propopagation_event)
+                .on('hide', on_popover_stop_propopagation_event)
+                .on('hidden', on_popover_stop_propopagation_event);
+            LabelTypeForm.$modal_footer.on('click', '.cancel', LabelTypeForm.on_cancel_deletion);
+            LabelTypeForm.$modal_footer.on('click', '.confirm', LabelTypeForm.on_confirm_deletion);
+        },
         init: function(labels) {
             var $document = $(document);
             LabelTypeForm.labels_list_select2_options.tags = labels;
@@ -173,6 +221,7 @@ $().ready(function() {
             $document.on('submit', '#label-type-form', LabelTypeForm.on_form_submit);
             LabelTypeForm.$modal_submit.on('click', LabelTypeForm.on_form_submit);
             $document.on('click', '.label-type-samples li', LabelTypeForm.on_sample_click);
+            LabelTypeForm.init_deletion();
         }
     }; // LabelTypeForm
 

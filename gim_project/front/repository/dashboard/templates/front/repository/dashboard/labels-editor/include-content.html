@@ -1,3 +1,7 @@
+{% if view.request.is_ajax and view.request.GET.just_deleted %}
+    <div class="alert alert-success">The group previously named "{{ view.request.GET.just_deleted }}" is now deleted</div>
+{% endif %}
+
 {% for label_type in label_types %}
     {% include label_type_include_template with label_type=label_type labels=label_type.labels.all %}
 {% endfor %}

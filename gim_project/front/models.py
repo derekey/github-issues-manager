@@ -70,6 +70,10 @@ class _LabelType(models.Model):
         from front.repository.dashboard.views import LabelTypeEdit
         return reverse_lazy('front:repository:%s' % LabelTypeEdit.url_name, kwargs=self.get_reverse_kwargs())
 
+    def get_delete_url(self):
+        from front.repository.dashboard.views import LabelTypeDelete
+        return reverse_lazy('front:repository:%s' % LabelTypeDelete.url_name, kwargs=self.get_reverse_kwargs())
+
 contribute_to_model(_LabelType, core_models.LabelType)
 
 

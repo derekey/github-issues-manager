@@ -42,3 +42,20 @@ blockquote p {
     border: none;
     @include border-radius(0)
 }
+
+// align modal-footer if many groups of content (buttons...)
+.modal-footer > .row-fluid > [class*="span"] {
+    text-align: center;
+    &:first-child {
+        text-align: left;
+    }
+    &:last-child {
+        text-align: right;
+    }
+}
+
+// correct margin arround alert
+.container-fluid > .alert {
+    margin-left: 22px;
+    margin-right: 22px;
+}

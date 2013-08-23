@@ -6,7 +6,7 @@ from markdown import markdown
 
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
-from django.views.generic import UpdateView, CreateView
+from django.views.generic import UpdateView, CreateView, DeleteView
 from django.template.response import TemplateResponse
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
@@ -359,3 +359,23 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
         context['matching_labels'] = matching_labels
 
         return self.render_to_response(context)
+
+
+class LabelTypeDelete(LabelTypeFormBaseView, DeleteView):
+    url_name = 'dashboard.labels.editor.label_type.delete'
+    model = LabelType
+    pk_url_kwarg = 'label_type_id'
+    http_method_names = [u'post']
+
+    def post(self, *args, **kwargs):
+        if not self.request.is_ajax():
+            return self.http_method_not_allowed(self.request)
+        return super(LabelTypeDelete, self).post(*args, **kwargs)
+
+    def get_success_url(self):
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        return '%s?just_deleted=%s' % (
+            reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
+            self.object.name
+        )
+

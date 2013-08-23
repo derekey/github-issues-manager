@@ -1,7 +1,8 @@
 from django.conf.urls import patterns, url
 
 from .views import (DashboardView, MilestonesPart, CountersPart, LabelsPart,
-                    LabelsEditor, LabelTypeCreate, LabelTypeEdit, LabelTypePreview)
+                    LabelsEditor, LabelTypeCreate, LabelTypeEdit,
+                    LabelTypePreview, LabelTypeDelete)
 
 urlpatterns = patterns('',
     url(r'^$', DashboardView.as_view(), name=DashboardView.url_name),
@@ -12,5 +13,6 @@ urlpatterns = patterns('',
     url(r'^labels/editor/$', LabelsEditor.as_view(), name=LabelsEditor.url_name),
     url(r'^labels/editor/group/create/$', LabelTypeCreate.as_view(), name=LabelTypeCreate.url_name),
     url(r'^labels/editor/group/(?P<label_type_id>\d+)/edit/$', LabelTypeEdit.as_view(), name=LabelTypeEdit.url_name),
+    url(r'^labels/editor/group/(?P<label_type_id>\d+)/delete/$', LabelTypeDelete.as_view(), name=LabelTypeDelete.url_name),
     url(r'^labels/editor/group/preview/$', LabelTypePreview.as_view(), name=LabelTypePreview.url_name),
 )

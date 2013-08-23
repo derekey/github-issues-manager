@@ -22,9 +22,16 @@
         <div class="modal-body">
         </div>
         <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-default btn-loading" id="label-type-test-button" data-toggle="popover" data-placement="top" data-content="<i class='icon-spinner icon-spin'> </i> Loading..." title="Matching labels" >Test it ! <i class='icon-spinner icon-spin'> </i></button>
-            <button class="btn btn-blue submit btn-loading">Save changes <i class='icon-spinner icon-spin'> </i></button>
+            <div class="row-fluid">
+                <div class="span6">
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-red btn-loading delete" data-title="" data-content="<button class='btn btn-red confirm'>Confirm deletion</button> <button class='btn btn-default cancel'>Cancel</button>" data-html="true" data-toggle="popover">Delete <i class='icon-spinner icon-spin'> </i></button>
+                </div>
+                <div class="span6">
+                    <button class="btn btn-default btn-loading" id="label-type-test-button" data-toggle="popover" data-placement="top" data-content="<i class='icon-spinner icon-spin'> </i> Loading..." data-title="Matching labels" >Test it ! <i class='icon-spinner icon-spin'> </i></button>
+                    <button class="btn btn-blue submit btn-loading">Save the group <i class='icon-spinner icon-spin'> </i></button>
+                </div>
+            </div>
         </div>
     </div>{# #label-type-edit-form #}
 
