@@ -4,6 +4,7 @@ python-dateutil
 django-extensions
 ipython
 markdown
+django-jsonfield
 git+ssh://git@github.com/twidi/pytimeago.git#egg=pytimeago
 django-debug-toolbar
 git+git://github.com/twidi/django-debug-toolbar-template-timings.git#egg=template_timings

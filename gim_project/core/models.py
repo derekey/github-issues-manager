@@ -13,6 +13,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 
+from jsonfield import JSONField
+from extended_choices import Choices
+
 from .ghpool import parse_header_links, ApiError, ApiNotFoundError, Connection
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
@@ -680,17 +683,25 @@ class Repository(GithubObjectWithId):
         self.fetch_comments(gh, force_fetch=force_fetch)
 
 
+LABELTYPE_EDITMODE = Choices(
+    ('LIST', 3, u'List of labels'),
+    ('FORMAT', 2, u'Simple format'),
+    ('REGEX', 1, u'Regular expression'),
+)
+
+
 class LabelType(models.Model):
     repository = models.ForeignKey(Repository, related_name='label_types')
     regex = models.TextField(
-        help_text='Must contain at least to parts: "(?P<type>name-of-the-type)" and "(?P<label>visible-part-of-the-label)", and can include "(?P<order>\d+)" for ordering',
+        help_text='Must contain at least this part: (?P<label>visible-part-of-the-label)", and can include "(?P<order>\d+)" for ordering',
         validators=[
-            validators.RegexValidator(re.compile('\(\?\P<type>.+\)'), 'Must contain a "type" part: "(?P<type>name-of-the-type)"', 'invalid'),
-            validators.RegexValidator(re.compile('\(\?\P<label>.+\)'), 'Must contain a "label" part: "(?P<label>visible-part-of-the-label)"', 'invalid'),
-            validators.RegexValidator(re.compile('^(?!.*\(\?P<order>(?!\\\d\+\))).*$'), 'If an order is present, it must math a number: the exact part must be: "(?P<order>\d+)"', 'invalid'),
+            validators.RegexValidator(re.compile('\(\?\P<label>.+\)'), 'Must contain a "label" part: "(?P<label>visible-part-of-the-label)"', 'no-label'),
+            validators.RegexValidator(re.compile('^(?!.*\(\?P<order>(?!\\\d\+\))).*$'), 'If an order is present, it must math a number: the exact part must be: "(?P<order>\d+)"', 'invalid-order'),
         ]
     )
-    name = models.TextField(db_index=True)
+    name = models.CharField(max_length=250, db_index=True)
+    edit_mode = models.PositiveSmallIntegerField(choices=LABELTYPE_EDITMODE.CHOICES, default=LABELTYPE_EDITMODE.REGEX)
+    edit_details = JSONField(blank=True, null=True)
 
     objects = LabelTypeManager()
 
@@ -721,7 +732,7 @@ class LabelType(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Check validity, save the label type, and apply label-type search for
+        Check validity, save the label-type, and apply label-type search for
         all labels of the repository
         """
 
