@@ -79,6 +79,14 @@
     .alert {
         text-align: center;
     }
+    .popover-content { 
+        label {
+            margin-bottom: 0;
+            & + .errorlist {
+                margin-left: 5px;
+            }
+        }
+    }
 }
 
 .btn-loading {
@@ -91,3 +99,4 @@
         }
     }
 }
+

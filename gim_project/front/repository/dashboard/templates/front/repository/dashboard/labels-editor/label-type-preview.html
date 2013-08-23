@@ -2,13 +2,18 @@
     <div class="alert alert-error">
         There is a problem with your configuration
     </div>
-    {% comment %}
-    <p>{{ form.non_field_errors }}    </p>
+
+    {% if form.non_field_errors %}
+        <p>{{ form.non_field_errors }}    </p>
+    {% endif %}
+
     {% for field in form %}
-        {{ field.name }}
-        {{ field.errors }}
+        {% if field.errors %}
+            <label>{{ field.label }}:</label>
+            {{ field.errors }}
+        {% endif %}
     {% endfor %}
-    {% endcomment %}
+    
 {% else %}
     {% if matching_labels %}
         <ul class="unstyled labels">

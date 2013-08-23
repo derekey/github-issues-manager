@@ -1435,12 +1435,20 @@ div.selector span {
 .modal-footer .alert {
   text-align: center;
 }
-
+/* line 83, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.modal-footer .popover-content label {
+  margin-bottom: 0;
+}
 /* line 85, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.modal-footer .popover-content label + .errorlist {
+  margin-left: 5px;
+}
+
+/* line 93, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .btn-loading i {
   display: none !important;
 }
-/* line 89, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 97, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .btn-loading.loading i {
   display: inline-block !important;
 }
