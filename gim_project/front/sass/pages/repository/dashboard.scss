@@ -91,13 +91,7 @@
             @include border-left-radius(0);
         }
         ul {
-            text-align: justify;
-            margin: 0;
             li {
-                display: inline-block;
-                margin: 5px 10px;
-                padding-bottom: 2px;
-                border-bottom: solid 3px transparent;
                 span {
                     margin-left: 5px;
                     font-weight: bold;
@@ -111,4 +105,15 @@
     .box-footer {
         text-align: center;
     }
+}
+
+ul.labels {
+    text-align: justify;
+    margin: 0;
+    li {
+        display: inline-block;
+        margin: 5px 10px;
+        padding-bottom: 2px;
+        border-bottom: solid 3px transparent;
+    }    
 }
