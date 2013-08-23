@@ -1,0 +1,45 @@
+{% extends "front/repository/dashboard/base.html" %}
+{% load staticfiles jsonify %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link href="{% static "front/css/pages/repository/dashboard-editor.css" %}" rel="stylesheet">
+{% endblock extra_css %}
+
+{% block body_id %}labels-editor{% endblock %}
+
+{% block dashboard-subtitle %}<h5>Labels and groups editor</h5>{% endblock %}
+
+{% block dashboard-content %}
+
+    {% for label_type, labels in labels_groups %}
+        {% include label_type_include_template with label_type=label_type labels=labels only %}
+    {% endfor %}
+
+    <div id="label-type-edit-form" class="modal hide fade">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h6 id="modal-formLabel">Group editor</h6>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-default btn-loading" id="label-type-test-button" data-toggle="popover" data-placement="top" data-content="<i class='icon-spinner icon-spin'> </i> Loading..." title="Matching labels" >Test it ! <i class='icon-spinner icon-spin'> </i></button>
+            <button class="btn btn-blue submit btn-loading">Save changes <i class='icon-spinner icon-spin'> </i></button>
+        </div>
+    </div>{# #label-type-edit-form #}
+
+{% endblock dashboard-content %}
+
+{% block js_footer %}
+    {{ block.super }}
+    <script src="{% static "front/js/select2.js" %}" type="text/javascript"></script>
+    <script src="{% static "front/js/repository-labels-editor.js" %}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $().ready(function() {
+            LabelTypeForm.init({{ all_labels|jsonify }});
+        });
+    </script>
+{% endblock js_footer %}

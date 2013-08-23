@@ -18,20 +18,22 @@
     </ul>
     <ul class="nav">
         {% for main_view in repository_main_views %}
-            <li{% if main_view.is_current %} class="active"{% endif %}>
-                <a role="menuitem" href="{{ main_view.url }}{% if main_view.qs %}?{{ main_view.qs }}{% endif %}">
-                    {% if main_view.url_name == 'dashboard' %}
-                        <i class="icon-dashboard"> </i>
-                    {% elif main_view.url_name == 'issues' %}
-                        <i class="icon-sitemap"> </i>
-                    {% elif main_view.url_name == 'workflow' %}
-                        <i class="icon-columns"> </i>
-                    {% elif main_view.url_name == 'timeline' %}
-                        <i class="icon-align-justify"> </i>
-                    {% endif %}
-                    {{ main_view.title }}
-                </a>
-            </li>
+            {% if main_view.display_in_menu %}
+                <li{% if main_view.is_current %} class="active"{% endif %}>
+                    <a role="menuitem" href="{{ main_view.url }}{% if main_view.qs %}?{{ main_view.qs }}{% endif %}">
+                        {% if main_view.url_name == 'dashboard' %}
+                            <i class="icon-dashboard"> </i>
+                        {% elif main_view.url_name == 'issues' %}
+                            <i class="icon-sitemap"> </i>
+                        {% elif main_view.url_name == 'workflow' %}
+                            <i class="icon-columns"> </i>
+                        {% elif main_view.url_name == 'timeline' %}
+                            <i class="icon-align-justify"> </i>
+                        {% endif %}
+                        {{ main_view.title }}
+                    </a>
+                </li>
+        {% endif %}
         {% endfor %}
     </ul>
 {% endblock header_nav %}

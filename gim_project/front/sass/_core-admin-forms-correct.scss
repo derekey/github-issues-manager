@@ -1,0 +1,17 @@
+// correct width and height of "uniform" select
+[class*="span"] > div.selector {
+   width: 100% !important;
+}
+div.selector { 
+    font-family: $sansFontFamily;
+    height: auto;
+    line-height: normal;
+    &:after {
+        top: 0;
+    }
+    span {
+       width: auto !important;
+       height: 24px;
+       line-height: 24px;
+    }
+}

@@ -1,10 +1,15 @@
-/* line 6, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 7, ../../../../../sass/pages/repository/dashboard.scss */
+.area-top .header h5 {
+  margin-left: 32px;
+}
+
+/* line 14, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section {
   overflow: auto;
   padding: 15px;
   padding-bottom: 0;
 }
-/* line 11, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 19, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > h3 {
   float: left;
   margin: 0;

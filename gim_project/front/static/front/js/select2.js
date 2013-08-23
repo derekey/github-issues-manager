@@ -1,0 +1,1 @@
+../../../core-admin/javascripts/vendor/select2.js

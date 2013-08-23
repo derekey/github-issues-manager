@@ -52,6 +52,27 @@ class _Repository(models.Model):
 contribute_to_model(_Repository, core_models.Repository)
 
 
+class _LabelType(models.Model):
+    class Meta:
+        abstract = True
+
+    def get_reverse_kwargs(self):
+        """
+        Return the kwargs to use for "reverse"
+        """
+        return {
+            'owner_username': self.repository.owner.username,
+            'repository_name': self.repository.name,
+            'label_type_id': self.id
+        }
+
+    def get_edit_url(self):
+        from front.repository.dashboard.views import LabelTypeEdit
+        return reverse_lazy('front:repository:%s' % LabelTypeEdit.url_name, kwargs=self.get_reverse_kwargs())
+
+contribute_to_model(_LabelType, core_models.LabelType)
+
+
 class _Issue(models.Model):
     class Meta:
         abstract = True

@@ -1,0 +1,39 @@
+<div class="row-fluid label-type" id="label-type-{{ label_type.id|default:'none' }}">
+    <div class="box span12">
+
+        <div class="box-header">
+            <span class="title">
+                {% if label_type %}
+                    {{ label_type.name }}
+                    {% if just_edited %}
+                        <span class="label label-success">Edit successful !</span>
+                    {% endif %}
+                {% else %}
+                    Others
+                {% endif %}
+            </span>
+            <ul class="box-toolbar">
+                <li class="btn-edit-label-type">
+                {% if label_type %}
+                    <a class="btn btn-blue btn-loading" href="{{ label_type.get_edit_url }}">Edit <i class='icon-spinner icon-spin'> </i></a>
+                {% else %}
+                    {# <a class="btn btn-blue" href="">Add a group</a> #}
+                {% endif %}
+                </li>
+            </ul>
+        </div>{# .box-header #}
+
+        <div class="box-content">
+
+            <ul class="unstyled labels">
+                {% for label in labels %}
+                    <li style="border-bottom-color: #{{ label.color }}">
+                        {{ label.typed_name }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>{# .box-content #}
+
+    </div>{# .box #}
+</div>{# .row-fluid #}

@@ -1,14 +1,18 @@
 
 from itertools import groupby
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 
 from markdown import markdown
 
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy
+from django.views.generic import UpdateView
+from django.template.response import TemplateResponse
 
-from ..views import BaseRepositoryView, RepositoryMixin
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
+from core.models import LabelType
+from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
+from .forms import LabelTypeEditForm
 
 
 class RepositoryDashboardPartView(RepositoryMixin):
@@ -140,7 +144,29 @@ class CountersPart(RepositoryDashboardPartView):
         return context
 
 
-class LabelsPart(RepositoryDashboardPartView):
+class GroupLabels(object):
+
+    def group_labels(self, labels):
+
+        groups = [
+            (
+                label_type,
+                sorted(labels, key=lambda l: l.name.lower())
+            )
+            for label_type, labels
+            in groupby(
+                labels,
+                attrgetter('label_type')
+            )
+        ]
+
+        if len(groups) > 1 and groups[0][0] is None:
+            groups = groups[1:] + groups[:1]
+
+        return groups
+
+
+class LabelsPart(RepositoryDashboardPartView, GroupLabels):
     template_name = 'front/repository/dashboard/include_labels.html'
     url_name = 'dashboard.labels'
 
@@ -166,45 +192,147 @@ class LabelsPart(RepositoryDashboardPartView):
         labels_with_count = self.repository.labels.extra(
                                         **extra).select_related('label_type')
 
-        groups = [
-            (
-                label_type,
-                sorted(labels, key=lambda l: l.name.lower())
-            )
-            for label_type, labels
-            in groupby(
-                labels_with_count,
-                attrgetter('label_type')
-            )
-        ]
-
-        if len(groups) > 1 and groups[0][0] is None:
-            groups = groups[1:] + groups[:1]
-
-        return groups
+        return self.group_labels(labels_with_count)
 
     def get_context_data(self, **kwargs):
         context = super(LabelsPart, self).get_context_data(**kwargs)
+
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+
         context.update({
             'show_empty_labels': self.request.GET.get('show-empty-labels', False),
             'labels_groups': self.get_labels_groups(),
             'without_labels': self.repository.issues.filter(
                                     state='open', labels__isnull=True).count(),
+            'labels_editor_url': reverse_lazy(
+                'front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
         })
+
         return context
 
 
 class DashboardView(BaseRepositoryView):
     name = 'Dashboard'
     url_name = 'dashboard'
-    template_name = 'front/repository/dashboard/base.html'
+    template_name = 'front/repository/dashboard/dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super(DashboardView, self).get_context_data(**kwargs)
 
-        context['parts'] = {}
-        context['parts']['milestones'] = MilestonesPart().get_as_part(self)
-        context['parts']['counters'] = CountersPart().get_as_part(self)
-        context['parts']['labels'] = LabelsPart().get_as_part(self)
+        context['parts'] = {
+            'milestones': MilestonesPart().get_as_part(self),
+            'counters': CountersPart().get_as_part(self),
+            'labels': LabelsPart().get_as_part(self),
+        }
 
         return context
+
+
+class LabelsEditor(BaseRepositoryView, GroupLabels):
+    name = 'Labels Editor'
+    url_name = 'dashboard.labels.editor'
+    template_name = 'front/repository/dashboard/labels-editor/base.html'
+    display_in_menu = False
+    label_type_include_template = 'front/repository/dashboard/labels-editor/include-label-type.html'
+
+    def get_labels_groups(self):
+        return self.group_labels(self.repository.labels.all())
+
+    def get_context_data(self, **kwargs):
+        context = super(LabelsEditor, self).get_context_data(**kwargs)
+
+        context.update({
+            'labels_groups': self.get_labels_groups(),
+            'all_labels': self.repository.labels.order_by('name').values_list('name', flat=True),
+            'label_type_include_template': self.label_type_include_template,
+        })
+
+        return context
+
+
+class LabelTypeFormBaseView(LinkedToRepositoryFormView, UpdateView):
+    model = LabelType
+    pk_url_kwarg = 'label_type_id'
+    form_class = LabelTypeEditForm
+
+
+class LabelTypeEdit(LabelTypeFormBaseView):
+    url_name = 'dashboard.labels.editor.label_type.edit'
+    template_name = 'front/repository/dashboard/labels-editor/label-type-edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LabelTypeEdit, self).get_context_data(**kwargs)
+
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        context['preview_url'] = reverse_lazy(
+                'front:repository:%s' % LabelTypePreview.url_name, kwargs=reverse_kwargs)
+
+        return context
+
+    def form_valid(self, form):
+        """
+        Return the html block to use on the main page
+        """
+        self.object = form.save()
+
+        context = {
+            'label_type': self.object,
+            'labels': self.object.labels.all(),
+            'just_edited': True,
+        }
+
+        return TemplateResponse(
+                    self.request,
+                    LabelsEditor.label_type_include_template,
+                    context
+                )
+
+
+class LabelTypePreview(LabelTypeFormBaseView):
+    url_name = 'dashboard.labels.editor.label_type.edit'
+    template_name = 'front/repository/dashboard/labels-editor/label-type-preview.html'
+    http_method_names = [u'post']
+
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        return LabelType(repository=self.repository)
+
+    def form_invalid(self, form):
+        context = {
+            'form': form,
+            'error': True,
+        }
+        return self.render_to_response(context)
+
+    def form_valid(self, form):
+        context = {
+            'form': form,
+            'error': False
+        }
+
+        labels = self.repository.labels.order_by('name')
+
+        matching_labels = []
+        has_order = True
+
+        for label in labels:
+            if self.object.match(label.name):
+                typed_name, order = self.object.get_name_and_order(label.name)
+                label_data = {
+                    'name': label.name,
+                    'typed_name': typed_name,
+                    'color': label.color,
+                }
+                if order is None:
+                    has_order = False
+                else:
+                    label_data['order'] = order
+
+                matching_labels.append(label_data)
+
+        matching_labels.sort(key=itemgetter('order' if has_order else 'typed_name'))
+
+        context['matching_labels'] = matching_labels
+
+        return self.render_to_response(context)

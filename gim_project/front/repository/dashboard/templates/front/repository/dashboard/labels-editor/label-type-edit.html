@@ -1,0 +1,152 @@
+<form action="{{ form.instance.get_edit_url }}" method="post" class="fill-up{% if form.edit_mode.value %} mode{{ form.edit_mode.value }}{% endif %}" id="label-type-form" data-preview-url="{{ preview_url }}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}    
+
+    <div>
+        {{ form.name.label_tag }}
+        {{ form.name.errors }}
+        {{ form.name }}
+    </div>
+
+    <div>
+        {{ form.edit_mode.label_tag }}
+        {{ form.name.errors }}
+        {{ form.edit_mode }}
+        <div class="note">
+            {{ form.edit_mode.help_text}}
+        </div>
+    </div>
+
+    <div class="for-mode1">
+        {{ form.regex.label_tag }}
+        {{ form.regex.errors }}
+        {{ form.regex }}
+        <div class="note">
+            {{ form.regex.help_text }}
+        </div>
+    </div>
+
+    <div class="for-mode1">
+        You can pick an example below:
+        <div class="box label-type-samples" data-target="#id_regex">
+            <div class="box-content">
+                <ul class="box-list">
+                    <li>
+                        <a href="">
+                            <strong>^Workflow - (?P&lt;order&gt;\d+) - (?P&lt;label&gt;.+)$</strong>
+                            <div class="note">
+                                Ex: "Workflow - 0 - <b>pending</b>", "Workflow - 1 - <b>assigned</b>"
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <strong>^Type: (?P&lt;label&gt;.+)$</strong>
+                            <div class="note">
+                                Ex: "Type: <b>bug</b>", "Type: <b>enhancement</b>"
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <strong>^\[component\] (?P&lt;label&gt;.+)$</strong>
+                            <div class="note">
+                                Ex: "[component] <b>search</b>", "[component] <b>contact-form</b>"
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <strong>^Priority:(?P&lt;order&gt;\d+):(?P&lt;label&gt;.+)$</strong>
+                            <div class="note">
+                                Ex: "Priority:0:<b>low</b>", "Priority:1:<b>medium</b>"
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <strong>^(?P&lt;order&gt;\d+) - (?P&lt;label&gt;.+)$</strong>
+                            <div class="note">
+                                Ex: "0 - <b>Backlog</b>", "1- <b>Assigned</b>"
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="for-mode2">
+        {{ form.format_string.label_tag }}
+        {{ form.format_string.errors }}
+        {{ form.format_string }}
+        <div class="note">
+            {{ form.format_string.help_text|safe }}
+        </div>
+    </div>
+
+    <div class="for-mode2">
+        You can pick an example below:
+        <div class="box label-type-samples" data-target="#id_format_string">
+            <div class="box-content">
+                <ul class="box-list">
+                    <li>
+                        <a href="">
+                            <strong>Workflow - {order} - {label}</strong>
+                            <div class="note">
+                                Ex: "Workflow - 0 - <b>pending</b>", "Workflow - 1 - <b>assigned</b>"
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <strong>Type: {label}</strong>
+                            <div class="note">
+                                Ex: "Type: <b>bug</b>", "Type: <b>enhancement</b>"
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <strong>[component] {label}</strong>
+                            <div class="note">
+                                Ex: "[component] <b>search</b>", "[component] <b>contact-form</b>"
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <strong>Prioriy:{order}:{label}</strong>
+                            <div class="note">
+                                Ex: "priority:0:<b>low</b>", "priority:1:<b>medium</b>"
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <strong>{order} - {label}</strong>
+                            <div class="note">
+                                Ex: "0 - <b>Backlog</b>", "1- <b>Assigned</b>"
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="for-mode3">
+        {{ form.labels_list.label_tag }}
+        {{ form.labels_list.errors }}
+        {{ form.labels_list }}
+        <div class="note">
+            {{ form.labels_list.help_text }}
+        </div>
+    </div>
+
+
+    <input type='submit' name='submit' value='Save changes' />
+</form>
+<script type="text/javascript">
+    LabelTypeForm.update();
+</script>

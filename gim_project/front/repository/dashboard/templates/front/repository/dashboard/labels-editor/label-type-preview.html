@@ -1,0 +1,24 @@
+{% if error %}
+    <div class="alert alert-error">
+        There is a problem with your configuration
+    </div>
+    {% comment %}
+    <p>{{ form.non_field_errors }}    </p>
+    {% for field in form %}
+        {{ field.name }}
+        {{ field.errors }}
+    {% endfor %}
+    {% endcomment %}
+{% else %}
+    {% if matching_labels %}
+        <ul class="unstyled labels">
+            {% for label in matching_labels %}
+                <li title="{{ label.name }}" style="border-bottom-color: #{{ label.color }};">{{ label.typed_name }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert">
+            No matching labels !
+        </div>
+    {% endif %}
+{% endif %}

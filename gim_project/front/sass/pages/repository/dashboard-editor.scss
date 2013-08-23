@@ -1,0 +1,93 @@
+@import "bootstrap/variables";
+@import "select2";
+@import "select2_overrides";
+@import "modal";
+// @import "uniform_default";
+@import "form_elements";
+@import "core-admin-forms-correct.scss";
+
+
+#labels-editor {
+    .btn-edit-label-type {
+        padding-right: 4px;
+        a {
+            position: relative;
+            top: -1px;
+        }
+    }
+}
+
+.label-type .box-header .title .label {
+    display: inline-block;
+    margin-left: 1em;
+    opacity: 0;
+    @include transition(opacity 0.5s);
+    &.show {
+        opacity: 1;        
+    }
+    &.hide {
+        opacity: 0;
+        @include transition-duration(2s);        
+    }
+}
+
+#label-type-edit-form {
+    form {
+        input[type=submit] {
+            display: none;
+        }
+        & > div > label + input[type=text] + .note {
+            margin-top: -10px;
+        }
+    }
+}
+
+.for-mode1, .for-mode2, .for-mode3 {
+    display: none;
+}
+.mode1 .for-mode1,
+.mode2 .for-mode2,
+.mode3 .for-mode3 {
+    display: block;
+}
+
+.edit-mode-dropdown {
+    .select2-results {
+        max-height: none;
+    }
+    li.select2-highlighted .note {
+        color: white;
+    }
+}
+
+.label-type-samples {
+    margin-top: 5px;
+    .note {
+        margin-bottom: 0;
+    }
+    li {
+        cursor: pointer;
+    }
+}
+
+.modal-footer  {
+    // keep btn style even if a popover is inserted
+    .btn + div.popover + .btn {
+        margin-bottom: 0px;
+        margin-left: 5px;
+    }
+    .alert {
+        text-align: center;
+    }
+}
+
+.btn-loading {
+    i {
+        display: none !important;
+    }
+    &.loading {
+        i {
+            display: inline-block !important;
+        }
+    }
+}

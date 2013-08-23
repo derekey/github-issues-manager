@@ -5,9 +5,12 @@
         <div class="box-header">
             <span class="title">Labels</span>
             <ul class="box-toolbar">
-              <li title="Check to also see labels with no issues">
-                <input name="show-empty-labels" type="checkbox" value="1"{% if show_empty_labels %} checked="checked"{% endif %}/>
-              </li>
+                <li title="Check to also see labels with no issues">
+                    <input name="show-empty-labels" type="checkbox" value="1"{% if show_empty_labels %} checked="checked"{% endif %}/>
+                </li>
+                <li class="toolbar-link">
+                    <a href="{{ labels_editor_url }}">Edit labels &amp; groups</a>
+                </li>
             </ul>
         </div>{# .box-header #}
 

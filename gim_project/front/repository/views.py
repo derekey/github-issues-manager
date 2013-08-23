@@ -4,6 +4,8 @@ from django.utils.decorators import classonlymethod
 from django.views.generic import DetailView
 
 from ..views import SubscribedRepositoriesMixin
+from subscriptions.models import SUBSCRIPTION_STATES
+from core.models import Repository
 
 
 class RepositoryMixin(SubscribedRepositoriesMixin, DetailView):
@@ -38,6 +40,9 @@ class BaseRepositoryView(RepositoryMixin):
     name = None
     url_name = None
     default_qs = None
+
+    # set to False to not display in the main menu bar
+    display_in_menu = True
 
     # internal attributes
     main_views = []
@@ -74,6 +79,7 @@ class BaseRepositoryView(RepositoryMixin):
         for view_class in BaseRepositoryView.main_views:
             main_view = {
                 'url_name': view_class.url_name,
+                'display_in_menu': view_class.display_in_menu,
                 'url': reverse_lazy('front:repository:%s' % view_class.url_name, kwargs=reverse_kwargs),
                 'qs': view_class.default_qs,
                 'is_current': self.main_url_name == view_class.url_name,
@@ -84,3 +90,28 @@ class BaseRepositoryView(RepositoryMixin):
         context['repository_main_views'] = repo_main_views
 
         return context
+
+
+class LinkedToRepositoryFormView(object):
+    repository_related_name = 'repository'
+    allowed_rights = (SUBSCRIPTION_STATES.USER, SUBSCRIPTION_STATES.ADMIN)
+
+    def get_repository_kwargs(self):
+        return {
+            'owner__username': self.kwargs.get('owner_username', None),
+            'name': self.kwargs.get('repository_name', None),
+        }
+
+    def get_queryset(self):
+        repository_kwargs = self.get_repository_kwargs()
+
+        self.repository = get_object_or_404(
+            Repository.objects.filter(
+                    subscriptions__user=self.request.user,
+                    subscriptions__state__in=self.allowed_rights,
+                ),
+            **repository_kwargs)
+
+        return self.model._default_manager.filter(**{
+                self.repository_related_name: self.repository
+            })
