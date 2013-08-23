@@ -6,7 +6,9 @@
                 {% if label_type %}
                     {{ label_type.name }}
                     {% if just_edited %}
-                        <span class="label label-success">Edit successful !</span>
+                        <span class="label label-success">Just edited !</span>
+                    {% elif just_created %}
+                        <span class="label label-success">Just created !</span>
                     {% endif %}
                 {% else %}
                     Others
@@ -17,7 +19,7 @@
                 {% if label_type %}
                     <a class="btn btn-blue btn-loading" href="{{ label_type.get_edit_url }}">Edit <i class='icon-spinner icon-spin'> </i></a>
                 {% else %}
-                    {# <a class="btn btn-blue" href="">Add a group</a> #}
+                    <a class="btn btn-blue btn-loading" href="{{ label_type_create_url }}">Add a group <i class='icon-spinner icon-spin'> </i></a>
                 {% endif %}
                 </li>
             </ul>
@@ -25,6 +27,7 @@
 
         <div class="box-content">
 
+        {% if labels %}
             <ul class="unstyled labels">
                 {% for label in labels %}
                     <li style="border-bottom-color: #{{ label.color }}">
@@ -32,6 +35,15 @@
                     </li>
                 {% endfor %}
             </ul>
+        {% else %}
+            <p class="empty-area">
+                {% if label_type %}
+                    No labels for this group
+                {% else %}
+                    No labels with no group
+                {% endif %}
+            </p>
+        {% endif %}
 
         </div>{# .box-content #}
 

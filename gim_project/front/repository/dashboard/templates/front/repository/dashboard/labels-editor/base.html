@@ -12,9 +12,10 @@
 
 {% block dashboard-content %}
 
-    {% for label_type, labels in labels_groups %}
-        {% include label_type_include_template with label_type=label_type labels=labels only %}
+    {% for label_type in label_types %}
+        {% include label_type_include_template with label_type=label_type labels=label_type.labels.all label_type_create_url=label_type_create_url only %}
     {% endfor %}
+    {% include label_type_include_template with label_type=None labels=labels_without_type label_type_create_url=label_type_create_url only %}
 
     <div id="label-type-edit-form" class="modal hide fade">
         <div class="modal-header">

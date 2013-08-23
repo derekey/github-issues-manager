@@ -147,7 +147,12 @@ $().ready(function() {
                 // no error, refresh the whole page
                 var $block = LabelTypeForm.get_form().data('edit-link').closest('.row-fluid'),
                     id = $block.attr('id');
-                $block.replaceWith(data);
+                if (id == 'label-type-none') {
+                    $block.before(data);
+                    id = $block.prev().attr('id');
+                } else {                    
+                    $block.replaceWith(data);
+                }
                 LabelTypeForm.$modal.modal('hide');
                 var $label = $('#' + id + ' .box-header .title .label');
                 setTimeout(function() {

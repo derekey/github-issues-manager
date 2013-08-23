@@ -6,11 +6,11 @@ from markdown import markdown
 
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import UpdateView
+from django.views.generic import UpdateView, CreateView
 from django.template.response import TemplateResponse
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
-from core.models import LabelType
+from core.models import LabelType, LABELTYPE_EDITMODE
 from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
 from .forms import LabelTypeEditForm
 
@@ -242,32 +242,49 @@ class LabelsEditor(BaseRepositoryView, GroupLabels):
         context = super(LabelsEditor, self).get_context_data(**kwargs)
 
         context.update({
-            'labels_groups': self.get_labels_groups(),
+            'label_types': self.repository.label_types.all().prefetch_related('labels'),
+            'labels_without_type': self.repository.labels.filter(label_type__isnull=True),
             'all_labels': self.repository.labels.order_by('name').values_list('name', flat=True),
             'label_type_include_template': self.label_type_include_template,
         })
 
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        context['label_type_create_url'] = reverse_lazy(
+                'front:repository:%s' % LabelTypeCreate.url_name, kwargs=reverse_kwargs)
+
         return context
 
 
-class LabelTypeFormBaseView(LinkedToRepositoryFormView, UpdateView):
+class LabelTypeFormBaseView(LinkedToRepositoryFormView):
     model = LabelType
     pk_url_kwarg = 'label_type_id'
     form_class = LabelTypeEditForm
 
+    def get_form_kwargs(self):
+        kwargs = super(LabelTypeFormBaseView, self).get_form_kwargs()
+        kwargs['repository'] = self.repository
+        return kwargs
 
-class LabelTypeEdit(LabelTypeFormBaseView):
-    url_name = 'dashboard.labels.editor.label_type.edit'
+
+class LabelTypeEditBase(LabelTypeFormBaseView):
     template_name = 'front/repository/dashboard/labels-editor/label-type-edit.html'
 
     def get_context_data(self, **kwargs):
-        context = super(LabelTypeEdit, self).get_context_data(**kwargs)
+        context = super(LabelTypeEditBase, self).get_context_data(**kwargs)
 
         reverse_kwargs = self.repository.get_reverse_kwargs()
         context['preview_url'] = reverse_lazy(
                 'front:repository:%s' % LabelTypePreview.url_name, kwargs=reverse_kwargs)
+        context['label_type_create_url'] = reverse_lazy(
+                'front:repository:%s' % LabelTypeCreate.url_name, kwargs=reverse_kwargs)
 
         return context
+
+    def form_valid_context(self, form):
+        return {
+            'label_type': self.object,
+            'labels': self.object.labels.all(),
+        }
 
     def form_valid(self, form):
         """
@@ -275,20 +292,35 @@ class LabelTypeEdit(LabelTypeFormBaseView):
         """
         self.object = form.save()
 
-        context = {
-            'label_type': self.object,
-            'labels': self.object.labels.all(),
-            'just_edited': True,
-        }
-
         return TemplateResponse(
                     self.request,
                     LabelsEditor.label_type_include_template,
-                    context
+                    self.form_valid_context(form),
                 )
 
 
-class LabelTypePreview(LabelTypeFormBaseView):
+class LabelTypeEdit(LabelTypeEditBase, UpdateView):
+    url_name = 'dashboard.labels.editor.label_type.edit'
+
+    def form_valid_context(self, form):
+        context = super(LabelTypeEdit, self).form_valid_context(form)
+        context['just_edited'] = True
+        return context
+
+
+class LabelTypeCreate(LabelTypeEditBase, CreateView):
+    url_name = 'dashboard.labels.editor.label_type.create'
+    initial = {
+        'edit_mode': LABELTYPE_EDITMODE.FORMAT
+    }
+
+    def form_valid_context(self, form):
+        context = super(LabelTypeCreate, self).form_valid_context(form)
+        context['just_created'] = True
+        return context
+
+
+class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
     url_name = 'dashboard.labels.editor.label_type.edit'
     template_name = 'front/repository/dashboard/labels-editor/label-type-preview.html'
     http_method_names = [u'post']
@@ -297,6 +329,11 @@ class LabelTypePreview(LabelTypeFormBaseView):
         if queryset is None:
             queryset = self.get_queryset()
         return LabelType(repository=self.repository)
+
+    def get_form(self, form_class):
+        form = super(LabelTypePreview, self).get_form(form_class)
+        form.fields['name'].required = False
+        return form
 
     def form_invalid(self, form):
         context = {

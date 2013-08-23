@@ -1,6 +1,7 @@
-<form action="{{ form.instance.get_edit_url }}" method="post" class="fill-up{% if form.edit_mode.value %} mode{{ form.edit_mode.value }}{% endif %}" id="label-type-form" data-preview-url="{{ preview_url }}">
+<form action="{% if form.instance.id %}{{ form.instance.get_edit_url }}{% else %}{{ label_type_create_url }}{% endif %}" method="post" class="fill-up{% if form.edit_mode.value %} mode{{ form.edit_mode.value }}{% endif %}" id="label-type-form" data-preview-url="{{ preview_url }}">
+
     {% csrf_token %}
-    {{ form.non_field_errors }}    
+    {{ form.non_field_errors }}
 
     <div>
         {{ form.name.label_tag }}
@@ -10,7 +11,7 @@
 
     <div>
         {{ form.edit_mode.label_tag }}
-        {{ form.name.errors }}
+        {{ form.edit_mode.errors }}
         {{ form.edit_mode }}
         <div class="note">
             {{ form.edit_mode.help_text}}

@@ -36,6 +36,8 @@ class LabelTypeEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
 
+        self.repository = kwargs.pop('repository')
+
         if kwargs.get('instance') and kwargs['instance'].edit_mode != LABELTYPE_EDITMODE.REGEX and kwargs['instance'].edit_details:
             if 'initial' not in kwargs:
                 kwargs['initial'] = {}
@@ -104,6 +106,7 @@ class LabelTypeEditForm(forms.ModelForm):
         """
         Reset the edit_details json field that keep edit
         """
+        self.instance.repository = self.repository
         self.instance.edit_details = {}
 
         if self.instance.edit_mode == LABELTYPE_EDITMODE.FORMAT:

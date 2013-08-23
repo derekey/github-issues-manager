@@ -102,7 +102,7 @@ class LinkedToRepositoryFormView(object):
             'name': self.kwargs.get('repository_name', None),
         }
 
-    def get_queryset(self):
+    def dispatch(self, *args, **kwargs):
         repository_kwargs = self.get_repository_kwargs()
 
         self.repository = get_object_or_404(
@@ -112,6 +112,9 @@ class LinkedToRepositoryFormView(object):
                 ),
             **repository_kwargs)
 
+        return super(LinkedToRepositoryFormView, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
         return self.model._default_manager.filter(**{
                 self.repository_related_name: self.repository
             })
