@@ -18,17 +18,7 @@
 }
 
 .label-type .box-header .title .label {
-    display: inline-block;
     margin-left: 1em;
-    opacity: 0;
-    @include transition(opacity 0.5s);
-    &.show {
-        opacity: 1;        
-    }
-    &.hide {
-        opacity: 0;
-        @include transition-duration(2s);        
-    }
 }
 
 #label-type-edit-form {

@@ -114,7 +114,7 @@ $().ready(function() {
         },
         on_load_done: function($link, data) {
             LabelTypeForm.update_modal_body_and_show($link, data);
-            LabelTypeForm.get_form().data('edit-link', $link);
+            $('.label-type .box-header .title .label').remove();
         },
         on_load_failed: function($link) {
             LabelTypeForm.update_modal_body_and_show($link, '<div class="alert alert-error">An internal problem prevented us to display the form</div>');
@@ -134,9 +134,9 @@ $().ready(function() {
                 .fail(function(data) {
                     LabelTypeForm.on_load_failed($link);
                 });
+
         },
         on_submit_done: function(data) {
-            LabelTypeForm.$modal_submit.removeClass('loading');
             if (data.substr(0, 6) == '<form ') {
                 // we have an error, the whole form is returned
                 var $form = LabelTypeForm.get_form();
@@ -144,24 +144,12 @@ $().ready(function() {
                 LabelTypeForm.update();
                 LabelTypeForm.$modal_body.scrollTop(0);
             } else {
-                // no error, refresh the whole page
-                var $block = LabelTypeForm.get_form().data('edit-link').closest('.row-fluid'),
-                    id = $block.attr('id');
-                if (id == 'label-type-none') {
-                    $block.before(data);
-                    id = $block.prev().attr('id');
-                } else {                    
-                    $block.replaceWith(data);
-                }
+                // no error, we replace the whole content
+                $('.container-fluid .row-fluid.label-type').remove();
+                $('.container-fluid .row-fluid.row-header').after(data);
                 LabelTypeForm.$modal.modal('hide');
-                var $label = $('#' + id + ' .box-header .title .label');
-                setTimeout(function() {
-                    $label.addClass('show');
-                    setTimeout(function() {
-                        $label.addClass('hide');
-                    }, 2000);
-                }, 500);
             }
+            LabelTypeForm.$modal_submit.removeClass('loading');
         },
         on_submit_failed: function() {
             LabelTypeForm.$modal_submit.removeClass('loading');

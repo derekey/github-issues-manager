@@ -5,10 +5,12 @@
             <span class="title">
                 {% if label_type %}
                     {{ label_type.name }}
-                    {% if just_edited %}
-                        <span class="label label-success">Just edited !</span>
-                    {% elif just_created %}
-                        <span class="label label-success">Just created !</span>
+                    {% if view.request.is_ajax %}
+                        {% if view.request.GET.just_edited|add:0 == label_type.id %}
+                            <span class="label label-success">Just edited !</span>
+                        {% elif view.request.GET.just_created|add:0 == label_type.id %}
+                            <span class="label label-success">Just created !</span>
+                        {% endif %}
                     {% endif %}
                 {% else %}
                     Others
@@ -30,7 +32,7 @@
         {% if labels %}
             <ul class="unstyled labels">
                 {% for label in labels %}
-                    <li style="border-bottom-color: #{{ label.color }}">
+                    <li style="border-bottom-color: #{{ label.color }}" title="{{ label.name }}">
                         {{ label.typed_name }}
                     </li>
                 {% endfor %}

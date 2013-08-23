@@ -5,7 +5,7 @@ from operator import attrgetter, itemgetter
 from markdown import markdown
 
 from django.db.models import Count
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView
 from django.template.response import TemplateResponse
 
@@ -144,7 +144,20 @@ class CountersPart(RepositoryDashboardPartView):
         return context
 
 
-class GroupLabels(object):
+class LabelsPart(RepositoryDashboardPartView):
+    template_name = 'front/repository/dashboard/include_labels.html'
+    url_name = 'dashboard.labels'
+
+    issues_count_subquery = """
+        SELECT COUNT(*)
+            FROM core_issue
+                INNER JOIN core_issue_labels
+                    ON core_issue.id = core_issue_labels.issue_id
+            WHERE
+                core_issue_labels.label_id = core_label.id
+                AND
+                state = 'open'
+    """
 
     def group_labels(self, labels):
 
@@ -164,22 +177,6 @@ class GroupLabels(object):
             groups = groups[1:] + groups[:1]
 
         return groups
-
-
-class LabelsPart(RepositoryDashboardPartView, GroupLabels):
-    template_name = 'front/repository/dashboard/include_labels.html'
-    url_name = 'dashboard.labels'
-
-    issues_count_subquery = """
-        SELECT COUNT(*)
-            FROM core_issue
-                INNER JOIN core_issue_labels
-                    ON core_issue.id = core_issue_labels.issue_id
-            WHERE
-                core_issue_labels.label_id = core_label.id
-                AND
-                state = 'open'
-    """
 
     def get_labels_groups(self):
         extra = {
@@ -228,15 +225,12 @@ class DashboardView(BaseRepositoryView):
         return context
 
 
-class LabelsEditor(BaseRepositoryView, GroupLabels):
-    name = 'Labels Editor'
+class LabelsEditor(BaseRepositoryView):
     url_name = 'dashboard.labels.editor'
     template_name = 'front/repository/dashboard/labels-editor/base.html'
+    template_name_ajax = 'front/repository/dashboard/labels-editor/include-content.html'
     display_in_menu = False
     label_type_include_template = 'front/repository/dashboard/labels-editor/include-label-type.html'
-
-    def get_labels_groups(self):
-        return self.group_labels(self.repository.labels.all())
 
     def get_context_data(self, **kwargs):
         context = super(LabelsEditor, self).get_context_data(**kwargs)
@@ -253,6 +247,11 @@ class LabelsEditor(BaseRepositoryView, GroupLabels):
                 'front:repository:%s' % LabelTypeCreate.url_name, kwargs=reverse_kwargs)
 
         return context
+
+    def get_template_names(self):
+        if self.request.is_ajax():
+            return [self.template_name_ajax]
+        return super(LabelsEditor, self).get_template_names()
 
 
 class LabelTypeFormBaseView(LinkedToRepositoryFormView):
@@ -273,39 +272,27 @@ class LabelTypeEditBase(LabelTypeFormBaseView):
         context = super(LabelTypeEditBase, self).get_context_data(**kwargs)
 
         reverse_kwargs = self.repository.get_reverse_kwargs()
-        context['preview_url'] = reverse_lazy(
-                'front:repository:%s' % LabelTypePreview.url_name, kwargs=reverse_kwargs)
-        context['label_type_create_url'] = reverse_lazy(
-                'front:repository:%s' % LabelTypeCreate.url_name, kwargs=reverse_kwargs)
+
+        context.update({
+            'preview_url': reverse_lazy(
+                    'front:repository:%s' % LabelTypePreview.url_name, kwargs=reverse_kwargs),
+            'label_type_create_url': reverse_lazy(
+                    'front:repository:%s' % LabelTypeCreate.url_name, kwargs=reverse_kwargs),
+        })
 
         return context
 
-    def form_valid_context(self, form):
-        return {
-            'label_type': self.object,
-            'labels': self.object.labels.all(),
-        }
-
-    def form_valid(self, form):
-        """
-        Return the html block to use on the main page
-        """
-        self.object = form.save()
-
-        return TemplateResponse(
-                    self.request,
-                    LabelsEditor.label_type_include_template,
-                    self.form_valid_context(form),
-                )
+    def get_success_url(self):
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
 
 
 class LabelTypeEdit(LabelTypeEditBase, UpdateView):
     url_name = 'dashboard.labels.editor.label_type.edit'
 
-    def form_valid_context(self, form):
-        context = super(LabelTypeEdit, self).form_valid_context(form)
-        context['just_edited'] = True
-        return context
+    def get_success_url(self):
+        url = super(LabelTypeEdit, self).get_success_url()
+        return '%s?just_edited=%d' % (url, self.object.id)
 
 
 class LabelTypeCreate(LabelTypeEditBase, CreateView):
@@ -314,10 +301,9 @@ class LabelTypeCreate(LabelTypeEditBase, CreateView):
         'edit_mode': LABELTYPE_EDITMODE.FORMAT
     }
 
-    def form_valid_context(self, form):
-        context = super(LabelTypeCreate, self).form_valid_context(form)
-        context['just_created'] = True
-        return context
+    def get_success_url(self):
+        url = super(LabelTypeCreate, self).get_success_url()
+        return '%s?just_created=%d' % (url, self.object.id)
 
 
 class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
