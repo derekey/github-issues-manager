@@ -8,9 +8,11 @@
                 <li title="Check to also see labels with no issues">
                     <input name="show-empty-labels" type="checkbox" value="1"{% if show_empty_labels %} checked="checked"{% endif %}/>
                 </li>
-                <li class="toolbar-link">
-                    <a href="{{ labels_editor_url }}">Edit labels &amp; groups</a>
-                </li>
+                {% if current_repository|can_user_write:user %}
+                    <li class="toolbar-link">
+                        <a href="{{ labels_editor_url }}">Edit labels &amp; groups</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>{# .box-header #}
 

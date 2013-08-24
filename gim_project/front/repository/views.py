@@ -94,7 +94,7 @@ class BaseRepositoryView(RepositoryMixin):
 
 class LinkedToRepositoryFormView(object):
     repository_related_name = 'repository'
-    allowed_rights = (SUBSCRIPTION_STATES.USER, SUBSCRIPTION_STATES.ADMIN)
+    allowed_rights = SUBSCRIPTION_STATES.WRITE
 
     def get_repository_kwargs(self):
         return {
@@ -103,14 +103,16 @@ class LinkedToRepositoryFormView(object):
         }
 
     def dispatch(self, *args, **kwargs):
-        repository_kwargs = self.get_repository_kwargs()
+        filters = {
+            'subscriptions__user': self.request.user
+        }
+        if self.allowed_rights != SUBSCRIPTION_STATES.ALL:
+            filters['subscriptions__state__in'] = self.allowed_rights
 
-        self.repository = get_object_or_404(
-            Repository.objects.filter(
-                    subscriptions__user=self.request.user,
-                    subscriptions__state__in=self.allowed_rights,
-                ),
-            **repository_kwargs)
+        queryset = Repository.objects.filter(**filters)
+
+        repository_kwargs = self.get_repository_kwargs()
+        self.repository = get_object_or_404(queryset, **repository_kwargs)
 
         return super(LinkedToRepositoryFormView, self).dispatch(*args, **kwargs)
 

@@ -51,21 +51,28 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
     'subscribed_repositories' in the context
     """
     model = Repository
+    allowed_rights = SUBSCRIPTION_STATES.READ
 
     @property
     def subscriptions(self):
         if not hasattr(self, '_subscriptions'):
-            self._subscriptions = list(self.request.user.subscriptions.exclude(
-                                            state=SUBSCRIPTION_STATES.NORIGHTS))
+            self._subscriptions = self.request.user.subscriptions.all()
+            if self.allowed_rights != SUBSCRIPTION_STATES.ALL:
+                self._subscriptions = self._subscriptions.filter(
+                                                state__in=self.allowed_rights)
         return self._subscriptions
 
     def get_queryset(self):
         """
         Limit repositories to the ones subscribed by the user
         """
-        queryset = super(SubscribedRepositoriesMixin, self).get_queryset()
-        repo_ids = [s.id for s in self.subscriptions]
-        return queryset.filter(id__in=repo_ids)
+        filters = {
+            'subscriptions__user': self.request.user
+        }
+        if self.allowed_rights != SUBSCRIPTION_STATES.ALL:
+            filters['subscriptions__state__in'] = self.allowed_rights
+
+        return Repository.objects.filter(**filters)
 
     def get_context_data(self, **kwargs):
         """
@@ -74,6 +81,9 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
         """
         context = super(SubscribedRepositoriesMixin, self).get_context_data(**kwargs)
 
-        context['subscribed_repositories'] = self.get_queryset().all().select_related('owner')
+        context['subscribed_repositories'] = Repository.objects.filter(
+               subscriptions__user=self.request.user,
+               subscriptions__state__in=SUBSCRIPTION_STATES.READ,
+           ).select_related('owner')
 
         return context

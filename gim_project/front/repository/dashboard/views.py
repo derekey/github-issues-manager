@@ -7,7 +7,6 @@ from markdown import markdown
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DeleteView
-from django.template.response import TemplateResponse
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
 from core.models import LabelType, LABELTYPE_EDITMODE
@@ -231,6 +230,7 @@ class LabelsEditor(BaseRepositoryView):
     template_name_ajax = 'front/repository/dashboard/labels-editor/include-content.html'
     display_in_menu = False
     label_type_include_template = 'front/repository/dashboard/labels-editor/include-label-type.html'
+    allowed_rights = SUBSCRIPTION_STATES.WRITE
 
     def get_context_data(self, **kwargs):
         context = super(LabelsEditor, self).get_context_data(**kwargs)
@@ -258,6 +258,7 @@ class LabelTypeFormBaseView(LinkedToRepositoryFormView):
     model = LabelType
     pk_url_kwarg = 'label_type_id'
     form_class = LabelTypeEditForm
+    allowed_rights = SUBSCRIPTION_STATES.WRITE
 
     def get_form_kwargs(self):
         kwargs = super(LabelTypeFormBaseView, self).get_form_kwargs()
