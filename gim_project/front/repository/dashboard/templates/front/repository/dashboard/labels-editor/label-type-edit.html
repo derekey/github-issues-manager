@@ -1,4 +1,4 @@
-<form action="{% if form.instance.id %}{{ form.instance.get_edit_url }}{% else %}{{ label_type_create_url }}{% endif %}" method="post" class="fill-up{% if form.edit_mode.value %} mode{{ form.edit_mode.value }}{% endif %}" id="label-type-form" data-preview-url="{{ preview_url }}"{% if form.instance.id %} data-delete-url="{{ form.instance.get_delete_url }}"{% endif %}>
+<form method="post" action="{% if form.instance.id %}{{ form.instance.get_edit_url }}{% else %}{{ label_type_create_url }}{% endif %}" method="post" class="fill-up{% if form.edit_mode.value %} mode{{ form.edit_mode.value }}{% endif %}" id="label-type-form" data-preview-url="{{ preview_url }}"{% if form.instance.id %} data-delete-url="{{ form.instance.get_delete_url }}"{% endif %}>
 
     {% csrf_token %}
     {{ form.non_field_errors }}

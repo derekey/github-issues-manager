@@ -9,9 +9,9 @@ from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DeleteView
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
-from core.models import LabelType, LABELTYPE_EDITMODE
+from core.models import LabelType, LABELTYPE_EDITMODE, Label
 from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
-from .forms import LabelTypeEditForm
+from .forms import LabelTypeEditForm, LabelEditForm
 
 
 class RepositoryDashboardPartView(RepositoryMixin):
@@ -246,6 +246,14 @@ class LabelsEditor(BaseRepositoryView):
         context['label_type_create_url'] = reverse_lazy(
                 'front:repository:%s' % LabelTypeCreate.url_name, kwargs=reverse_kwargs)
 
+        label_reverse_kwargs = dict(reverse_kwargs, label_id=0)
+        context['base_label_edit_url'] = reverse_lazy(
+                'front:repository:%s' % LabelEdit.url_name, kwargs=label_reverse_kwargs)
+        context['base_label_delete_url'] = reverse_lazy(
+                'front:repository:%s' % LabelDelete.url_name, kwargs=label_reverse_kwargs)
+        context['label_create_url'] = reverse_lazy(
+                'front:repository:%s' % LabelCreate.url_name, kwargs=reverse_kwargs)
+
         return context
 
     def get_template_names(self):
@@ -293,7 +301,7 @@ class LabelTypeEdit(LabelTypeEditBase, UpdateView):
 
     def get_success_url(self):
         url = super(LabelTypeEdit, self).get_success_url()
-        return '%s?just_edited=%d' % (url, self.object.id)
+        return '%s?group_just_edited=%d' % (url, self.object.id)
 
 
 class LabelTypeCreate(LabelTypeEditBase, CreateView):
@@ -304,7 +312,7 @@ class LabelTypeCreate(LabelTypeEditBase, CreateView):
 
     def get_success_url(self):
         url = super(LabelTypeCreate, self).get_success_url()
-        return '%s?just_created=%d' % (url, self.object.id)
+        return '%s?group_just_created=%d' % (url, self.object.id)
 
 
 class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
@@ -364,8 +372,6 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
 
 class LabelTypeDelete(LabelTypeFormBaseView, DeleteView):
     url_name = 'dashboard.labels.editor.label_type.delete'
-    model = LabelType
-    pk_url_kwarg = 'label_type_id'
     http_method_names = [u'post']
 
     def post(self, *args, **kwargs):
@@ -375,8 +381,60 @@ class LabelTypeDelete(LabelTypeFormBaseView, DeleteView):
 
     def get_success_url(self):
         reverse_kwargs = self.repository.get_reverse_kwargs()
-        return '%s?just_deleted=%s' % (
+        return '%s?group_just_deleted=%s' % (
             reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
             self.object.name
         )
 
+
+class LabelFormBaseView(LinkedToRepositoryFormView):
+    model = Label
+    pk_url_kwarg = 'label_id'
+    form_class = LabelEditForm
+    allowed_rights = SUBSCRIPTION_STATES.WRITE
+    http_method_names = [u'post']
+
+    def get_form_kwargs(self):
+        kwargs = super(LabelFormBaseView, self).get_form_kwargs()
+        kwargs['repository'] = self.repository
+        return kwargs
+
+    def post(self, *args, **kwargs):
+        if not self.request.is_ajax():
+            return self.http_method_not_allowed(self.request)
+        return super(LabelFormBaseView, self).post(*args, **kwargs)
+
+
+class LabelEditBase(LabelFormBaseView):
+    template_name = 'front/repository/dashboard/labels-editor/form-errors.html'
+
+    def get_success_url(self):
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
+
+
+class LabelEdit(LabelEditBase, UpdateView):
+    url_name = 'dashboard.labels.editor.label.edit'
+
+    def get_success_url(self):
+        url = super(LabelEdit, self).get_success_url()
+        return '%s?label_just_edited=%d' % (url, self.object.id)
+
+
+class LabelCreate(LabelEditBase, CreateView):
+    url_name = 'dashboard.labels.editor.label.create'
+
+    def get_success_url(self):
+        url = super(LabelCreate, self).get_success_url()
+        return '%s?label_just_created=%d' % (url, self.object.id)
+
+
+class LabelDelete(LabelFormBaseView, DeleteView):
+    url_name = 'dashboard.labels.editor.label.delete'
+
+    def get_success_url(self):
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        return '%s?label_just_deleted=%s' % (
+            reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
+            self.object.name
+        )

@@ -19,6 +19,7 @@
 
 .label-type .box-header .title .label {
     margin-left: 1em;
+    line-height: 13px;
 }
 
 #label-type-edit-form {
@@ -69,7 +70,7 @@
     .alert {
         text-align: center;
     }
-    .popover-content { 
+    .popover-content {
         label {
             margin-bottom: 0;
             & + .errorlist {
@@ -90,3 +91,58 @@
     }
 }
 
+.label-edit-form {
+    input[name=name] {
+        width: 182px;
+        margin-right: 5px;
+    }
+    input[name=color] {
+        width: 46px;
+        padding-left: 3px;
+    }
+    // spectrum
+    .sp-replacer {
+        padding: 3px;
+        vertical-align: top;
+    }
+    .sp-preview {
+        width: 26px;
+        height: 18px;
+    }
+}
+.label-type .labels li {
+    &.new-label {
+        padding: 0px;
+        border: medium none;
+        margin: {
+            top: 0px;
+            bottom: 0px;
+        }
+        & > a.btn {
+            line-height: 19px;
+            margin-top: 1px;
+        }
+   }
+    .popover {
+        .popover-title {
+            overflow: hidden;
+            strong {
+                border-bottom: solid transparent 3px;
+                line-height: 1.8em;
+            }
+        }
+        .popover-content {
+            label {
+                float: left;
+            }
+            .errorlist li {
+                margin: 0 {
+                    left: 5px;
+                }
+            }
+        }
+        .popover .popover-content {
+            white-space: nowrap;
+        }
+    }
+}

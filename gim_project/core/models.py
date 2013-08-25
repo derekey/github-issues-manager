@@ -27,7 +27,7 @@ UTC = tz.gettz('UTC')
 
 
 class GithubObject(models.Model):
-    fetched_at = models.DateTimeField()
+    fetched_at = models.DateTimeField(null=True, blank=True)
 
     objects = GithubObjectManager()
 

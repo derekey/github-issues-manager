@@ -1,5 +1,9 @@
-{% if view.request.is_ajax and view.request.GET.just_deleted %}
-    <div class="alert alert-success">The group previously named "{{ view.request.GET.just_deleted }}" is now deleted</div>
+{% if view.request.is_ajax %}
+    {% if view.request.GET.group_just_deleted %}
+        <div class="alert alert-success">The group previously named "{{ view.request.GET.group_just_deleted }}" is now deleted</div>
+    {% elif view.request.GET.label_just_deleted %}
+        <div class="alert alert-success">The label previously named "{{ view.request.GET.label_just_deleted }}" is now deleted</div>
+    {% endif %}
 {% endif %}
 
 {% for label_type in label_types %}

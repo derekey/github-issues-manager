@@ -3,17 +3,8 @@
         There is a problem with your configuration
     </div>
 
-    {% if form.non_field_errors %}
-        <p>{{ form.non_field_errors }}    </p>
-    {% endif %}
+    {% include "front/repository/dashboard/labels-editor/form-errors.html" %}
 
-    {% for field in form %}
-        {% if field.errors %}
-            <label>{{ field.label }}:</label>
-            {{ field.errors }}
-        {% endif %}
-    {% endfor %}
-    
 {% else %}
     {% if matching_labels %}
         <ul class="unstyled labels">

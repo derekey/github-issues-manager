@@ -1,9 +1,310 @@
 $().ready(function() {
+    var $document = $(document);
 
     var on_popover_stop_propopagation_event = function(ev) {
         // mandatory to avoid events beeing propagated to the modal containing this popover
         ev.stopPropagation();
     };
+
+    var escapeMarkup = function (markup) {
+        var replace_map = {
+            '\\': '&#92;',
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            "/": '&#47;'
+        };
+        return String(markup).replace(/[&<>"'\/\\]/g, function (match) {
+            return replace_map[match[0]];
+        });
+    };
+
+    var redraw_full_content = function(data) {
+        $('.container-fluid').children('.row-fluid.label-type, .alert').remove();
+        $('.container-fluid > .row-fluid.row-header').after(data);
+    }
+
+    var LabelEditor = {
+        opened_popover: null,
+        name_change_interval: null,
+        popover_options: {
+            title: '<strong style="border-bottom-color: #%(color)s">%(name)s</strong>',
+            content: $('#label-edit-form').html(),
+            html: true,
+            placement: function(tip, element) {
+                var $tip = $(tip);
+
+                // place the tip in the dom to get its width (will be redone exactly the same way in tooltip.js)
+                $tip.detach().css({ top: 0, left: 0, display: 'block' });
+                this.options.container ? $tip.appendTo(this.options.container) : $tip.insertAfter(this.$element)
+
+                var width = tip.offsetWidth + 10,  // arrow size
+                    pos = this.getPosition();
+
+                console.log(width, pos.right, pos.right + width, document.body.offsetWidth);
+
+                return (document.body.offsetWidth < pos.right + width) ? 'left' : 'right';
+            },
+            trigger: 'manual',
+        },
+        success_tooltip_options: {
+            template: '<div class="tooltip success"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+        },
+        spectrum_options: {
+            showInitial: true,
+            showInput: true,
+            showButtons: true,
+            clickoutFiresChange: true,
+            preferredFormat: "hex6",
+            maxSelectionSize: 10,
+            showPalette: true,
+            showSelectionPalette: true,
+            localStorageKey: "spectrum.label.color",
+            palette: [
+                ["rgb(0, 0, 0)", "rgb(67, 67, 67)", "rgb(102, 102, 102)", "rgb(153, 153, 153)","rgb(183, 183, 183)",
+                "rgb(204, 204, 204)", "rgb(217, 217, 217)", "rgb(239, 239, 239)", "rgb(243, 243, 243)", "rgb(255, 255, 255)"],
+                ["rgb(152, 0, 0)", "rgb(255, 0, 0)", "rgb(255, 153, 0)", "rgb(255, 255, 0)", "rgb(0, 255, 0)",
+                "rgb(0, 255, 255)", "rgb(74, 134, 232)", "rgb(0, 0, 255)", "rgb(153, 0, 255)", "rgb(255, 0, 255)"],
+                ["rgb(230, 184, 175)", "rgb(244, 204, 204)", "rgb(252, 229, 205)", "rgb(255, 242, 204)", "rgb(217, 234, 211)",
+                "rgb(208, 224, 227)", "rgb(201, 218, 248)", "rgb(207, 226, 243)", "rgb(217, 210, 233)", "rgb(234, 209, 220)"],
+                ["rgb(221, 126, 107)", "rgb(234, 153, 153)", "rgb(249, 203, 156)", "rgb(255, 229, 153)", "rgb(182, 215, 168)",
+                "rgb(162, 196, 201)", "rgb(164, 194, 244)", "rgb(159, 197, 232)", "rgb(180, 167, 214)", "rgb(213, 166, 189)"],
+                ["rgb(204, 65, 37)", "rgb(224, 102, 102)", "rgb(246, 178, 107)", "rgb(255, 217, 102)", "rgb(147, 196, 125)",
+                "rgb(118, 165, 175)", "rgb(109, 158, 235)", "rgb(111, 168, 220)", "rgb(142, 124, 195)", "rgb(194, 123, 160)"],
+                ["rgb(166, 28, 0)", "rgb(204, 0, 0)", "rgb(230, 145, 56)", "rgb(241, 194, 50)", "rgb(106, 168, 79)",
+                "rgb(69, 129, 142)", "rgb(60, 120, 216)", "rgb(61, 133, 198)", "rgb(103, 78, 167)", "rgb(166, 77, 121)"],
+                ["rgb(133, 32, 12)", "rgb(153, 0, 0)", "rgb(180, 95, 6)", "rgb(191, 144, 0)", "rgb(56, 118, 29)",
+                "rgb(19, 79, 92)", "rgb(17, 85, 204)", "rgb(11, 83, 148)", "rgb(53, 28, 117)", "rgb(116, 27, 71)"],
+                ["rgb(91, 15, 0)", "rgb(102, 0, 0)", "rgb(120, 63, 4)", "rgb(127, 96, 0)", "rgb(39, 78, 19)",
+                "rgb(12, 52, 61)", "rgb(28, 69, 135)", "rgb(7, 55, 99)", "rgb(32, 18, 77)", "rgb(76, 17, 48)"]
+            ]
+        },
+        finalize_spectrum_options: function() {
+            $.extend(LabelEditor.spectrum_options, {
+                move: LabelEditor.on_spectrum_change,
+                change: LabelEditor.on_spectrum_change,
+                hide: LabelEditor.on_spectrum_hide
+            });
+        },
+        update_color: function($color_input, color) {
+            if (!color) {
+                color = '#' + $color_input.val();
+            }
+            $color_input.data('label-title').css('border-bottom-color', color);
+        },
+        on_spectrum_change: function(color) {
+            LabelEditor.update_color($(this), color.toHexString());
+        },
+        on_spectrum_hide: function(ev) {
+            var $color_input = $(this);
+            $color_input.val($color_input.val().replace('#',  ''))
+            LabelEditor.update_color($color_input);
+        },
+        update_name: function($name_input) {
+            var $label_title = $name_input.data('label-title');
+            if ($label_title) {
+                $label_title.text($name_input.val().trim() || '...');
+            }
+        },
+        on_name_focus: function(ev) {
+            var $name_input = $(this);
+            if (LabelEditor.name_change_interval) {
+                clearInterval(LabelEditor.name_change_interval);
+            }
+            LabelEditor.name_change_interval = setInterval(function() {
+                LabelEditor.update_name($name_input);
+            }, 300);
+        },
+        on_name_blur: function(ev) {
+            if (LabelEditor.name_change_interval) {
+                clearInterval(LabelEditor.name_change_interval);
+                LabelEditor.name_change_interval = null;
+            }
+        },
+        init_popover: function($label) {
+            $label.data('parent-title', $label.parent().attr('title'));
+            var name = escapeMarkup($label.data('name')),
+                color = $label.data('color'),
+                id = $label.data('id'),
+                content = LabelEditor.popover_options.content
+                            .replace('%(name)s', name)
+                            .replace('%(color)s', color);
+            if (!id) {
+                content = content.replace('delete btn-loading', 'delete btn-loading hide');
+                content = content.replace('%(id)s', "");
+            } else {
+                content = content.replace('%(id)s', id);
+            }
+            $label.popover($.extend(
+                {},
+                LabelEditor.popover_options,
+                {
+                    title: LabelEditor.popover_options.title
+                            .replace('%(name)s', name || '...')
+                            .replace('%(color)s', color),
+                    content: content
+                }
+            )).on('shown', LabelEditor.on_popover_shown);
+            $label.removeAttr('title');
+        },
+        on_popover_shown: function(ev) {
+            var $label = $(this),
+                $popover = $label.next('.popover'),
+                $color_input = $popover.find('input[name=color]'),
+                $name_input = $popover.find('input[name=name]'),
+                $label_title = $popover.find('.popover-title strong');
+            $color_input.spectrum(LabelEditor.spectrum_options)
+                        .data('label-title', $label_title);
+            $name_input.data('label-title', $label_title).focus();
+            try {
+                // position the cursor at the end
+                var input = $name_input[0];
+                input.selectionStart = input.value.length;
+            } catch(err) {}
+        },
+        open_popover: function($label) {
+            LabelEditor.opened_popover = $label;
+            $label.popover('show');
+            $label.parent().removeAttr('title');
+        },
+        close_popover: function($label) {
+            LabelEditor.opened_popover = null;
+            $label.popover('hide');
+            $label.parent().attr('title', $label.data('parent-title'));
+        },
+        on_label_click: function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (LabelEditor.opened_popover) {
+                var opened_popover = LabelEditor.opened_popover;
+                LabelEditor.close_popover(LabelEditor.opened_popover);
+                if (opened_popover[0] == this) {
+                    return;
+                }
+            }
+            var $label = $(this);
+            if (!$label.data('popover')) {
+                LabelEditor.init_popover($label);
+            }
+            LabelEditor.open_popover($label);
+        },
+        on_form_cancel: function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            LabelEditor.close_popover($(this).closest('div.popover').prev());
+        },
+        on_name_keydown: function(ev) {
+            if (ev.keyCode == 27) { // ESC
+                $(this).closest('form').find('.cancel').focus().click();
+            }
+        },
+        get_urls: function() {
+            var $block = $('#label-edit-form');
+            LabelEditor.base_edit_url = $block.data('edit-url');
+            LabelEditor.base_delete_url = $block.data('delete-url');
+            LabelEditor.create_url = $block.data('create-url');
+        },
+        redraw_content: function(data) {
+            redraw_full_content(data);
+            var $li_tooltip = $('.label-type ul.labels li[data-toggle=tooltip][data-trigger=manual]');
+            if ($li_tooltip.length) {
+                $li_tooltip.attr('original-title', $li_tooltip.attr('title'));
+                $li_tooltip.removeAttr('title');
+                $li_tooltip.tooltip(LabelEditor.success_tooltip_options);
+                $li_tooltip.tooltip('show');
+                $li_tooltip.attr('title', $li_tooltip.attr('original-title'));
+                setTimeout(function() { $li_tooltip.tooltip('hide'); }, 2000);
+            }
+        },        
+        on_submit_done: function($form, data) {
+            if (data.substr(0, 19) == '<div class="error">') {
+                // we have an error, the whole form is returned
+                $form.prepend(data);
+                $form.find('.btn.submit').removeClass('loading');
+            } else {
+                // no error, we replace the whole content
+                LabelEditor.redraw_content(data);
+            }
+        },
+        on_submit_failed: function($form) {
+            $form.prepend('<div class="alert alert-error">A problem prevented us to save the label</div>');
+            $form.find('.btn.submit').removeClass('loading');
+        },
+        on_form_submit: function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var $form = $(this),
+                id = $form.data('id'),
+                $save_btn = $form.find('.btn.submit'),
+                url;
+            if (id) {
+                url = LabelEditor.base_edit_url.replace('label/0/', 'label/' + id + '/');
+            } else {
+                url = LabelEditor.create_url
+            }
+            LabelEditor.clean_errors($form);
+            $save_btn.addClass('loading');
+            $.post(url, $form.serialize())
+                .done(function(data) { LabelEditor.on_submit_done($form, data); })
+                .fail(function() { LabelEditor.on_submit_failed($form); });
+        },
+        clean_errors: function($form) {
+            $form.children('.alert, .error').remove();
+        },
+        on_form_delete: function(ev) {
+            var $delete_btn = $(this),
+                $form = $delete_btn.closest('form');
+            LabelEditor.clean_errors($form);
+            if (!$delete_btn.data('popover')) {
+                $delete_btn.popover();
+            }
+            $delete_btn.popover('show');
+        },
+        on_delete_done: function($form, data) {
+            LabelEditor.redraw_content(data);
+        },
+        on_delete_failed: function($form) {
+            $form.find('.btn.delete').removeClass('loading');
+            $form.prepend('<div class="alert alert-error">A problem prevented us to delete this label</div>');
+        },
+        on_confirm_deletion: function(ev) {
+            var $form = $(this).closest('form'),
+                id = $form.data('id'),
+                url = LabelEditor.base_delete_url.replace('label/0/', 'label/' + id + '/');
+                data = {
+                    csrfmiddlewaretoken: $form[0].csrfmiddlewaretoken.value
+                },
+                $delete_btn = $form.find('.btn.delete');
+            $delete_btn.popover('hide');
+            $delete_btn.addClass('loading');
+            if (url && data.csrfmiddlewaretoken) {
+                $.post(url, data)
+                    .done(function(data) { LabelEditor.on_delete_done($form, data) })
+                    .fail(function(data) { LabelEditor.on_delete_failed($form) });
+            } else {
+                LabelEditor.on_delete_failed($form);
+            }
+        },
+        on_cancel_deletion: function(ev) {
+            $(this).closest('.popover').prev().popover('hide');
+        },
+        init: function() {
+            LabelEditor.get_urls();
+            LabelEditor.finalize_spectrum_options();
+            $document.on('click', '.label-type ul.labels li a', LabelEditor.on_label_click);
+            $document.on('focus', '.label-edit-form input[name=name]', LabelEditor.on_name_focus);
+            $document.on('blur', '.label-edit-form input[name=name]', LabelEditor.on_name_blur);
+            $document.on('keydown', '.label-edit-form input[name=name]', LabelEditor.on_name_keydown);
+            $document.on('click', '.label-edit-form .btn.cancel', LabelEditor.on_form_cancel);
+            $document.on('click', '.label-edit-form .btn.delete', LabelEditor.on_form_delete);
+            $document.on('submit', '.label-edit-form', LabelEditor.on_form_submit);
+            $document.on('click', '.label-edit-form .cancel-deletion', LabelEditor.on_cancel_deletion);
+            $document.on('click', '.label-edit-form .confirm-deletion', LabelEditor.on_confirm_deletion);
+        }
+    }; // LabelEditor
+    LabelEditor.init();
 
 
     var TestButton = {
@@ -49,6 +350,7 @@ $().ready(function() {
         }
     }; // TestButton
     TestButton.init();
+
 
     window.LabelTypeForm = {
         $modal: $('#label-type-edit-form'),
@@ -146,9 +448,12 @@ $().ready(function() {
 
         },
         redraw_content: function(data) {
-            $('.container-fluid').children('.row-fluid.label-type, .alert').remove();
-            $('.container-fluid > .row-fluid.row-header').after(data);
+            redraw_full_content(data);
             LabelTypeForm.$modal.modal('hide');
+            var $just_label = $('.label-type .box-header .title .label');
+            if ($just_label.length) {
+                 setTimeout(function() { $just_label.hide(); }, 2000);
+            }
         },
         on_submit_done: function(data) {
             if (data.substr(0, 6) == '<form ') {
@@ -191,10 +496,10 @@ $().ready(function() {
         on_confirm_deletion: function(ev) {
             LabelTypeForm.$modal_delete.popover('hide');
             LabelTypeForm.$modal_delete.addClass('loading');
-            var $edit_form = LabelTypeForm.get_form(),
-                url = $edit_form.data('delete-url'),
+            var $form = LabelTypeForm.get_form(),
+                url = $form.data('delete-url'),
                 data = {
-                    csrfmiddlewaretoken: $edit_form[0].csrfmiddlewaretoken.value
+                    csrfmiddlewaretoken: $form[0].csrfmiddlewaretoken.value
                 };
             if (url && data.csrfmiddlewaretoken) {
                 $.post(url, data)
@@ -210,11 +515,10 @@ $().ready(function() {
                 .on('shown', on_popover_stop_propopagation_event)
                 .on('hide', on_popover_stop_propopagation_event)
                 .on('hidden', on_popover_stop_propopagation_event);
-            LabelTypeForm.$modal_footer.on('click', '.cancel', LabelTypeForm.on_cancel_deletion);
-            LabelTypeForm.$modal_footer.on('click', '.confirm', LabelTypeForm.on_confirm_deletion);
+            LabelTypeForm.$modal_footer.on('click', '.cancel-deletion', LabelTypeForm.on_cancel_deletion);
+            LabelTypeForm.$modal_footer.on('click', '.confirm-deletion', LabelTypeForm.on_confirm_deletion);
         },
         init: function(labels) {
-            var $document = $(document);
             LabelTypeForm.labels_list_select2_options.tags = labels;
             LabelTypeForm.init_modal();
             $document.on('click', '.btn-edit-label-type a', LabelTypeForm.on_link_click);

@@ -3,7 +3,7 @@ import re
 from django import forms
 from django.core import validators
 
-from core.models import LabelType, LABELTYPE_EDITMODE
+from core.models import LabelType, LABELTYPE_EDITMODE, Label
 
 
 class LabelTypeEditForm(forms.ModelForm):
@@ -116,3 +116,30 @@ class LabelTypeEditForm(forms.ModelForm):
             self.instance.edit_details = {'labels_list': self.cleaned_data['labels_list']}
 
         return super(LabelTypeEditForm, self).save(*args, **kwargs)
+
+
+class LabelEditForm(forms.ModelForm):
+    color_validator = validators.RegexValidator(
+            re.compile('^[0-9a-f]{6}$', flags=re.IGNORECASE),
+            'Must be a valid hex color (without the #)',
+            'invalid-color'
+        )
+
+    class Meta:
+        model = Label
+        fields = ('name', 'color', )
+
+    def __init__(self, *args, **kwargs):
+        self.repository = kwargs.pop('repository')
+
+        super(LabelEditForm, self).__init__(*args, **kwargs)
+
+        self.fields['color'].validators = [self.color_validator]
+
+    def save(self, *args, **kwargs):
+        """
+        Reset the edit_details json field that keep edit
+        """
+        self.instance.repository = self.repository
+
+        return super(LabelEditForm, self).save(*args, **kwargs)

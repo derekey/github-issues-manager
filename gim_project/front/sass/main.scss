@@ -95,3 +95,17 @@ ol, ul {
         font-style: italic;
     }
 }
+
+// "auto-align" class to align content in the column:
+// - left for the first column
+// - right for the last one
+// - center for the other
+.row-fluid.auto-align > [class*="span"] {
+    text-align: center;
+    &:first-child {
+        text-align: left;
+    }
+    &:last-child {
+        text-align: right;
+    }
+}

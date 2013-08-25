@@ -1,4 +1,6 @@
+@import "bootstrap/variables";
 @import "compass/css3/border-radius";
+@import "compass/css3/text-shadow";
 @import "variables";
 
 // correct left margin of inputs with prepend and append
@@ -43,19 +45,30 @@ blockquote p {
     @include border-radius(0)
 }
 
-// align modal-footer if many groups of content (buttons...)
-.modal-footer > .row-fluid > [class*="span"] {
-    text-align: center;
-    &:first-child {
-        text-align: left;
-    }
-    &:last-child {
-        text-align: right;
-    }
-}
-
 // correct margin arround alert
 .container-fluid > .alert {
     margin-left: 22px;
     margin-right: 22px;
+}
+
+// allow tooltip to have a class to change color
+$tooltip-class-colors: success $successText, important $errorText, info $infoText, warning $orange, inverse $grayDark;
+$arrows: top, right, left, bottom;
+%tooltip-bootstrap-correct-extend {
+    font-size: $baseFontSize * .846;
+    @include text-shadow(0 -1px 0 rgba(0,0,0,.25));    
+}
+@each $pair in $tooltip-class-colors {
+    $color: nth($pair, 2);
+    .tooltip.#{nth($pair, 1)} {
+        .tooltip-inner {
+            background-color: $color;
+            @extend %tooltip-bootstrap-correct-extend;
+        }
+        @each $arrow in $arrows {
+            &.#{$arrow} .tooltip-arrow {
+                border-#{$arrow}-color: $color;
+            }            
+        }
+    }
 }

@@ -3,6 +3,7 @@
 
 {% block extra_css %}
     {{ block.super }}
+    <link href="{% static "front/css/spectrum.css" %}" rel="stylesheet">
     <link href="{% static "front/css/pages/repository/dashboard-editor.css" %}" rel="stylesheet">
 {% endblock extra_css %}
 
@@ -22,10 +23,10 @@
         <div class="modal-body">
         </div>
         <div class="modal-footer">
-            <div class="row-fluid">
+            <div class="row-fluid auto-align">
                 <div class="span6">
                     <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button class="btn btn-red btn-loading delete" data-title="" data-content="<button class='btn btn-red confirm'>Confirm deletion</button> <button class='btn btn-default cancel'>Cancel</button>" data-html="true" data-toggle="popover">Delete <i class='icon-spinner icon-spin'> </i></button>
+                    <button class="btn btn-red btn-loading delete" data-title="" data-content="<button class='btn btn-red confirm-deletion'>Confirm deletion</button> <button class='btn btn-default cancel-deletion'>Cancel</button>" data-html="true" data-toggle="popover">Delete <i class='icon-spinner icon-spin'> </i></button>
                 </div>
                 <div class="span6">
                     <button class="btn btn-default btn-loading" id="label-type-test-button" data-toggle="popover" data-placement="top" data-content="<i class='icon-spinner icon-spin'> </i> Loading..." data-title="Matching labels" >Test it ! <i class='icon-spinner icon-spin'> </i></button>
@@ -35,11 +36,29 @@
         </div>
     </div>{# #label-type-edit-form #}
 
+    <div id="label-edit-form" class="hide" data-edit-url="{{ base_label_edit_url }}" data-delete-url="{{ base_label_delete_url }}" data-create-url="{{ label_create_url }}">
+        <form method="post" class="label-edit-form" data-id="%(id)s">
+            {% csrf_token %}
+            <input name='name' type='text' value="%(name)s" placeholder="Name" />
+            <input name='color' type='text' value="%(color)s" placeholder="Color" maxlength="6" title="Color"/>
+            <div class="row-fluid auto-align">
+                <div class="span8">
+                    <button type='button' class="btn btn-default cancel">Cancel</button>
+                    <button type='button' class="btn btn-red delete btn-loading" data-title="" data-content="<button type='button' class='btn btn-red confirm-deletion'>Confirm deletion</button> <button type='button' class='btn btn-default cancel-deletion'>Cancel</button>" data-html="true" data-toggle="popover">Delete <i class='icon-spinner icon-spin'> </i></button>
+                </div>
+                <div class="span4">
+                    <button type='submit' class="btn btn-blue submit btn-loading">Save <i class='icon-spinner icon-spin'> </i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+
 {% endblock dashboard-content %}
 
 {% block js_footer %}
     {{ block.super }}
     <script src="{% static "front/js/select2.js" %}" type="text/javascript"></script>
+    <script src="{% static "front/js/spectrum.js" %}" type="text/javascript"></script>
     <script src="{% static "front/js/repository-labels-editor.js" %}" type="text/javascript"></script>
 
     <script type="text/javascript">

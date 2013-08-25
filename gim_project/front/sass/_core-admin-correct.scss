@@ -2,6 +2,7 @@
 @import "compass/css3/text-shadow";
 @import "mixin_helpers";
 @import "badges";
+@import "variables";
 
 // allow a box-header to be a link
 .box {
@@ -51,9 +52,25 @@
 // info/success/error/warning style for badges and labels
 $label-match-colors: success green, important red, info blue, warning purple, inverse gray;
 @each $pair in $label-match-colors {
-  .label-#{nth($pair, 1)} {
-    @extend .label-#{nth($pair, 2)};
-  }
+    .label-#{nth($pair, 1)} {
+        @extend .label-#{nth($pair, 2)};
+    }
+}
+
+// info/success/error/warning style for tooltips
+$tooltip-match-colors: success 3, important 4, info 1, warning 8, inverse 2;
+@each $pair in $tooltip-match-colors {
+    $color: nth(nth($badge-colors, nth($pair, 2)), 2);
+    .tooltip.#{nth($pair, 1)} {
+        .tooltip-inner {
+            @include label($color);
+        }
+        @each $arrow in $arrows {
+            &.#{$arrow} .tooltip-arrow {
+                border-#{$arrow}-color: darken($color, 10);
+            }            
+        }
+    }
 }
 
 // better shadow for news-titles
