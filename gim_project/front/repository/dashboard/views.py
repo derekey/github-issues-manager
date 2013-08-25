@@ -11,7 +11,7 @@ from django.views.generic import UpdateView, CreateView, DeleteView
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
 from core.models import LabelType, LABELTYPE_EDITMODE, Label
 from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
-from .forms import LabelTypeEditForm, LabelEditForm
+from .forms import LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm
 
 
 class RepositoryDashboardPartView(RepositoryMixin):
@@ -319,6 +319,7 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
     url_name = 'dashboard.labels.editor.label_type.edit'
     template_name = 'front/repository/dashboard/labels-editor/label-type-preview.html'
     http_method_names = [u'post']
+    form_class = LabelTypePreviewForm
 
     def get_object(self, queryset=None):
         if queryset is None:

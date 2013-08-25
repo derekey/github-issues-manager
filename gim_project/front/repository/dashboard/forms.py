@@ -6,7 +6,29 @@ from django.core import validators
 from core.models import LabelType, LABELTYPE_EDITMODE, Label
 
 
-class LabelTypeEditForm(forms.ModelForm):
+class LinkedToRepositoryForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.repository = kwargs.pop('repository')
+        super(LinkedToRepositoryForm, self).__init__(*args, **kwargs)
+        if not self.instance.repository_id:
+            self.instance.repository = self.repository
+
+    def validate_unique(self):
+        """
+        Calls the instance's validate_unique() method and updates the form's
+        validation errors if any were raised.
+        """
+        exclude = self._get_validation_exclusions()
+        if exclude and 'repository' in exclude:
+            exclude.remove('repository')
+        try:
+            self.instance.validate_unique(exclude=exclude)
+        except forms.ValidationError as e:
+            self._update_errors(e.message_dict)
+
+
+class LabelTypeEditForm(LinkedToRepositoryForm):
 
     format_string = forms.CharField(
                         required=False,
@@ -35,8 +57,6 @@ class LabelTypeEditForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-
-        self.repository = kwargs.pop('repository')
 
         if kwargs.get('instance') and kwargs['instance'].edit_mode != LABELTYPE_EDITMODE.REGEX and kwargs['instance'].edit_details:
             if 'initial' not in kwargs:
@@ -89,7 +109,7 @@ class LabelTypeEditForm(forms.ModelForm):
         """
         Create final regex based on input values for other modes
         """
-        data = self.cleaned_data
+        data = super(LabelTypeEditForm, self).clean()
 
         if self.edit_mode_value == LABELTYPE_EDITMODE.FORMAT and data.get('format_string'):
             data['regex'] = '^%s$' % re.escape(data['format_string'])\
@@ -106,7 +126,6 @@ class LabelTypeEditForm(forms.ModelForm):
         """
         Reset the edit_details json field that keep edit
         """
-        self.instance.repository = self.repository
         self.instance.edit_details = {}
 
         if self.instance.edit_mode == LABELTYPE_EDITMODE.FORMAT:
@@ -118,7 +137,15 @@ class LabelTypeEditForm(forms.ModelForm):
         return super(LabelTypeEditForm, self).save(*args, **kwargs)
 
 
-class LabelEditForm(forms.ModelForm):
+class LabelTypePreviewForm(LabelTypeEditForm):
+    def clean(self):
+        # do not do any unicity check
+        cleaned_data = super(LabelTypePreviewForm, self).clean()
+        self._validate_unique = False
+        return cleaned_data
+
+
+class LabelEditForm(LinkedToRepositoryForm):
     color_validator = validators.RegexValidator(
             re.compile('^[0-9a-f]{6}$', flags=re.IGNORECASE),
             'Must be a valid hex color (without the #)',
@@ -130,16 +157,6 @@ class LabelEditForm(forms.ModelForm):
         fields = ('name', 'color', )
 
     def __init__(self, *args, **kwargs):
-        self.repository = kwargs.pop('repository')
-
         super(LabelEditForm, self).__init__(*args, **kwargs)
 
         self.fields['color'].validators = [self.color_validator]
-
-    def save(self, *args, **kwargs):
-        """
-        Reset the edit_details json field that keep edit
-        """
-        self.instance.repository = self.repository
-
-        return super(LabelEditForm, self).save(*args, **kwargs)

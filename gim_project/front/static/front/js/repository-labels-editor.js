@@ -475,6 +475,7 @@ $().ready(function() {
         on_form_submit: function(ev) {
             ev.preventDefault();
             ev.stopPropagation();
+            TestButton.$button.popover('hide');
             LabelTypeForm.$modal_submit.addClass('loading');
             LabelTypeForm.$modal_footer.find('.alert').remove();
             var $form = LabelTypeForm.get_form();

@@ -706,6 +706,7 @@ class LabelType(models.Model):
     objects = LabelTypeManager()
 
     class Meta:
+        verbose_name = u'Group'
         unique_together = (
             ('repository', 'name'),
         )
