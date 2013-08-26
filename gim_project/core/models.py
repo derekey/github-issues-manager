@@ -26,6 +26,10 @@ import username_hack  # force the username length to be 255 chars
 UTC = tz.gettz('UTC')
 
 
+class MinUpdatedDateRaised(Exception):
+    pass
+
+
 class GithubObject(models.Model):
     fetched_at = models.DateTimeField(null=True, blank=True)
 
@@ -115,15 +119,29 @@ class GithubObject(models.Model):
         identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
 
         # prepare headers to add in the request
+        min_updated_date = None
+        min_updated_date_raised = False
         if_modified_since = None
         if_none_match = None
-        if not force_fetch:
-            fetched_at_field = '%s_fetched_at' % field_name
-            if hasattr(self, fetched_at_field):
-                # if we have a fetch date, use it
-                if_modified_since = getattr(self, fetched_at_field)
-                if not if_modified_since:
-                    # we don't have a fetch_date, it's because we never fetched
+        fetched_at_field = '%s_fetched_at' % field_name
+        if hasattr(self, fetched_at_field):
+            # if we have a fetch date, use it
+            fetched_at = getattr(self, fetched_at_field)
+            if not force_fetch:
+                if fetched_at:
+                    # we will stop fetching data when the date of the last
+                    # object fetched will be lower than the last updated_at
+                    # only if we retrieve objects by last updated first, and
+                    # if the model has the updated_at field
+                    if (parameters
+                            and parameters.get('sort') == 'updated'
+                            and parameters.get('direction') == 'desc'
+                            and 'updated_at' in model._meta.get_all_field_names()):
+                        min_updated_date = fetched_at
+
+                    if_modified_since = fetched_at
+                else:
+                    # we don't have a fetched_at, it's because we never fetched
                     # this relations, or because we set the date to None on the
                     # previous fetch because we didn't have any objects
                     if not getattr(self, field_name).count():
@@ -141,7 +159,7 @@ class GithubObject(models.Model):
 
         objs = []
 
-        def fetch_page_and_next(objs, parameters):
+        def fetch_page_and_next(objs, parameters, min_updated_date):
             """
             Fetch a page of objects with the given parameters, and if github
             tell us there is a "next" page, continue fetching
@@ -154,21 +172,48 @@ class GithubObject(models.Model):
 
             objs += page_objs
 
+            # if we reached the min_updated_date, stop
+            min_updated_date_raised = False
+            if (min_updated_date
+                    and page_objs
+                    and page_objs[-1].updated_at < min_updated_date):
+
+                min_updated_date_raised = True
+
             # if we have a next page, got fetch it
             if 'link' in response_headers:
                 links = parse_header_links(response_headers['link'])
                 if 'next' in links and 'url' in links['next']:
-                    next_page_parameters = parameters.copy()
-                    next_page_parameters.update(
-                        dict(
-                            (k, v[0]) for k, v in parse_qs(
-                                    urlsplit(links['next']['url']).query
-                                ).items() if len(v)
-                            )
-                    )
-                    return next_page_parameters
+                    # but only if the min_updated_date wes not raised
+                    if not min_updated_date_raised:
+                        next_page_parameters = parameters.copy()
+                        next_page_parameters.update(
+                            dict(
+                                (k, v[0]) for k, v in parse_qs(
+                                        urlsplit(links['next']['url']).query
+                                    ).items() if len(v)
+                                )
+                        )
+                        return next_page_parameters
+                else:
+                    # we don't have a next_link, we have fetched all page, so
+                    # ignore the min_updated_date
+                    min_updated_date_raised = False
+
+            if min_updated_date_raised:
+                raise MinUpdatedDateRaised()
 
             return None
+
+        def fetch_pages(objs, parameters_combination, min_updated_date):
+            """
+            Fetch all available pages
+            """
+            page_parameters = parameters_combination.copy()
+            while True:
+                page_parameters = fetch_page_and_next(objs, page_parameters, min_updated_date)
+                if page_parameters is None:
+                    break
 
         if not vary:
             # no varying parameter, fetch with an empty set of parameters
@@ -189,52 +234,57 @@ class GithubObject(models.Model):
         restart_withouht_if_modified_since = False
         for parameters_combination in parameters_combinations:
             try:
-                page_parameters = parameters_combination.copy()
-                while True:
-                    page_parameters = fetch_page_and_next(objs, page_parameters)
-                    if page_parameters is None:
-                        break
+                fetch_pages(objs, parameters_combination, min_updated_date)
+
+            except MinUpdatedDateRaised:
+                min_updated_date_raised = True
+
             except ApiError, e:
                 if e.response and e.response['code'] == 304:
                     # github tell us nothing is new
                     status[304] += 1
+                    if not status['ok']:
+                        continue
                 else:
                     raise
-            else:
-                if status[304]:
-                    # we have data but at least one time we didn't have any new
-                    # one, we want to restart all without the if_modified_since
-                    # header to be sure to get all data
-                    restart_withouht_if_modified_since = True
-                    break
-                if not status['ok']:
-                    # we have data despite of the if_modified_since_header, and
-                    # it's the first parameter combination, we remove the header
-                    # for the next combinations to be sure to get all the data
-                    request_headers = self._prepare_fetch_headers(
-                                            if_modified_since=None,
-                                            github_format=model.github_format)
-                status['ok'] += 1
+
+            # pass here only if the last call to fetch_pages didn't raise a 304
+            if status[304]:
+                # we have data but at least one time we didn't have any new
+                # one, we want to restart all without the if_modified_since
+                # header to be sure to get all data
+                restart_withouht_if_modified_since = True
+                break
+            if not status['ok']:
+                # we have data despite of the if_modified_since_header, and
+                # it's the first parameter combination, we remove the header
+                # for the next combinations to be sure to get all the data
+                request_headers = self._prepare_fetch_headers(
+                                        if_modified_since=None,
+                                        github_format=model.github_format)
+            status['ok'] += 1
 
         if restart_withouht_if_modified_since:
             # something goes wrong with the if_modified_since header and we
             # were asked to restart, so we do it without the header
             status = {'ok': 0, 304: 0}
+            min_updated_date_raised = False
             request_headers = self._prepare_fetch_headers(
                                             if_modified_since=None,
                                             github_format=model.github_format)
             objs = []
             for parameters_combination in parameters_combinations:
-                page_parameters = parameters_combination.copy()
-                while True:
-                    page_parameters = fetch_page_and_next(objs, page_parameters)
-                    if page_parameters is None:
-                        break
+                try:
+                    fetch_pages(objs, parameters_combination, min_updated_date)
+                except MinUpdatedDateRaised:
+                    min_updated_date_raised = True
 
         # now update the list with created/updated objects
         if not status[304]:
             # but only if we had fresh data !
-            self.update_related_field(field_name, [obj.id for obj in objs])
+            self.update_related_field(field_name,
+                                      [obj.id for obj in objs],
+                                      not min_updated_date_raised)
 
         # we return the number of fetched objects
         if not objs:
@@ -242,7 +292,7 @@ class GithubObject(models.Model):
         else:
             return len(objs)
 
-    def update_related_field(self, field_name, ids):
+    def update_related_field(self, field_name, ids, do_remove=True):
         """
         For the given field name, with must be a m2m or the reverse side of
         a m2m or a fk, use the given list of ids as the lists of ids of all the
@@ -261,7 +311,7 @@ class GithubObject(models.Model):
 
         # if some relations are not here, remove them
         to_remove = existing_ids - fetched_ids
-        if to_remove:
+        if do_remove and to_remove:
             count['removed'] = len(to_remove)
             # if FK, only objects with nullable FK have a clear method, so we
             # only clear if the model allows us to
