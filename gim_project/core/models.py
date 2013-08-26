@@ -703,10 +703,16 @@ class Repository(GithubObjectWithId):
                                  force_fetch=force_fetch)
 
         # the "closed_by" attribute of an issue is not filled in list call, so
-        # we fetch all closed issue that has no closed_by, one by one
-        for issue in self.issues.filter(state='closed', closed_by__isnull=True).order_by('-closed_at'):
+        # we fetch all closed issue that has no closed_by, one by one (but only
+        # if we never did it because some times there is noone who closed an
+        # issue on the github api :( ))
+        for issue in self.issues.filter(state='closed',
+                                        closed_by__isnull=True,
+                                        closed_by_fetched=False
+                                        ).order_by('-closed_at'):
             try:
-                issue.fetch(gh, force_fetch=True)
+                issue.fetch(gh, force_fetch=True,
+                            defaults={'simple': {'closed_by_fetched': True}})
             except ApiError:
                 pass
 
@@ -926,6 +932,7 @@ class Issue(GithubObjectWithId):
     state = models.CharField(max_length=10, db_index=True)
     comments_count = models.PositiveIntegerField(blank=True, null=True)
     closed_by = models.ForeignKey(GithubUser, related_name='closed_issues', blank=True, null=True)
+    closed_by_fetched = models.BooleanField(default=False, db_index=True)
 
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
 
