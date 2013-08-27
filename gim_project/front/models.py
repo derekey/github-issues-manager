@@ -106,6 +106,6 @@ class _WaitingSubscription(models.Model):
         Return True if the user can add the reposiory again (it is allowed if
         the state is FAILED)
         """
-        return self.state in (subscriptions_models.WAITING_SUBSCRIPTION_STATES.FAILED,)
+        return self.state == subscriptions_models.WAITING_SUBSCRIPTION_STATES.FAILED
 
 contribute_to_model(_WaitingSubscription, subscriptions_models.WaitingSubscription)

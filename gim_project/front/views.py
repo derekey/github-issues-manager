@@ -51,13 +51,13 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
     'subscribed_repositories' in the context
     """
     model = Repository
-    allowed_rights = SUBSCRIPTION_STATES.READ
+    allowed_rights = SUBSCRIPTION_STATES.READ_RIGHTS
 
     @property
     def subscriptions(self):
         if not hasattr(self, '_subscriptions'):
             self._subscriptions = self.request.user.subscriptions.all()
-            if self.allowed_rights != SUBSCRIPTION_STATES.ALL:
+            if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
                 self._subscriptions = self._subscriptions.filter(
                                                 state__in=self.allowed_rights)
         return self._subscriptions
@@ -69,7 +69,7 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
         filters = {
             'subscriptions__user': self.request.user
         }
-        if self.allowed_rights != SUBSCRIPTION_STATES.ALL:
+        if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
             filters['subscriptions__state__in'] = self.allowed_rights
 
         return Repository.objects.filter(**filters)
@@ -83,7 +83,7 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
 
         context['subscribed_repositories'] = Repository.objects.filter(
                subscriptions__user=self.request.user,
-               subscriptions__state__in=SUBSCRIPTION_STATES.READ,
+               subscriptions__state__in=SUBSCRIPTION_STATES.READ_RIGHTS,
            ).select_related('owner')
 
         return context

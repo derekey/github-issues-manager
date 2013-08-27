@@ -20,4 +20,4 @@ def can_user_write(repository, user):
     except Subscription.DoesNotExist:
         return False
     else:
-        return subscription.state in SUBSCRIPTION_STATES.WRITE
+        return subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS

@@ -47,7 +47,7 @@ class WaitingSubscription(models.Model):
         (rights are "admin", "push", "read")
         The repository matching he repository_name field must exist.
         """
-        if self.state in (WAITING_SUBSCRIPTION_STATES.FAILED,):
+        if self.state == WAITING_SUBSCRIPTION_STATES.FAILED:
             raise Exception('Cannot convert a failed waiting subscription')
 
         if rights not in set(["admin", "push", "read"]):
@@ -72,9 +72,9 @@ SUBSCRIPTION_STATES = Choices(
     ('ADMIN', 3, 'Admin'),  # can admin, push, create issues
     ('NORIGHTS', 4, 'No rights'),  # no access
 )
-SUBSCRIPTION_STATES.ALL = [s[0] for s in SUBSCRIPTION_STATES]
-SUBSCRIPTION_STATES.READ = [SUBSCRIPTION_STATES.READ, SUBSCRIPTION_STATES.USER, SUBSCRIPTION_STATES.ADMIN]
-SUBSCRIPTION_STATES.WRITE = [SUBSCRIPTION_STATES.USER, SUBSCRIPTION_STATES.ADMIN]
+SUBSCRIPTION_STATES.ALL_RIGHTS = [s[0] for s in SUBSCRIPTION_STATES]
+SUBSCRIPTION_STATES.READ_RIGHTS = [SUBSCRIPTION_STATES.READ, SUBSCRIPTION_STATES.USER, SUBSCRIPTION_STATES.ADMIN]
+SUBSCRIPTION_STATES.WRITE_RIGHTS = [SUBSCRIPTION_STATES.USER, SUBSCRIPTION_STATES.ADMIN]
 
 
 class Subscription(models.Model):

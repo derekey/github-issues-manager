@@ -130,7 +130,7 @@ class CountersPart(RepositoryDashboardPartView):
 
         # count assigned only if owner or collaborator
         subscription = Subscription.objects.filter(repository=self.repository, user=self.request.user)
-        if len(subscription) and subscription[0].state != SUBSCRIPTION_STATES.READ:
+        if len(subscription) and subscription[0].state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
             counters['assigned'] = base_filter.filter(assignee=self.request.user).count()
 
         return counters
@@ -230,7 +230,7 @@ class LabelsEditor(BaseRepositoryView):
     template_name_ajax = 'front/repository/dashboard/labels-editor/include-content.html'
     display_in_menu = False
     label_type_include_template = 'front/repository/dashboard/labels-editor/include-label-type.html'
-    allowed_rights = SUBSCRIPTION_STATES.WRITE
+    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
 
     def get_context_data(self, **kwargs):
         context = super(LabelsEditor, self).get_context_data(**kwargs)
@@ -266,7 +266,7 @@ class LabelTypeFormBaseView(LinkedToRepositoryFormView):
     model = LabelType
     pk_url_kwarg = 'label_type_id'
     form_class = LabelTypeEditForm
-    allowed_rights = SUBSCRIPTION_STATES.WRITE
+    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
 
     def get_form_kwargs(self):
         kwargs = super(LabelTypeFormBaseView, self).get_form_kwargs()
@@ -392,7 +392,7 @@ class LabelFormBaseView(LinkedToRepositoryFormView):
     model = Label
     pk_url_kwarg = 'label_id'
     form_class = LabelEditForm
-    allowed_rights = SUBSCRIPTION_STATES.WRITE
+    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
     http_method_names = [u'post']
 
     def get_form_kwargs(self):

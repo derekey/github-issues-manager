@@ -47,7 +47,7 @@ class DashboardHome(SubscribedRepositoriesMixin, ListView):
 
             # count assigned only if owner or collaborator
             subscription = subscription_by_repo_id.get(repository.id, None)
-            if subscription and subscription.state != SUBSCRIPTION_STATES.READ:
+            if subscription and subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
                 repository.user_counts_open['assigned'] = repository.issues.filter(
                                     state='open', assignee=self.request.user).count()
 

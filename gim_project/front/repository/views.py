@@ -94,7 +94,7 @@ class BaseRepositoryView(RepositoryMixin):
 
 class LinkedToRepositoryFormView(object):
     repository_related_name = 'repository'
-    allowed_rights = SUBSCRIPTION_STATES.WRITE
+    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
 
     def get_repository_kwargs(self):
         return {
@@ -106,7 +106,7 @@ class LinkedToRepositoryFormView(object):
         filters = {
             'subscriptions__user': self.request.user
         }
-        if self.allowed_rights != SUBSCRIPTION_STATES.ALL:
+        if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
             filters['subscriptions__state__in'] = self.allowed_rights
 
         queryset = Repository.objects.filter(**filters)
