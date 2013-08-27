@@ -1,6 +1,7 @@
 # Django settings for gim_project project.
 
 import os.path
+import logging
 from django.core.urlresolvers import reverse_lazy
 
 DJANGO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -225,5 +226,15 @@ LOGIN_URL = reverse_lazy('front:auth:login')
 GITHUB_CLIENT_ID = None
 GITHUB_CLIENT_SECRET = None
 GITHUB_SCOPE = 'repo'
+
+WORKERS_REDIS_CONFIG = {
+    'host': 'localhost',
+    'port': 6379,
+    'db': 0
+}
+WORKERS_LOGGER_CONFIG = {
+    'handler': logging.StreamHandler(),
+    'level': logging.INFO
+}
 
 from local_settings import *

@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 
 from core.models import GithubUser
+from core.tasks import UserFetchAvailableRepositoriesJob
 
 
 class BaseGithubAuthView(RedirectView):
@@ -112,6 +113,9 @@ class ConfirmView(BaseGithubAuthView):
 
         # and finally login
         login(self.request, user)
+
+        # add a job to fetch available repositories
+        UserFetchAvailableRepositoriesJob.add_job(user.id)
 
         return True, "Authentication successful"
 

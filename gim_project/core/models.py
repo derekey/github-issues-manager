@@ -479,6 +479,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
         # final lit that will be returned
         all_repos = []
+        nb_repos = 0
 
         self.fetch_organizations(gh)
 
@@ -501,12 +502,15 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             if repos_list['repos']:
                 repos_list['repos'].sort(key=itemgetter('pushed_at'), reverse=True)
                 all_repos.append(repos_list)
+                nb_repos += len(repos_list['repos'])
 
         # save data and fetch date
         self.available_repositories = all_repos
         self.available_repositories_fetched_at = datetime.utcnow()
 
         self.save(update_fields=['_available_repositories', 'available_repositories_fetched_at'])
+
+        return (nb_repos, self.organizations.count())
 
     def _set_available_repositories(self, data):
         """
