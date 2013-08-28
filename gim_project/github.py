@@ -132,7 +132,7 @@ class GitHub(object):
         data = None
         if method == 'GET' and kw:
             path = '%s?%s' % (path, _encode_params(kw))
-        if method == 'POST':
+        if method in ('POST', 'PUT', 'PATCH'):
             data = _encode_json(kw)
         url = '%s%s' % (_URL, path)
         print 'REQUEST', url, request_headers
@@ -141,7 +141,7 @@ class GitHub(object):
         request.get_method = _METHOD_MAP[method]
         if self._authorization:
             request.add_header('Authorization', self._authorization)
-        if method == 'POST':
+        if method in ('POST', 'PUT', 'PATCH'):
             request.add_header('Content-Type', 'application/x-www-form-urlencoded')
         try:
             response = opener.open(request)
@@ -218,6 +218,8 @@ class _Callable(object):
             return _Executable(self._gh, 'PUT', self._name)
         if attr == 'post':
             return _Executable(self._gh, 'POST', self._name)
+        if attr == 'patch':
+            return _Executable(self._gh, 'PATCH', self._name)
         if attr == 'delete':
             return _Executable(self._gh, 'DELETE', self._name)
         name = '%s/%s' % (self._name, attr)
@@ -264,7 +266,7 @@ def _parse_json(jsonstr):
     return json.loads(jsonstr, object_hook=_obj_hook)
 
 
-class ApiError(BaseException):
+class ApiError(Exception):
 
     def __init__(self, url, request, response):
         super(ApiError, self).__init__(url)
