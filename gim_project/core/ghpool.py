@@ -56,6 +56,20 @@ class Connection(GitHub):
         # return the old or new connection in the pool
         return cls.pool[auth['username']]
 
+    def __init__(self, username=None, password=None, access_token=None, client_id=None, client_secret=None, redirect_uri=None, scope=None):
+        """
+        Save auth informations in a dict to be able to retrieve it to generate
+        a new connection (for example in async jobs)
+        """
+        self._connection_args = {}
+        if username:
+            self._connection_args['username'] = username
+        if password:
+            self._connection_args['password'] = password
+        if access_token:
+            self._connection_args['access_token'] = access_token
+        super(Connection, self).__init__(username, password, access_token, client_id, client_secret, redirect_uri, scope)
+
 
 def parse_header_links(value):
     """

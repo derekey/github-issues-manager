@@ -1,7 +1,7 @@
 
 from urlparse import urlsplit, parse_qs
 from itertools import product
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil import tz
 import re
 from operator import itemgetter
@@ -706,19 +706,36 @@ class Repository(GithubObjectWithId):
                                  parameters={'sort': 'updated', 'direction': 'desc'},
                                  force_fetch=force_fetch)
 
+        self.fetch_closed_issues_without_closer(gh)
+
+        return count
+
+    def fetch_closed_issues_without_closed_by(self, gh, limit=20):
         # the "closed_by" attribute of an issue is not filled in list call, so
         # we fetch all closed issue that has no closed_by, one by one (but only
         # if we never did it because some times there is noone who closed an
         # issue on the github api :( ))
-        for issue in self.issues.filter(state='closed',
+        issues = list(self.issues.filter(state='closed',
                                         closed_by__isnull=True,
                                         closed_by_fetched=False
-                                        ).order_by('-closed_at'):
+                                        ).order_by('-closed_at')[:limit])
+
+        count = 0
+        for issue in issues:
             try:
                 issue.fetch(gh, force_fetch=True,
                             defaults={'simple': {'closed_by_fetched': True}})
             except ApiError:
                 pass
+            else:
+                count += 1
+
+        if len(issues) == limit:
+            from .tasks.repository import FetchClosedIssuesWithNoClosedBy
+            FetchClosedIssuesWithNoClosedBy.add_job(self.id,
+                                    delayed_for=timedelta(seconds=60),
+                                    limit=limit,
+                                    gh=gh)
 
         return count
 

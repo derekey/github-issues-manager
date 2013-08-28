@@ -1,12 +1,12 @@
 
 from limpyd import fields
 
-from ..mixins import LimpydJob, DjangoModelJobMixin
-
 from core.models import GithubUser
 
+from . import LimpydJob, DjangoModelJob
 
-class UserJobMixin(DjangoModelJobMixin):
+
+class UserJob(DjangoModelJob):
     """
     Abstract job model for jobs based on the GithubUser model
     """
@@ -14,7 +14,7 @@ class UserJobMixin(DjangoModelJobMixin):
     model = GithubUser
 
 
-class UserFetchAvailableRepositoriesJob(UserJobMixin, LimpydJob):
+class FetchAvailableRepositoriesJob(UserJob):
     """
     Job that fetches available repositories of a user
     """
@@ -27,9 +27,10 @@ class UserFetchAvailableRepositoriesJob(UserJobMixin, LimpydJob):
         """
         Get the user and its available repositories from github
         """
-        super(UserFetchAvailableRepositoriesJob, self).run(queue)
-        user = self.get_django_object_from_identifier()
-        result = user.fetch_available_repositories()
+        super(FetchAvailableRepositoriesJob, self).run(queue)
+
+        result = self.object.fetch_available_repositories()
+
         return result
 
     def on_success(self, queue, result):
