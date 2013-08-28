@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 
 from core.models import GithubUser
-from core.tasks import UserFetchAvailableRepositoriesJob
+from core.tasks.models.githubuser import UserFetchAvailableRepositoriesJob
 
 
 class BaseGithubAuthView(RedirectView):
