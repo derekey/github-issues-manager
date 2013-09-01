@@ -3,7 +3,7 @@ from limpyd import fields
 
 from core.models import GithubUser
 
-from . import LimpydJob, DjangoModelJob
+from . import DjangoModelJob
 
 
 class UserJob(DjangoModelJob):
