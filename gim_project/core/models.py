@@ -29,15 +29,40 @@ UTC = tz.gettz('UTC')
 class MinUpdatedDateRaised(Exception):
     pass
 
+GITHUB_STATUS_CHOICES = Choices(
+    ('WAITING_CREATE', 1, u'Awaiting creation'),
+    ('WAITING_UPDATE', 2, u'Awaiting update'),
+    ('WAITING_DELETE', 3, u'Awaiting delete'),
+    ('FETCHED', 10, u'Fetched'),
+    ('ERROR_CREATE', 21, u'Error while creating'),
+    ('ERROR_UPDATE', 22, u'Error while updating'),
+    ('ERROR_DELETE', 23, u'Error while deleting'),
+    ('ERROR_FETCHED', 30, u'Error while fetching'),
+)
+GITHUB_STATUS_CHOICES.ALL_WAITING = (GITHUB_STATUS_CHOICES.WAITING_CREATE,
+                                     GITHUB_STATUS_CHOICES.WAITING_UPDATE,
+                                     GITHUB_STATUS_CHOICES.WAITING_DELETE)
+GITHUB_STATUS_CHOICES.ALL_ERRORS = (GITHUB_STATUS_CHOICES.ERROR_CREATE,
+                                    GITHUB_STATUS_CHOICES.ERROR_UPDATE,
+                                    GITHUB_STATUS_CHOICES.ERROR_DELETE,
+                                    GITHUB_STATUS_CHOICES.ERROR_FETCHED)
+
 
 class GithubObject(models.Model):
     fetched_at = models.DateTimeField(null=True, blank=True)
+    github_status = models.PositiveSmallIntegerField(
+                                choices=GITHUB_STATUS_CHOICES.CHOICES,
+                                default=GITHUB_STATUS_CHOICES.WAITING_CREATE,
+                                db_index=True)
 
     objects = GithubObjectManager()
+
+    GITHUB_STATUS_CHOICES = GITHUB_STATUS_CHOICES
 
     github_matching = {}
     github_ignore = ()
     github_format = '+json'
+    github_edit_fields = {'create': (), 'update': ()}
 
     class Meta:
         abstract = True
@@ -370,7 +395,7 @@ class GithubObject(models.Model):
 
 
 class GithubObjectWithId(GithubObject):
-    github_id = models.PositiveIntegerField(unique=True)
+    github_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
 
     github_matching = {
         'id': 'github_id'
@@ -642,7 +667,7 @@ class Repository(GithubObjectWithId):
         """
         Shortcut to return a queryset for untyped labels of the repository
         """
-        return self.labels.filter(label_type__isnull=True)
+        return self.labels.ready().filter(label_type__isnull=True)
 
     def _distinct_users(self, relation):
         return GithubUser.objects.filter(**{
@@ -723,7 +748,7 @@ class Repository(GithubObjectWithId):
                                  parameters={'sort': 'updated', 'direction': 'desc'},
                                  force_fetch=force_fetch)
 
-        self.fetch_closed_issues_without_closer(gh)
+        self.fetch_closed_issues_without_closed_by(gh)
 
         return count
 
@@ -1012,7 +1037,10 @@ class Issue(GithubObjectWithId):
         if not force_fetch and self.comments_count == 0:
             return 0
         return self._fetch_many('comments', gh,
-                                defaults={'fk': {'issue': self}},
+                                defaults={'fk': {
+                                    'issue': self,
+                                    'repository': self.repository}
+                                },
                                 force_fetch=force_fetch)
 
     @property

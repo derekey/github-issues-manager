@@ -7,9 +7,10 @@ from markdown import markdown
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DeleteView
+from django.http import HttpResponseRedirect
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
-from core.models import LabelType, LABELTYPE_EDITMODE, Label
+from core.models import LabelType, LABELTYPE_EDITMODE, Label, GITHUB_STATUS_CHOICES
 from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
 from .forms import LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm
 
@@ -56,7 +57,7 @@ class MilestonesPart(RepositoryDashboardPartView):
     url_name = 'dashboard.milestones'
 
     def get_milestones(self):
-        queryset = self.repository.milestones.all().annotate(issues_count=Count('issues'))
+        queryset = self.repository.milestones.ready().annotate(issues_count=Count('issues'))
 
         if not self.request.GET.get('show-closed-milestones', False):
             queryset = queryset.filter(state='open')
@@ -71,9 +72,11 @@ class MilestonesPart(RepositoryDashboardPartView):
                 # no way to get the html version from github :(
                 milestone.description = markdown(milestone.description)
 
+            issues = milestone.issues.ready()
+
             if milestone.issues_count:
-                milestone.non_assigned_issues_count = milestone.issues.filter(state='open', assignee__isnull=True).count()
-                milestone.assigned_issues_count = milestone.issues.filter(state='open', assignee__isnull=False).count()
+                milestone.non_assigned_issues_count = issues.filter(state='open', assignee__isnull=True).count()
+                milestone.assigned_issues_count = issues.filter(state='open', assignee__isnull=False).count()
                 milestone.open_issues_count = milestone.non_assigned_issues_count + milestone.assigned_issues_count
                 milestone.closed_issues_count = milestone.issues_count - milestone.open_issues_count
 
@@ -109,7 +112,7 @@ class CountersPart(RepositoryDashboardPartView):
     def get_counters(self):
         counters = {}
 
-        base_filter = self.repository.issues.filter(state='open')
+        base_filter = self.repository.issues.ready().filter(state='open')
 
         counters['all'] = base_filter.count()
 
@@ -185,7 +188,7 @@ class LabelsPart(RepositoryDashboardPartView):
         if not self.request.GET.get('show-empty-labels', False):
             extra['where'] = ['issues_count > 0']
 
-        labels_with_count = self.repository.labels.extra(
+        labels_with_count = self.repository.labels.ready().extra(
                                         **extra).select_related('label_type')
 
         return self.group_labels(labels_with_count)
@@ -198,7 +201,7 @@ class LabelsPart(RepositoryDashboardPartView):
         context.update({
             'show_empty_labels': self.request.GET.get('show-empty-labels', False),
             'labels_groups': self.get_labels_groups(),
-            'without_labels': self.repository.issues.filter(
+            'without_labels': self.repository.issues.ready().filter(
                                     state='open', labels__isnull=True).count(),
             'labels_editor_url': reverse_lazy(
                 'front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
@@ -237,8 +240,8 @@ class LabelsEditor(BaseRepositoryView):
 
         context.update({
             'label_types': self.repository.label_types.all().prefetch_related('labels'),
-            'labels_without_type': self.repository.labels.filter(label_type__isnull=True),
-            'all_labels': self.repository.labels.order_by('name').values_list('name', flat=True),
+            'labels_without_type': self.repository.labels.ready().filter(label_type__isnull=True),
+            'all_labels': self.repository.labels.ready().order_by('name').values_list('name', flat=True),
             'label_type_include_template': self.label_type_include_template,
         })
 
@@ -344,7 +347,7 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
             'error': False
         }
 
-        labels = self.repository.labels.order_by('name')
+        labels = self.repository.labels.ready().order_by('name')
 
         matching_labels = []
         has_order = True
@@ -427,7 +430,7 @@ class LabelCreate(LabelEditBase, CreateView):
 
     def get_success_url(self):
         url = super(LabelCreate, self).get_success_url()
-        return '%s?label_just_created=%d' % (url, self.object.id)
+        return '%s?label_just_created=%s' % (url, self.object.name)
 
 
 class LabelDelete(LabelFormBaseView, DeleteView):
@@ -439,3 +442,12 @@ class LabelDelete(LabelFormBaseView, DeleteView):
             reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
             self.object.name
         )
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Don't delete the object but update its status
+        """
+        self.object = self.get_object()
+        self.object.github_status = GITHUB_STATUS_CHOICES.WAITING_DELETE
+        self.object.save(update_fields=['github_status'])
+        return HttpResponseRedirect(self.get_success_url())

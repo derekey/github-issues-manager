@@ -3,7 +3,7 @@ import re
 from django import forms
 from django.core import validators
 
-from core.models import LabelType, LABELTYPE_EDITMODE, Label
+from core.models import LabelType, LABELTYPE_EDITMODE, Label, GITHUB_STATUS_CHOICES
 
 
 class LinkedToRepositoryForm(forms.ModelForm):
@@ -160,3 +160,13 @@ class LabelEditForm(LinkedToRepositoryForm):
         super(LabelEditForm, self).__init__(*args, **kwargs)
 
         self.fields['color'].validators = [self.color_validator]
+
+    def save(self, commit=True):
+        """
+        Set the github status
+        """
+        if self.instance.pk:
+            self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_UPDATE
+        else:
+            self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_CREATE
+        return super(LabelEditForm, self).save(commit)

@@ -14,6 +14,20 @@ class GithubObjectManager(models.Manager):
     It provides stuff to create or update objects with json from the github api.
     """
 
+    def ready(self):
+        """
+        Ignore all objects that are ready to be deleted, or created, and ones
+        that failed to be created.
+        To use instead of "all" when needed
+        """
+        return self.get_query_set().exclude(
+                github_status__in=(
+                            self.model.GITHUB_STATUS_CHOICES.WAITING_DELETE,
+                            self.model.GITHUB_STATUS_CHOICES.WAITING_CREATE,
+                            self.model.GITHUB_STATUS_CHOICES.ERROR_CREATE
+                            )
+                )
+
     def get_github_callable(self, gh, identifiers):
         """
         Return the github callable object for the given identifiers.
@@ -154,6 +168,7 @@ class GithubObjectManager(models.Manager):
                 # do save only if something is modified
 
                 obj.fetched_at = datetime.utcnow()
+                obj.github_status = obj.GITHUB_STATUS_CHOICES.FETCHED
 
                 try:
                     # force update or insert to avoid a exists() call in db
@@ -163,7 +178,7 @@ class GithubObjectManager(models.Manager):
                         save_params = {
                             'force_update': True,
                             # only save updated fields
-                            'update_fields': updated_fields + ['fetched_at', ],
+                            'update_fields': updated_fields + ['fetched_at', 'github_status'],
                         }
 
                     obj.save(**save_params)

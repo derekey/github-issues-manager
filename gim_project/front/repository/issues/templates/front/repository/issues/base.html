@@ -212,7 +212,7 @@
                 </li>
 
                 {# The milestones #}
-                {% with milestones=current_repository.milestones.all %}
+                {% with milestones=current_repository.milestones.ready %}
                     {% if milestones|length %}
                         <li class="accordion-group dark-nav">
                             <span class="glow"></span>
@@ -256,7 +256,7 @@
 
                 {# The different label-types #}
                 {% for label_type in label_types %}
-                    {% with label_type.labels.all as label_type_labels %}
+                    {% with label_type.labels.ready as label_type_labels %}
                         {% if label_type_labels|length %}
                             <li class="accordion-group dark-nav">
                                 <span class="glow"></span>
@@ -405,7 +405,7 @@
                                     <li class="divider"></li>
                                     {% for label_type in label_types %}
                                         {% with "type:"|add:label_type.name as label_type_group_name %}
-                                            {% if label_type.labels.count %}
+                                            {% if label_type.labels.ready.count %}
                                                 <li{% if issues_filter.parts.group_by == label_type_group_name %} class="active"{% endif %}>
                                                     <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" label_type_group_name %}">{{ label_type.name }}</a>
                                                 </li>
@@ -519,7 +519,7 @@
                                             </a>
                                         </div>
                                     </div>
-                                    {% with issue_labels=issue.labels.all %}
+                                    {% with issue_labels=issue.labels.ready %}
                                         <div class="issue-item-footer{% if issue_labels %} with-labels{% endif %}">
                                             {% if issue.assignee %}
                                                 {% cache 60 isses-list-assignee current_repository.id issues_filter.querystring_with_user issue.assignee.id %}
@@ -535,7 +535,7 @@
                                                 {% for label in issue_labels %}
                                                     {% if label.label_type_id %}
                                                         {% cache 60 isses-list-label current_repository.id issues_filter.querystring_with_user label.id %}
-                                                            {% attributes_for_list label.label_type.labels.all "name" as label_names %}
+                                                            {% attributes_for_list label.label_type.labels.ready "name" as label_names %}
                                                             --><a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}#issue-{{ issue.number }}" title="Click to {% if label.name in issues_filter.parts.labels %}stop filtering{% else %}filter{% endif %} on this {{ label.label_type.name }}" style="border-bottom-color: #{{ label.color }}">
                                                                 <strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}
                                                             </a><!--

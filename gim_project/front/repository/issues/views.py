@@ -54,7 +54,7 @@ class IssuesView(BaseRepositoryView):
         if milestone_number and isinstance(milestone_number, basestring):
             if milestone_number.isdigit():
                 try:
-                    milestone = self.repository.milestones.get(number=milestone_number)
+                    milestone = self.repository.milestones.ready().get(number=milestone_number)
                 except Milestone.DoesNotExist:
                     pass
                 else:
@@ -75,7 +75,7 @@ class IssuesView(BaseRepositoryView):
             label_names = [label_names]
         if len(label_names) == 1 and label_names[0] == 'none':
             return label_names
-        return list(self.repository.labels.filter(name__in=label_names))
+        return list(self.repository.labels.ready().filter(name__in=label_names))
 
     def _get_group_by(self, qs_parts):
         """
@@ -161,7 +161,7 @@ class IssuesView(BaseRepositoryView):
                 query_filters['milestone__number'] = milestone.number
 
         # the base queryset with the current filter
-        queryset = self.repository.issues.filter(**query_filters).select_related(
+        queryset = self.repository.issues.ready().filter(**query_filters).select_related(
                 'user',  # we may have a lot of different ones
             ).prefetch_related(
                 'assignee', 'closed_by', 'milestone',  # we should have only a few ones for each
@@ -316,7 +316,7 @@ class IssuesView(BaseRepositoryView):
             for issue in issues:
                 add_to = None
 
-                for label in issue.labels.all():  # thanks prefetch_related
+                for label in issue.labels.ready():  # thanks prefetch_related
                     if label.label_type_id == label_type.id:
                         # found a label for the wanted type, mark it and stop
                         # checking labels for this issue
@@ -330,7 +330,7 @@ class IssuesView(BaseRepositoryView):
             # for each label of the type, append matching issues to the final
             # list
             issues = []
-            label_type_labels = [None] + list(label_type.labels.all())
+            label_type_labels = [None] + list(label_type.labels.ready())
             if context['issues_filter']['parts'].get('group_by_direction', 'asc') == 'desc':
                 label_type_labels.reverse()
             for label in label_type_labels:
@@ -427,7 +427,7 @@ class IssueView(UserIssuesView):
         """
         issue = None
         if 'issue_number' in self.kwargs:
-            issue = self.repository.issues.select_related(
+            issue = self.repository.issues.ready().select_related(
                     'user',  'assignee', 'closed_by', 'milestone',
                 ).prefetch_related(
                     'labels__label_type'
@@ -497,7 +497,7 @@ class IssueView(UserIssuesView):
         # fetch other useful data
         if current_issue:
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
-            comments = list(current_issue.comments.select_related('user'))
+            comments = list(current_issue.comments.ready().select_related('user'))
             involved = self.get_involved_people(current_issue, comments, context)
         else:
             comments = []

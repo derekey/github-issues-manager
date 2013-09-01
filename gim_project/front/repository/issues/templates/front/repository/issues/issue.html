@@ -48,12 +48,12 @@
                 {% endif %}
 
                 <ul class="unstyled issue-labels">
-                    {% for label in current_issue.labels.all %}
+                    {% for label in current_issue.labels.ready %}
                         {% if label.label_type_id %}
                             <li style="border-bottom-color: #{{ label.color }}"><strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}</li>
                         {% endif %}
                     {% endfor %}
-                    {% for label in current_issue.labels.all %}
+                    {% for label in current_issue.labels.ready %}
                         {% if not label.label_type_id %}
                             <li style="border-bottom-color: #{{ label.color }}">{{ label.name }}</li>
                         {% endif %}

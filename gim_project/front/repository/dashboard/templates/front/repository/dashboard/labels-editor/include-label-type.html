@@ -32,7 +32,7 @@
         {% if labels or not label_type %}
             <ul class="unstyled labels">
                 {% for label in labels %}
-                    <li style="border-bottom-color: #{{ label.color }}" title='Edit "{{ label.name }}"'{% if view.request.is_ajax %}{% if view.request.GET.label_just_edited|add:0 == label.id or view.request.GET.label_just_created|add:0 == label.id %} data-toggle="tooltip" data-title="Just {% if view.request.GET.label_just_edited %}edited{% else %}created{% endif %} !" data-trigger="manual" data-tooltip-class="success" {% endif %}{% endif %}>
+                    <li style="border-bottom-color: #{{ label.color }}" title='Edit "{{ label.name }}"'{% if view.request.is_ajax and view.request.GET.label_just_edited|add:0 == label.id %} data-toggle="tooltip" data-title="Just edited, will be saved shortly" data-trigger="manual" data-tooltip-class="success" {% endif %}>
                         <a href="" data-color='{{ label.color }}' data-name='{{ label.name }}' data-id='{{ label.id }}'>{{ label.typed_name }}</a>
                     </li>
                 {% endfor %}
