@@ -38,6 +38,10 @@
                     {% endfor %}
                 </ul>
             </div>
+        {% empty %}
+            <div class="box-content empty">
+                <div class="empty-area">{% if show_empty_labels %}No labels{% else %}No issues with labels{% endif %}</div>
+            </div>
         {% endfor %}
 
         {% if without_labels %}

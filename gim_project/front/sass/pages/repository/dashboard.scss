@@ -89,6 +89,9 @@
         &.only {
             padding-top: 5px;
         }
+        &.empty {
+            padding: 0;
+        }
         border-top: solid 1px #ddd;
         position: relative;
         .label {
