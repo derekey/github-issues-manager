@@ -167,15 +167,32 @@ class GithubObject(models.Model):
             """
             response_headers = {}
 
-            page_objs = model.objects.get_from_github(gh, identifiers,
+            page_objs = []
+
+            try:
+                page_objs = model.objects.get_from_github(gh, identifiers,
                         defaults, parameters, request_headers, response_headers)
+            except ApiNotFoundError:
+                # no data for this list (issues may be no activated, for example)
+                pass
+            except ApiError, e:
+                if e.response and e.response['code'] in (410, ):
+                    # no data for this list (issues may be no activated, for example)
+                    pass
+                else:
+                    raise
+            except:
+                raise
+
+            if not page_objs:
+                # no fetched objects, we're done
+                return None
 
             objs += page_objs
 
             # if we reached the min_updated_date, stop
             min_updated_date_raised = False
             if (min_updated_date
-                    and page_objs
                     and page_objs[-1].updated_at < min_updated_date):
 
                 min_updated_date_raised = True
@@ -562,7 +579,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         except ApiNotFoundError:
             return False
         except ApiError, e:
-            if e.response and e.response.code and str(e.response.code) in ('401', '403'):
+            if e.response and e.response.code and e.response.code in (401, 403):
                 return False
             return None
         except:
