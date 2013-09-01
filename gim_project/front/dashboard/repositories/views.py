@@ -8,6 +8,8 @@ from subscriptions.models import (WaitingSubscription,
                                   WAITING_SUBSCRIPTION_STATES,
                                   SUBSCRIPTION_STATES, )
 
+from core.tasks.repository import FirstFetch
+
 from ...views import BaseFrontViewMixin
 from .forms import AddRepositoryForm, RemoveRepositoryForm
 
@@ -59,7 +61,8 @@ class AddRepositoryView(ToggleRepositoryBaseView):
         try:
             repository = subscription.repository
         except Repository.DoesNotExist:
-            pass
+            # add a job to fetch the repository
+            FirstFetch.add_job(name, gh=self.request.user.get_connection())
         else:
             if repository.fetched_at:
                 message = 'Your subscription to <strong>%s</strong> was just added'
