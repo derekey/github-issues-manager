@@ -397,9 +397,10 @@ class GithubObject(models.Model):
 class GithubObjectWithId(GithubObject):
     github_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
 
-    github_matching = {
+    github_matching = dict(GithubObject.github_matching)
+    github_matching.update({
         'id': 'github_id'
-    }
+    })
     github_identifiers = {'github_id': 'github_id'}
 
     class Meta:
@@ -881,11 +882,17 @@ class Label(GithubObject):
     repository = models.ForeignKey(Repository, related_name='labels')
     name = models.TextField()
     color = models.CharField(max_length=6)
+    api_url = models.TextField(blank=True, null=True)
     label_type = models.ForeignKey(LabelType, related_name='labels', blank=True, null=True, on_delete=models.SET_NULL)
     typed_name = models.TextField(db_index=True)
     order = models.IntegerField(blank=True, null=True)
 
     objects = WithRepositoryManager()
+
+    github_matching = dict(GithubObject.github_matching)
+    github_matching.update({
+        'url': 'api_url'
+    })
 
     github_ignore = GithubObject.github_ignore + ('label_type', 'typed_name', )
     github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'name': 'name'}
@@ -910,6 +917,14 @@ class Label(GithubObject):
 
     @property
     def github_callable_identifiers(self):
+        """
+        If we have the api url of the label, use it as the normal way to get
+        identifiers will fail since it's based on the name which may have been
+        changed by the user
+        """
+        if self.api_url:
+            return [self.api_url.replace('https://api.github.com/', '')]
+
         return self.repository.github_callable_identifiers_for_labels + [
             self.name,
         ]
