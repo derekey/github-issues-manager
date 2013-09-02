@@ -22,19 +22,22 @@ class LabelEditJob(LabelJob):
 
     def run(self, queue):
         """
-        Get the label and create or update it
+        Get the label and create/update/delete it
         """
         super(LabelEditJob, self).run(queue)
 
-        self.object.dist_edit(
-            mode=self.mode.hget(),
-            gh=self.gh
-        )
+        mode = self.mode.hget()
+        gh = self.gh
+
+        if mode == 'delete':
+            self.object.dist_delete(gh)
+        else:
+            self.object.dist_edit(mode=mode, gh=gh)
 
         return None
 
     def success_message_addon(self, queue, result):
         """
-        Display the action done (updated or created)
+        Display the action done (created/updated/deleted)
         """
         return ' [%sd]' % self.mode.hget()

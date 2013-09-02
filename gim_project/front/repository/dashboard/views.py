@@ -470,4 +470,9 @@ class LabelDelete(LabelFormBaseView, DeleteView):
         self.object = self.get_object()
         self.object.github_status = GITHUB_STATUS_CHOICES.WAITING_DELETE
         self.object.save(update_fields=['github_status'])
+
+        LabelEditJob.add_job(self.object.pk,
+                             mode='delete',
+                             gh=self.request.user.get_connection())
+
         return HttpResponseRedirect(self.get_success_url())
