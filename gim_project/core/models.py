@@ -393,6 +393,16 @@ class GithubObject(models.Model):
 
         return count
 
+    def dist_delete(self, gh):
+        """
+        Delete the object on the github side, then delete it on our side.
+        """
+        identifiers = self.github_callable_identifiers
+        gh_callable = self.__class__.objects.get_github_callable(gh, identifiers)
+        gh_callable.delete()
+        self.delete()
+
+
     def dist_edit(self, gh, mode, fields=None):
         """
         Edit the object on the github side. Mode can be 'create' or 'update' to
