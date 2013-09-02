@@ -1,5 +1,6 @@
 
 from limpyd import fields
+from async_messages import messages
 
 from core.models import Label
 
@@ -33,6 +34,9 @@ class LabelEditJob(LabelJob):
             self.object.dist_delete(gh)
         else:
             self.object.dist_edit(mode=mode, gh=gh)
+
+        message = u'The label "%s" was correctly %sd' % (self.object.name, mode)
+        messages.success(self.gh_user, message)
 
         return None
 

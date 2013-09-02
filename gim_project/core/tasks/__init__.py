@@ -11,6 +11,7 @@ from limpyd_jobs.models import BaseJobsModel, Job as LimpydJob, Queue as LimpydQ
 from limpyd_jobs.workers import Worker as LimpydWorker, logger
 
 from core.ghpool import Connection
+from core.models import GithubUser
 
 
 logger.addHandler(settings.WORKERS_LOGGER_CONFIG['handler'])
@@ -89,6 +90,13 @@ class Job(LimpydJob):
         Return a Connection object based on arguments saved in the job
         """
         return Connection.get(**self.gh_args.hgetall())
+
+    @property
+    def gh_user(self):
+        """
+        Return the user used to make the connection
+        """
+        return GithubUser.objects.get(username=self.gh_args.hget('username'))
 
 
 class DjangoModelJob(Job):
