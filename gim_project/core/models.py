@@ -393,6 +393,61 @@ class GithubObject(models.Model):
 
         return count
 
+    def dist_edit(self, gh, mode, fields=None):
+        """
+        Edit the object on the github side. Mode can be 'create' or 'update' to
+        do the matching action on Github.
+        Field sends are defined in github_edit_fields, and the url is defined
+        by github_callable_identifiers or github_callable_create_identifiers
+        The new/updated object is returned
+        """
+        # check mode
+        if mode not in ('create', 'update'):
+            raise Exception('Invalid mode for dist_edit')
+
+        # get fields to send
+        if not fields:
+            fields = self.github_edit_fields[mode]
+
+        # get data to send
+        data = {}
+
+        for field_name in fields:
+            if '__' in field_name:
+                field_name, subfield_name = field_name.split('__')
+                field, _, direct, is_m2m = self._meta.get_field_by_name(field_name)
+                relation = getattr(self, field_name)
+                if is_m2m or not direct:
+                    # we have a many to many relationship
+                    data[field_name] = relation.values_list(subfield_name, flat=True)
+                else:
+                    # we have a foreignkey
+                    data[field_name] = None if not relation else getattr(relation, subfield_name)
+            else:
+                # it's a direct field
+                data[field_name] = getattr(self, field_name)
+                if isinstance(data[field_name], datetime):
+                    data[field_name] = data[field_name].isoformat()
+
+        # prepare the request
+        identifiers = self.github_callable_identifiers if mode == 'update' else self.github_callable_create_identifiers
+        gh_callable = self.__class__.objects.get_github_callable(gh, identifiers)
+        method = getattr(gh_callable, 'patch' if mode == 'update' else 'post')
+
+        # make the request and get fresh data for the object
+        result = method(**data)
+
+        # get defaults to update the data with fresh data we just got
+        defaults = self.defaults_create_values()
+
+        # if we are in create mode, we delete the object to recreate it with
+        # the data we just got
+        if mode == 'create':
+            self.delete()
+
+        # update the object on our side
+        return self.__class__.objects.create_or_update_from_dict(result, defaults)
+
 
 class GithubObjectWithId(GithubObject):
     github_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
@@ -896,6 +951,10 @@ class Label(GithubObject):
 
     github_ignore = GithubObject.github_ignore + ('label_type', 'typed_name', )
     github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'name': 'name'}
+    github_edit_fields = {
+        'create': ('color', 'name', ),
+        'update': ('color', 'name', )
+    }
 
     class Meta:
         unique_together = (
@@ -929,6 +988,10 @@ class Label(GithubObject):
             self.name,
         ]
 
+    @property
+    def github_callable_create_identifiers(self):
+        return self.repository.github_callable_identifiers_for_labels
+
     def save(self, *args, **kwargs):
         label_type_infos = LabelType.objects.get_for_name(self.repository, self.name)
         if label_type_infos:
@@ -953,6 +1016,9 @@ class Label(GithubObject):
 
         return super(Label, self).fetch(gh, defaults, force_fetch=force_fetch)
 
+    def defaults_create_values(self):
+        return {'fk': {'repository': self.repository}}
+
 
 class Milestone(GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='milestones')
@@ -965,6 +1031,11 @@ class Milestone(GithubObjectWithId):
     creator = models.ForeignKey(GithubUser, related_name='milestones')
 
     objects = WithRepositoryManager()
+
+    github_edit_fields = {
+        'create': ('title', 'state', 'description', 'due_on', ),
+        'update': ('title', 'state', 'description', 'due_on', )
+    }
 
     class Meta:
         unique_together = (
@@ -981,6 +1052,10 @@ class Milestone(GithubObjectWithId):
             self.number,
         ]
 
+    @property
+    def github_callable_create_identifiers(self):
+        return self.repository.github_callable_identifiers_for_milestones
+
     def fetch(self, gh, defaults=None, force_fetch=False):
         """
         Enhance the default fetch by setting the current repository as a default
@@ -992,6 +1067,9 @@ class Milestone(GithubObjectWithId):
             defaults.setdefault('fk', {})['repository'] = self.repository
 
         return super(Milestone, self).fetch(gh, defaults, force_fetch=force_fetch)
+
+    def defaults_create_values(self):
+        return {'fk': {'repository': self.repository}}
 
 
 class Issue(GithubObjectWithId):
@@ -1023,6 +1101,10 @@ class Issue(GithubObjectWithId):
     })
     github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
     github_format = '.html+json'
+    github_edit_fields = {
+        'create': ('title', 'body', 'assignee__username', 'milestone__number', 'labels__name', ),
+        'update': ('title', 'body', 'assignee__username', 'state', 'milestone__number', 'labels__name', )
+    }
 
     class Meta:
         unique_together = (
@@ -1037,6 +1119,10 @@ class Issue(GithubObjectWithId):
         return self.repository.github_callable_identifiers_for_issues + [
             self.number,
         ]
+
+    @property
+    def github_callable_create_identifiers(self):
+        return self.repository.github_callable_identifiers_for_issues
 
     @property
     def github_callable_identifiers_for_comments(self):
@@ -1092,6 +1178,9 @@ class Issue(GithubObjectWithId):
 
         return super(Issue, self).fetch(gh, defaults, force_fetch=force_fetch)
 
+    def defaults_create_values(self):
+        return {'fk': {'repository': self.repository}}
+
 
 class IssueComment(GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='comments')
@@ -1108,6 +1197,10 @@ class IssueComment(GithubObjectWithId):
         'body_html': 'body',
     })
     github_format = '.html+json'
+    github_edit_fields = {
+        'create': ('body', ),
+        'update': ('body', )
+    }
 
     class Meta:
         ordering = ('created_at', )
@@ -1121,6 +1214,10 @@ class IssueComment(GithubObjectWithId):
             'comments',
             self.github_id,
         ]
+
+    @property
+    def github_callable_create_identifiers(self):
+        return self.issue.github_callable_identifiers_for_comments
 
     def fetch(self, gh, defaults=None, force_fetch=False):
         """
@@ -1138,3 +1235,10 @@ class IssueComment(GithubObjectWithId):
             defaults.setdefault('fk', {})['issue'] = self.issue
 
         return super(IssueComment, self).fetch(gh, defaults, force_fetch=force_fetch)
+
+    def defaults_create_values(self):
+        return {'fk': {
+            'issue': self.issue,
+            'repository': self.repository
+            }
+        }

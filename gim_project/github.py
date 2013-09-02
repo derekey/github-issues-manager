@@ -135,7 +135,7 @@ class GitHub(object):
         if method in ('POST', 'PUT', 'PATCH'):
             data = _encode_json(kw)
         url = '%s%s' % (_URL, path)
-        print 'REQUEST', url, request_headers
+        print 'REQUEST', method, url, request_headers
         opener = urllib2.build_opener(urllib2.HTTPSHandler)
         request = urllib2.Request(url, data=data, headers=request_headers or {})
         request.get_method = _METHOD_MAP[method]
