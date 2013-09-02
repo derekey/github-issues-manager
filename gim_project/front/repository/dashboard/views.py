@@ -10,7 +10,10 @@ from django.views.generic import UpdateView, CreateView, DeleteView
 from django.http import HttpResponseRedirect
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
+
 from core.models import LabelType, LABELTYPE_EDITMODE, Label, GITHUB_STATUS_CHOICES
+from core.tasks.label import LabelEditJob
+
 from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
 from .forms import LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm
 
@@ -407,6 +410,23 @@ class LabelFormBaseView(LinkedToRepositoryFormView):
         if not self.request.is_ajax():
             return self.http_method_not_allowed(self.request)
         return super(LabelFormBaseView, self).post(*args, **kwargs)
+
+    def form_valid(self, form):
+        """
+        Override the default behavior to add a job to create/update the label
+        on the github side
+        """
+        response = super(LabelFormBaseView, self).form_valid(form)
+
+        edit_mode = 'update'
+        if self.object.github_status == GITHUB_STATUS_CHOICES.WAITING_CREATE:
+            edit_mode = 'create'
+
+        LabelEditJob.add_job(self.object.pk,
+                             mode=edit_mode,
+                             gh=self.request.user.get_connection())
+
+        return response
 
 
 class LabelEditBase(LabelFormBaseView):
