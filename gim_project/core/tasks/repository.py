@@ -1,5 +1,6 @@
 
 from limpyd import fields
+from async_messages import messages
 
 from core.models import Repository, GithubUser
 from subscriptions.models import WaitingSubscription, WAITING_SUBSCRIPTION_STATES
@@ -120,6 +121,8 @@ class FirstFetch(Job):
             if rights:
                 count += 1
                 subscription.convert(rights)
+                message = u'Your subscription to <strong>%s</strong> is now ready' % repository.full_name
+                messages.success(subscription.user, message)
             else:
                 subscription.state = WAITING_SUBSCRIPTION_STATES.FAILED
                 subscription.save(update_fields=('state', ))

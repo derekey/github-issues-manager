@@ -30,12 +30,14 @@ class LabelEditJob(LabelJob):
         mode = self.mode.hget()
         gh = self.gh
 
-        if mode == 'delete':
-            self.object.dist_delete(gh)
-        else:
-            self.object.dist_edit(mode=mode, gh=gh)
+        label = self.object
 
-        message = u'The label "%s" was correctly %sd' % (self.object.name, mode)
+        if mode == 'delete':
+            label.dist_delete(gh)
+        else:
+            label.dist_edit(mode=mode, gh=gh)
+
+        message = u'The label <strong>%s</strong> was correctly %sd' % (label.name, mode)
         messages.success(self.gh_user, message)
 
         return None

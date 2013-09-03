@@ -1,5 +1,6 @@
 
 from limpyd import fields
+from async_messages import messages
 
 from core.models import GithubUser
 
@@ -29,7 +30,12 @@ class FetchAvailableRepositoriesJob(UserJob):
         """
         super(FetchAvailableRepositoriesJob, self).run(queue)
 
-        result = self.object.fetch_available_repositories()
+        user = self.object
+
+        result = user.fetch_available_repositories()
+
+        message = u'The list of repositories you can subscribe to was just updated'
+        messages.success(user, message)
 
         return result
 
