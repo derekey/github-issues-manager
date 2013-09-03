@@ -301,14 +301,16 @@ p.state-closed {
 .box-section.issue-item.active {
   padding-left: 8px;
   border-left: solid #7bc8d7 5px;
+  background: #e6f1f4;
+  border-top-color: #f0fcff;
 }
 
-/* line 178, ../../../../../sass/components/_issues.scss */
+/* line 180, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch {
   margin: 0;
   padding: 0;
 }
-/* line 181, ../../../../../sass/components/_issues.scss */
+/* line 183, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch label {
   margin: 0;
   padding: 0;
@@ -318,7 +320,7 @@ p.state-closed {
   height: 28px;
   background: white;
 }
-/* line 190, ../../../../../sass/components/_issues.scss */
+/* line 192, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .add-on, .issues-quicksearch input, .issues-quicksearch .btn {
   border: 0;
   -webkit-border-radius: 0;
@@ -329,14 +331,14 @@ p.state-closed {
   position: absolute;
   top: 0;
 }
-/* line 196, ../../../../../sass/components/_issues.scss */
+/* line 198, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .add-on {
   border-right: solid 1px #d4d4d4;
   left: 0;
   width: 16px;
   z-index: 10;
 }
-/* line 202, ../../../../../sass/components/_issues.scss */
+/* line 204, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch input {
   display: block;
   width: 100%;
@@ -351,7 +353,7 @@ p.state-closed {
   height: 28px;
   z-index: 20;
 }
-/* line 214, ../../../../../sass/components/_issues.scss */
+/* line 216, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .btn {
   border-left: solid 1px #d4d4d4;
   right: 0;
