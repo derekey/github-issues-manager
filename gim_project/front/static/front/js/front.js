@@ -788,4 +788,28 @@ $().ready(function() {
         $('.deferrable').deferrable();
     }
 
+    $.ajaxSetup({
+        converters: {
+            "text html": function(html) {
+                // Will extrat message from ajax requests to put them
+                // on the main messages container
+                var $fake_node = $('<div />');
+                $fake_node.html(html);
+                var $new_messages = $fake_node.find('#messages');
+                if ($new_messages.length) {
+                    $new_messages.remove();
+                    var $messages = $('#messages');
+                    if ($messages.length) {
+                        $messages.append($new_messages.children());
+                    } else {
+                        $('body > header:first-of-type').after($new_messages);
+                    }
+                    return $fake_node.html();
+                } else {
+                    return html;
+                }
+            } // function
+        } // converts
+    }); // ajaxSetup
+
 });

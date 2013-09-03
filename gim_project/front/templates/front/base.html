@@ -43,16 +43,7 @@
         </div>
     </header>
 
-    {% if messages %}
-    <ul id="messages" class="unstyled messages">
-        {% for message in messages %}
-            <li class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                {{ message|safe }}
-            </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+    {% include "front/messages.html" %}
 
     {% block modal-windows %}{% endblock %}
     <main id="main" class="container-fluid">
