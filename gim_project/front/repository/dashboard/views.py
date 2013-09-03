@@ -8,6 +8,7 @@ from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DeleteView
 from django.http import HttpResponseRedirect
+from django.contrib import messages
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
 
@@ -307,6 +308,10 @@ class LabelTypeEdit(LabelTypeEditBase, UpdateView):
 
     def get_success_url(self):
         url = super(LabelTypeEdit, self).get_success_url()
+
+        messages.success(self.request,
+            u'The group <strong>%s</strong> was successfully updated' % self.object.name)
+
         return '%s?group_just_edited=%d' % (url, self.object.id)
 
 
@@ -318,6 +323,10 @@ class LabelTypeCreate(LabelTypeEditBase, CreateView):
 
     def get_success_url(self):
         url = super(LabelTypeCreate, self).get_success_url()
+
+        messages.success(self.request,
+            u'The group <strong>%s</strong> was successfully created' % self.object.name)
+
         return '%s?group_just_created=%d' % (url, self.object.id)
 
 
@@ -387,11 +396,11 @@ class LabelTypeDelete(LabelTypeFormBaseView, DeleteView):
         return super(LabelTypeDelete, self).post(*args, **kwargs)
 
     def get_success_url(self):
+        messages.success(self.request,
+            u'The group <strong>%s</strong> was successfully deleted' % self.object.name)
+
         reverse_kwargs = self.repository.get_reverse_kwargs()
-        return '%s?group_just_deleted=%s' % (
-            reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
-            self.object.name
-        )
+        return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
 
 
 class LabelFormBaseView(LinkedToRepositoryFormView):
@@ -426,6 +435,10 @@ class LabelFormBaseView(LinkedToRepositoryFormView):
                              mode=edit_mode,
                              gh=self.request.user.get_connection())
 
+        messages.success(self.request,
+            u'The label <strong>%s</strong> will be %sd shortly' % (
+                                                self.object.name, edit_mode))
+
         return response
 
 
@@ -458,10 +471,7 @@ class LabelDelete(LabelFormBaseView, DeleteView):
 
     def get_success_url(self):
         reverse_kwargs = self.repository.get_reverse_kwargs()
-        return '%s?label_just_deleted=%s' % (
-            reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
-            self.object.name
-        )
+        return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
@@ -474,5 +484,8 @@ class LabelDelete(LabelFormBaseView, DeleteView):
         LabelEditJob.add_job(self.object.pk,
                              mode='delete',
                              gh=self.request.user.get_connection())
+
+        messages.success(self.request,
+            u'The label <strong>%s</strong> will be deleted shortly' % self.object.name)
 
         return HttpResponseRedirect(self.get_success_url())

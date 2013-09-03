@@ -1,13 +1,3 @@
-{% if view.request.is_ajax %}
-    {% if view.request.GET.group_just_deleted %}
-        <div class="alert alert-success">The group previously named "{{ view.request.GET.group_just_deleted }}" is now deleted</div>
-    {% elif view.request.GET.label_just_deleted %}
-        <div class="alert alert-success">The label previously named "{{ view.request.GET.label_just_deleted }}" will be deleted shortly</div>
-    {% elif view.request.GET.label_just_created %}
-        <div class="alert alert-success">The label named "{{ view.request.GET.label_just_created }}" will be created shortly</div>
-    {% endif %}
-{% endif %}
-
 {% for label_type in label_types %}
     {% include label_type_include_template with label_type=label_type labels=label_type.labels.ready %}
 {% endfor %}
