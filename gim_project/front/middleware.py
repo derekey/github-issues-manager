@@ -1,6 +1,7 @@
 from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
 from django.contrib.messages.api import get_messages
+from django.utils.encoding import smart_text
 
 
 class AddMessagesToAjaxResponseMiddleware(object):
@@ -9,6 +10,7 @@ class AddMessagesToAjaxResponseMiddleware(object):
 
             messages_html = render_to_string('front/messages.html',
                                              {'messages': get_messages(request)})
-            response.content += messages_html
+
+            response.content = smart_text(response.content) + smart_text(messages_html)
 
         return response
