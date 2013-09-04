@@ -788,28 +788,74 @@ $().ready(function() {
         $('.deferrable').deferrable();
     }
 
+    var MessagesManager = {
+
+        extract: (function MessagesManager__extract (html) {
+            // Will extrat message from ajax requests to put them
+            // on the main messages container
+            var $fake_node = $('<div />');
+            $fake_node.html(html);
+            var $new_messages = $fake_node.find('#messages');
+            if ($new_messages.length) {
+                $new_messages.remove();
+                var $messages = $('#messages');
+                if ($messages.length) {
+                    $messages.append($new_messages.children());
+                } else {
+                    $('body > header:first-of-type').after($new_messages);
+                }
+                MessagesManager.init_auto_hide();
+                return $fake_node.html();
+            } else {
+                return html;
+            }
+        }), // extract
+
+        first_message: (function MessagesManager__first_message () {
+            return $('#messages').children('li.alert').first();
+        }), // first_message
+
+        hide_delays: {
+            1: 4000,
+            2: 2000,
+            3: 1500,
+            4: 1250,
+            'others': 1000,
+        },
+
+        hide_delay: (function MessagesManager__hide_delay () {
+            var count = $('#messages').children('li.alert').length;
+            return MessagesManager.hide_delays[count] || MessagesManager.hide_delays.others;
+        }), // count_messages
+
+        auto_hide_timer: null,
+        init_auto_hide: (function MessagesManager__init_auto_hide () {
+            if (MessagesManager.auto_hide_timer) {
+                clearTimeout(MessagesManager.auto_hide_timer);
+                MessagesManager.auto_hide_timer = null;
+            }
+            var $first = MessagesManager.first_message();
+            if (!$first.length) { return; }
+            MessagesManager.auto_hide_timer = setTimeout(MessagesManager.auto_hide_first, MessagesManager.hide_delay());
+        }), // init_auto_hide
+
+        auto_hide_first: (function MessagesManager__auto_hide_first () {
+            MessagesManager.first_message().fadeOut('slow', MessagesManager.remove_first);
+        }), // auto_hide_first
+
+        remove_first: (function MessagesManager__remove_first () {
+            $(this).remove();
+            MessagesManager.auto_hide_timer = null;
+            MessagesManager.init_auto_hide();
+        }) // remove_first
+
+    }; // MessagesManager
+
     $.ajaxSetup({
         converters: {
-            "text html": function(html) {
-                // Will extrat message from ajax requests to put them
-                // on the main messages container
-                var $fake_node = $('<div />');
-                $fake_node.html(html);
-                var $new_messages = $fake_node.find('#messages');
-                if ($new_messages.length) {
-                    $new_messages.remove();
-                    var $messages = $('#messages');
-                    if ($messages.length) {
-                        $messages.append($new_messages.children());
-                    } else {
-                        $('body > header:first-of-type').after($new_messages);
-                    }
-                    return $fake_node.html();
-                } else {
-                    return html;
-                }
-            } // function
+            "text html": MessagesManager.extract
         } // converts
     }); // ajaxSetup
+    MessagesManager.init_auto_hide();
 
 });
