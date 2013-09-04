@@ -11,5 +11,4 @@ git+git://github.com/twidi/django-debug-toolbar-template-timings.git#egg=templat
 git+git://github.com/twidi/django-decorator-include.git#egg=django-decorator-include
 git+git://github.com/twidi/django-extended-choices.git#egg=django-extended-choices
 redis-limpyd-jobs
-#django-async-messages
-git+git://github.com/twidi/django-async-messages.git#egg=django-async-messages@mimic-django-messages-api
+django-async-messages
