@@ -4,7 +4,7 @@
         <div class="box-header">
             <span class="title">
                 {% if label_type %}
-                    {{ label_type.name }}
+                    Group: {{ label_type.name }}
                     {% if view.request.is_ajax %}
                         {% if view.request.GET.group_just_edited|add:0 == label_type.id %}
                             <span class="label label-success">Just edited !</span>

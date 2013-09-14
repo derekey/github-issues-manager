@@ -12,6 +12,33 @@
 {% block dashboard-subtitle %}<h5>Labels and groups editor</h5>{% endblock %}
 
 {% block dashboard-content %}
+<div class="row-fluid">
+    <div class="box span3">
+        <div class="box-header">
+            <span class="title">About groups</span>
+        </div>
+        <div class="box-content padded">
+            <p><strong>What is a group ?</strong></p>
+            <p>Groups are a way to organize your labels into logical sets.</p>
+            <p>When you create a group, you can choose which labels to include by picking them, or by using a pattern.</p>
+            <p><strong>An example</strong></p>
+            <p>For example, the pattern <strong>workflow:{order}:{label}</strong> will automatically include labels like these:</p>
+            {# ul>li({workflow:$:}+strong)*5 #}
+            <ul>
+                <li>workflow:0:<strong>backlog</strong></li>
+                <li>workflow:1:<strong>assigned</strong></li>
+                <li>workflow:2:<strong>accepted</strong></li>
+                <li>workflow:3:<strong>working</strong></li>
+                <li>workflow:4:<strong>fixed</strong></li>
+            </ul>
+            <p>In this example, the whole labels are visible on github, but only the emphased part will be visible here.</p>
+            <p>And the number is used for ordering.</p>
+            <p><strong>Is it useful ?</strong></p>
+            <p>By grouping labels, you add some logic, and these groups are separated from the non-grouped labels in the search bar of the issues list.</p>
+            <p>And you can use them to group the list of issues. With the previous example, you can filter issues and then group them by workflow.</p>
+        </div>
+    </div>
+    <div class="span9">
 
     {% include "front/repository/dashboard/labels-editor/include-content.html" %}
 
@@ -51,6 +78,8 @@
                 </div>
             </div>
         </form>
+    </div>
+
     </div>
 
 {% endblock dashboard-content %}
