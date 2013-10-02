@@ -26,25 +26,21 @@ class FetchAvailableRepositoriesJob(UserJob):
 
     def run(self, queue):
         """
-        Get the user and its available repositories from github
+        Get the user and its available repositories from github, and save the
+        counts in the job
         """
         super(FetchAvailableRepositoriesJob, self).run(queue)
 
         user = self.object
 
-        result = user.fetch_available_repositories()
+        nb_repos, nb_orgs = user.fetch_available_repositories()
 
         message = u'The list of repositories you can subscribe to was just updated'
         messages.success(user, message)
 
-        return result
-
-    def on_success(self, queue, result):
-        """
-        Save infos got from the fetch_available_repositories call
-        """
-        nb_repos, nb_orgs = result
         self.hmset(nb_repos=nb_repos, nb_orgs=nb_orgs)
+
+        return nb_repos, nb_orgs
 
     def success_message_addon(self, queue, result):
         """

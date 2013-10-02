@@ -5,7 +5,7 @@ from async_messages import messages
 from core.models import Repository, GithubUser
 from subscriptions.models import WaitingSubscription, WAITING_SUBSCRIPTION_STATES
 
-from . import DjangoModelJob, DelayableJob, Job
+from . import DjangoModelJob, Job
 
 
 class RepositoryJob(DjangoModelJob):
@@ -16,7 +16,7 @@ class RepositoryJob(DjangoModelJob):
     model = Repository
 
 
-class FetchClosedIssuesWithNoClosedBy(DelayableJob, RepositoryJob):
+class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
     """
     Job that fetches issues from a repository, that are closed but without a
     closed_by (to get the closer_by, we need to fetch each closed issue
@@ -29,19 +29,17 @@ class FetchClosedIssuesWithNoClosedBy(DelayableJob, RepositoryJob):
 
     def run(self, queue):
         """
-        Get the repository and update some closed issues
+        Get the repository and update some closed issues, and save the count
+        of fetched issues in the job
         """
         super(FetchClosedIssuesWithNoClosedBy, self).run(queue)
 
         count = self.object.fetch_closed_issues_without_closed_by(
                                 limit=int(self.limit.hget() or 20), gh=self.gh)
-        return count
 
-    def on_success(self, queue, result):
-        """
-        Save the count of closed issues fetched
-        """
-        self.count.hset(result)
+        self.count.hset(count)
+
+        return count
 
     def success_message_addon(self, queue, result):
         """
@@ -63,7 +61,7 @@ class FirstFetch(Job):
     def run(self, queue):
         """
         Fetch the repository and once done, convert waiting subscriptions into
-        real ones
+        real ones, and save the cout of converted subscriptions in the job.
         """
         super(FirstFetch, self).run(queue)
 
@@ -127,14 +125,11 @@ class FirstFetch(Job):
                 subscription.state = WAITING_SUBSCRIPTION_STATES.FAILED
                 subscription.save(update_fields=('state', ))
 
+        # save count in the job
+        self.converted_subscriptions.hset(count)
+
         # return the number of converted subscriptions
         return count
-
-    def on_success(self, queue, result):
-        """
-        Save the count of converted subscriptions
-        """
-        self.converted_subscriptions.hset(result)
 
     def success_message_addon(self, queue, result):
         """
