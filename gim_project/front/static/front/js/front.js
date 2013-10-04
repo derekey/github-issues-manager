@@ -788,6 +788,13 @@ $().ready(function() {
         $('.deferrable').deferrable();
     }
 
+    /* temporary disable click for inactive filter links */
+    $('a.js-filter-trigger').on('click', function(ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+    });
+
+
     var MessagesManager = {
 
         extract: (function MessagesManager__extract (html) {
