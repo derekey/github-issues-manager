@@ -19,7 +19,7 @@ class FetchAvailableRepositoriesJob(UserJob):
     """
     Job that fetches available repositories of a user
     """
-    queue_name = 'fetch-avaiable-repos'
+    queue_name = 'fetch-available-repos'
 
     nb_repos = fields.InstanceHashField()
     nb_orgs = fields.InstanceHashField()
