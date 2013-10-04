@@ -1,3 +1,4 @@
+import json
 
 from django.conf import settings
 
@@ -11,7 +12,7 @@ from limpyd_jobs.models import (
                             )
 from limpyd_jobs.workers import Worker as LimpydWorker, logger
 
-from core.ghpool import Connection
+from core.ghpool import Connection, ApiError
 from core.models import GithubUser
 
 
@@ -29,6 +30,11 @@ class Queue(LimpydQueue):
 
 class Error(LimpydError):
     namespace = NAMESPACE
+
+    # store the result of the githubapi request and response in case of error
+    # they are set by json.dumps
+    gh_request = fields.InstanceHashField()
+    gh_response = fields.InstanceHashField()
 
 
 class Worker(LimpydWorker):
@@ -49,6 +55,18 @@ class Worker(LimpydWorker):
         """
         message = super(Worker, self).job_success_message(job, queue, job_result)
         return message + job.success_message_addon(queue, job_result)
+
+    def additional_error_fields(self, job, queue, exception, trace=None):
+        """
+        Save the response of an ApiError
+        """
+        fields = super(Worker, self).additional_error_fields(job, queue, exception, trace)
+
+        if isinstance(exception, ApiError):
+            fields['gh_request'] = json.dumps(exception.request)
+            fields['gh_response'] = json.dumps(exception.response)
+
+        return fields
 
 
 class Job(LimpydJob):
