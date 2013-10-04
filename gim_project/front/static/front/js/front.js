@@ -788,11 +788,92 @@ $().ready(function() {
         $('.deferrable').deferrable();
     }
 
-    /* temporary disable click for inactive filter links */
-    $('a.js-filter-trigger').on('click', function(ev) {
-        ev.stopPropagation();
-        ev.preventDefault();
-    });
+    var FilterManager = {
+        ARGS: Arg.all(),
+        CACHE: {},
+        selector: 'a.js-filter-trigger',
+        user_search: /^(.+\/)(created_by|assigned|closed_by)\/(.+)\/$/,
+        block_empty_links: function(ev) {
+            if ($(this).is(FilterManager.selector)) {
+                ev.stopPropagation();
+                ev.preventDefault();
+            }
+        },
+        update: function() {
+            var $link = $(this),
+                filter = $link.data('filter'),
+                href = null;
+            if (typeof FilterManager.CACHE[filter] !== 'undefined') {
+                href = FilterManager.CACHE[filter];
+            } else {
+                var parts = filter.split(':'),
+                    key = parts.shift(),
+                    value = parts.join(':'),
+                    args = $.extend({}, FilterManager.ARGS);
+                switch(key) {
+                    case 'pr':
+                    case 'milestone':
+                        if (typeof args[key] === 'undefined' || args[key] != value) {
+                            args[key] = value;
+                        } else {
+                            delete args[key];
+                        }
+                        href = Arg.url(args);
+                        break;
+                    case 'labels':
+                        var labels = (args[key] || '').split(','),
+                            pos = labels.indexOf(value),
+                            final_labels = [];
+                        if (pos >= 0) {
+                            labels.splice(pos, 1);
+                        } else {
+                            labels.push(value);
+                        }
+                        for (var i = 0; i < labels.length; i++) {
+                            if (labels[i]) { final_labels.push(labels[i]); }
+                        }
+                        if (final_labels.length) {
+                            args[key] = final_labels.join(',');
+                        } else {
+                            delete args[key];
+                        }
+                        href = Arg.url(args);
+                        break;
+                    case 'created_by':
+                    case 'assigned':
+                    case 'closed_by':
+                        var path = location.pathname,
+                            matches = path.match(FilterManager.user_search),
+                            to_add = true;
+                        if (matches) {
+                            if (matches[2] == key && matches[3] == value) {
+                                to_add = false;
+                            }
+                            path = matches[1];
+                        }
+                        if (to_add) {
+                            path = path + key + '/' + value + '/';
+                        }
+                        href = Arg.url(path, args);
+                        break;
+                };
+                if (href) {
+                    FilterManager.CACHE[filter] = href;
+                }
+            }
+            if (href) {
+                $link.attr('href', href).removeClass('js-filter-trigger');
+            }
+        }, // update
+        init: function() {
+            console.time('FilterManager');
+            $(FilterManager.selector)
+                .on('click', FilterManager.block_empty_links)
+                .each(FilterManager.update);
+            console.timeEnd('FilterManager');
+        } // init
+    }; // FilterManager
+    FilterManager.init();
 
 
     var MessagesManager = {

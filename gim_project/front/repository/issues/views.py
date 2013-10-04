@@ -73,6 +73,7 @@ class IssuesView(BaseRepositoryView):
             return None
         if not isinstance(label_names, list):
             label_names = [label_names]
+        label_names = [l for l in label_names if l]
         if len(label_names) == 1 and label_names[0] == 'none':
             return label_names
         return list(self.repository.labels.ready().filter(name__in=label_names))
