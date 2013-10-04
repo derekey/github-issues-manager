@@ -151,6 +151,11 @@ class LabelEditForm(LinkedToRepositoryForm):
             'Must be a valid hex color (without the #)',
             'invalid-color'
         )
+    label_name_validator = validators.RegexValidator(
+            re.compile('^[^\,]+$'),
+            'Must not contain a comma (",")',
+            'comma-refused'
+        )
 
     class Meta:
         model = Label
@@ -159,6 +164,7 @@ class LabelEditForm(LinkedToRepositoryForm):
     def __init__(self, *args, **kwargs):
         super(LabelEditForm, self).__init__(*args, **kwargs)
 
+        self.fields['name'].validators = [self.label_name_validator]
         self.fields['color'].validators = [self.color_validator]
 
     def save(self, commit=True):
