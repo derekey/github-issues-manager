@@ -793,6 +793,32 @@ $().ready(function() {
         CACHE: {},
         selector: 'a.js-filter-trigger',
         user_search: /^(.+\/)(created_by|assigned|closed_by)\/(.+)\/$/,
+        messages: {
+            pr: {
+                'on': 'Click to display only pull requests',
+                'off': 'Click to stop displaying only pull requests'
+            },
+            milestone: {
+                'on': 'Click to filter on this milestone',
+                'off': 'Click to stop filtering on this milestone'
+            },
+            labels: {
+                'on': 'Click to filter on this ',
+                'off': 'Click to stop filtering on this ',
+            },
+            assigned: {
+                'on': 'Click to filter issues assigned to him',
+                'off': 'Click to stop filtering issues assigned to him',
+            },
+            created_by: {
+                'on': 'Click to filter issues created by him',
+                'off': 'Click to stop filtering issues created by him',
+            },
+            closed_by: {
+                'on': 'Click to filter issues closed by him',
+                'off': 'Click to stop filtering issues closed by him',
+            }
+        }, // messages
         block_empty_links: function(ev) {
             if ($(this).is(FilterManager.selector)) {
                 ev.stopPropagation();
@@ -802,22 +828,24 @@ $().ready(function() {
         update: function() {
             var $link = $(this),
                 filter = $link.data('filter'),
-                href = null;
-            if (typeof FilterManager.CACHE[filter] !== 'undefined') {
-                href = FilterManager.CACHE[filter];
-            } else {
+                href, title;
+            if (typeof FilterManager.CACHE[filter] === 'undefined') {
                 var parts = filter.split(':'),
                     key = parts.shift(),
                     value = parts.join(':'),
-                    args = $.extend({}, FilterManager.ARGS);
+                    args = $.extend({}, FilterManager.ARGS),
+                    message_type;
                 switch(key) {
                     case 'pr':
                     case 'milestone':
                         if (typeof args[key] === 'undefined' || args[key] != value) {
                             args[key] = value;
+                            message_type = 'on';
                         } else {
                             delete args[key];
+                            message_type = 'off';
                         }
+                        title = FilterManager.messages[key][message_type];
                         href = Arg.url(args);
                         break;
                     case 'labels':
@@ -834,9 +862,12 @@ $().ready(function() {
                         }
                         if (final_labels.length) {
                             args[key] = final_labels.join(',');
+                            message_type = 'on';
                         } else {
                             delete args[key];
+                            message_type = 'off';
                         }
+                        title = FilterManager.messages[key][message_type] + ($link.data('type-name') || 'label');
                         href = Arg.url(args);
                         break;
                     case 'created_by':
@@ -851,26 +882,32 @@ $().ready(function() {
                             }
                             path = matches[1];
                         }
+                        message_type = 'off';
                         if (to_add) {
                             path = path + key + '/' + value + '/';
+                            message_type = 'on';
                         }
+                        title = FilterManager.messages[key][message_type];
                         href = Arg.url(path, args);
                         break;
                 };
                 if (href) {
-                    FilterManager.CACHE[filter] = href;
+                    var orig_title = $link.attr('title') || '';
+                    if (orig_title) { title = orig_title + '. ' + title};
+                    FilterManager.CACHE[filter] = {href: href, title: title + '.'};
                 }
             }
-            if (href) {
-                $link.attr('href', href).removeClass('js-filter-trigger');
+            if (typeof FilterManager.CACHE[filter] !== 'undefined') {
+                $link.attr('href', FilterManager.CACHE[filter].href)
+                     .attr('title', FilterManager.CACHE[filter].title)
+                     .removeClass('js-filter-trigger');
             }
         }, // update
         init: function() {
-            console.time('FilterManager');
             $(FilterManager.selector)
                 .on('click', FilterManager.block_empty_links)
                 .each(FilterManager.update);
-            console.timeEnd('FilterManager');
+            FilterManager.CACHE = {};  // reset cache for memory
         } // init
     }; // FilterManager
     FilterManager.init();
