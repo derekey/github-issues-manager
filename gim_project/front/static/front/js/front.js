@@ -77,6 +77,12 @@ $().ready(function() {
     IssuesListIssue.init_events = (function IssuesListIssue_init_events () {
         $document.on('click', IssuesListIssue.link_selector, IssuesListIssue.on_issue_node_event('on_click', true));
     });
+    IssuesListIssue.set_urls = (function IssuesListIssue_set_urls () {
+        $(IssuesListIssue.link_selector).each(function() {
+            var parts = this.href.split('#');
+            this.href = parts[0] + location.search + '#' + parts[1];
+        });
+    }); // IssuesListIssue_set_urls
 
     IssuesListIssue.prototype.on_click = (function IssuesListIssue__on_click (e) {
         this.set_current(true);
@@ -392,6 +398,7 @@ $().ready(function() {
                             function(node) { return new IssuesList(node); });
         if (!IssuesList.all.length) { return; }
         IssuesList.all[0].set_current();
+        IssuesListIssue.set_urls();
         IssuesListIssue.init_events();
         IssuesListGroup.init_events();
         IssuesList.init_events();
