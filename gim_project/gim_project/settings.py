@@ -147,6 +147,7 @@ INSTALLED_APPS = (
     'template_timings_panel',
 
     'jsonfield',
+    'adv_cache_tag',
 
     'core',
     'subscriptions',
@@ -181,9 +182,14 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 CACHES = {
-    'default': {
-        'BACKEND': "set something other that locmem, to be used by django-async-messages",
-        'LOCATION': 'gim-mem-cache'
+    "default": {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "127.0.0.1:6379:1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+            "PARSER_CLASS": "redis.connection.HiredisParser",
+            "PICKLE_VERSION": 2,
+        }
     }
 }
 
@@ -240,5 +246,11 @@ WORKERS_LOGGER_CONFIG = {
     'handler': logging.StreamHandler(),
     'level': logging.INFO
 }
+
+ADV_CACHE_VERSIONING = True
+ADV_CACHE_INCLUDE_PK = True
+ADV_CACHE_COMPRESS = True
+ADV_CACHE_COMPRESS_SPACES = True
+ADV_CACHE_VERSION = 1
 
 from local_settings import *

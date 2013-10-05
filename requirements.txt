@@ -10,5 +10,8 @@ django-debug-toolbar
 git+git://github.com/twidi/django-debug-toolbar-template-timings.git#egg=template_timings
 git+git://github.com/twidi/django-decorator-include.git#egg=django-decorator-include
 git+git://github.com/twidi/django-extended-choices.git#egg=django-extended-choices
+hiredis
 redis-limpyd-jobs
 django-async-messages
+django-redis
+django-adv-cache-tag
