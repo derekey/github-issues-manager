@@ -402,7 +402,6 @@ class GithubObject(models.Model):
         gh_callable.delete()
         self.delete()
 
-
     def dist_edit(self, gh, mode, fields=None):
         """
         Edit the object on the github side. Mode can be 'create' or 'update' to
@@ -493,6 +492,14 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
     class Meta:
         ordering = ('username', )
+
+    @property
+    def hash_for_issue_cache(self):
+        """
+        Hash for this object representing its state at the current time, used to
+        know if we have to reset an issue's cache
+        """
+        return hash((self.username, self.avatar_url, ))
 
     @property
     def github_callable_identifiers(self):
@@ -904,6 +911,14 @@ class LabelType(models.Model):
         return unicode(self).encode('utf-8')
 
     @property
+    def hash_for_issue_cache(self):
+        """
+        Hash for this object representing its state at the current time, used to
+        know if we have to reset an issue's cache
+        """
+        return hash((self.id, self.name, ))
+
+    @property
     def r(self):
         if not hasattr(self, '_regex'):
             self._regex = re.compile(self.regex)
@@ -985,6 +1000,16 @@ class Label(GithubObject):
             return u'%s' % self.name
 
     @property
+    def hash_for_issue_cache(self):
+        """
+        Hash for this object representing its state at the current time, used to
+        know if we have to reset an issue's cache
+        """
+        return hash((self.id, self.name, self.color,
+                     self.label_type.hash_for_issue_cache
+                        if self.label_type_id else None, ))
+
+    @property
     def github_callable_identifiers(self):
         """
         If we have the api url of the label, use it as the normal way to get
@@ -1057,6 +1082,14 @@ class Milestone(GithubObjectWithId):
         return u'%s' % self.title
 
     @property
+    def hash_for_issue_cache(self):
+        """
+        Hash for this object representing its state at the current time, used to
+        know if we have to reset an issue's cache
+        """
+        return hash((self.id, self.name, self.state, ))
+
+    @property
     def github_callable_identifiers(self):
         return self.repository.github_callable_identifiers_for_milestones + [
             self.number,
@@ -1123,6 +1156,22 @@ class Issue(GithubObjectWithId):
 
     def __unicode__(self):
         return u'#%d %s' % (self.number, self.title)
+
+    @property
+    def hash_for_cache(self):
+        """
+        Hash for this issue representing its state at the current time, used to
+        know if we have to reset an its cache
+        """
+        return hash((self.updated_at,
+                     self.user.hash_for_issue_cache if self.user_id else None,
+                     self.closed_by.hash_for_issue_cache if self.closed_by_id else None,
+                     self.assignee.hash_for_issue_cache if self.assignee_id else None,
+                     self.milestone.hash_for_issue_cache if self.milestone_id else None,
+                     ','.join(
+                        ['%d' % l.hash_for_issue_cache for l in self.labels.all()]
+                    ),
+                ))
 
     @property
     def github_callable_identifiers(self):
