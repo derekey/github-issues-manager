@@ -1,5 +1,7 @@
 from django import template
 
+from adv_cache_tag.tag import CacheTag
+
 from ..views import UserIssuesView
 
 register = template.Library()
@@ -30,3 +32,15 @@ def base_url_issues_filtered_by_assigned(repository, user):
 @register.filter
 def base_url_issues_filtered_by_closed_by(repository, user):
     return _base_url_issues_for_user(repository, user, 'closed_by')
+
+
+class IssueCacheTag(CacheTag):
+    class Meta(CacheTag.Meta):
+        versioning = True
+        compress = True
+        compress_spaces = True
+        include_pk = True
+        cache_backend = 'issues_tag'
+        internal_version = ""
+
+IssueCacheTag.register(register, 'issue_cache')

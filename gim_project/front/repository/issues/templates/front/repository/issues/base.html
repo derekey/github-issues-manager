@@ -1,5 +1,5 @@
 {% extends "front/repository/base.html" %}
-{% load static querystring frontutils issues_tags adv_cache %}
+{% load static querystring frontutils issues_tags %}
 
 {% block body_id %}repository_issues{% endblock %}
 
@@ -477,9 +477,9 @@
                         {% endif %}
                         {% for issue in group.list %}
                             {# {% block one-issue %} #}
-                            {% cache 0 issue_item issue.pk issue.hash_for_cache %}
+                            {% issue_cache 0 "issue_item" issue.pk issue.hash_for_cache %}
                                 {% include "front/repository/issues/include_issue_item.html" with issue=issue %}
-                            {% endcache %}
+                            {% endissue_cache %}
                             {# {% endblock one-issue %} #}
                         {% endfor %}
                         </ul>

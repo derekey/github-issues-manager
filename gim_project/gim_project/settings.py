@@ -190,7 +190,16 @@ CACHES = {
             "PARSER_CLASS": "redis.connection.HiredisParser",
             "PICKLE_VERSION": 2,
         }
-    }
+    },
+    "issues_tag": {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "127.0.0.1:6379:2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+            "PARSER_CLASS": "redis.connection.HiredisParser",
+            "PICKLE_VERSION": 2,
+        }
+    },
 }
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
@@ -246,11 +255,5 @@ WORKERS_LOGGER_CONFIG = {
     'handler': logging.StreamHandler(),
     'level': logging.INFO
 }
-
-ADV_CACHE_VERSIONING = True
-ADV_CACHE_INCLUDE_PK = True
-ADV_CACHE_COMPRESS = True
-ADV_CACHE_COMPRESS_SPACES = True
-ADV_CACHE_VERSION = 1
 
 from local_settings import *
