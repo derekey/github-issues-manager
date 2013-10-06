@@ -7,6 +7,21 @@ from core.utils import contribute_to_model
 from subscriptions import models as subscriptions_models
 
 
+class _GithubUser(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def hash_for_issue_cache(self):
+        """
+        Hash for this object representing its state at the current time, used to
+        know if we have to reset an issue's cache
+        """
+        return hash((self.username, self.avatar_url, ))
+
+contribute_to_model(_GithubUser, core_models.GithubUser)
+
+
 class _Repository(models.Model):
     class Meta:
         abstract = True
@@ -74,7 +89,47 @@ class _LabelType(models.Model):
         from front.repository.dashboard.views import LabelTypeDelete
         return reverse_lazy('front:repository:%s' % LabelTypeDelete.url_name, kwargs=self.get_reverse_kwargs())
 
+    @property
+    def hash_for_issue_cache(self):
+        """
+        Hash for this object representing its state at the current time, used to
+        know if we have to reset an issue's cache
+        """
+        return hash((self.id, self.name, ))
+
 contribute_to_model(_LabelType, core_models.LabelType)
+
+
+class _Label(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def hash_for_issue_cache(self):
+        """
+        Hash for this object representing its state at the current time, used to
+        know if we have to reset an issue's cache
+        """
+        return hash((self.id, self.name, self.color,
+                     self.label_type.hash_for_issue_cache
+                        if self.label_type_id else None, ))
+
+contribute_to_model(_Label, core_models.Label)
+
+
+class _Milestone(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def hash_for_issue_cache(self):
+        """
+        Hash for this object representing its state at the current time, used to
+        know if we have to reset an issue's cache
+        """
+        return hash((self.id, self.name, self.state, ))
+
+contribute_to_model(_Milestone, core_models.Milestone)
 
 
 class _Issue(models.Model):
@@ -93,6 +148,23 @@ class _Issue(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('front:repository:issue', kwargs=self.get_reverse_kwargs())
+
+    @property
+    def hash_for_cache(self):
+        """
+        Hash for this issue representing its state at the current time, used to
+        know if we have to reset an its cache
+        """
+        return hash((self.updated_at,
+                     self.user.hash_for_issue_cache if self.user_id else None,
+                     self.closed_by.hash_for_issue_cache if self.closed_by_id else None,
+                     self.assignee.hash_for_issue_cache if self.assignee_id else None,
+                     self.milestone.hash_for_issue_cache if self.milestone_id else None,
+                     ','.join(
+                        ['%d' % l.hash_for_issue_cache for l in self.labels.all()]
+                    ),
+                ))
+
 
 contribute_to_model(_Issue, core_models.Issue)
 
