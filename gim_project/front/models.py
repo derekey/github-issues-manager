@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import models
+from django.template import loader, Context
 
 from core import models as core_models
 from core.utils import contribute_to_model
@@ -165,6 +166,23 @@ class _Issue(models.Model):
                     ),
                 ))
 
+    def update_cached_template(self, force_regenerate=False):
+        """
+        Update, if needed, the cached template for the current issue.
+        """
+        template = 'front/repository/issues/include_issue_item_for_cache.html'
+
+        # mnimize queries
+        issue = self.__class__.objects.filter(id=self.id)\
+                .select_related('user', 'assignee', 'created_by', 'milestone')\
+                .prefetch_related('labels__label_type')[0]
+
+        context = Context({
+            'issue': issue,
+            '__regenerate__': force_regenerate,
+        })
+
+        loader.get_template(template).render(context)
 
 contribute_to_model(_Issue, core_models.Issue)
 
