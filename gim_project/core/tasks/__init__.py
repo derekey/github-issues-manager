@@ -3,7 +3,6 @@ import json
 from django.conf import settings
 
 from limpyd import fields
-from limpyd.contrib.database import PipelineDatabase
 from limpyd_jobs.models import (
                                 BaseJobsModel,
                                 Job as LimpydJob,
@@ -12,14 +11,14 @@ from limpyd_jobs.models import (
                             )
 from limpyd_jobs.workers import Worker as LimpydWorker, logger
 
+from core import main_limpyd_database
 from core.ghpool import Connection, ApiError
 from core.models import GithubUser
 
 
 logger.addHandler(settings.WORKERS_LOGGER_CONFIG['handler'])
 
-main_database = PipelineDatabase(**settings.WORKERS_REDIS_CONFIG)
-BaseJobsModel.use_database(main_database)
+BaseJobsModel.use_database(main_limpyd_database)
 
 NAMESPACE = 'gim'
 

@@ -1,8 +1,12 @@
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.template import loader, Context
 
-from core import models as core_models
+from limpyd import model as lmodel, fields as lfields
+
+from core import models as core_models, main_limpyd_database
 from core.utils import contribute_to_model
 
 from subscriptions import models as subscriptions_models
@@ -13,12 +17,23 @@ class _GithubUser(models.Model):
         abstract = True
 
     @property
-    def hash_for_issue_cache(self):
+    def hash(self):
         """
         Hash for this object representing its state at the current time, used to
         know if we have to reset an issue's cache
         """
         return hash((self.username, self.avatar_url, ))
+
+    def get_related_issues(self):
+        """
+        Return a list of all issues related to this user (it may be the creator,
+        the assignee, or the closer)
+        """
+        return core_models.Issue.objects.filter(
+                                                   models.Q(user=self)
+                                                 | models.Q(assignee=self)
+                                                 | models.Q(closed_by=self)
+                                               )
 
 contribute_to_model(_GithubUser, core_models.GithubUser)
 
@@ -91,12 +106,18 @@ class _LabelType(models.Model):
         return reverse_lazy('front:repository:%s' % LabelTypeDelete.url_name, kwargs=self.get_reverse_kwargs())
 
     @property
-    def hash_for_issue_cache(self):
+    def hash(self):
         """
         Hash for this object representing its state at the current time, used to
         know if we have to reset an issue's cache
         """
         return hash((self.id, self.name, ))
+
+    def get_related_issues(self):
+        """
+        Return a list of all issues related to this label type
+        """
+        return core_models.Issue.objects.filter(labels__label_type=self)
 
 contribute_to_model(_LabelType, core_models.LabelType)
 
@@ -106,14 +127,19 @@ class _Label(models.Model):
         abstract = True
 
     @property
-    def hash_for_issue_cache(self):
+    def hash(self):
         """
         Hash for this object representing its state at the current time, used to
         know if we have to reset an issue's cache
         """
         return hash((self.id, self.name, self.color,
-                     self.label_type.hash_for_issue_cache
-                        if self.label_type_id else None, ))
+                     self.label_type.hash if self.label_type_id else None, ))
+
+    def get_related_issues(self):
+        """
+        Return a list of all issues related to this label
+        """
+        return core_models.Issue.objects.filter(labels=self)
 
 contribute_to_model(_Label, core_models.Label)
 
@@ -123,12 +149,18 @@ class _Milestone(models.Model):
         abstract = True
 
     @property
-    def hash_for_issue_cache(self):
+    def hash(self):
         """
         Hash for this object representing its state at the current time, used to
         know if we have to reset an issue's cache
         """
-        return hash((self.id, self.name, self.state, ))
+        return hash((self.id, self.title, self.state, ))
+
+    def get_related_issues(self):
+        """
+        Return a list of all issues related to this milestone
+        """
+        return core_models.Issue.objects.filter(milestone=self)
 
 contribute_to_model(_Milestone, core_models.Milestone)
 
@@ -151,20 +183,20 @@ class _Issue(models.Model):
         return reverse_lazy('front:repository:issue', kwargs=self.get_reverse_kwargs())
 
     @property
-    def hash_for_cache(self):
+    def hash(self):
         """
         Hash for this issue representing its state at the current time, used to
         know if we have to reset an its cache
         """
-        return hash((self.updated_at,
-                     self.user.hash_for_issue_cache if self.user_id else None,
-                     self.closed_by.hash_for_issue_cache if self.closed_by_id else None,
-                     self.assignee.hash_for_issue_cache if self.assignee_id else None,
-                     self.milestone.hash_for_issue_cache if self.milestone_id else None,
-                     ','.join(
-                        ['%d' % l.hash_for_issue_cache for l in self.labels.all()]
-                    ),
+        if not hasattr(self, '_hash'):
+            self._hash = hash((self.updated_at,
+                     self.user.hash if self.user_id else None,
+                     self.closed_by.hash if self.closed_by_id else None,
+                     self.assignee.hash if self.assignee_id else None,
+                     self.milestone.hash if self.milestone_id else None,
+                     ','.join(['%d' % l.hash for l in self.labels.all()]),
                 ))
+        return self._hash
 
     def update_cached_template(self, force_regenerate=False):
         """
@@ -199,3 +231,59 @@ class _WaitingSubscription(models.Model):
         return self.state == subscriptions_models.WAITING_SUBSCRIPTION_STATES.FAILED
 
 contribute_to_model(_WaitingSubscription, subscriptions_models.WaitingSubscription)
+
+
+class Hash(lmodel.RedisModel):
+
+    database = main_limpyd_database
+
+    type = lfields.InstanceHashField(indexable=True)
+    obj_id = lfields.InstanceHashField(indexable=True)
+    hash = lfields.InstanceHashField()
+
+
+@receiver(post_save, dispatch_uid="hash_check")
+def hash_check(sender, instance, created, **kwargs):
+    """
+    Check if the hash of the object has changed since its last save and if True,
+    update the Issue if its an issue, or related issues if it's a:
+    - user
+    - milestone
+    - label_type
+    - label
+    """
+
+    if not isinstance(instance, (
+                        core_models.GithubUser,
+                        core_models.Milestone,
+                        core_models.LabelType,
+                        core_models.Label,
+                        core_models.Issue
+                      )):
+        return
+
+    # get the limpyd instance storing the hash, create it if not exists
+    hash_obj, hash_obj_created = Hash.get_or_connect(
+                        type=instance.__class__.__name__, obj_id=instance.pk)
+
+    if created:
+        hash_changed = True
+    else:
+        hash_changed = hash_obj_created or str(instance.hash) != hash_obj.hash.hget()
+
+    if not hash_changed:
+        return
+
+    # save the new hash
+    hash_obj.hash.hset(instance.hash)
+
+    from core.tasks.issue import UpdateIssueCacheTemplate
+
+    if isinstance(instance, core_models.Issue):
+        # if an issue, add a job to update its template
+        UpdateIssueCacheTemplate.add_job(instance.id)
+
+    else:
+        # if not an issue, add a job to update the templates of all related issues
+        for issue in instance.get_related_issues():
+            UpdateIssueCacheTemplate.add_job(issue.id)

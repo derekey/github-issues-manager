@@ -246,11 +246,14 @@ GITHUB_CLIENT_ID = None
 GITHUB_CLIENT_SECRET = None
 GITHUB_SCOPE = 'repo'
 
-WORKERS_REDIS_CONFIG = {
+LIMPYD_DB_CONFIG = {
     'host': 'localhost',
     'port': 6379,
     'db': 0
 }
+
+WORKERS_REDIS_CONFIG = LIMPYD_DB_CONFIG
+
 WORKERS_LOGGER_CONFIG = {
     'handler': logging.StreamHandler(),
     'level': logging.INFO
