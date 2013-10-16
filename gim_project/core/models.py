@@ -1146,12 +1146,17 @@ class Issue(GithubObjectWithId):
         """
         if not force_fetch and self.comments_count == 0:
             return 0
-        return self._fetch_many('comments', gh,
+        count = self._fetch_many('comments', gh,
                                 defaults={'fk': {
                                     'issue': self,
                                     'repository': self.repository}
                                 },
                                 force_fetch=force_fetch)
+        if count != self.comments_count:
+            self.comments_count = count
+            self.save(update_fields=('comments_count',))
+
+        return count
 
     @property
     def github_callable_identifiers_for_labels(self):
