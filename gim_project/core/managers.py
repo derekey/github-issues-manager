@@ -164,41 +164,39 @@ class GithubObjectManager(models.Manager):
                         updated_fields.append(field)
                         setattr(obj, field, value)
 
-            if save_simples or save_fks:
-                # do save only if something is modified
+            # always update these two fields
+            obj.fetched_at = datetime.utcnow()
+            obj.github_status = obj.GITHUB_STATUS_CHOICES.FETCHED
 
-                obj.fetched_at = datetime.utcnow()
-                obj.github_status = obj.GITHUB_STATUS_CHOICES.FETCHED
+            try:
+                # force update or insert to avoid a exists() call in db
+                if to_create:
+                    save_params = {'force_insert': True}
+                else:
+                    save_params = {
+                        'force_update': True,
+                        # only save updated fields
+                        'update_fields': updated_fields + ['fetched_at', 'github_status'],
+                    }
 
-                try:
-                    # force update or insert to avoid a exists() call in db
-                    if to_create:
-                        save_params = {'force_insert': True}
-                    else:
-                        save_params = {
-                            'force_update': True,
-                            # only save updated fields
-                            'update_fields': updated_fields + ['fetched_at', 'github_status'],
-                        }
+                obj.save(**save_params)
 
-                    obj.save(**save_params)
-
-                except IntegrityError:
-                    # We could have an integrity error if we tried to create an
-                    # object that has been created elsewhere during the process
-                    # So we check if we really have an object now, and retry the
-                    # whole set/save process.
-                    # If we already have an object in db, or if we have'nt but there
-                    # is still no object, it's a real IntegrityError that we don't
-                    # want to skip
-                    if to_create:
-                        obj = self.get_from_identifiers(fields)
-                        if obj:
-                            return _create_or_update()
-                        else:
-                            raise
+            except IntegrityError:
+                # We could have an integrity error if we tried to create an
+                # object that has been created elsewhere during the process
+                # So we check if we really have an object now, and retry the
+                # whole set/save process.
+                # If we already have an object in db, or if we haven't but there
+                # is still no object, it's a real IntegrityError that we don't
+                # want to skip
+                if to_create:
+                    obj = self.get_from_identifiers(fields)
+                    if obj:
+                        return _create_or_update()
                     else:
                         raise
+                else:
+                    raise
 
             return obj
 
