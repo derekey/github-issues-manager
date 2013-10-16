@@ -1086,6 +1086,7 @@ class Issue(GithubObjectWithId):
     number = models.PositiveIntegerField(db_index=True)
     title = models.TextField(db_index=True)
     body = models.TextField(blank=True, null=True)
+    body_html = models.TextField(blank=True, null=True)
     labels = models.ManyToManyField(Label, related_name='issues')
     user = models.ForeignKey(GithubUser, related_name='created_issues')
     assignee = models.ForeignKey(GithubUser, related_name='assigned_issues', blank=True, null=True)
@@ -1105,11 +1106,10 @@ class Issue(GithubObjectWithId):
 
     github_matching = dict(GithubObjectWithId.github_matching)
     github_matching.update({
-        'body_html': 'body',
         'comments': 'comments_count',
     })
     github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
-    github_format = '.html+json'
+    github_format = '.full+json'
     github_edit_fields = {
         'create': ('title', 'body', 'assignee__username', 'milestone__number', 'labels__name', ),
         'update': ('title', 'body', 'assignee__username', 'state', 'milestone__number', 'labels__name', )
@@ -1201,16 +1201,13 @@ class IssueComment(GithubObjectWithId):
     issue = models.ForeignKey(Issue, related_name='comments')
     user = models.ForeignKey(GithubUser, related_name='issue_comments')
     body = models.TextField(blank=True, null=True)
+    body_html = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(db_index=True)
     updated_at = models.DateTimeField(db_index=True)
 
     objects = IssueCommentManager()
 
-    github_matching = dict(GithubObjectWithId.github_matching)
-    github_matching.update({
-        'body_html': 'body',
-    })
-    github_format = '.html+json'
+    github_format = '.full+json'
     github_edit_fields = {
         'create': ('body', ),
         'update': ('body', )
