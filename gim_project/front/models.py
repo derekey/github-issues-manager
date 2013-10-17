@@ -196,8 +196,7 @@ class _Issue(models.Model):
         Hash for this issue representing its state at the current time, used to
         know if we have to reset an its cache
         """
-        if not hasattr(self, '_hash'):
-            self._hash = hash((self.updated_at,
+        return hash((self.updated_at,
                      self.user.hash if self.user_id else None,
                      self.closed_by.hash if self.closed_by_id else None,
                      self.assignee.hash if self.assignee_id else None,
@@ -205,7 +204,11 @@ class _Issue(models.Model):
                      self.comments_count or 0,
                      ','.join(['%d' % l.hash for l in self.labels.all()]),
                 ))
-        return self._hash
+
+    def update_saved_hash(self):
+        hash_obj, _ = Hash.get_or_connect(
+                                type=self.__class__.__name__, obj_id=self.pk)
+        hash_obj.hash.hset(self.hash)
 
     def update_cached_template(self, force_regenerate=False):
         """

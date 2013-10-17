@@ -32,6 +32,7 @@ class UpdateIssueCacheTemplate(IssueJob):
 
         start_time = time.time()
 
+        self.object.update_saved_hash()
         self.object.update_cached_template(
                                 force_regenerate=self.force_regenerate.hget())
 
