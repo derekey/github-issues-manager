@@ -2,7 +2,6 @@
 from urlparse import urlsplit, parse_qs
 from itertools import product
 from datetime import datetime, timedelta
-from dateutil import tz
 import re
 from operator import itemgetter
 import json
@@ -20,14 +19,10 @@ from .ghpool import parse_header_links, ApiError, ApiNotFoundError, Connection
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager)
+from .utils import prepare_fetch_headers, MinUpdatedDateRaised
+
 import username_hack  # force the username length to be 255 chars
 
-
-UTC = tz.gettz('UTC')
-
-
-class MinUpdatedDateRaised(Exception):
-    pass
 
 GITHUB_STATUS_CHOICES = Choices(
     ('WAITING_CREATE', 1, u'Awaiting creation'),
@@ -70,21 +65,6 @@ class GithubObject(models.Model):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def _prepare_fetch_headers(self, if_modified_since=None, if_none_match=None, github_format=None):
-        """
-        Prepare and return the headers to use for the github call..
-        """
-        headers = {
-            'Accept': 'application/vnd.github%s' % (github_format or self.github_format)
-        }
-        if if_modified_since:
-            # tell github to retrn data only if something new
-            headers['If-Modified-Since'] = if_modified_since.replace(tzinfo=UTC).strftime('%a, %d %b %Y %H:%M:%S GMT')
-        if if_none_match:
-            headers['If-None-Match'] = if_none_match
-
-        return headers
-
     def fetch(self, gh, defaults=None, force_fetch=False):
         """
         Fetch data from github for the current object and update itself.
@@ -93,8 +73,9 @@ class GithubObject(models.Model):
         """
         identifiers = self.github_callable_identifiers
 
-        request_headers = self._prepare_fetch_headers(
-                    if_modified_since=None if force_fetch else self.fetched_at)
+        request_headers = prepare_fetch_headers(
+                    if_modified_since=None if force_fetch else self.fetched_at,
+                    github_format=self.github_format)
         response_headers = {}
 
         try:
@@ -145,9 +126,7 @@ class GithubObject(models.Model):
 
         # prepare headers to add in the request
         min_updated_date = None
-        min_updated_date_raised = False
         if_modified_since = None
-        if_none_match = None
         fetched_at_field = '%s_fetched_at' % field_name
         if hasattr(self, fetched_at_field):
             # if we have a fetch date, use it
@@ -165,32 +144,22 @@ class GithubObject(models.Model):
                         min_updated_date = fetched_at
 
                     if_modified_since = fetched_at
-                else:
-                    # we don't have a fetched_at, it's because we never fetched
-                    # this relations, or because we set the date to None on the
-                    # previous fetch because we didn't have any objects
-                    if not getattr(self, field_name).count():
-                        # if we don't have any objects, force a If-None-Match
-                        # header that indicate "empty list", so Github won't
-                        # count any requests on our rate-limit if we fetch
-                        # again an empty list (and because we don't want to save
-                        # etags in our db)
-                        if_none_match = '"d751713988987e9331980363e24189ce"'
 
-        request_headers = self._prepare_fetch_headers(
+        request_headers = prepare_fetch_headers(
                     if_modified_since=if_modified_since,
-                    if_none_match=if_none_match,
                     github_format=model.github_format)
-
-        objs = []
 
         def fetch_page_and_next(objs, parameters, min_updated_date):
             """
             Fetch a page of objects with the given parameters, and if github
-            tell us there is a "next" page, continue fetching
+            tell us there is a "next" page, tell caller to continue fetching by
+            returning the parameters for the next page as first return argument
+            (or None if no next page).
+            Return the etag header of the page as second argument
 
             """
             response_headers = {}
+            etag = None
 
             page_objs = []
 
@@ -206,12 +175,14 @@ class GithubObject(models.Model):
                     pass
                 else:
                     raise
-            except:
+            except Exception:
                 raise
+
+            etag = response_headers.get('etag') or None
 
             if not page_objs:
                 # no fetched objects, we're done
-                return None
+                return None, etag
 
             objs += page_objs
 
@@ -236,97 +207,106 @@ class GithubObject(models.Model):
                                     ).items() if len(v)
                                 )
                         )
-                        return next_page_parameters
+                        return next_page_parameters, etag
                 else:
                     # we don't have a next_link, we have fetched all page, so
                     # ignore the min_updated_date
                     min_updated_date_raised = False
 
             if min_updated_date_raised:
-                raise MinUpdatedDateRaised()
+                raise MinUpdatedDateRaised(etag)
 
-            return None
-
-        def fetch_pages(objs, parameters_combination, min_updated_date):
-            """
-            Fetch all available pages
-            """
-            page_parameters = parameters_combination.copy()
-            while True:
-                page_parameters = fetch_page_and_next(objs, page_parameters, min_updated_date)
-                if page_parameters is None:
-                    break
+            return None, etag
 
         if not vary:
-            # no varying parameter, fetch with an empty set of parameters
-            parameters_combinations = [{}]
+            # no varying parameter, fetch with an empty set of parameters, with
+            # a simple etag field
+            parameters_combinations = [({}, '%s_etag' % field_name)]
         else:
             # create all combinations of varying parameters
             vary_keys = sorted(vary)
-            parameters_combinations = [dict(zip(vary_keys, prod)) for prod in product(*(vary[key] for key in vary_keys))]
+            parameters_combinations_dicts = [
+                dict(zip(vary_keys, prod))
+                for prod in product(
+                    *(vary[key] for key in vary_keys)
+                )
+            ]
+
+            # get the etag field for each combination
+            parameters_combinations = []
+            for dikt in parameters_combinations_dicts:
+                etag_varation = '_'.join([
+                    '%s_%s' % (k, dikt[k])
+                    for k in sorted(dikt)
+                ])
+                etag_field = '%s_%s_etag' % (field_name, etag_varation)
+                parameters_combinations.append((dikt, etag_field))
 
         # add per_page option
-        for parameters_combination in parameters_combinations:
-            parameters_combination.update({'per_page': 100})
+        for parameters_combination, _ in parameters_combinations:
+            parameters_combination.update({'per_page': 30})
             if parameters:
                 parameters_combination.update(parameters)
 
         # fetch data for each combination of varying parameters
-        status = {'ok': 0, 304: 0}
-        restart_withouht_if_modified_since = False
-        for parameters_combination in parameters_combinations:
-            try:
-                fetch_pages(objs, parameters_combination, min_updated_date)
+        etags = {}
+        objs = []
+        cache_hit = False
+        something_fetched = False
+        for parameters_combination, etag_field in parameters_combinations:
 
-            except MinUpdatedDateRaised:
-                min_updated_date_raised = True
+            # use the etag if we have one and we don't have any 200 pages yet
+            request_etag = None
+            if not force_fetch and hasattr(self, etag_field):
+                request_etag = getattr(self, etag_field) or None
+
+                request_headers = prepare_fetch_headers(
+                        if_modified_since=if_modified_since,
+                        if_none_match=request_etag,
+                        github_format=model.github_format)
+
+            try:
+                # fetch all available pages
+                page = 0
+                page_parameters = parameters_combination.copy()
+                while True:
+                    page += 1
+                    page_parameters, page_etag = fetch_page_and_next(objs,
+                                            page_parameters, min_updated_date)
+                    if page == 1:
+                        etags[etag_field] = page_etag
+                        if request_etag:
+                            # clear if-none-match header for pages > 1
+                            request_headers = prepare_fetch_headers(
+                                if_modified_since=if_modified_since,
+                                if_none_match=None,
+                                github_format=model.github_format)
+
+                    if page_parameters is None:
+                        break
+
+            except MinUpdatedDateRaised, e:
+                etags[etag_field] = e.args[0]
+                cache_hit = True
 
             except ApiError, e:
                 if e.response and e.response['code'] == 304:
-                    # github tell us nothing is new
-                    status[304] += 1
-                    if not status['ok']:
-                        continue
+                    # github tell us nothing is new for this combination
+                    cache_hit = True
+                    continue
                 else:
                     raise
 
-            # pass here only if the last call to fetch_pages didn't raise a 304
-            if status[304]:
-                # we have data but at least one time we didn't have any new
-                # one, we want to restart all without the if_modified_since
-                # header to be sure to get all data
-                restart_withouht_if_modified_since = True
-                break
-            if not status['ok']:
-                # we have data despite of the if_modified_since_header, and
-                # it's the first parameter combination, we remove the header
-                # for the next combinations to be sure to get all the data
-                request_headers = self._prepare_fetch_headers(
-                                        if_modified_since=None,
-                                        github_format=model.github_format)
-            status['ok'] += 1
-
-        if restart_withouht_if_modified_since:
-            # something goes wrong with the if_modified_since header and we
-            # were asked to restart, so we do it without the header
-            status = {'ok': 0, 304: 0}
-            min_updated_date_raised = False
-            request_headers = self._prepare_fetch_headers(
-                                            if_modified_since=None,
-                                            github_format=model.github_format)
-            objs = []
-            for parameters_combination in parameters_combinations:
-                try:
-                    fetch_pages(objs, parameters_combination, min_updated_date)
-                except MinUpdatedDateRaised:
-                    min_updated_date_raised = True
+            # at least we fetched something
+            something_fetched = True
 
         # now update the list with created/updated objects
-        if not status[304]:
+        if something_fetched:
             # but only if we had fresh data !
             self.update_related_field(field_name,
                                       [obj.id for obj in objs],
-                                      not min_updated_date_raised)
+                                      do_remove=not cache_hit,
+                                      etags=etags)
 
         # we return the number of fetched objects
         if not objs:
@@ -334,7 +314,7 @@ class GithubObject(models.Model):
         else:
             return len(objs)
 
-    def update_related_field(self, field_name, ids, do_remove=True):
+    def update_related_field(self, field_name, ids, do_remove=True, etags=None):
         """
         For the given field name, with must be a m2m or the reverse side of
         a m2m or a fk, use the given list of ids as the lists of ids of all the
@@ -379,18 +359,27 @@ class GithubObject(models.Model):
             count['added'] = len(to_remove)
             instance_field.add(*to_add)
 
-        # save the fetch date
+        # check if we have something to save on the main object
+        update_fields = []
+
+        # can we save a fetch date ?
         fetched_at_field = '%s_fetched_at' % field_name
         if hasattr(self, fetched_at_field):
-            save_date = True
-            if not to_add:
-                # If we didn't add anything, we only save a fetch_date if we have
-                # data in database. On the next direct fetch, we'll use a ETAG
-                # meaning "no data" to ask github if we have something new
-                save_date = instance_field.count() > 0
-            setattr(self, fetched_at_field, datetime.utcnow() if save_date else None)
-            self.save(update_fields=[fetched_at_field], force_update=True)
+            setattr(self, fetched_at_field, datetime.utcnow())
+            update_fields.append(fetched_at_field)
 
+        # do we have etags to save ?
+        if etags:
+            for etag_field, etag in etags.items():
+                if hasattr(self, etag_field):
+                    setattr(self, etag_field, etag)
+                    update_fields.append(etag_field)
+
+        # save main object if needed
+        if update_fields:
+            self.save(update_fields=update_fields, force_update=True)
+
+        # return count of added and removed data
         return count
 
     def dist_delete(self, gh):
@@ -478,6 +467,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     is_organization = models.BooleanField(default=False)
     organizations = models.ManyToManyField('self', related_name='members')
     organizations_fetched_at = models.DateTimeField(blank=True, null=True)
+    organizations_etag = models.CharField(max_length=64, blank=True, null=True)
     _available_repositories = models.TextField(blank=True, null=True)
     available_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
 
@@ -702,10 +692,17 @@ class Repository(GithubObjectWithId):
     has_issues = models.BooleanField(default=False)
 
     collaborators_fetched_at = models.DateTimeField(blank=True, null=True)
+    collaborators_etag = models.CharField(max_length=64, blank=True, null=True)
     milestones_fetched_at = models.DateTimeField(blank=True, null=True)
+    milestones_state_open_etag = models.CharField(max_length=64, blank=True, null=True)
+    milestones_state_closed_etag = models.CharField(max_length=64, blank=True, null=True)
     labels_fetched_at = models.DateTimeField(blank=True, null=True)
+    labels_etag = models.CharField(max_length=64, blank=True, null=True)
     issues_fetched_at = models.DateTimeField(blank=True, null=True)
+    issues_state_open_etag = models.CharField(max_length=64, blank=True, null=True)
+    issues_state_closed_etag = models.CharField(max_length=64, blank=True, null=True)
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
+    comments_etag = models.CharField(max_length=64, blank=True, null=True)
 
     objects = RepositoryManager()
 
@@ -1101,6 +1098,7 @@ class Issue(GithubObjectWithId):
     closed_by_fetched = models.BooleanField(default=False, db_index=True)
 
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
+    comments_etag = models.CharField(max_length=64, blank=True, null=True)
 
     objects = IssueManager()
 

@@ -1,3 +1,7 @@
+from dateutil import tz
+
+UTC = tz.gettz('UTC')
+
 from django.db import models
 
 
@@ -60,3 +64,23 @@ def contribute_to_model(contrib, destination):
     for k, v in contrib.__dict__.items():
         if k not in protected_items:
             setattr(destination, k, v)
+
+
+class MinUpdatedDateRaised(Exception):
+    pass
+
+
+def prepare_fetch_headers(if_modified_since=None, if_none_match=None, github_format=None):
+    """
+    Prepare and return the headers to use for the github call: return a dict
+    with Accept, If-Modified-Since and If-None-Match
+    """
+    headers = {
+        'Accept': 'application/vnd.github%s' % (github_format or '+json')
+    }
+    if if_modified_since:
+        headers['If-Modified-Since'] = if_modified_since.replace(tzinfo=UTC).strftime('%a, %d %b %Y %H:%M:%S GMT')
+    if if_none_match:
+        headers['If-None-Match'] = if_none_match
+
+    return headers
