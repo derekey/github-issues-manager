@@ -477,7 +477,7 @@
                         {% endif %}
                         {% for issue in group.list %}
                             {# {% block one-issue %} #}
-                            {% issue_cache 0 issue_item issue.pk issue.hash %}
+                            {% issue_cache 0 issue_item issue.pk issue.saved_hash %}
                                 {% include "front/repository/issues/include_issue_item.html" with issue=issue %}
                             {% endissue_cache %}
                             {# {% endblock one-issue %} #}

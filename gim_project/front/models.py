@@ -206,9 +206,23 @@ class _Issue(models.Model):
                 ))
 
     def update_saved_hash(self):
+        """
+        Update in redis the saved hash
+        """
         hash_obj, _ = Hash.get_or_connect(
                                 type=self.__class__.__name__, obj_id=self.pk)
         hash_obj.hash.hset(self.hash)
+
+    @property
+    def saved_hash(self):
+        """
+        Return the saved hash, create it if not exist
+        """
+        hash_obj, created = Hash.get_or_connect(
+                                type=self.__class__.__name__, obj_id=self.pk)
+        if created:
+            self.update_saved_hash()
+        return hash_obj.hash.hget()
 
     def update_cached_template(self, force_regenerate=False):
         """
