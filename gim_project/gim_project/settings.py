@@ -146,6 +146,8 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'template_timings_panel',
 
+    'south',
+
     'jsonfield',
     'adv_cache_tag',
 
