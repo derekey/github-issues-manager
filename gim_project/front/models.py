@@ -1,3 +1,5 @@
+import re
+
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import models
 from django.db.models.signals import post_save
@@ -13,6 +15,8 @@ from subscriptions import models as subscriptions_models
 
 
 class _GithubUser(models.Model):
+    AVATAR_START = re.compile('^https?://\d+\.')
+
     class Meta:
         abstract = True
 
@@ -22,7 +26,11 @@ class _GithubUser(models.Model):
         Hash for this object representing its state at the current time, used to
         know if we have to reset an issue's cache
         """
-        return hash((self.username, self.avatar_url, ))
+        # we remove the subdomain of the gravatar url that may change between
+        # requests to the github api for the same user with the save avatar
+        # (https://0.gravatar...,  https://1.gravatar...)
+        avatar_url = self.AVATAR_START.sub('', self.avatar_url, count=1)
+        return hash((self.username, avatar_url, ))
 
     def get_related_issues(self):
         """
