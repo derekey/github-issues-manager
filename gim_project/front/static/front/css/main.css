@@ -269,6 +269,58 @@ blockquote p:last-child {
   max-width: 24px;
 }
 
+/* line 2, ../../../sass/widgets/_markdown.scss */
+.issue-body a, .issue-comment a {
+  color: #14808A;
+}
+/* line 4, ../../../sass/widgets/_markdown.scss */
+.issue-body a:hover, .issue-comment a:hover {
+  color: #14808A;
+  text-decoration: underline;
+}
+
+/* line 10, ../../../sass/widgets/_markdown.scss */
+.email-fragment, .email-quoted-reply {
+  white-space: pre-wrap;
+}
+
+/* line 13, ../../../sass/widgets/_markdown.scss */
+.email-quoted-reply, .email-signature-reply {
+  margin: 0px 0px 15px;
+  border-left: 4px solid #dddddd;
+  padding: 0px 15px;
+  color: #777777;
+}
+
+/* line 19, ../../../sass/widgets/_markdown.scss */
+.email-hidden-reply {
+  padding-top: 15px;
+}
+
+/* line 22, ../../../sass/widgets/_markdown.scss */
+.email-hidden-toggle a {
+  display: inline-block;
+  height: 12px;
+  padding: 0px 9px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  -ms-border-radius: 1px;
+  -o-border-radius: 1px;
+  border-radius: 1px;
+  background: #ddd;
+  vertical-align: middle;
+  color: #555;
+  line-height: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  text-decoration: none;
+}
+/* line 34, ../../../sass/widgets/_markdown.scss */
+.email-hidden-toggle a:hover {
+  text-decoration: none;
+  color: #555;
+}
+
 /* line 4, ../../../core-admin/stylesheets/base.scss */
 * {
   margin: 0px;
@@ -4269,30 +4321,30 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   left: 3px;
 }
 
-/* line 13, ../../../sass/main.scss */
+/* line 14, ../../../sass/main.scss */
 body {
   font-size: 13px;
 }
-/* line 15, ../../../sass/main.scss */
+/* line 16, ../../../sass/main.scss */
 body > header {
   margin-bottom: 0;
 }
-/* line 19, ../../../sass/main.scss */
+/* line 20, ../../../sass/main.scss */
 body > header .navbar-inner {
   padding: 0 20px !important;
 }
-/* line 23, ../../../sass/main.scss */
+/* line 24, ../../../sass/main.scss */
 body > header .user_avatar .caret {
   vertical-align: middle;
   margin-top: -3px !important;
 }
 
-/* line 32, ../../../sass/main.scss */
+/* line 33, ../../../sass/main.scss */
 #main {
   padding-top: 47px;
 }
 
-/* line 37, ../../../sass/main.scss */
+/* line 38, ../../../sass/main.scss */
 #main > .row-fluid {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -4300,13 +4352,13 @@ body > header .user_avatar .caret {
   padding: 0 22px;
 }
 
-/* line 42, ../../../sass/main.scss */
+/* line 43, ../../../sass/main.scss */
 #main > .row-fluid.row-header {
   padding: 0;
   margin-bottom: 15px;
 }
 
-/* line 49, ../../../sass/main.scss */
+/* line 50, ../../../sass/main.scss */
 #messages {
   position: fixed;
   top: 67px;
@@ -4314,7 +4366,7 @@ body > header .user_avatar .caret {
   z-index: 50;
 }
 
-/* line 57, ../../../sass/main.scss */
+/* line 58, ../../../sass/main.scss */
 .empty-area {
   color: #bbbbbb;
   font-size: 300%;
@@ -4328,27 +4380,27 @@ body > header .user_avatar .caret {
   margin-top: -1em;
 }
 
-/* line 70, ../../../sass/main.scss */
+/* line 71, ../../../sass/main.scss */
 .box-content .empty-area {
   position: static;
   font-size: 150%;
   margin: 0;
 }
 
-/* line 79, ../../../sass/main.scss */
+/* line 80, ../../../sass/main.scss */
 .content {
   color: #505050;
 }
-/* line 81, ../../../sass/main.scss */
+/* line 82, ../../../sass/main.scss */
 .content br {
   margin: 3px 0;
 }
-/* line 84, ../../../sass/main.scss */
+/* line 85, ../../../sass/main.scss */
 .content p:last-child {
   margin-bottom: 0;
 }
 
-/* line 91, ../../../sass/main.scss */
+/* line 92, ../../../sass/main.scss */
 ol.errorlist, ul.errorlist {
   list-style: none;
   margin: 0;
@@ -4356,15 +4408,15 @@ ol.errorlist, ul.errorlist {
   font-style: italic;
 }
 
-/* line 103, ../../../sass/main.scss */
+/* line 104, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"] {
   text-align: center;
 }
-/* line 105, ../../../sass/main.scss */
+/* line 106, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:first-child {
   text-align: left;
 }
-/* line 108, ../../../sass/main.scss */
+/* line 109, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:last-child {
   text-align: right;
 }

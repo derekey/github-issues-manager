@@ -1,0 +1,38 @@
+.issue-body, .issue-comment {
+    a {
+        color: #14808A;
+        &:hover {
+            color: #14808A;
+            text-decoration: underline;
+        }
+    }
+}
+.email-fragment, .email-quoted-reply {
+    white-space: pre-wrap;
+}
+.email-quoted-reply, .email-signature-reply {
+    margin: 0px 0px 15px;
+    border-left: 4px solid rgb(221, 221, 221);
+    padding: 0px 15px;
+    color: rgb(119, 119, 119);
+}
+.email-hidden-reply {
+    padding-top: 15px;
+}
+.email-hidden-toggle a {
+    display: inline-block;
+    height: 12px;
+    padding: 0px 9px;
+    @include border-radius(1px);
+    background: #ddd;
+    vertical-align: middle;
+    color: #555;
+    line-height: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    text-decoration: none;
+    &:hover {
+        text-decoration: none;
+        color: #555;
+    }
+}

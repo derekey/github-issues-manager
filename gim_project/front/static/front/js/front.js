@@ -919,6 +919,19 @@ $().ready(function() {
     }; // FilterManager
     FilterManager.init();
 
+    var MarkdownManager = {
+        toggle_email_reply: function() {
+            $(this).parent().next('.email-hidden-reply').toggle();
+        },
+        activate_email_reply_toggle: function() {
+            $document.on('click', '.email-hidden-toggle a', MarkdownManager.toggle_email_reply);
+        },
+        init: function() {
+            MarkdownManager.activate_email_reply_toggle();
+        }
+    };
+    MarkdownManager.init();
+
 
     var MessagesManager = {
 
