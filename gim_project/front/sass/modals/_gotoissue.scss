@@ -3,8 +3,9 @@
     margin-left: -180px;
     form {
         text-align: center;
-    }
-    input {
-        margin-left: 2px;
+        margin: {
+            top: 15px;
+            bottom: 15px;
+        }
     }
 }

@@ -502,7 +502,7 @@
 {% block modal-windows %}
     <div id="shortcuts-window" class="modal hide fade" tabindex="-1">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">×</button>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h3>Shortcuts</h3>
         </div>
         <div class="modal-body">
@@ -561,13 +561,16 @@
     </div>
     <div id="go-to-issue-window" class="modal hide" tabindex="-1">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">×</button>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h3>Go to issue</h3>
         </div>
         <div class="modal-body">
             <form class="form-inline">
-                #<input data-base-url="{{ root_issues_url }}" type="text" name='issue-number' placeholder="Type an issue number" />
-                <button class="btn btn-primary" type="submit">Go !</button>
+                <div class="input-prepend input-append">
+                    <span class="add-on">#</span>
+                    <input data-base-url="{{ root_issues_url }}" type="text" name='issue-number' placeholder="Type an issue number" />
+                    <button class="btn btn-blue" type="button">Go!</button>
+                </div>
             </form>
         </div>
     </div>
