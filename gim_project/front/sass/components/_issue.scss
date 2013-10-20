@@ -1,4 +1,4 @@
-#issue {
+.issue {
     position: relative;
 
     .area-top {
@@ -106,10 +106,10 @@
         }
     }
 
-} // #issue
+} // .issue
 
 // the toolbar of an issue is placed on the top right corner
-#issue-nav {
+.issue-nav {
     position: absolute;
     right: 9px;
     top: 2px;
@@ -120,7 +120,7 @@
     }
 }
 
-#issue-comments {
+.issue-comments {
     padding: 15px 15px;
     .chat-box-entry {
         margin-left: 50px;

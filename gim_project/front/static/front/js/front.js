@@ -379,7 +379,7 @@ $().ready(function() {
     IssuesList.selector = '.issues-list';
     IssuesList.modal_window = $('#modal-issue-view');
     IssuesList.modal_window_body = IssuesList.modal_window.children('.modal-body');
-    IssuesList.issue_container = $('.main-issue-container');
+    IssuesList.issue_container = $('#main-issue-container');
     IssuesList.all = [];
     IssuesList.current = null;
 
@@ -702,7 +702,7 @@ $().ready(function() {
 
     // keyboard events
     jwerty.key('f', Ev.key_decorate(on_resize_issue_click));
-    $document.on('click', '#resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
+    $document.on('click', '.resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
     $document.on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
     $document.on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
     $document.on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));

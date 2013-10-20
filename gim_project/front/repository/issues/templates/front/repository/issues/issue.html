@@ -1,7 +1,7 @@
 {% load querystring frontutils issues_tags %}
 {% if current_issue %}
-    <nav id="issue-nav">
-        <i id="resize-issue" class="icon-fullscreen" title="Toggle fullscreen view"> </i>
+    <nav class="issue-nav">
+        <i class="icon-fullscreen resize-issue" title="Toggle fullscreen view"> </i>
     </nav>
     <article>
         <div class="area-top state-{{ current_issue.state }}">
@@ -27,7 +27,7 @@
                 {% if current_issue.comments_count or current_issue.assignee or current_issue_involved|length > 1  %}
                     <div class="issue-footer-infos">
                         {% if current_issue.comments_count %}
-                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}" href="#issue-comments">
+                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}" href="#issue-comments-{{ current_issue.number }}">
                                 <i class="icon-comments-alt"> </i>{{ current_issue.comments_count }}
                             </a>
                         {% endif %}
@@ -67,7 +67,7 @@
     </article>
     <aside>
         {% if current_issue.comments_count %}
-            <ul class="unstyled chat-box timeline" id="issue-comments">
+            <ul class="unstyled chat-box timeline issue-comments" id="issue-comments-{{ current_issue.number }}">
                 {% for comment in current_issue_comments %}
                     <li class="chat-box-entry arrow-box-left gray issue-comment">
                         <div class="avatar"><img class="avatar-small img-circle" src="{{ comment.user.avatar_url }}"></div>

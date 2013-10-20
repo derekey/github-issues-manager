@@ -39,7 +39,7 @@ body#repository_issues #main-inner {
 
 
 // 3 columns, full height, each one is scrollable
-#issues-list-container, #issue {
+#issues-list-container, #main-issue-container {
     margin-left: 0;
     margin-right: 0;
     height: 100%;
@@ -62,7 +62,7 @@ body#repository_issues #main-inner {
     border-right: solid 1px $dark-border-color;
     overflow: auto;
 }
-#issue { // col3
+#main-issue-container { // col3
     width: (100%/12*7); // 7 cols of 12
     overflow: auto;
 }
@@ -264,7 +264,7 @@ body#repository_issues.big-issue {
     #issues-list-container {
         display: none;
     }
-    #issue {
+    #main-issue-container {
         width: 100%;
     }
 }
