@@ -560,6 +560,7 @@ $().ready(function() {
         var container = IssuesList.get_issue_html_container();
         if (container.$node.data('issue-number') != issue_number) { return; }
         container.$node.html(html);
+        MarkdownManager.set_target_blank_for_links();
         container.$node.scrollTop(0);
         if (container.$window) {
             container.$window.modal("show");
@@ -922,12 +923,21 @@ $().ready(function() {
     var MarkdownManager = {
         toggle_email_reply: function() {
             $(this).parent().next('.email-hidden-reply').toggle();
+            return false;
         },
         activate_email_reply_toggle: function() {
             $document.on('click', '.email-hidden-toggle a', MarkdownManager.toggle_email_reply);
         },
+        set_target_blank_for_link: function() {
+            $(this).attr('target', '_blank');
+        },
+        set_target_blank_for_links: function() {
+            $('#issue').find('.issue-body, .issue-comment .content').find('a')
+                .each(MarkdownManager.set_target_blank_for_link);
+        },
         init: function() {
             MarkdownManager.activate_email_reply_toggle();
+            MarkdownManager.set_target_blank_for_links();
         }
     };
     MarkdownManager.init();
