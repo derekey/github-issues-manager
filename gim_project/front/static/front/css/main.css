@@ -241,6 +241,11 @@ blockquote p:last-child {
   border-bottom-color: #333333;
 }
 
+/* line 77, ../../../sass/_bootstrap-correct.scss */
+.modal-body {
+  max-height: 500px;
+}
+
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar img {
   display: inline-block;

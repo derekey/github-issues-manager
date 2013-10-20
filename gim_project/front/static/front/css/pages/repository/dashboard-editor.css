@@ -1366,128 +1366,133 @@ div.selector span {
   line-height: 13px;
 }
 
-/* line 27, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 25, ../../../../../sass/pages/repository/dashboard-editor.scss */
+#label-type-edit-form {
+  width: 90%;
+  margin-left: -45%;
+}
+/* line 29, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #label-type-edit-form form input[type=submit] {
   display: none;
 }
-/* line 30, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 32, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #label-type-edit-form form > div > label + input[type=text] + .note {
   margin-top: -10px;
 }
 
-/* line 36, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 38, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode1, .for-mode2, .for-mode3 {
   display: none;
 }
 
-/* line 41, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 43, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .mode1 .for-mode1,
 .mode2 .for-mode2,
 .mode3 .for-mode3 {
   display: block;
 }
 
-/* line 46, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 48, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .edit-mode-dropdown .select2-results {
   max-height: none;
 }
-/* line 49, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 51, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .edit-mode-dropdown li.select2-highlighted .note {
   color: white;
 }
 
-/* line 54, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 56, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type-samples {
   margin-top: 5px;
 }
-/* line 56, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 58, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type-samples .note {
   margin-bottom: 0;
 }
-/* line 59, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 61, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type-samples li {
   cursor: pointer;
 }
 
-/* line 66, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 68, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .btn + div.popover + .btn {
   margin-bottom: 0px;
   margin-left: 5px;
 }
-/* line 70, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 72, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .alert {
   text-align: center;
 }
-/* line 74, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 76, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .popover-content label {
   margin-bottom: 0;
 }
-/* line 76, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 78, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .popover-content label + .errorlist {
   margin-left: 5px;
 }
 
-/* line 84, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 86, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .btn-loading i {
   display: none !important;
 }
-/* line 88, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 90, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .btn-loading.loading i {
   display: inline-block !important;
 }
 
-/* line 95, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 97, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form input[name=name] {
   width: 182px;
   margin-right: 5px;
 }
-/* line 99, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 101, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form input[name=color] {
   width: 46px;
   padding-left: 3px;
 }
-/* line 104, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 106, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form .sp-replacer {
   padding: 3px;
   vertical-align: top;
 }
-/* line 108, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 110, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form .sp-preview {
   width: 26px;
   height: 18px;
 }
 
-/* line 114, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 116, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label {
   padding: 0px;
   border: medium none;
   margin-top: 0px;
   margin-bottom: 0px;
 }
-/* line 121, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 123, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label > a.btn {
   line-height: 19px;
   margin-top: 1px;
 }
-/* line 127, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 129, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-title {
   overflow: hidden;
 }
-/* line 129, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 131, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-title strong {
   border-bottom: solid transparent 3px;
   line-height: 1.8em;
 }
-/* line 135, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 137, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-content label {
   float: left;
 }
-/* line 138, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 140, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-content .errorlist li {
   margin: 0;
   margin-left: 5px;
 }
-/* line 144, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 146, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover .popover-content {
   white-space: nowrap;
 }

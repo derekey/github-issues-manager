@@ -19,7 +19,7 @@ blockquote p {
     line-height: inherit;
     margin-bottom: 10px;
     &:last-child {
-        margin-bottom: 0;        
+        margin-bottom: 0;
     }
 }
 
@@ -56,7 +56,7 @@ $tooltip-class-colors: success $successText, important $errorText, info $infoTex
 $arrows: top, right, left, bottom;
 %tooltip-bootstrap-correct-extend {
     font-size: $baseFontSize * .846;
-    @include text-shadow(0 -1px 0 rgba(0,0,0,.25));    
+    @include text-shadow(0 -1px 0 rgba(0,0,0,.25));
 }
 @each $pair in $tooltip-class-colors {
     $color: nth($pair, 2);
@@ -68,7 +68,12 @@ $arrows: top, right, left, bottom;
         @each $arrow in $arrows {
             &.#{$arrow} .tooltip-arrow {
                 border-#{$arrow}-color: $color;
-            }            
+            }
         }
     }
+}
+
+// augment modal max height
+.modal-body {
+    max-height: 500px;
 }
