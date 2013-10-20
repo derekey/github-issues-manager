@@ -47,7 +47,19 @@ $().ready(function() {
                 return callback(e);
             };
             return Ev.stop_event_decorate(decorator);
-        }) // key_decorate
+        }), // key_decorate
+
+        charcode: (function charcode(charcode, callback) {
+            /* Return a function to use as a callback for a key* event
+               The callback will only be called if the charcode is the given one.
+               Can be used with key_decorate
+            */
+            var decorator = function(e) {
+                if (e.charCode != charcode) { return; }
+                return callback(e);
+            };
+            return Ev.stop_event_decorate(decorator);
+        }) // charcode
     };
 
 
@@ -681,7 +693,8 @@ $().ready(function() {
         }), // IssueByNumber_on_submit
         init_events: (function IssueByNumber_init_events () {
             if (!IssueByNumber.$window.length) { return; }
-            jwerty.key('i/⇧+#', Ev.key_decorate(IssueByNumber.open));  // "#" is shift-3 ?!?
+            $document.on('keypress', Ev.key_decorate(Ev.charcode(35, IssueByNumber.open)));  // 35 = #
+            jwerty.key('i', Ev.key_decorate(IssueByNumber.open));
             IssueByNumber.$window.on('show', IssueByNumber.on_show);
             IssueByNumber.$window.on('shown', IssueByNumber.on_shown);
             IssueByNumber.$form.on('submit', Ev.stop_event_decorate(IssueByNumber.on_submit));
@@ -708,7 +721,7 @@ $().ready(function() {
     $document.on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));
 
     if ($('#show-shortcuts').length) {
-        jwerty.key('?/⇧+slash', Ev.key_decorate(on_help));  // slash is "/" (shift+/ = "?" on qwerty keyboard)
+        $document.on('keypress', Ev.key_decorate(Ev.charcode(63, on_help)));  // 63 = ?
     }
 
 
