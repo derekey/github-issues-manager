@@ -12,6 +12,7 @@
 @import "core-admin-widgets";
 
 body {
+    background-color: $body-background-color;
     font-size: 13px;
     & > header {
         // no margin below the header to let content snap to it

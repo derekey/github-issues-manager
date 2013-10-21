@@ -4328,28 +4328,29 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
 
 /* line 14, ../../../sass/main.scss */
 body {
+  background-color: #f0f0f0;
   font-size: 13px;
 }
-/* line 16, ../../../sass/main.scss */
+/* line 17, ../../../sass/main.scss */
 body > header {
   margin-bottom: 0;
 }
-/* line 20, ../../../sass/main.scss */
+/* line 21, ../../../sass/main.scss */
 body > header .navbar-inner {
   padding: 0 20px !important;
 }
-/* line 24, ../../../sass/main.scss */
+/* line 25, ../../../sass/main.scss */
 body > header .user_avatar .caret {
   vertical-align: middle;
   margin-top: -3px !important;
 }
 
-/* line 33, ../../../sass/main.scss */
+/* line 34, ../../../sass/main.scss */
 #main {
   padding-top: 47px;
 }
 
-/* line 38, ../../../sass/main.scss */
+/* line 39, ../../../sass/main.scss */
 #main > .row-fluid {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -4357,13 +4358,13 @@ body > header .user_avatar .caret {
   padding: 0 22px;
 }
 
-/* line 43, ../../../sass/main.scss */
+/* line 44, ../../../sass/main.scss */
 #main > .row-fluid.row-header {
   padding: 0;
   margin-bottom: 15px;
 }
 
-/* line 50, ../../../sass/main.scss */
+/* line 51, ../../../sass/main.scss */
 #messages {
   position: fixed;
   top: 67px;
@@ -4371,7 +4372,7 @@ body > header .user_avatar .caret {
   z-index: 50;
 }
 
-/* line 58, ../../../sass/main.scss */
+/* line 59, ../../../sass/main.scss */
 .empty-area {
   color: #bbbbbb;
   font-size: 300%;
@@ -4385,27 +4386,27 @@ body > header .user_avatar .caret {
   margin-top: -1em;
 }
 
-/* line 71, ../../../sass/main.scss */
+/* line 72, ../../../sass/main.scss */
 .box-content .empty-area {
   position: static;
   font-size: 150%;
   margin: 0;
 }
 
-/* line 80, ../../../sass/main.scss */
+/* line 81, ../../../sass/main.scss */
 .content {
   color: #505050;
 }
-/* line 82, ../../../sass/main.scss */
+/* line 83, ../../../sass/main.scss */
 .content br {
   margin: 3px 0;
 }
-/* line 85, ../../../sass/main.scss */
+/* line 86, ../../../sass/main.scss */
 .content p:last-child {
   margin-bottom: 0;
 }
 
-/* line 92, ../../../sass/main.scss */
+/* line 93, ../../../sass/main.scss */
 ol.errorlist, ul.errorlist {
   list-style: none;
   margin: 0;
@@ -4413,15 +4414,15 @@ ol.errorlist, ul.errorlist {
   font-style: italic;
 }
 
-/* line 104, ../../../sass/main.scss */
+/* line 105, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"] {
   text-align: center;
 }
-/* line 106, ../../../sass/main.scss */
+/* line 107, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:first-child {
   text-align: left;
 }
-/* line 109, ../../../sass/main.scss */
+/* line 110, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:last-child {
   text-align: right;
 }

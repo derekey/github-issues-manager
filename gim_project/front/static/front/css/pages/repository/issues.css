@@ -537,6 +537,21 @@ p.state-closed {
   margin-left: 50px;
 }
 
+/* line 130, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body {
+  padding: 0;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+  border-radius: 6px;
+  background: #f0f0f0;
+}
+/* line 134, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .issue-nav {
+  display: none;
+}
+
 /* line 1, ../../../../../sass/modals/_shortcuts.scss */
 #shortcuts-window {
   width: 90%;

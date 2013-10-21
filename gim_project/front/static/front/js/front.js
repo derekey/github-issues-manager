@@ -75,7 +75,7 @@ $().ready(function() {
     }); // IssuesListIssue__constructor
 
     IssuesListIssue.selector = '.issue-item';
-    IssuesListIssue.link_selector = IssuesListIssue.selector + ' .issue-link';
+    IssuesListIssue.link_selector = '.issue-link';
 
     IssuesListIssue.on_issue_node_event = (function IssuesListIssue_on_issue_node_event (group_method, stop) {
         var decorator = function(e) {
@@ -87,10 +87,10 @@ $().ready(function() {
     }); // IssuesListIssue_on_issue_node_event
 
     IssuesListIssue.init_events = (function IssuesListIssue_init_events () {
-        $document.on('click', IssuesListIssue.link_selector, IssuesListIssue.on_issue_node_event('on_click', true));
+        $document.on('click', IssuesListIssue.selector + ' ' + IssuesListIssue.link_selector, IssuesListIssue.on_issue_node_event('on_click', true));
     });
     IssuesListIssue.set_urls = (function IssuesListIssue_set_urls () {
-        $(IssuesListIssue.link_selector).each(function() {
+        $(IssuesListIssue.selector + ' ' + IssuesListIssue.link_selector).each(function() {
             var parts = this.href.split('#');
             this.href = parts[0] + location.search + '#' + parts[1];
         });
@@ -107,7 +107,7 @@ $().ready(function() {
     }); // IssuesListIssue__unset_current
 
     IssuesListIssue.prototype.set_current = (function IssuesListIssue__set_current (propagate) {
-        this.get_html();
+        this.get_html_and_display();
         if (!this.group.no_visible_issues) {
             if (propagate) {
                 this.group.list.set_current();
@@ -128,27 +128,50 @@ $().ready(function() {
         }
     }); // IssuesListIssue__set_current
 
-    IssuesListIssue.prototype.get_html = (function IssuesListIssue__get_html (url) {
-        if (!IssuesList.can_display_issue_html(this.number)) {
+    IssuesListIssue.prototype.get_html_and_display = (function IssuesListIssue__get_html_and_display (url, in_popup) {
+        if (!IssuesList.can_display_issue_html(this.number, in_popup)) {
             return;
         }
         if (!url) { url = this.$link.attr('href'); }
         $.ajax({
             url: url,
-            success: this.display_html,
-            error: this.error_getting_html,
+            success: in_popup ? this.display_html_in_popup : this.display_html,
+            error: in_popup ? this.error_getting_html_in_popup: this.error_getting_html,
             context: this
         });
-    }); // IssuesListIssue__get_html
+    }); // IssuesListIssue__get_html_and_display
 
     IssuesListIssue.prototype.display_html = (function IssuesListIssue__display_html (html) {
-        IssuesList.display_issue_html(html, this.number);
+        IssuesList.display_issue_html(html, this.number, false);
     }); // IssuesListIssue__display_html
 
+    IssuesListIssue.prototype.display_html_in_popup = (function IssuesListIssue__display_html_in_popup (html) {
+        IssuesList.display_issue_html(html, this.number, true);
+    }); // IssuesListIssue__display_html_in_popup
+
     IssuesListIssue.prototype.error_getting_html = (function IssuesListIssue__error_getting_html (jqXHR) {
-        IssuesList.clear_issue_html('error ' + jqXHR.status);
+        IssuesList.clear_issue_html('error ' + jqXHR.status, false);
     }); // IssuesListIssue__error_getting_html
 
+    IssuesListIssue.prototype.error_getting_html_in_popup = (function IssuesListIssue__error_getting_html_in_popup (jqXHR) {
+        alert('error ' + jqXHR.status);
+    }); // IssuesListIssue__error_getting_html_in_popup
+
+    IssuesListIssue.open_issue = (function IssuesListIssue_open_issue (number, in_popup) {
+        var issue = IssuesList.get_issue_by_number(number);
+        if (issue) {
+            if (in_popup) {
+                issue.get_html_and_display(null, true);
+            } else {
+                issue.set_current(true);
+            }
+        } else {
+            var url = IssueByNumber.$input.data('base-url') + number + '/';
+            issue = new IssuesListIssue({}, null);
+            issue.number = number;
+            issue.get_html_and_display(url, in_popup);
+        }
+    }); // IssuesListIssue_open_issue
 
     var IssuesListGroup = (function IssuesListGroup__constructor (node, issues_list) {
         this.list = issues_list;
@@ -390,7 +413,7 @@ $().ready(function() {
 
     IssuesList.selector = '.issues-list';
     IssuesList.modal_window = $('#modal-issue-view');
-    IssuesList.modal_window_body = IssuesList.modal_window.children('.modal-body');
+    IssuesList.modal_window_issue_container = IssuesList.modal_window.find('.modal-body > .issue');
     IssuesList.issue_container = $('#main-issue-container');
     IssuesList.all = [];
     IssuesList.current = null;
@@ -547,40 +570,37 @@ $().ready(function() {
         return false; // stop event propagation
     }); // IssuesList__go_to_last_group
 
-    IssuesList.get_issue_html_container = (function IssuesList_get_issue_html_container () {
-        if (IssuesList.issue_container.length) {
-            return {
-                $window: null,
-                $node: IssuesList.issue_container
-            };
-        } else {
-            return {
-                $window: IssuesList.modal_window,
-                $node: IssuesList.modal_window_body
-            };
-        }
+    IssuesList.get_issue_html_container = (function IssuesList_get_issue_html_container (in_popup) {
+        var panel = {
+            $window: null,
+            $node: IssuesList.issue_container
+        }, popup = {
+            $window: IssuesList.modal_window,
+            $node: IssuesList.modal_window_issue_container
+        };
+        return (in_popup || !IssuesList.issue_container.length) ? popup : panel;
     }); // IssuesList_get_issue_html_container
 
-    IssuesList.can_display_issue_html = (function IssuesList_can_display_issue_html (issue_number) {
-        var container = IssuesList.get_issue_html_container();
-        if (container.$node.data('issue-number') == issue_number) { return false; }
+    IssuesList.can_display_issue_html = (function IssuesList_can_display_issue_html (issue_number, in_popup) {
+        var container = IssuesList.get_issue_html_container(in_popup);
+        if (!in_popup && container.$node.data('issue-number') == issue_number) { return false; }
         container.$node.data('issue-number', issue_number);
         return true;
     }); // IssuesList_can_display_issue_html
 
-    IssuesList.display_issue_html = (function IssuesList_display_issue_html (html, issue_number) {
-        var container = IssuesList.get_issue_html_container();
+    IssuesList.display_issue_html = (function IssuesList_display_issue_html (html, issue_number, in_popup) {
+        var container = IssuesList.get_issue_html_container(in_popup);
         if (container.$node.data('issue-number') != issue_number) { return; }
         container.$node.html(html);
-        MarkdownManager.set_target_blank_for_links();
+        MarkdownManager.update_links();
         container.$node.scrollTop(0);
         if (container.$window) {
             container.$window.modal("show");
         }
     }); // IssuesList_display_issue_html
 
-    IssuesList.clear_issue_html = (function IssuesList_clear_issue_html (code) {
-        var container = IssuesList.get_issue_html_container();
+    IssuesList.clear_issue_html = (function IssuesList_clear_issue_html (code, in_popup) {
+        var container = IssuesList.get_issue_html_container(in_popup);
         container.$node.data('issue-number', 0);
         container.$node.html('<p class="empty-area">' + (code ? code + ' :(' : '...') + '</p>');
     }); // IssuesList_clear_issue_html
@@ -681,16 +701,8 @@ $().ready(function() {
             return false; // stop event propagation
         }), // IssueByNumber_on_submit
         open_issue: (function IssueByNumber_open_issue (number) {
-            var issue = IssuesList.get_issue_by_number(number);
-            if (issue) {
-                issue.set_current(true);
-            } else {
-                var url = IssueByNumber.$input.data('base-url') + number + '/';
-                issue = new IssuesListIssue({}, null);
-                issue.number = number;
-                issue.get_html(url);
-            }
-        }), // IssueByNumber_on_submit
+            IssuesListIssue.open_issue(number);
+        }), // IssueByNumber_open_issue
         init_events: (function IssueByNumber_init_events () {
             if (!IssueByNumber.$window.length) { return; }
             $document.on('keypress', Ev.key_decorate(Ev.charcode(35, IssueByNumber.open)));  // 35 = #
@@ -934,24 +946,47 @@ $().ready(function() {
     FilterManager.init();
 
     var MarkdownManager = {
+        re: null,
         toggle_email_reply: function() {
             $(this).parent().next('.email-hidden-reply').toggle();
             return false;
-        },
+        }, // toggle_email_reply
         activate_email_reply_toggle: function() {
             $document.on('click', '.email-hidden-toggle a', MarkdownManager.toggle_email_reply);
-        },
-        set_target_blank_for_link: function() {
-            $(this).attr('target', '_blank');
-        },
-        set_target_blank_for_links: function() {
+        }, // activate_email_reply_toggle
+        update_link: function() {
+            var $link = $(this);
+            $link.attr('target', '_blank');
+            if ($link.hasClass('issue-link')) {
+                if (!MarkdownManager.re) {
+                    MarkdownManager.re = new RegExp('https?://github.com/' + $('body').data('repository') + '/issues/(\\d+)');
+                }
+                var matches = this.href.match(MarkdownManager.re);
+                if (matches) {
+                    $link.data('issue-number', matches[1]);
+                }
+            }
+        }, // update_link
+        update_links: function() {
             $('.issue').find('.issue-body, .issue-comment .content').find('a')
-                .each(MarkdownManager.set_target_blank_for_link);
-        },
+                .each(MarkdownManager.update_link);
+        }, // update_links
+        handle_issue_link: function() {
+            var $link = $(this),
+                issue_number = $link.data('issue-number');
+            if (issue_number) {
+                IssuesListIssue.open_issue(issue_number, true);
+                return false;
+            }
+        }, // handle_issue_link
+        handle_issue_links: function() {
+            $document.on('click', '.issue a.issue-link', MarkdownManager.handle_issue_link);
+        }, // handle_issue_links
         init: function() {
             MarkdownManager.activate_email_reply_toggle();
-            MarkdownManager.set_target_blank_for_links();
-        }
+            MarkdownManager.update_links();
+            MarkdownManager.handle_issue_links();
+        } // init
     };
     MarkdownManager.init();
 

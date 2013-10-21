@@ -126,3 +126,12 @@
         margin-left: 50px;
     }
 }
+
+#modal-issue-view .modal-body {
+    padding: 0;
+    @include border-radius(6px);
+    background: $body-background-color;
+    .issue-nav {
+        display: none;
+    }
+}
