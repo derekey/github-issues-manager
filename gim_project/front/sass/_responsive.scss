@@ -1,0 +1,12 @@
+@media (max-width: 1023px) {
+    .navbar-fixed-top {
+        // hide the pseudonyme
+        .user_avatar .dropdown-toggle > span > span:not(.caret) {
+            display: none;
+        }
+        // hide names of repository views
+        .repository-views a > span  {
+            display: none;
+        }
+    }
+}
