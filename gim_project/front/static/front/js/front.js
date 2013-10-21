@@ -75,7 +75,7 @@ $().ready(function() {
     }); // IssuesListIssue__constructor
 
     IssuesListIssue.selector = '.issue-item';
-    IssuesListIssue.link_selector = '.issue-link';
+    IssuesListIssue.link_selector = IssuesListIssue.selector + ' .issue-link';
 
     IssuesListIssue.on_issue_node_event = (function IssuesListIssue_on_issue_node_event (group_method, stop) {
         var decorator = function(e) {
