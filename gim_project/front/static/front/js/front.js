@@ -945,7 +945,7 @@ $().ready(function() {
             $(this).attr('target', '_blank');
         },
         set_target_blank_for_links: function() {
-            $('#issue').find('.issue-body, .issue-comment .content').find('a')
+            $('.issue').find('.issue-body, .issue-comment .content').find('a')
                 .each(MarkdownManager.set_target_blank_for_link);
         },
         init: function() {
