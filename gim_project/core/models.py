@@ -95,13 +95,14 @@ class GithubObject(models.Model):
 
         return True
 
-    def fetch_all(self, gh, force_fetch=False):
+    def fetch_all(self, gh, force_fetch=False, **kwargs):
         """
         By default fetch only the current object. Override to add some _fetch_many
         """
         return self.fetch(gh, force_fetch=force_fetch)
 
-    def _fetch_many(self, field_name, gh, vary=None, defaults=None, parameters=None, force_fetch=False):
+    def _fetch_many(self, field_name, gh, vary=None, defaults=None,
+                    parameters=None, remove_missing=True, force_fetch=False):
         """
         Fetch data from github for the given m2m or related field.
         If defined, "vary" is a dict of list of parameters to fetch. For each
@@ -305,7 +306,7 @@ class GithubObject(models.Model):
             # but only if we had fresh data !
             self.update_related_field(field_name,
                                       [obj.id for obj in objs],
-                                      do_remove=not cache_hit,
+                                      do_remove=remove_missing and not cache_hit,
                                       etags=etags)
 
         # we return the number of fetched objects
@@ -504,7 +505,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 defaults={'simple': {'is_organization': True}},
                                 force_fetch=force_fetch)
 
-    def fetch_all(self, gh, force_fetch=False):
+    def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
         self.fetch_organizations(gh, force_fetch=force_fetch)
 
@@ -803,14 +804,23 @@ class Repository(GithubObjectWithId):
             'issues',
         ]
 
-    def fetch_issues(self, gh, force_fetch=False):
+    def fetch_issues(self, gh, force_fetch=False, state=None):
+        if state:
+            vary = {'state': (state, )}
+            remove_missing = False
+        else:
+            vary = {'state': ('open', 'closed')}
+            remove_missing = True
+
         count = self._fetch_many('issues', gh,
-                                 vary={'state': ('open', 'closed')},
+                                 vary=vary,
                                  defaults={'fk': {'repository': self}},
                                  parameters={'sort': 'updated', 'direction': 'desc'},
+                                 remove_missing=remove_missing,
                                  force_fetch=force_fetch)
 
-        self.fetch_closed_issues_without_closed_by(gh)
+        if not state or state == 'closed':
+            self.fetch_closed_issues_without_closed_by(gh)
 
         return count
 
@@ -855,12 +865,30 @@ class Repository(GithubObjectWithId):
                                 parameters={'sort': 'updated', 'direction': 'desc'},
                                 force_fetch=force_fetch)
 
-    def fetch_all(self, gh, force_fetch=False):
+    def fetch_all(self, gh, force_fetch=False, **kwargs):
+        """
+        Pass "two_steps=True" to felay fetch of closed issues and comments (by
+        adding a FirstFetchStep2 job that will call fetch_all_step2)
+        """
+        two_steps = bool(kwargs.get('two_steps', False))
+
         super(Repository, self).fetch_all(gh, force_fetch=force_fetch)
         self.fetch_collaborators(gh, force_fetch=force_fetch)
         self.fetch_labels(gh, force_fetch=force_fetch)
         self.fetch_milestones(gh, force_fetch=force_fetch)
-        self.fetch_issues(gh, force_fetch=force_fetch)
+
+        if two_steps:
+            self.fetch_issues(gh, force_fetch=force_fetch, state='open')
+            from .tasks.repository import FirstFetchStep2
+            FirstFetchStep2.add_job(self.id,
+                                    force_fetch=int(force_fetch or False),
+                                    gh=gh)
+        else:
+            self.fetch_issues(gh, force_fetch=force_fetch)
+            self.fetch_comments(gh, force_fetch=force_fetch)
+
+    def fetch_all_step2(self, gh, force_fetch=False):
+        self.fetch_issues(gh, force_fetch=force_fetch, state='closed')
         self.fetch_comments(gh, force_fetch=force_fetch)
 
 
@@ -1173,7 +1201,7 @@ class Issue(GithubObjectWithId):
             label.name,
         ]
 
-    def fetch_all(self, gh, force_fetch=False):
+    def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(Issue, self).fetch_all(gh, force_fetch=force_fetch)
         #self.fetch_labels(gh, force_fetch=force_fetch)  # already retrieved via self.fetch
         self.fetch_comments(gh, force_fetch=force_fetch)

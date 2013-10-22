@@ -76,6 +76,8 @@ class FirstFetch(Job):
         user = GithubUser.objects.get(username=self.gh_args.hget('username'))
         rights = user.can_use_repository(repository_name)
 
+        # TODO: in these two case, we must not retry the job without getting
+        #       an other user with fetch rights
         if rights is None:
             raise Exception('An error occured while fetching rights for the user')
         elif rights is False:
@@ -107,7 +109,7 @@ class FirstFetch(Job):
 
         # fetch the repository if never fetched
         if not repository.fetched_at:
-            repository.fetch_all(gh=self.gh)
+            repository.fetch_all(gh=self.gh, two_steps=True)
 
         # and convert waiting subscriptions to real ones
         count = 0
@@ -136,3 +138,29 @@ class FirstFetch(Job):
         Display the count of converted subscriptions
         """
         return ' [converted=%d]' % result
+
+
+class FirstFetchStep2(RepositoryJob):
+    """
+    A job to fetch the less important data of a repository (closed issues and
+    comments)
+    """
+    queue_name = 'repository-fetch-step2'
+
+    force_fetch = fields.InstanceHashField()
+
+    def run(self, queue):
+        """
+        Call the fetch_all_step2 method of the linked repository, using the
+        value of the force_fetch job's attribute
+        """
+        super(FirstFetchStep2, self).run(queue)
+
+        try:
+            force_fetch = bool(int(self.force_fetch.hget()))
+        except Exception:
+            force_fetch = False
+
+        self.object.fetch_all_step2(gh=self.gh, force_fetch=force_fetch)
+
+        return None
