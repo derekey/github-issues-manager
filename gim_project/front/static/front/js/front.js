@@ -672,6 +672,25 @@ $().ready(function() {
 
     IssuesList.init_all();
 
+    var IssuesFilters = {
+        init_users: function(user_type, user_class, filter_name) {
+            if (typeof IssuesFiltersUsers === 'undefined' || typeof IssuesFiltersUsers[user_type] === 'undefined' ) { return; }
+            var all_html = [], i, username, url;
+            for (i = 0; i < IssuesFiltersUsers[user_type].list.length; i++) {
+                username = IssuesFiltersUsers[user_type].list[i];
+                url = IssuesFiltersUsers[user_type].url.replace('%(username)s', username);
+                all_html.push('<li class="' + user_class + '"><a href="' + url + '">' + username + '</a></li>');
+            }
+            delete IssuesFiltersUsers[user_type];
+            document.getElementById('filter-' + filter_name).insertAdjacentHTML('beforeend', all_html.join(''));
+        },
+        init: function() {
+            IssuesFilters.init_users('creators', 'creator', 'created_by');
+            IssuesFilters.init_users('closers', 'closer', 'closed_by');
+        }
+    };
+    IssuesFilters.init();
+
     var IssueByNumber = {
         $window: $('#go-to-issue-window'),
         $form: $('#go-to-issue-window form'),

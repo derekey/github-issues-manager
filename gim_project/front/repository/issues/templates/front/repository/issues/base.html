@@ -37,21 +37,39 @@
                                     {% include "front/include_quicksearch.html" with id="filter-issues-creators" target="#filter-created_by li.creator" only %}
                                 </li>
                             {% endif %}
-                            {% for username in issues_creators %}
-                                {% if issues_filter.objects.current_created_by == username %}
+                            {% if issues_creators|length <= 50 %}
+                                {% for username in issues_creators %}
+                                    {% if issues_filter.objects.current_created_by == username %}
+                                        <li class="creator active">
+                                            <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
+                                                {{ username }}
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="creator">
+                                            <a href="{{ current_repository|base_url_issues_filtered_by_created_by:username }}{{ issues_filter.querystring }}">
+                                                {{ username }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% if issues_filter.objects.current_created_by %}
                                     <li class="creator active">
                                         <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                            {{ username }}
-                                        </a>
-                                    </li>
-                                {% else %}
-                                    <li class="creator">
-                                        <a href="{{ current_repository|base_url_issues_filtered_by_created_by:username }}{{ issues_filter.querystring }}">
-                                            {{ username }}
+                                            {{ issues_filter.objects.current_created_by }}
                                         </a>
                                     </li>
                                 {% endif %}
-                            {% endfor %}
+                                <script type="text/javascript">
+                                    var IssuesFiltersUsers = IssuesFiltersUsers || {};
+                                    IssuesFiltersUsers.creators = {
+                                        list: ["{{ issues_creators|join:'","' }}"],
+                                        current: "{{ issues_filter.objects.current_created_by }}",
+                                        url: "{{ current_repository|base_url_issues_filtered_by_created_by:'%(username)s' }}{{ issues_filter.querystring }}"
+                                    };
+                                </script>
+                            {% endif %}
                         </ul>
                     </li>
                 {% endif %}
@@ -142,26 +160,46 @@
                                     {% include "front/include_quicksearch.html" with id="filter-issues-closers" target="#filter-closed_by li.closer" only %}
                                 </li>
                             {% endif %}
-                            {% for username in issues_closers %}
-                                {% if issues_filter.objects.current_closed_by == username %}
+                            {% if issues_closers|length <= 50 %}
+                                {% for username in issues_closers %}
+                                    {% if issues_filter.objects.current_closed_by == username %}
+                                        <li class="closer active">
+                                            <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
+                                                {{ username }}
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="closer">
+                                            <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:username }}{{ issues_filter.querystring }}">
+                                                {{ username }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% if issues_filter.objects.current_closed_by %}
                                     <li class="closer active">
                                         <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                            {{ username }}
-                                        </a>
-                                    </li>
-                                {% else %}
-                                    <li class="closer">
-                                        <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:username }}{{ issues_filter.querystring }}">
-                                            {{ username }}
+                                            {{ issues_filter.objects.current_closed_by }}
                                         </a>
                                     </li>
                                 {% endif %}
-                            {% endfor %}
+                                <script type="text/javascript">
+                                    var IssuesFiltersUsers = IssuesFiltersUsers || {};
+                                    IssuesFiltersUsers.closers = {
+                                        list: ["{{ issues_closers|join:'","' }}"],
+                                        current: "{{ issues_filter.objects.current_created_by }}",
+                                        url: "{{ current_repository|base_url_issues_filtered_by_closed_by:'%(username)s' }}{{ issues_filter.querystring }}"
+                                    };
+                                </script>
+                            {% endif %}
                         </ul>
                     </li>
                 {% endif %}
+                {% endblock left-nav-bar-closers %}
 
                 {# The open/close states #}
+                {% block left-nav-bar-state %}
                 <li class="accordion-group dark-nav">
                     <span class="glow"></span>
                     <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-state">
