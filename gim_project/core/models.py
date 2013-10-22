@@ -245,7 +245,7 @@ class GithubObject(models.Model):
 
         # add per_page option
         for parameters_combination, _ in parameters_combinations:
-            parameters_combination.update({'per_page': 30})
+            parameters_combination.update({'per_page': 100})
             if parameters:
                 parameters_combination.update(parameters)
 
