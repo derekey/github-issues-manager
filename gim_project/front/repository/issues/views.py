@@ -161,13 +161,8 @@ class IssuesView(BaseRepositoryView):
                 qs_filters['milestone'] = '%s' % milestone.number
                 query_filters['milestone__number'] = milestone.number
 
-        # the base queryset with the current filter
-        queryset = self.repository.issues.ready().filter(**query_filters).select_related(
-                'user',  # we may have a lot of different ones
-            ).prefetch_related(
-                'assignee', 'closed_by', 'milestone',  # we should have only a few ones for each
-                'labels__label_type'
-            )
+        # the base queryset with the current filters
+        queryset = self.repository.issues.ready().filter(**query_filters)
 
         # now filter by labels
         labels = self._get_labels(qs_parts)
@@ -206,6 +201,17 @@ class IssuesView(BaseRepositoryView):
                 qs_filters['group_by'] = 'type:%s' % group_by.name
                 filter_objects['group_by'] = group_by
                 filter_objects['group_by_field'] = 'label_type_grouper'
+
+        # Do we need to select/prefetch related stuff ? If not grouping, no
+        # because we assume all templates are already cached
+        # TODO: select/prefetch only the stuff needed for grouping
+        if group_by is not None:
+            queryset = queryset.select_related(
+                    'user',  # we may have a lot of different ones
+                ).prefetch_related(
+                    'assignee', 'closed_by', 'milestone',  # we should have only a few ones for each
+                    'labels__label_type'
+                )
 
         # and finally, asked ordering
         sort, sort_direction = self._get_sort(qs_parts)
