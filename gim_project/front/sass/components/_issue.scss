@@ -131,4 +131,7 @@
     padding: 0;
     @include border-radius(6px);
     background: $body-background-color;
+    .issue-nav .close {
+        margin-left: 10px;
+    }
 }

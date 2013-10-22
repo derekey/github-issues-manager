@@ -573,10 +573,14 @@ $().ready(function() {
     IssuesList.get_issue_html_container = (function IssuesList_get_issue_html_container (in_popup) {
         var panel = {
             $window: null,
-            $node: IssuesList.issue_container
+            $node: IssuesList.issue_container,
+            after: null
         }, popup = {
             $window: IssuesList.modal_window,
-            $node: IssuesList.modal_window_issue_container
+            $node: IssuesList.modal_window_issue_container,
+            after: function($node) {  // TODO: move it in its own function
+                $node.find('.issue-nav').append('<button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>');
+            }
         };
         return (in_popup || !IssuesList.issue_container.length) ? popup : panel;
     }); // IssuesList_get_issue_html_container
@@ -592,6 +596,9 @@ $().ready(function() {
         var container = IssuesList.get_issue_html_container(in_popup);
         if (container.$node.data('issue-number') != issue_number) { return; }
         container.$node.html(html);
+        if (container.after) {
+            container.after(container.$node);
+        }
         MarkdownManager.update_links();
         container.$node.scrollTop(0);
         if (container.$window) {
