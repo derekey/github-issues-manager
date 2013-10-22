@@ -973,14 +973,13 @@ $().ready(function() {
         update_link: function() {
             var $link = $(this);
             $link.attr('target', '_blank');
-            if ($link.hasClass('issue-link')) {
-                if (!MarkdownManager.re) {
-                    MarkdownManager.re = new RegExp('https?://github.com/' + $('body').data('repository') + '/issues/(\\d+)');
-                }
-                var matches = this.href.match(MarkdownManager.re);
-                if (matches) {
-                    $link.data('issue-number', matches[1]);
-                }
+            if (!MarkdownManager.re) {
+                MarkdownManager.re = new RegExp('https?://github.com/' + $('body').data('repository') + '/issues/(\\d+)');
+            }
+            var matches = this.href.match(MarkdownManager.re);
+            if (matches) {
+                $link.data('issue-number', matches[1])
+                     .addClass('issue-link');
             }
         }, // update_link
         update_links: function() {
