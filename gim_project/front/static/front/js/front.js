@@ -716,9 +716,18 @@ $().ready(function() {
     IssueByNumber.init_events();
 
     var on_resize_issue_click = (function on_resize_issue_click(e) {
-        $('body').toggleClass('big-issue');
+        var $modal = $('.modal.in');
+        if ($modal.length) {
+            $modal.toggleClass('full-screen');
+        } else {
+            $('body').toggleClass('big-issue');
+        }
         return false; // stop event propagation
     }); // on_resize_issue_click
+
+    $document.on('hidden', '.modal', function () {
+        $(this).removeClass('full-screen');
+    });
 
     var on_help = (function on_help(e) {
         $('#show-shortcuts').click();

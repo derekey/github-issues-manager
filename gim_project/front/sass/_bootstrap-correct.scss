@@ -77,3 +77,17 @@ $arrows: top, right, left, bottom;
 .modal-body {
     max-height: 500px;
 }
+
+// full-screen mode for modals
+.modal.full-screen {
+    width: 90% !important;
+    height: 90% !important;
+    left: 5% !important;
+    margin: 0 !important;
+    &.in {
+        top: 5% !important;
+    }
+    .modal-body {
+        max-height: none !important;
+    }
+}

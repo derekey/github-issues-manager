@@ -242,6 +242,22 @@ blockquote p:last-child {
   max-height: 500px;
 }
 
+/* line 82, ../../../sass/_bootstrap-correct.scss */
+.modal.full-screen {
+  width: 90% !important;
+  height: 90% !important;
+  left: 5% !important;
+  margin: 0 !important;
+}
+/* line 87, ../../../sass/_bootstrap-correct.scss */
+.modal.full-screen.in {
+  top: 5% !important;
+}
+/* line 90, ../../../sass/_bootstrap-correct.scss */
+.modal.full-screen .modal-body {
+  max-height: none !important;
+}
+
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar img {
   display: inline-block;
