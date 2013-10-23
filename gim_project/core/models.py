@@ -19,7 +19,9 @@ from . import GITHUB_HOST
 from .ghpool import parse_header_links, ApiError, ApiNotFoundError, Connection
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
-                       RepositoryManager, LabelTypeManager)
+                       RepositoryManager, LabelTypeManager,
+                       PullRequestCommentManager,
+                       PullRequestCommentEntryPointManager)
 from .utils import prepare_fetch_headers, MinUpdatedDateRaised
 
 import username_hack  # force the username length to be 255 chars
@@ -709,6 +711,8 @@ class Repository(GithubObjectWithId):
     issues_state_closed_etag = models.CharField(max_length=64, blank=True, null=True)
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
     comments_etag = models.CharField(max_length=64, blank=True, null=True)
+    pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
+    pr_comments_etag = models.CharField(max_length=64, blank=True, null=True)
 
     objects = RepositoryManager()
 
@@ -813,6 +817,12 @@ class Repository(GithubObjectWithId):
             'issues',
         ]
 
+    @property
+    def github_callable_identifiers_for_prs(self):
+        return self.github_callable_identifiers + [
+            'pulls',
+        ]
+
     def fetch_issues(self, gh, force_fetch=False, state=None):
         if state:
             vary = {'state': (state, )}
@@ -868,8 +878,20 @@ class Repository(GithubObjectWithId):
             'comments',
         ]
 
+    @property
+    def github_callable_identifiers_for_pr_comments(self):
+        return self.github_callable_identifiers_for_prs + [
+            'comments'
+        ]
+
     def fetch_comments(self, gh, force_fetch=False):
         return self._fetch_many('comments', gh,
+                                defaults={'fk': {'repository': self}},
+                                parameters={'sort': 'updated', 'direction': 'desc'},
+                                force_fetch=force_fetch)
+
+    def fetch_pr_comments(self, gh, force_fetch=False):
+        return self._fetch_many('pr_comments', gh,
                                 defaults={'fk': {'repository': self}},
                                 parameters={'sort': 'updated', 'direction': 'desc'},
                                 force_fetch=force_fetch)
@@ -895,10 +917,12 @@ class Repository(GithubObjectWithId):
         else:
             self.fetch_issues(gh, force_fetch=force_fetch)
             self.fetch_comments(gh, force_fetch=force_fetch)
+            self.fetch_pr_comments(gh, force_fetch=force_fetch)
 
     def fetch_all_step2(self, gh, force_fetch=False):
         self.fetch_issues(gh, force_fetch=force_fetch, state='closed')
         self.fetch_comments(gh, force_fetch=force_fetch)
+        self.fetch_pr_comments(gh, force_fetch=force_fetch)
 
 
 LABELTYPE_EDITMODE = Choices(
@@ -1141,9 +1165,10 @@ class Issue(GithubObjectWithId):
     comments_count = models.PositiveIntegerField(blank=True, null=True)
     closed_by = models.ForeignKey(GithubUser, related_name='closed_issues', blank=True, null=True)
     closed_by_fetched = models.BooleanField(default=False, db_index=True)
-
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
     comments_etag = models.CharField(max_length=64, blank=True, null=True)
+    pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
+    pr_comments_etag = models.CharField(max_length=64, blank=True, null=True)
 
     objects = IssueManager()
 
@@ -1186,6 +1211,13 @@ class Issue(GithubObjectWithId):
             'comments',
         ]
 
+    @property
+    def github_callable_identifiers_for_pr_comments(self):
+        return self.repository.github_callable_identifiers_for_prs + [
+            self.number,
+            'comments'
+        ]
+
     def fetch_comments(self, gh, force_fetch=False):
         """
         Don't fetch comments if the previous fetch of the issue told us there
@@ -1198,12 +1230,22 @@ class Issue(GithubObjectWithId):
                                     'issue': self,
                                     'repository': self.repository}
                                 },
+                                parameters={'sort': 'updated', 'direction': 'desc'},
                                 force_fetch=force_fetch)
         if count != self.comments_count:
             self.comments_count = count
             self.save(update_fields=('comments_count',))
 
         return count
+
+    def fetch_pr_comments(self, gh, force_fetch=False):
+        return self._fetch_many('pr_comments', gh,
+                                defaults={'fk': {
+                                    'issue': self,
+                                    'repository': self.repository}
+                                },
+                                parameters={'sort': 'updated', 'direction': 'desc'},
+                                force_fetch=force_fetch)
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -1226,6 +1268,8 @@ class Issue(GithubObjectWithId):
         super(Issue, self).fetch_all(gh, force_fetch=force_fetch)
         #self.fetch_labels(gh, force_fetch=force_fetch)  # already retrieved via self.fetch
         self.fetch_comments(gh, force_fetch=force_fetch)
+        if self.is_pull_request:
+            self.fetch_pr_comments(gh, force_fetch=force_fetch)
 
     def fetch(self, gh, defaults=None, force_fetch=False):
         """
@@ -1280,6 +1324,107 @@ class IssueComment(GithubObjectWithId):
     @property
     def github_callable_create_identifiers(self):
         return self.issue.github_callable_identifiers_for_comments
+
+    def fetch(self, gh, defaults=None, force_fetch=False):
+        """
+        Enhance the default fetch by setting the current repository and issue as
+        default values.
+        """
+        if self.repository_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['repository'] = self.repository
+
+        if self.issue_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['issue'] = self.issue
+
+        return super(IssueComment, self).fetch(gh, defaults, force_fetch=force_fetch)
+
+    def defaults_create_values(self):
+        return {'fk': {
+            'issue': self.issue,
+            'repository': self.repository
+            }
+        }
+
+
+class PullRequestCommentEntryPoint(GithubObject):
+    repository = models.ForeignKey(Repository, related_name='pr_comments_entry_points')
+    issue = models.ForeignKey(Issue, related_name='pr_comments_entry_points')
+    diff_hunk = models.TextField(blank=True, null=True)
+    commit_id = models.CharField(max_length=256, blank=True, null=True)
+    original_commit_id = models.CharField(max_length=256, blank=True, null=True)
+    position = models.PositiveIntegerField(blank=True, null=True)
+    original_position = models.PositiveIntegerField(blank=True, null=True)
+    path = models.TextField(blank=True, null=True)
+
+    user = models.ForeignKey(GithubUser, related_name='pr_comments_entry_points', blank=True, null=True)
+    created_at = models.DateTimeField(db_index=True, blank=True, null=True)
+    updated_at = models.DateTimeField(db_index=True, blank=True, null=True)
+
+    objects = PullRequestCommentEntryPointManager()
+
+    github_ignore = GithubObject.github_ignore + (
+                                    'id', 'created_at', 'updated_at', 'user')
+
+    github_identifiers = {
+        'repository__github_id': ('repository', 'github_id'),
+        'issue__number': ('issue', 'number'),
+        'original_commit_id': 'original_commit_id',
+        'path': 'path',
+        'original_position': 'original_position',
+    }
+
+    class Meta:
+        ordering = ('created_at', )
+
+    def __unicode__(self):
+        return u'Entry point on PR #%d' % self.issue.number
+
+
+class PullRequestComment(GithubObjectWithId):
+    repository = models.ForeignKey(Repository, related_name='pr_comments')
+    issue = models.ForeignKey(Issue, related_name='pr_comments')
+    user = models.ForeignKey(GithubUser, related_name='pr_comments')
+    body = models.TextField(blank=True, null=True)
+    body_html = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(db_index=True)
+    updated_at = models.DateTimeField(db_index=True)
+
+    entry_point = models.ForeignKey('PullRequestCommentEntryPoint', related_name='comments')
+
+    objects = PullRequestCommentManager()
+
+    github_format = '.full+json'
+    github_edit_fields = {
+        # TODO
+        'create': ('body', ),
+        'update': ('body', )
+    }
+
+    class Meta:
+        ordering = ('created_at', )
+
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/pull/%s#discussion_r%s' % (
+                                                    self.number, self.github_id)
+
+    def __unicode__(self):
+        return u'on PR #%d' % (self.issue.number if self.issue else '?')
+
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_prs + [
+            'comments',
+            self.github_id,
+        ]
+
+    @property
+    def github_callable_create_identifiers(self):
+        return self.issue.github_callable_identifiers_for_pr_comments
 
     def fetch(self, gh, defaults=None, force_fetch=False):
         """

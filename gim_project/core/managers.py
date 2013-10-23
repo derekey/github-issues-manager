@@ -410,7 +410,7 @@ class IssueManager(WithRepositoryManager):
     is_pull_request flag, and set default values for labels and milestone
     repository.
     """
-    issue_finder = re.compile('^https?://api\.github\.com/repos/(?:[^/]+/[^/]+)/issues/(?P<number>\w+)(?:/|$)')
+    issue_finder = re.compile('^https?://api\.github\.com/repos/(?:[^/]+/[^/]+)/(?:issues|pulls)/(?P<number>\w+)(?:/|$)')
 
     def get_number_from_url(self, url):
         """
@@ -459,7 +459,7 @@ class IssueManager(WithRepositoryManager):
         if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
             if 'related' not in defaults:
                 defaults['related'] = {}
-            for related in ('labels', 'milestone', 'comments'):
+            for related in ('labels', 'milestone', 'comments', 'pr_comments'):
                 if related not in defaults['related']:
                     defaults['related'][related] = {}
                 if 'fk' not in defaults['related'][related]:
@@ -546,3 +546,98 @@ class LabelTypeManager(models.Manager):
             self._name_cache[repository.id][name] = result
 
         return self._name_cache[repository.id][name]
+
+
+class PullRequestCommentManager(GithubObjectManager):
+    """
+    This manager is for the PullRequestComment model, with an enhanced
+    get_object_fields_from_dict method to get the issue, the repository, and
+    the entry point
+    """
+
+    def get_object_fields_from_dict(self, data, defaults=None):
+        """
+        In addition to the default get_object_fields_from_dict, try to guess the
+        issue the comment belongs to, from the pull_request__url found in the
+        data given by the github api. Doing the same for the repository.
+        Only set if found.
+        Also get/create the entry_point: some fetched data are for the entry
+        point, some others are for the comment)
+        """
+        from .models import Issue, PullRequestCommentEntryPoint
+
+        fields = super(PullRequestCommentManager, self).get_object_fields_from_dict(data, defaults)
+
+        if not fields:
+            return None
+
+        # add the issue if needed
+        if 'issue' not in fields['fk']:
+            issue = Issue.objects.get_by_url(data.get('pull_request_url', None))
+            if issue:
+                fields['fk']['issue'] = issue
+            else:
+                # no issue found, don't save the object !
+                return None
+
+        # and the repository
+        if 'repository' not in fields['fk']:
+            fields['fk']['repository'] = fields['fk']['issue'].repository
+
+        defaults_entry_points = {
+            'fk': {
+                'repository': fields['fk']['repository'],
+                'issue': fields['fk']['issue'],
+            }
+        }
+
+        entry_point = PullRequestCommentEntryPoint.objects.\
+                        create_or_update_from_dict(data, defaults_entry_points)
+        if entry_point:
+            fields['fk']['entry_point'] = entry_point
+
+        return fields
+
+
+class PullRequestCommentEntryPointManager(GithubObjectManager):
+    """
+    This manager is for the PullRequestCommentEntryPoint model, with an
+    enhanced create_or_update_from_dict that will save the created_at (oldest
+    from the comments) and updated_at (latest from the comments).
+    Also save the user if it's the first one.
+    """
+
+    def create_or_update_from_dict(self, data, defaults=None):
+        from .models import GithubUser
+
+        obj = super(PullRequestCommentEntryPointManager, self)\
+                                    .create_or_update_from_dict(data, defaults)
+
+        try:
+            created_at = Connection.parse_date(data['created_at'])
+        except Exception:
+            created_at = None
+        try:
+            updated_at = Connection.parse_date(data['updated_at'])
+        except Exception:
+            updated_at = None
+
+        update_fields = []
+
+        if created_at and not obj.created_at or created_at < obj.created_at:
+            obj.created_at = created_at
+            update_fields.append('created_at')
+            try:
+                obj.user = GithubUser.objects.create_or_update_from_dict(data['user'])
+                update_fields.append('user')
+            except Exception:
+                pass
+
+        if updated_at and not obj.updated_at or updated_at > obj.updated_at:
+            obj.updated_at = updated_at
+            update_fields.append('updated_at')
+
+        if update_fields:
+            obj.save(update_fields=update_fields)
+
+        return obj
