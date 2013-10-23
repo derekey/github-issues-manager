@@ -15,6 +15,7 @@ from django.core import validators
 from jsonfield import JSONField
 from extended_choices import Choices
 
+from . import GITHUB_HOST
 from .ghpool import parse_header_links, ApiError, ApiNotFoundError, Connection
 from .managers import (GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
@@ -485,6 +486,10 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         ordering = ('username', )
 
     @property
+    def github_url(self):
+        return GITHUB_HOST + self.username
+
+    @property
     def github_callable_identifiers(self):
         return [
             'users',
@@ -724,6 +729,10 @@ class Repository(GithubObjectWithId):
     @property
     def full_name(self):
         return u'%s/%s' % (self.owner.username if self.owner else '?', self.name)
+
+    @property
+    def github_url(self):
+        return GITHUB_HOST + self.full_name
 
     @property
     def untyped_labels(self):
@@ -999,6 +1008,10 @@ class Label(GithubObject):
         )
         ordering = ('label_type', 'order', 'typed_name', )
 
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/issues?labels=%s' % self.name
+
     def __unicode__(self):
         if self.label_type_id:
             if self.order is not None:
@@ -1077,6 +1090,10 @@ class Milestone(GithubObjectWithId):
         )
         ordering = ('number', )
 
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/issues?milestone=%s' % self.number
+
     def __unicode__(self):
         return u'%s' % self.title
 
@@ -1145,6 +1162,10 @@ class Issue(GithubObjectWithId):
         unique_together = (
             ('repository', 'number'),
         )
+
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/issues/%s' % self.number
 
     def __unicode__(self):
         return u'#%d %s' % (self.number, self.title)
@@ -1241,6 +1262,10 @@ class IssueComment(GithubObjectWithId):
 
     class Meta:
         ordering = ('created_at', )
+
+    @property
+    def github_url(self):
+        return self.issue.github_url + '#issuecomment-%s' % self.github_id
 
     def __unicode__(self):
         return u'on issue #%d' % (self.issue.number if self.issue else '?')
