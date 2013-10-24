@@ -742,6 +742,9 @@ class Repository(GithubObjectWithId):
     issues_fetched_at = models.DateTimeField(blank=True, null=True)
     issues_state_open_etag = models.CharField(max_length=64, blank=True, null=True)
     issues_state_closed_etag = models.CharField(max_length=64, blank=True, null=True)
+    prs_fetched_at = models.DateTimeField(blank=True, null=True)
+    prs_state_open_etag = models.CharField(max_length=64, blank=True, null=True)
+    prs_state_closed_etag = models.CharField(max_length=64, blank=True, null=True)
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
     comments_etag = models.CharField(max_length=64, blank=True, null=True)
     pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
@@ -870,6 +873,20 @@ class Repository(GithubObjectWithId):
                                  parameters={'sort': 'updated', 'direction': 'desc'},
                                  remove_missing=remove_missing,
                                  force_fetch=force_fetch)
+
+        # now fetch pull requests to have more informations for them (only
+        # ones that already exist as an issue, not the new ones)
+        self._fetch_many('issues', gh,
+                         vary=vary,
+                         defaults={
+                            'fk': {'repository': self},
+                            'simple': {'is_pull_request': True},
+                         },
+                         parameters={'sort': 'updated', 'direction': 'desc'},
+                         remove_missing=False,
+                         force_fetch=force_fetch,
+                         meta_base_name='prs',
+                         modes=MODE_UPDATE)
 
         if not state or state == 'closed':
             self.fetch_closed_issues_without_closed_by(gh)
@@ -1204,6 +1221,13 @@ class Issue(GithubObjectWithId):
     pr_comments_count = models.PositiveIntegerField(blank=True, null=True)
     pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
     pr_comments_etag = models.CharField(max_length=64, blank=True, null=True)
+    base_label = models.TextField(blank=True, null=True)
+    base_sha = models.CharField(max_length=256, blank=True, null=True)
+    head_label = models.TextField(blank=True, null=True)
+    head_sha = models.CharField(max_length=256, blank=True, null=True)
+    merged_at = models.DateTimeField(blank=True, null=True)
+    merge_sha = models.CharField(max_length=256, blank=True, null=True)
+    merged_by = models.ForeignKey(GithubUser, related_name='merged_prs', blank=True, null=True)
 
     objects = IssueManager()
 
@@ -1212,6 +1236,7 @@ class Issue(GithubObjectWithId):
         'comments': 'comments_count',
         # "review_comments" is only filled if fetching a pull_request directly (we don't do it, but just in case...)
         'review_comments': 'pr_comments_count',
+        'merge_commit_sha': 'merge_sha',
     })
     github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
     github_format = '.full+json'
@@ -1219,6 +1244,9 @@ class Issue(GithubObjectWithId):
         'create': ('title', 'body', 'assignee__username', 'milestone__number', 'labels__name', ),
         'update': ('title', 'body', 'assignee__username', 'state', 'milestone__number', 'labels__name', )
     }
+
+    # identifiers when fetching by pull request
+    github_identifiers_prs = {'repository__github_id': ('repository', 'github_id'), 'number': 'number'}
 
     class Meta:
         unique_together = (

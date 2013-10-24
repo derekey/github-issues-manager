@@ -481,6 +481,14 @@ class IssueManager(WithRepositoryManager):
         given as default for the issue.
         Also set the is_pull_request flag based on the 'diff_url' attribute of
         the 'pull_request' dict in the data given by the github api.
+        If we have data from the pull-requests API (instead of the issues one),
+        we also remove the github_id from the fields to avoid replacing it in
+        the existing issue (note that github have different ids for a pull
+        request and its associated issue, and that when fetching pull requests,
+        we only do UPDATE, no CREATE)
+        We also move some fields from sub-dicts to the main one to easy access
+        (base and head sha/label in pull-request mode)
+
         """
         if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
             if 'related' not in defaults:
@@ -492,15 +500,40 @@ class IssueManager(WithRepositoryManager):
                     defaults['related'][related]['fk'] = {}
                 defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
 
+        # if pull request, we may have the label and sha of base and head
+        for boundary in ('base', 'head'):
+            dikt = data.get(boundary, {})
+            for field in ('label', 'sha'):
+                if dikt.get(field):
+                    data['%s_%s' % (boundary, field)] = dikt[field]
+
         fields = super(IssueManager, self).get_object_fields_from_dict(data, defaults)
         if not fields:
             return None
 
         # check if it's a pull request
-        if 'is_pull_reques' not in fields['simple']:
+        if 'is_pull_request' not in fields['simple']:
             fields['simple']['is_pull_request'] = bool(data.get('pull_request', {}).get('diff_url', False))
 
+        # if we have a real pull request data (from the pull requests api instead
+        # of the issues one), remove the github_id to not override the issue's one
+        if fields['simple'].get('head_sha') or fields['simple'].get('base_sha'):
+            if 'github_id' in fields['simple']:
+                del fields['simple']['github_id']
+
         return fields
+
+    def get_from_identifiers(self, fields, identifiers=None):
+        """
+        If we guess that we got data from the pull-requests API, not the issues,
+        one, use a specific "github_identifiers" to get issue from DB using
+        repo+number instead of github_id, because on the github_side, the ids
+        if a PR and its linked issue are not the same.
+        """
+        if fields['simple'].get('head_sha') or fields['simple'].get('base_sha'):
+            identifiers = self.model.github_identifiers_prs
+
+        return super(IssueManager, self).get_from_identifiers(fields, identifiers)
 
 
 class IssueCommentManager(GithubObjectManager):
