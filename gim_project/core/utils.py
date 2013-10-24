@@ -66,7 +66,7 @@ def contribute_to_model(contrib, destination):
             setattr(destination, k, v)
 
 
-class MinUpdatedDateRaised(Exception):
+class MinDateRaised(Exception):
     pass
 
 

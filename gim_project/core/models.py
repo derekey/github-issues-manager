@@ -23,7 +23,7 @@ from .managers import (MODE_ALLS, MODE_UPDATE,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager,
                        PullRequestCommentEntryPointManager)
-from .utils import prepare_fetch_headers, MinUpdatedDateRaised
+from .utils import prepare_fetch_headers, MinDateRaised
 
 import username_hack  # force the username length to be 255 chars
 
@@ -63,6 +63,8 @@ class GithubObject(models.Model):
     github_format = '+json'
     github_edit_fields = {'create': (), 'update': ()}
     github_per_page = {'min': 10, 'max': 100}
+    github_date_field = None  # ex ('updated_at', 'updated',   'desc')
+                              #      obj field     sort param  direction param
 
     class Meta:
         abstract = True
@@ -154,33 +156,36 @@ class GithubObject(models.Model):
         per_page_parameter = {'per_page': model.github_per_page['max']}
 
         # prepare headers to add in the request
-        min_updated_date = None
+        min_date = None
         if_modified_since = None
         fetched_at_field = '%s_fetched_at' % meta_base_name
-        if hasattr(self, fetched_at_field):
-            # if we have a fetch date, use it
-            fetched_at = getattr(self, fetched_at_field)
-            if not force_fetch:
-                if fetched_at:
-                    # we will stop fetching data when the date of the last
-                    # object fetched will be lower than the last updated_at
-                    # only if we retrieve objects by last updated first, and
-                    # if the model has the updated_at field
-                    if (parameters
-                            and parameters.get('sort') == 'updated'
-                            and parameters.get('direction') == 'desc'
-                            and 'updated_at' in model._meta.get_all_field_names()):
-                        min_updated_date = fetched_at
 
+        if not force_fetch:
+            if hasattr(self, fetched_at_field):
+                # if we have a fetch date, use it
+                fetched_at = getattr(self, fetched_at_field)
+                if fetched_at:
+                    # tell github we have all data since this date
                     if_modified_since = fetched_at
                     # limit to a few items per list when updating a repository
                     per_page_parameter['per_page'] = model.github_per_page['min']
+
+                    # do we have to check for a min date ?
+                    if model.github_date_field:
+                        date_field_name, sort, direction = model.github_date_field
+                        # sort_param = (parameters or {}).get('sort')
+                        # direction_param = (parameters or {}).get('direction')
+                        # if (not sort and not sort_param or sort and sort_param == sort)\
+                        #     and (not direction and not direction_param or direction and direction_param == direction):
+                        if (parameters or {}).get('sort') == sort and\
+                           (parameters or {}).get('direction') == direction:
+                            min_date = fetched_at
 
         request_headers = prepare_fetch_headers(
                     if_modified_since=if_modified_since,
                     github_format=model.github_format)
 
-        def fetch_page_and_next(objs, parameters, min_updated_date):
+        def fetch_page_and_next(objs, parameters, min_date):
             """
             Fetch a page of objects with the given parameters, and if github
             tell us there is a "next" page, tell caller to continue fetching by
@@ -203,7 +208,7 @@ class GithubObject(models.Model):
                     parameters=parameters,
                     request_headers=request_headers,
                     response_headers=response_headers,
-                    min_updated_date=min_updated_date
+                    min_date=min_date,
                 )
 
             except ApiNotFoundError:
@@ -226,36 +231,28 @@ class GithubObject(models.Model):
 
             objs += page_objs
 
-            # if we reached the min_updated_date, stop
-            min_updated_date_raised = False
-            if (min_updated_date
-                    and page_objs[-1].updated_at < min_updated_date):
-
-                min_updated_date_raised = True
+            # if we reached the min_date, stop
+            if min_date:
+                obj_min_date = getattr(page_objs[-1], model.github_date_field[0])
+                if obj_min_date and obj_min_date < min_date:
+                    raise MinDateRaised(etag)
 
             # if we have a next page, got fetch it
             if 'link' in response_headers:
                 links = parse_header_links(response_headers['link'])
                 if 'next' in links and 'url' in links['next']:
-                    # but only if the min_updated_date wes not raised
-                    if not min_updated_date_raised:
-                        next_page_parameters = parameters.copy()
-                        next_page_parameters.update(
-                            dict(
-                                (k, v[0]) for k, v in parse_qs(
-                                        urlsplit(links['next']['url']).query
-                                    ).items() if len(v)
-                                )
-                        )
-                        return next_page_parameters, etag
-                else:
-                    # we don't have a next_link, we have fetched all page, so
-                    # ignore the min_updated_date
-                    min_updated_date_raised = False
+                    next_page_parameters = parameters.copy()
+                    next_page_parameters.update(
+                        dict(
+                            (k, v[0]) for k, v in parse_qs(
+                                    urlsplit(links['next']['url']).query
+                                ).items() if len(v)
+                            )
+                    )
+                    # params for next page
+                    return next_page_parameters, etag
 
-            if min_updated_date_raised:
-                raise MinUpdatedDateRaised(etag)
-
+            # no more page, stop
             return None, etag
 
         if not vary:
@@ -312,7 +309,7 @@ class GithubObject(models.Model):
                 while True:
                     page += 1
                     page_parameters, page_etag = fetch_page_and_next(objs,
-                                            page_parameters, min_updated_date)
+                                                    page_parameters, min_date)
                     if page == 1:
                         etags[etag_field] = page_etag
                         if request_etag:
@@ -325,7 +322,7 @@ class GithubObject(models.Model):
                     if page_parameters is None:
                         break
 
-            except MinUpdatedDateRaised, e:
+            except MinDateRaised, e:
                 etags[etag_field] = e.args[0]
                 cache_hit = True
 
@@ -1259,6 +1256,8 @@ class Issue(GithubObjectWithId):
     # identifiers when fetching by pull request
     github_identifiers_prs = {'repository__github_id': ('repository', 'github_id'), 'number': 'number'}
 
+    github_date_field = ('updated_at', 'updated', 'desc')
+
     class Meta:
         unique_together = (
             ('repository', 'number'),
@@ -1390,6 +1389,7 @@ class IssueComment(GithubObjectWithId):
         'create': ('body', ),
         'update': ('body', )
     }
+    github_date_field = ('updated_at', 'updated', 'desc')
 
     class Meta:
         ordering = ('created_at', )
@@ -1503,6 +1503,7 @@ class PullRequestComment(GithubObjectWithId):
         'create': ('body', ),
         'update': ('body', )
     }
+    github_date_field = ('updated_at', 'updated', 'desc')
 
     class Meta:
         ordering = ('created_at', )

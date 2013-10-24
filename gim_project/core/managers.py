@@ -47,13 +47,14 @@ class GithubObjectManager(models.Manager):
 
     def get_from_github(self, gh, identifiers, modes=MODE_ALLS, defaults=None,
                         parameters=None, request_headers=None,
-                        response_headers=None, min_updated_date=None):
+                        response_headers=None, min_date=None):
         """
         Trying to get data for the model related to this manager, by using
         identifiers to generate the API call. gh is the connection to use.
-        If the min_updated_date argument is filled, we'll only take into account
-        object with an updated_date value greater (only if you got a list
-        from github, and we assume that the list is ordered by updated_at desc)
+        If the min_date argument is filled, we'll only take into account object
+        with the value of the field defined by github_date_field greater (only
+        if you got a list from github, and we assume that the list is ordered by
+        this field, descending)
         """
         data = self.get_data_from_github(
             gh=gh,
@@ -65,7 +66,7 @@ class GithubObjectManager(models.Manager):
 
         if isinstance(data, list):
             result = self.create_or_update_from_list(data, modes, defaults,
-                                            min_updated_date=min_updated_date)
+                                                            min_date=min_date)
         else:
             result = self.create_or_update_from_dict(data, modes, defaults)
             if not result:
@@ -97,7 +98,7 @@ class GithubObjectManager(models.Manager):
         return self.model.github_matching.get(field_name, field_name)
 
     def create_or_update_from_list(self, data, modes=MODE_ALLS, defaults=None,
-                                                        min_updated_date=None):
+                                                                min_date=None):
         """
         Take a list of json objects, call create_or_update for each one, and
         return the list of touched objects. Objects that cannot be created are
@@ -108,9 +109,10 @@ class GithubObjectManager(models.Manager):
             obj = self.create_or_update_from_dict(entry, modes, defaults)
             if obj:
                 objs.append(obj)
-                if min_updated_date and hasattr(obj, 'updated_at') and\
-                                            obj.updated_at < min_updated_date:
-                    break
+                if min_date and obj.github_date_field:
+                    obj_min_date = getattr(obj, obj.github_date_field[0])
+                    if obj_min_date and obj_min_date < min_date:
+                        break
         return objs
 
     def get_from_identifiers(self, fields, identifiers=None):
