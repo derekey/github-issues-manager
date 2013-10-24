@@ -10,19 +10,24 @@
                     <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url }}" alt="{{ current_issue.user.username }}">
                 </div>
                 <h3><a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github">#{{ current_issue.number }} - {{ current_issue.title }}</a></h3>
-                <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date:"DATETIME_FORMAT" }}</h5>
-            </header>
-            {% if current_issue.is_pull_request %}<i class="icon-upload-alt issue-pull-request" title="It's a pull-request"> </i>{% endif %}
-            {% if current_issue.milestone %}<div class="issue-milestone"><i class="icon-tasks"> </i> Milestone: <strong>{{ current_issue.milestone.title }}</strong></div>{% endif %}
-            {% if current_issue.state == 'closed' %}
-                <p class="state-closed">
-                    Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
-                </p>
-            {% else %}
-                {% if issue.updated_at and issue.created_at != issue.updated_at %}
-                    Updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}
+                {% if current_issue.is_pull_request %}
+                    <div class="pr-infos"><span class="label label-blue">Pull request from {{ current_issue.head_label|default:current_issue.user.username }}</div>
                 {% endif %}
-            {% endif %}
+                <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date:"DATETIME_FORMAT" }}</h5>
+                {% if current_issue.state == 'closed' %}
+                    <p class="state state-closed">
+                        Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
+                    </p>
+                {% else %}
+                    {% if current_issue.updated_at and current_issue.created_at != current_issue.updated_at %}
+                        <p class="state state-open">
+                            Updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}
+                        </p>
+                    {% endif %}
+                {% endif %}
+                {% if current_issue.is_pull_request %}<i class="icon-upload-alt issue-pull-request" title="It's a pull-request"> </i>{% endif %}
+                {% if current_issue.milestone %}<div class="issue-milestone"><span class="icon-tasks"> </span> Milestone: <strong>{{ current_issue.milestone.title }}</strong></div>{% endif %}
+            </header>
             <div class="issue-footer">
                 {% if current_issue.total_comments_count or current_issue.assignee or current_issue_involved|length > 1  %}
                     <div class="issue-footer-infos">

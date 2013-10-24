@@ -3,21 +3,29 @@
 
     .area-top {
         @include box-shadow(rgba(black, 0.07) 0 1px 1px -1px );
-        h3, h5, p, .desc {
-            margin-left: 50px;
-        }
-        h5 {
-            margin-bottom: 5px;
-        }
         header {
             .avatar {
                 @include avatar-small-container;
                 float: left;
             }
+            & > h3, & > h5, & > p, & > div:not(.avatar) {
+                margin-left: 50px;
+            }
+            & > h5, & > p, & > div:not(.avatar) {
+                margin-top: 5px;
+                margin-bottom: 5px;
+            }
         }
         @extend %issue-state-marker;
         padding-bottom: 5px;
         min-height: 95px;
+        .pr-infos {
+            .label {
+                font-size: inherit;
+                padding: 6px;
+                @include text-shadow(0px -1px 0px rgba(0, 0, 0, 0.25));
+            }
+        }
     }
     .issue-pull-request {
         position: absolute;
@@ -26,9 +34,6 @@
         width: 40px;
         text-align: center;
         font-size: 24px;
-    }
-    .issue-milestone {
-        margin-left: 50px;
     }
     .issue-footer {
         overflow: auto;
@@ -63,10 +68,6 @@
         &:first-child:last-child {
             @include border-radius(4px);
         }
-    }
-
-    p.state-closed {
-        margin-bottom: 5px;
     }
 
     .issue-assignee {
