@@ -16,7 +16,7 @@
             {% if current_issue.milestone %}<div class="issue-milestone"><i class="icon-tasks"> </i> Milestone: <strong>{{ current_issue.milestone.title }}</strong></div>{% endif %}
             {% if current_issue.state == 'closed' %}
                 <p class="state-closed">
-                    Closed{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
+                    Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
                 </p>
             {% else %}
                 {% if issue.updated_at and issue.created_at != issue.updated_at %}
