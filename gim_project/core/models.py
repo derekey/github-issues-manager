@@ -198,6 +198,7 @@ class GithubObject(models.Model):
                     parameters=parameters,
                     request_headers=request_headers,
                     response_headers=response_headers,
+                    min_updated_date=min_updated_date
                 )
 
             except ApiNotFoundError:
