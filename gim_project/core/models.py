@@ -1383,6 +1383,19 @@ class PullRequestCommentEntryPoint(GithubObject):
     def __unicode__(self):
         return u'Entry point on PR #%d' % self.issue.number
 
+    DIFF_LINE_TYPES = {
+        '@': 'comment',
+        '+': 'added',
+        '-': 'removed',
+    }
+
+    def parsed_diff(self):
+        if not self.diff_hunk:
+            return []
+        lines = self.diff_hunk.split('\n')
+        return [(self.DIFF_LINE_TYPES.get(line[0]), line)
+                                    for line in lines[0:1] + lines[1:][-12:]]
+
 
 class PullRequestComment(GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='pr_comments')

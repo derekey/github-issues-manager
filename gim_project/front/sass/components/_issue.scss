@@ -125,6 +125,53 @@
     .chat-box-entry {
         margin-left: 50px;
     }
+    .pr-entry-point {
+        & > .box-header .title {
+            font-size: 14px;
+            span {
+                font-weight: normal;
+                font-style: italic;
+                display: block;
+            }
+        }
+        .box-section {
+            padding-top: 5px;
+            padding-bottom: 0;
+        }
+        .pr-diff {
+            overflow: auto;
+            padding: 0;
+            pre {
+                white-space: pre;
+                color: #333;
+                background: white;
+                display: table;
+                width: 100%;
+                padding: 0;
+                border: none;
+                margin: 0;
+                > span {
+                    display: table-row;
+                    line-height: 20px;
+                    min-height: 20px;
+                    &.comment {
+                        background: #F8F8FF;
+                        color: #999;
+                    }
+                    &.added {
+                        background: #DDFFDD;
+                    }
+                    &.removed {
+                        background: #FFDDDD;
+                    }
+                    > code {
+                        padding: 1px 5px;
+                        white-space: inherit;
+                    }
+                }
+            }
+        }
+    }
 }
 
 #modal-issue-view {

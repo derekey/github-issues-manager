@@ -1,4 +1,5 @@
 from math import ceil
+from operator import attrgetter
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
@@ -504,8 +505,8 @@ class IssueView(UserIssuesView):
         # fetch other useful data
         if current_issue:
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
-            comments = list(current_issue.comments.ready().select_related('user'))
-            involved = self.get_involved_people(current_issue, comments, context)
+            comments = self.get_all_comments(current_issue)
+            involved = []  # self.get_involved_people(current_issue, comments, context)
         else:
             comments = []
             involved = []
@@ -519,6 +520,19 @@ class IssueView(UserIssuesView):
         })
 
         return context
+
+    def get_all_comments(self, issue):
+        """
+        Return the comments of the given issue.
+        If it's a pull request, add the pull-request comments entry points in
+        the list
+        """
+        all_comments = list(issue.comments.ready().select_related('user'))
+        if issue.is_pull_request:
+            all_comments.extend(issue.pr_comments_entry_points.all()
+                                     .select_related('user', 'pr_comments'))
+            all_comments.sort(key=attrgetter('created_at'))
+        return all_comments
 
     def get_template_names(self):
         """

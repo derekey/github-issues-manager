@@ -66,29 +66,41 @@
         </div>
     </article>
     <aside>
-        {% if current_issue.comments_count %}
+        {% if current_issue_comments|length %}
             <ul class="unstyled chat-box timeline issue-comments" id="issue-comments-{{ current_issue.number }}">
                 {% for comment in current_issue_comments %}
-                    <li class="chat-box-entry arrow-box-left gray issue-comment">
-                        <div class="avatar"><img class="avatar-small img-circle" src="{{ comment.user.avatar_url }}"></div>
-                        <div class="info">
-                            <span class="name">
-                                <strong>{{ comment.user.username }}</strong>
-                                {% if comment.user.id == current_repository.owner.id %}
-                                    <span class="label label-success" title="{{ comment.user.username }} is the project's owner">owner</span>
-                                {% elif comment.user.id in collaborators_ids %}
-                                    <span class="label label-info" title="{{ comment.user.username }} is a collaborator on this project">collaborator</span>
-                                {% endif %}
-                                {% if comment.user.id == current_issue.user.id %}
-                                    <span class="label" title="{{ comment.user.username }} submitted this issue">submitter</span>
-                                {% endif %}
-                            </span>
-                            <span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ comment.created_at|ago }}</span>
-                        </div>
-                        <div class="content">
-                            {{ comment.body_html|safe }}
-                        </div>
-                    </li>
+                    {% if comment.commit_id %}
+                    {% with entry_point=comment %}
+                        <li>
+                            <div class="box pr-entry-point">
+                                <div class="box-header">
+                                    <div class="title">
+                                        Diff discussion initied by {{ entry_point.user.username }}
+                                        <span>{{ entry_point.path }}, line {{ entry_point.original_position }}</span>
+                                    </div>
+                                </div>
+                                <div class="box-content">
+                                    <div class="box-section pr-diff">
+                                        <pre>{% spaceless %}
+                                        {% for type, line in entry_point.parsed_diff %}
+                                            <span{% if type %} class="{{ type }}"{% endif %}><code>{{ line }}</code></span>
+                                        {% endfor %}
+                                        {% endspaceless %}</pre>
+                                    </div>
+                                    <div class="box-section pr-comments">
+                                        <ul class="unstyled chat-box timeline">
+                                            {% for pr_comment in comment.comments.all %}
+                                                {% include "front/repository/issues/include_comment.html" with comment=pr_comment %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endwith %}
+                    {% else %}
+                        {% include "front/repository/issues/include_comment.html" %}
+                    {% endif %}
                 {% endfor %}
             </ul>
         {% endif %}
