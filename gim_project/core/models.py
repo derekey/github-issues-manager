@@ -341,7 +341,8 @@ class GithubObject(models.Model):
             self.update_related_field(field_name,
                                       [obj.id for obj in objs],
                                       do_remove=do_remove,
-                                      etags=etags)
+                                      etags=etags,
+                                      fetched_at_field=fetched_at_field)
 
         # we return the number of fetched objects
         if not objs:
@@ -349,7 +350,8 @@ class GithubObject(models.Model):
         else:
             return len(objs)
 
-    def update_related_field(self, field_name, ids, do_remove=True, etags=None):
+    def update_related_field(self, field_name, ids, do_remove=True, etags=None,
+                                                        fetched_at_field=None):
         """
         For the given field name, with must be a m2m or the reverse side of
         a m2m or a fk, use the given list of ids as the lists of ids of all the
@@ -398,7 +400,8 @@ class GithubObject(models.Model):
         update_fields = []
 
         # can we save a fetch date ?
-        fetched_at_field = '%s_fetched_at' % field_name
+        if not fetched_at_field:
+            fetched_at_field = '%s_fetched_at' % field_name
         if hasattr(self, fetched_at_field):
             setattr(self, fetched_at_field, datetime.utcnow())
             update_fields.append(fetched_at_field)
