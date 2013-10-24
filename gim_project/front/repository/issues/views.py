@@ -5,7 +5,8 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
 
-from core.models import Issue, GithubUser, LabelType, Milestone
+from core.models import (Issue, GithubUser, LabelType, Milestone,
+                         PullRequestCommentEntryPoint)
 
 from ..views import BaseRepositoryView
 from ...utils import make_querystring
@@ -462,10 +463,17 @@ class IssueView(UserIssuesView):
         if issue.state == 'closed' and issue.closed_by_id and issue.closed_by_id not in involved:
             involved[issue.closed_by_id] = {'user': issue.closed_by, 'count': 0}
 
-        for comment in comments:
+        def add_involved(comment):
             if comment.user_id not in involved:
                 involved[comment.user_id] = {'user': comment.user, 'count': 0}
             involved[comment.user_id]['count'] += 1
+
+        for comment in comments:
+            if isinstance(comment, PullRequestCommentEntryPoint):
+                for pr_comment in comment.comments.all():
+                    add_involved(pr_comment)
+            else:
+                add_involved(comment)
 
         involved = involved.values()
         for involved_user in involved:
@@ -506,7 +514,7 @@ class IssueView(UserIssuesView):
         if current_issue:
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
             comments = self.get_all_comments(current_issue)
-            involved = []  # self.get_involved_people(current_issue, comments, context)
+            involved = self.get_involved_people(current_issue, comments, context)
         else:
             comments = []
             involved = []

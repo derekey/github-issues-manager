@@ -38,7 +38,6 @@
                         {% endif %}
                         {% if current_issue_involved|length > 1 %}
                             <ul class="unstyled issue-footer-info-part issue-involved">
-                                <span>With</span>
                                 {% for involved_user in current_issue_involved %}
                                     <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}, {{ involved_user.count }} comment{{ involved_user.count|pluralize }}"></li>
                                 {% endfor %}

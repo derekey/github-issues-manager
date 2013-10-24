@@ -492,14 +492,10 @@ p.state-closed {
   margin-bottom: 0;
 }
 /* line 89, ../../../../../sass/components/_issue.scss */
-.issue .issue-involved span {
-  font-size: smaller;
-}
-/* line 92, ../../../../../sass/components/_issue.scss */
 .issue .issue-involved li {
   display: inline-block;
 }
-/* line 97, ../../../../../sass/components/_issue.scss */
+/* line 94, ../../../../../sass/components/_issue.scss */
 .issue .issue-body {
   margin-top: -15px;
   padding: 15px;
@@ -509,63 +505,63 @@ p.state-closed {
   -moz-box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
   box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
 }
-/* line 103, ../../../../../sass/components/_issue.scss */
+/* line 100, ../../../../../sass/components/_issue.scss */
 .issue .issue-body.empty {
   font-style: italic;
   color: #bbbbbb;
 }
 
-/* line 112, ../../../../../sass/components/_issue.scss */
+/* line 109, ../../../../../sass/components/_issue.scss */
 .issue-nav {
   position: absolute;
   right: 9px;
   top: 2px;
   z-index: 20;
 }
-/* line 117, ../../../../../sass/components/_issue.scss */
+/* line 114, ../../../../../sass/components/_issue.scss */
 .issue-nav i {
   cursor: pointer;
   color: #707070;
 }
 
-/* line 123, ../../../../../sass/components/_issue.scss */
+/* line 120, ../../../../../sass/components/_issue.scss */
 .issue-comments {
   padding: 15px 15px;
 }
-/* line 125, ../../../../../sass/components/_issue.scss */
+/* line 122, ../../../../../sass/components/_issue.scss */
 .issue-comments .chat-box-entry {
   margin-left: 50px;
 }
-/* line 129, ../../../../../sass/components/_issue.scss */
+/* line 126, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header {
   cursor: pointer;
 }
-/* line 131, ../../../../../sass/components/_issue.scss */
+/* line 128, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header .title {
   font-size: 14px;
 }
-/* line 133, ../../../../../sass/components/_issue.scss */
+/* line 130, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header .title > span {
   font-weight: normal;
   font-style: italic;
   display: block;
 }
-/* line 139, ../../../../../sass/components/_issue.scss */
+/* line 136, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header .time {
   font-weight: normal;
   color: #949494;
 }
-/* line 144, ../../../../../sass/components/_issue.scss */
+/* line 141, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .box-section {
   padding-top: 5px;
   padding-bottom: 0;
 }
-/* line 148, ../../../../../sass/components/_issue.scss */
+/* line 145, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff {
   overflow: auto;
   padding: 0;
 }
-/* line 151, ../../../../../sass/components/_issue.scss */
+/* line 148, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff pre {
   white-space: pre;
   color: #333;
@@ -576,32 +572,32 @@ p.state-closed {
   border: none;
   margin: 0;
 }
-/* line 160, ../../../../../sass/components/_issue.scss */
+/* line 157, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff pre > span {
   display: table-row;
   line-height: 20px;
   min-height: 20px;
 }
-/* line 164, ../../../../../sass/components/_issue.scss */
+/* line 161, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff pre > span.comment {
   background: #F8F8FF;
   color: #999;
 }
-/* line 168, ../../../../../sass/components/_issue.scss */
+/* line 165, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff pre > span.added {
   background: #DDFFDD;
 }
-/* line 171, ../../../../../sass/components/_issue.scss */
+/* line 168, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff pre > span.removed {
   background: #FFDDDD;
 }
-/* line 174, ../../../../../sass/components/_issue.scss */
+/* line 171, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff pre > span > code {
   padding: 1px 5px;
   white-space: inherit;
 }
 
-/* line 185, ../../../../../sass/components/_issue.scss */
+/* line 182, ../../../../../sass/components/_issue.scss */
 #modal-issue-view .modal-body {
   padding: 0;
   -webkit-border-radius: 6px;
@@ -611,11 +607,11 @@ p.state-closed {
   border-radius: 6px;
   background: #f0f0f0;
 }
-/* line 189, ../../../../../sass/components/_issue.scss */
+/* line 186, ../../../../../sass/components/_issue.scss */
 #modal-issue-view .modal-body .issue-nav .close {
   margin-left: 10px;
 }
-/* line 194, ../../../../../sass/components/_issue.scss */
+/* line 191, ../../../../../sass/components/_issue.scss */
 #modal-issue-view.full-screen .modal-body {
   height: 100%;
 }
