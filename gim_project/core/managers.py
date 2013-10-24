@@ -180,8 +180,10 @@ class GithubObjectManager(models.Manager):
 
                 if save_fks:
                     for field, value in fields['fk'].iteritems():
-                        updated_fields.append(field)
-                        setattr(obj, field, value)
+                        # do not set None FKs if not allowed
+                        if value is not None or obj._meta.get_field(field).null:
+                            updated_fields.append(field)
+                            setattr(obj, field, value)
 
             # always update these two fields
             obj.fetched_at = datetime.utcnow()
