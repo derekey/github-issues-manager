@@ -126,12 +126,19 @@
         margin-left: 50px;
     }
     .pr-entry-point {
-        & > .box-header .title {
-            font-size: 14px;
-            span {
+        & > .box-header {
+            cursor: pointer;
+            .title {
+                font-size: 14px;
+                > span {
+                    font-weight: normal;
+                    font-style: italic;
+                    display: block;
+                }
+            }
+            .time {
                 font-weight: normal;
-                font-style: italic;
-                display: block;
+                color: #949494;
             }
         }
         .box-section {

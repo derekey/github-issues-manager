@@ -73,13 +73,20 @@
                     {% with entry_point=comment %}
                         <li>
                             <div class="box pr-entry-point">
-                                <div class="box-header">
+                                <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
                                     <div class="title">
-                                        Diff discussion initied by {{ entry_point.user.username }}
+                                        {% if entry_point.position %}
+                                            <em>{{ entry_point.user.username }}</em> started a discussion in a diff 
+                                        {% else %}
+                                            <em>{{ entry_point.user.username }}</em> discussed an outdated diff
+                                        {% endif %}
                                         <span>{{ entry_point.path }}, line {{ entry_point.original_position }}</span>
                                     </div>
+                                    <ul class="box-toolbar">
+                                        <li><span class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ entry_point.created_at|ago }}</span></li>
+                                    </ul>
                                 </div>
-                                <div class="box-content">
+                                <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
                                     <div class="box-section pr-diff">
                                         <pre>{% spaceless %}
                                         {% for type, line in entry_point.parsed_diff %}
