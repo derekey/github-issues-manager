@@ -7,6 +7,10 @@ from django.contrib.auth.models import UserManager
 
 from .ghpool import Connection
 
+MODE_CREATE = set(('create', ))
+MODE_UPDATE = set(('update', ))
+MODE_ALLS = set(('create', 'update'))
+
 
 class GithubObjectManager(models.Manager):
     """
@@ -41,21 +45,29 @@ class GithubObjectManager(models.Manager):
             result = result(identifier)
         return result
 
-    def get_from_github(self, gh, identifiers, defaults=None, parameters=None,
-                        request_headers=None, response_headers=None):
+    def get_from_github(self, gh, identifiers, modes=MODE_ALLS, defaults=None,
+                        parameters=None, request_headers=None,
+                        response_headers=None):
         """
         Trying to get data for the model related to this manager, by using
         identifiers to generate the API call. gh is the connection to use.
         """
-        data = self.get_data_from_github(gh, identifiers, parameters,
-                                         request_headers, response_headers)
+        data = self.get_data_from_github(
+            gh=gh,
+            identifiers=identifiers,
+            parameters=parameters,
+            request_headers=request_headers,
+            response_headers=response_headers
+        )
 
         if isinstance(data, list):
-            result = self.create_or_update_from_list(data, defaults)
+            result = self.create_or_update_from_list(data, modes, defaults)
         else:
-            result = self.create_or_update_from_dict(data, defaults)
+            result = self.create_or_update_from_dict(data, modes, defaults)
             if not result:
-                raise Exception("Unable to create an object of the %s kind" % self.model.__name__)
+                raise Exception(
+                    "Unable to create/update an object of the %s kind (modes=%s)" % (
+                        self.model.__name__, ','.join(modes)))
 
         return result
 
@@ -80,7 +92,7 @@ class GithubObjectManager(models.Manager):
         """
         return self.model.github_matching.get(field_name, field_name)
 
-    def create_or_update_from_list(self, data, defaults=None):
+    def create_or_update_from_list(self, data, modes=MODE_ALLS, defaults=None):
         """
         Take a list of json objects, call create_or_update for each one, and
         return the list of touched objects. Objects that cannot be created are
@@ -88,12 +100,12 @@ class GithubObjectManager(models.Manager):
         """
         objs = []
         for entry in data:
-            obj = self.create_or_update_from_dict(entry, defaults)
+            obj = self.create_or_update_from_dict(entry, modes, defaults)
             if obj:
                 objs.append(obj)
         return objs
 
-    def get_from_identifiers(self, fields):
+    def get_from_identifiers(self, fields, identifiers=None):
         """
         Try to load an existing object from the given fields, using the
         github_identifiers attribute of the model.
@@ -102,9 +114,12 @@ class GithubObjectManager(models.Manager):
         that this filter entry is for a FK, using the first part for the fk, and
         the right part for the fk's field.
         Returns None if no object found for the given filter.
+        If identifiers is given, use it instead of the default one from the model
         """
         filters = {}
-        for field, lookup in self.model.github_identifiers.items():
+        if not identifiers:
+            identifiers = self.model.github_identifiers
+        for field, lookup in identifiers.items():
             if isinstance(lookup, (tuple, list)):
                 filters[field] = getattr(fields['fk'][lookup[0]], lookup[1])
             else:
@@ -114,7 +129,7 @@ class GithubObjectManager(models.Manager):
         except self.model.DoesNotExist:
             return None
 
-    def create_or_update_from_dict(self, data, defaults=None):
+    def create_or_update_from_dict(self, data, modes=MODE_ALLS, defaults=None):
         """
         Taking a dict (passed in the data argument), try to update an existing
         object that match some fields, or create a new one.
@@ -130,12 +145,16 @@ class GithubObjectManager(models.Manager):
             to_create = False
             obj = self.get_from_identifiers(fields)
             if not obj:
+                if 'create' not in modes:
+                    return None
                 to_create = True
                 obj = self.model()
+            elif 'update' not in modes:
+                return None
 
             updated_fields = []
 
-            # store simple filelds if needed
+            # store simple fields if needed
             save_simples = False
             if fields['simple']:
                 save_simples = True
@@ -202,6 +221,9 @@ class GithubObjectManager(models.Manager):
 
         obj = _create_or_update()
 
+        if not obj:
+            return None
+
         # finally save lists now that we have an object
         for field, values in fields['many'].iteritems():
             obj.update_related_field(field, [o.id for o in values])
@@ -258,7 +280,9 @@ class GithubObjectManager(models.Manager):
                     defaults_related = None
                     if defaults and 'related' in defaults and field_name in defaults['related']:
                         defaults_related = defaults['related'][field_name]
-                    fields['many'][field_name] = model.objects.create_or_update_from_list(value, defaults_related)
+                    fields['many'][field_name] = model.objects\
+                        .create_or_update_from_list(data=value,
+                                                    defaults=defaults_related)
                 else:
                     fields['many'][field_name] = []
 
@@ -269,7 +293,9 @@ class GithubObjectManager(models.Manager):
                     defaults_related = None
                     if defaults and 'related' in defaults and field_name in defaults['related']:
                         defaults_related = defaults['related'][field_name]
-                    fields['fk'][field_name] = model.objects.create_or_update_from_dict(value, defaults_related)
+                    fields['fk'][field_name] = model.objects\
+                        .create_or_update_from_dict(data=value,
+                                                    defaults=defaults_related)
                 else:
                     fields['fk'][field_name] = None
 
@@ -591,8 +617,9 @@ class PullRequestCommentManager(GithubObjectManager):
             }
         }
 
-        entry_point = PullRequestCommentEntryPoint.objects.\
-                        create_or_update_from_dict(data, defaults_entry_points)
+        entry_point = PullRequestCommentEntryPoint.objects\
+                    .create_or_update_from_dict(data=data,
+                                                defaults=defaults_entry_points)
         if entry_point:
             fields['fk']['entry_point'] = entry_point
 
@@ -607,11 +634,14 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
     Also save the user if it's the first one.
     """
 
-    def create_or_update_from_dict(self, data, defaults=None):
+    def create_or_update_from_dict(self, data, modes=MODE_ALLS, defaults=None):
         from .models import GithubUser
 
         obj = super(PullRequestCommentEntryPointManager, self)\
-                                    .create_or_update_from_dict(data, defaults)
+                            .create_or_update_from_dict(data, modes, defaults)
+
+        if not obj:
+            return None
 
         try:
             created_at = Connection.parse_date(data['created_at'])

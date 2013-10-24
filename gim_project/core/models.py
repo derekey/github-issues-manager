@@ -17,7 +17,8 @@ from extended_choices import Choices
 
 from . import GITHUB_HOST
 from .ghpool import parse_header_links, ApiError, ApiNotFoundError, Connection
-from .managers import (GithubObjectManager, WithRepositoryManager,
+from .managers import (MODE_ALLS, MODE_UPDATE,
+                       GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager,
@@ -82,8 +83,16 @@ class GithubObject(models.Model):
         response_headers = {}
 
         try:
-            obj = self.__class__.objects.get_from_github(gh, identifiers,
-                            defaults, None, request_headers, response_headers)
+            obj = self.__class__.objects.get_from_github(
+                gh=gh,
+                identifiers=identifiers,
+                modes=MODE_ALLS,
+                defaults=defaults,
+                parameters=None,
+                request_headers=request_headers,
+                response_headers=response_headers
+            )
+
         except ApiError, e:
             if e.response and e.response['code'] == 304:
                 # github tell us nothing is new, so we stop all the work here
@@ -105,7 +114,8 @@ class GithubObject(models.Model):
         return self.fetch(gh, force_fetch=force_fetch)
 
     def _fetch_many(self, field_name, gh, vary=None, defaults=None,
-                    parameters=None, remove_missing=True, force_fetch=False):
+                    parameters=None, remove_missing=True, force_fetch=False,
+                    meta_base_name=None, modes=MODE_ALLS):
         """
         Fetch data from github for the given m2m or related field.
         If defined, "vary" is a dict of list of parameters to fetch. For each
@@ -114,6 +124,12 @@ class GithubObject(models.Model):
         be fetched.
         If defined, "defaults" is a dict with values that will be used if not
         found in fetched data.
+        By default, the field_name is not only used to know which list to update,
+        but also as a base used to know which "metadata" fields to use/update
+        (fetched_at, etag, github_callable_identifiers_for_). To use another
+        base, simply pass it to the `meta_base_name` argument.
+        Mode must be a tuple containing none, one or both of "create" and
+        "update". If None is passed, the default is both values.
         """
         field, _, direct, _ = self._meta.get_field_by_name(field_name)
         if direct:
@@ -126,12 +142,18 @@ class GithubObject(models.Model):
             # relation to use to create or update are on the current model
             model = field.model
 
-        identifiers = getattr(self, 'github_callable_identifiers_for_%s' % field_name)
+        if not meta_base_name:
+            meta_base_name = field_name
+
+        if modes is None:
+            modes = MODE_ALLS
+
+        identifiers = getattr(self, 'github_callable_identifiers_for_%s' % meta_base_name)
 
         # prepare headers to add in the request
         min_updated_date = None
         if_modified_since = None
-        fetched_at_field = '%s_fetched_at' % field_name
+        fetched_at_field = '%s_fetched_at' % meta_base_name
         if hasattr(self, fetched_at_field):
             # if we have a fetch date, use it
             fetched_at = getattr(self, fetched_at_field)
@@ -168,8 +190,16 @@ class GithubObject(models.Model):
             page_objs = []
 
             try:
-                page_objs = model.objects.get_from_github(gh, identifiers,
-                        defaults, parameters, request_headers, response_headers)
+                page_objs = model.objects.get_from_github(
+                    gh=gh,
+                    identifiers=identifiers,
+                    modes=modes,
+                    defaults=defaults,
+                    parameters=parameters,
+                    request_headers=request_headers,
+                    response_headers=response_headers,
+                )
+
             except ApiNotFoundError:
                 # no data for this list (issues may be no activated, for example)
                 pass
@@ -225,7 +255,7 @@ class GithubObject(models.Model):
         if not vary:
             # no varying parameter, fetch with an empty set of parameters, with
             # a simple etag field
-            parameters_combinations = [({}, '%s_etag' % field_name)]
+            parameters_combinations = [({}, '%s_etag' % meta_base_name)]
         else:
             # create all combinations of varying parameters
             vary_keys = sorted(vary)
@@ -243,7 +273,7 @@ class GithubObject(models.Model):
                     '%s_%s' % (k, dikt[k])
                     for k in sorted(dikt)
                 ])
-                etag_field = '%s_%s_etag' % (field_name, etag_varation)
+                etag_field = '%s_%s_etag' % (meta_base_name, etag_varation)
                 parameters_combinations.append((dikt, etag_field))
 
         # add per_page option
@@ -307,9 +337,10 @@ class GithubObject(models.Model):
         # now update the list with created/updated objects
         if something_fetched:
             # but only if we had fresh data !
+            do_remove = remove_missing and not cache_hit and modes == MODE_ALLS
             self.update_related_field(field_name,
                                       [obj.id for obj in objs],
-                                      do_remove=remove_missing and not cache_hit,
+                                      do_remove=do_remove,
                                       etags=etags)
 
         # we return the number of fetched objects
@@ -448,7 +479,9 @@ class GithubObject(models.Model):
             self.delete()
 
         # update the object on our side
-        return self.__class__.objects.create_or_update_from_dict(result, defaults)
+        return self.__class__.objects.create_or_update_from_dict(
+                                                            data=result,
+                                                            defaults=defaults)
 
 
 class GithubObjectWithId(GithubObject):
