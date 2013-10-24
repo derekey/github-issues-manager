@@ -150,6 +150,8 @@ class GithubObject(models.Model):
 
         identifiers = getattr(self, 'github_callable_identifiers_for_%s' % meta_base_name)
 
+        per_page_parameter = {'per_page': 100}
+
         # prepare headers to add in the request
         min_updated_date = None
         if_modified_since = None
@@ -170,6 +172,8 @@ class GithubObject(models.Model):
                         min_updated_date = fetched_at
 
                     if_modified_since = fetched_at
+                    # limit to 20 items per list when updating a repository
+                    per_page_parameter['per_page'] = 20
 
         request_headers = prepare_fetch_headers(
                     if_modified_since=if_modified_since,
@@ -279,7 +283,7 @@ class GithubObject(models.Model):
 
         # add per_page option
         for parameters_combination, _ in parameters_combinations:
-            parameters_combination.update({'per_page': 100})
+            parameters_combination.update(per_page_parameter)
             if parameters:
                 parameters_combination.update(parameters)
 
