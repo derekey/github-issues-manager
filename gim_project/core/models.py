@@ -62,6 +62,7 @@ class GithubObject(models.Model):
     github_ignore = ()
     github_format = '+json'
     github_edit_fields = {'create': (), 'update': ()}
+    github_per_page = {'min': 10, 'max': 100}
 
     class Meta:
         abstract = True
@@ -150,7 +151,7 @@ class GithubObject(models.Model):
 
         identifiers = getattr(self, 'github_callable_identifiers_for_%s' % meta_base_name)
 
-        per_page_parameter = {'per_page': 100}
+        per_page_parameter = {'per_page': model.github_per_page['max']}
 
         # prepare headers to add in the request
         min_updated_date = None
@@ -172,8 +173,8 @@ class GithubObject(models.Model):
                         min_updated_date = fetched_at
 
                     if_modified_since = fetched_at
-                    # limit to 20 items per list when updating a repository
-                    per_page_parameter['per_page'] = 20
+                    # limit to a few items per list when updating a repository
+                    per_page_parameter['per_page'] = model.github_per_page['min']
 
         request_headers = prepare_fetch_headers(
                     if_modified_since=if_modified_since,
@@ -1080,6 +1081,7 @@ class Label(GithubObject):
         'create': ('color', 'name', ),
         'update': ('color', 'name', )
     }
+    github_per_page = {'min': 100, 'max': 100}
 
     class Meta:
         unique_together = (
@@ -1165,6 +1167,7 @@ class Milestone(GithubObjectWithId):
         'create': ('title', 'state', 'description', 'due_on', ),
         'update': ('title', 'state', 'description', 'due_on', )
     }
+    github_per_page = {'min': 100, 'max': 100}
 
     class Meta:
         unique_together = (
