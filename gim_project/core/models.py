@@ -1159,7 +1159,6 @@ class Issue(GithubObjectWithId):
     created_at = models.DateTimeField(db_index=True)
     updated_at = models.DateTimeField(db_index=True)
     closed_at = models.DateTimeField(blank=True, null=True)
-    is_pull_request = models.BooleanField(default=False, db_index=True)
     milestone = models.ForeignKey(Milestone, related_name='issues', blank=True, null=True)
     state = models.CharField(max_length=10, db_index=True)
     comments_count = models.PositiveIntegerField(blank=True, null=True)
@@ -1167,6 +1166,9 @@ class Issue(GithubObjectWithId):
     closed_by_fetched = models.BooleanField(default=False, db_index=True)
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
     comments_etag = models.CharField(max_length=64, blank=True, null=True)
+    # pr stuff
+    is_pull_request = models.BooleanField(default=False, db_index=True)
+    pr_comments_count = models.PositiveIntegerField(blank=True, null=True)
     pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
     pr_comments_etag = models.CharField(max_length=64, blank=True, null=True)
 
@@ -1175,6 +1177,8 @@ class Issue(GithubObjectWithId):
     github_matching = dict(GithubObjectWithId.github_matching)
     github_matching.update({
         'comments': 'comments_count',
+        # "review_comments" is only filled if fetching a pull_request directly (we don't do it, but just in case...)
+        'review_comments': 'pr_comments_count',
     })
     github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
     github_format = '.full+json'
@@ -1232,7 +1236,7 @@ class Issue(GithubObjectWithId):
                                 },
                                 parameters={'sort': 'updated', 'direction': 'desc'},
                                 force_fetch=force_fetch)
-        if count != self.comments_count:
+        if count and (not self.comments_count or count > self.comments_count):
             self.comments_count = count
             self.save(update_fields=('comments_count',))
 
@@ -1285,6 +1289,17 @@ class Issue(GithubObjectWithId):
 
     def defaults_create_values(self):
         return {'fk': {'repository': self.repository}}
+
+    @property
+    def total_comments_count(self):
+        return (self.comments_count or 0) + (self.pr_comments_count or 0)
+
+    def update_pr_comments_count(self):
+        if self.is_pull_request:
+            count = self.pr_comments.count()
+            if count and (not self.pr_comments_count or count > self.pr_comments_count):
+                self.pr_comments_count = self.pr_comments.count()
+                self.save(update_fields=['pr_comments_count'])
 
 
 class IssueComment(GithubObjectWithId):
@@ -1462,3 +1477,12 @@ class PullRequestComment(GithubObjectWithId):
             'repository': self.repository
             }
         }
+
+    def save(self, *args, **kwargs):
+        """
+        If it's a creation, update the pr_comments_count of the issue
+        """
+        is_new = not bool(self.pk)
+        super(PullRequestComment, self).save(*args, **kwargs)
+        if is_new:
+            self.issue.update_pr_comments_count()

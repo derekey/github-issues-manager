@@ -201,7 +201,7 @@ class _Issue(models.Model):
                      self.closed_by.hash if self.closed_by_id else None,
                      self.assignee.hash if self.assignee_id else None,
                      self.milestone.hash if self.milestone_id else None,
-                     self.comments_count or 0,
+                     self.total_comments_count or 0,
                      ','.join(['%d' % l.hash for l in self.labels.all()]),
                 ))
 

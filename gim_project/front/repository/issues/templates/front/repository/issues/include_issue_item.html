@@ -43,9 +43,9 @@
             {% if issue.assignee %}
                     <a href="" title="Assigned to {{ issue.assignee.username }}" class="issue-item-assignee js-filter-trigger" data-filter='assigned:{{ issue.assignee.username }}'><i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url }}"></a>
             {% endif %}
-            {% if issue.comments_count %}
-                <div class="issue-item-comments-count" title="{{ issue.comments_count }} comment{{ issue.comments_count|pluralize }}">
-                    <i class="icon-comments-alt"> </i>{{ issue.comments_count }}
+            {% if issue.total_comments_count %}
+                <div class="issue-item-comments-count" title="{{ issue.total_comments_count }} comment{{ issue.total_comments_count|pluralize }}">
+                    <i class="icon-comments-alt"> </i>{{ issue.total_comments_count }}
                 </div>
             {% endif %}
             <div class="issue-item-labels"><!--

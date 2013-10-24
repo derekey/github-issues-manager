@@ -24,11 +24,11 @@
                 {% endif %}
             {% endif %}
             <div class="issue-footer">
-                {% if current_issue.comments_count or current_issue.assignee or current_issue_involved|length > 1  %}
+                {% if current_issue.total_comments_count or current_issue.assignee or current_issue_involved|length > 1  %}
                     <div class="issue-footer-infos">
-                        {% if current_issue.comments_count %}
-                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}" href="#issue-comments-{{ current_issue.number }}">
-                                <i class="icon-comments-alt"> </i>{{ current_issue.comments_count }}
+                        {% if current_issue.total_comments_count %}
+                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-comments-{{ current_issue.number }}">
+                                <i class="icon-comments-alt"> </i>{{ current_issue.total_comments_count }}
                             </a>
                         {% endif %}
                         {% if current_issue.assignee %}
