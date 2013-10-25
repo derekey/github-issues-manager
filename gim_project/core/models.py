@@ -72,7 +72,7 @@ class GithubObject(models.Model):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def fetch(self, gh, defaults=None, force_fetch=False):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
         """
         Fetch data from github for the current object and update itself.
         If defined, "defaults" is a dict with values that will be used if not
@@ -91,7 +91,7 @@ class GithubObject(models.Model):
                 identifiers=identifiers,
                 modes=MODE_ALLS,
                 defaults=defaults,
-                parameters=None,
+                parameters=parameters,
                 request_headers=request_headers,
                 response_headers=response_headers
             )
@@ -151,9 +151,14 @@ class GithubObject(models.Model):
         if modes is None:
             modes = MODE_ALLS
 
+        if parameters is None:
+            parameters = {}
+
         identifiers = getattr(self, 'github_callable_identifiers_for_%s' % meta_base_name)
 
-        per_page_parameter = {'per_page': model.github_per_page['max']}
+        per_page_parameter = {
+            'per_page': parameters.get('per_page', model.github_per_page['max'])
+        }
 
         # prepare headers to add in the request
         min_date = None
@@ -168,7 +173,9 @@ class GithubObject(models.Model):
                     # tell github we have all data since this date
                     if_modified_since = fetched_at
                     # limit to a few items per list when updating a repository
-                    per_page_parameter['per_page'] = model.github_per_page['min']
+                    # only if per_page not forced
+                    if not parameters.get('per_page'):
+                        per_page_parameter['per_page'] = model.github_per_page['min']
 
                     # do we have to check for a min date ?
                     if model.github_date_field:
@@ -339,8 +346,12 @@ class GithubObject(models.Model):
 
         # now update the list with created/updated objects
         if something_fetched:
-            # but only if we had fresh data !
-            do_remove = remove_missing and not cache_hit and modes == MODE_ALLS
+            # but only if we had all fresh data !
+            do_remove = (remove_missing
+                     and not cache_hit
+                     and modes == MODE_ALLS
+                     and not parameters.get('page')
+                )
             self.update_related_field(field_name,
                                       [obj.id for obj in objs],
                                       do_remove=do_remove,
@@ -543,13 +554,14 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             'orgs',
         ]
 
-    def fetch_organizations(self, gh, force_fetch=False):
+    def fetch_organizations(self, gh, force_fetch=False, parameters=None):
         if self.is_organization:
             # an organization cannot belong to an other organization
             return 0
         return self._fetch_many('organizations', gh,
                                 defaults={'simple': {'is_organization': True}},
-                                force_fetch=force_fetch)
+                                force_fetch=force_fetch,
+                                parameters=parameters)
 
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
@@ -829,8 +841,10 @@ class Repository(GithubObjectWithId):
             'collaborators',
         ]
 
-    def fetch_collaborators(self, gh, force_fetch=False):
-        return self._fetch_many('collaborators', gh, force_fetch=force_fetch)
+    def fetch_collaborators(self, gh, force_fetch=False, parameters=None):
+        return self._fetch_many('collaborators', gh,
+                                force_fetch=force_fetch,
+                                parameters=parameters)
 
     @property
     def github_callable_identifiers_for_labels(self):
@@ -838,10 +852,11 @@ class Repository(GithubObjectWithId):
             'labels',
         ]
 
-    def fetch_labels(self, gh, force_fetch=False):
+    def fetch_labels(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('labels', gh,
                                 defaults={'fk': {'repository': self}},
-                                force_fetch=force_fetch)
+                                force_fetch=force_fetch,
+                                parameters=parameters)
 
     @property
     def github_callable_identifiers_for_milestones(self):
@@ -849,11 +864,12 @@ class Repository(GithubObjectWithId):
             'milestones',
         ]
 
-    def fetch_milestones(self, gh, force_fetch=False):
+    def fetch_milestones(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('milestones', gh,
                                 vary={'state': ('open', 'closed')},
                                 defaults={'fk': {'repository': self}},
-                                force_fetch=force_fetch)
+                                force_fetch=force_fetch,
+                                parameters=parameters)
 
     @property
     def github_callable_identifiers_for_issues(self):
@@ -867,7 +883,8 @@ class Repository(GithubObjectWithId):
             'pulls',
         ]
 
-    def fetch_issues(self, gh, force_fetch=False, state=None):
+    def fetch_issues(self, gh, force_fetch=False, state=None, parameters=None,
+                                                        parameters_prs=None):
         if state:
             vary = {'state': (state, )}
             remove_missing = False
@@ -875,22 +892,37 @@ class Repository(GithubObjectWithId):
             vary = {'state': ('open', 'closed')}
             remove_missing = True
 
+        final_issues_parameters = {
+            'sort': Issue.github_date_field[1],
+            'direction': Issue.github_date_field[2],
+        }
+        if parameters:
+            final_issues_parameters.update(parameters)
+
         count = self._fetch_many('issues', gh,
                                  vary=vary,
                                  defaults={'fk': {'repository': self}},
-                                 parameters={'sort': 'updated', 'direction': 'desc'},
+                                 parameters=final_issues_parameters,
                                  remove_missing=remove_missing,
                                  force_fetch=force_fetch)
 
         # now fetch pull requests to have more informations for them (only
         # ones that already exist as an issue, not the new ones)
+
+        final_prs_parameters = {
+            'sort': Issue.github_date_field[1],
+            'direction': Issue.github_date_field[2],
+        }
+        if parameters_prs:
+            final_prs_parameters.update(parameters_prs)
+
         self._fetch_many('issues', gh,
                          vary=vary,
                          defaults={
                             'fk': {'repository': self},
                             'simple': {'is_pull_request': True},
                          },
-                         parameters={'sort': 'updated', 'direction': 'desc'},
+                         parameters=final_prs_parameters,
                          remove_missing=False,
                          force_fetch=force_fetch,
                          meta_base_name='prs',
@@ -936,10 +968,10 @@ class Repository(GithubObjectWithId):
             'events',
         ]
 
-    def fetch_issues_events(self, gh, force_fetch=False):
+    def fetch_issues_events(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('issues_events', gh,
                                 defaults={'fk': {'repository': self}},
-                                parameters={},
+                                parameters=parameters,
                                 force_fetch=force_fetch)
 
     @property
@@ -954,16 +986,28 @@ class Repository(GithubObjectWithId):
             'comments'
         ]
 
-    def fetch_comments(self, gh, force_fetch=False):
+    def fetch_comments(self, gh, force_fetch=False, parameters=None):
+        final_parameters = {
+            'sort': IssueComment.github_date_field[1],
+            'direction': IssueComment.github_date_field[2],
+        }
+        if parameters:
+            final_parameters.update(parameters)
         return self._fetch_many('comments', gh,
                                 defaults={'fk': {'repository': self}},
-                                parameters={'sort': 'updated', 'direction': 'desc'},
+                                parameters=final_parameters,
                                 force_fetch=force_fetch)
 
-    def fetch_pr_comments(self, gh, force_fetch=False):
+    def fetch_pr_comments(self, gh, force_fetch=False, parameters=None):
+        final_parameters = {
+            'sort': PullRequestComment.github_date_field[1],
+            'direction': PullRequestComment.github_date_field[2],
+        }
+        if parameters:
+            final_parameters.update(parameters)
         return self._fetch_many('pr_comments', gh,
                                 defaults={'fk': {'repository': self}},
-                                parameters={'sort': 'updated', 'direction': 'desc'},
+                                parameters=final_parameters,
                                 force_fetch=force_fetch)
 
     def fetch_all(self, gh, force_fetch=False, **kwargs):
@@ -1148,7 +1192,7 @@ class Label(GithubObject):
 
         super(Label, self).save(*args, **kwargs)
 
-    def fetch(self, gh, defaults=None, force_fetch=False):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -1158,7 +1202,9 @@ class Label(GithubObject):
                 defaults = {}
             defaults.setdefault('fk', {})['repository'] = self.repository
 
-        return super(Label, self).fetch(gh, defaults, force_fetch=force_fetch)
+        return super(Label, self).fetch(gh, defaults,
+                                        force_fetch=force_fetch,
+                                        parameters=parameters)
 
     def defaults_create_values(self):
         return {'fk': {'repository': self.repository}}
@@ -1205,7 +1251,7 @@ class Milestone(GithubObjectWithId):
     def github_callable_create_identifiers(self):
         return self.repository.github_callable_identifiers_for_milestones
 
-    def fetch(self, gh, defaults=None, force_fetch=False):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -1215,7 +1261,9 @@ class Milestone(GithubObjectWithId):
                 defaults = {}
             defaults.setdefault('fk', {})['repository'] = self.repository
 
-        return super(Milestone, self).fetch(gh, defaults, force_fetch=force_fetch)
+        return super(Milestone, self).fetch(gh, defaults,
+                                            force_fetch=force_fetch,
+                                            parameters=parameters)
 
     def defaults_create_values(self):
         return {'fk': {'repository': self.repository}}
@@ -1317,28 +1365,34 @@ class Issue(GithubObjectWithId):
             'comments'
         ]
 
-    def fetch_events(self, gh, force_fetch=False):
+    def fetch_events(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('events', gh,
                                 defaults={'fk': {
                                     'issue': self,
                                     'repository': self.repository}
                                 },
-                                parameters={},
+                                parameters=parameters,
                                 force_fetch=force_fetch)
 
-    def fetch_comments(self, gh, force_fetch=False):
+    def fetch_comments(self, gh, force_fetch=False, parameters=None):
         """
         Don't fetch comments if the previous fetch of the issue told us there
         is not comments for it
         """
         if not force_fetch and self.comments_count == 0:
             return 0
+        final_parameters = {
+            'sort': IssueComment.github_date_field[1],
+            'direction': IssueComment.github_date_field[2],
+        }
+        if parameters:
+            final_parameters.update(parameters)
         count = self._fetch_many('comments', gh,
                                 defaults={'fk': {
                                     'issue': self,
                                     'repository': self.repository}
                                 },
-                                parameters={'sort': 'updated', 'direction': 'desc'},
+                                parameters=final_parameters,
                                 force_fetch=force_fetch)
         if count and (not self.comments_count or count > self.comments_count):
             self.comments_count = count
@@ -1346,13 +1400,19 @@ class Issue(GithubObjectWithId):
 
         return count
 
-    def fetch_pr_comments(self, gh, force_fetch=False):
+    def fetch_pr_comments(self, gh, force_fetch=False, parameters=None):
+        final_parameters = {
+            'sort': PullRequestComment.github_date_field[1],
+            'direction': PullRequestComment.github_date_field[2],
+        }
+        if parameters:
+            final_parameters.update(parameters)
         return self._fetch_many('pr_comments', gh,
                                 defaults={'fk': {
                                     'issue': self,
                                     'repository': self.repository}
                                 },
-                                parameters={'sort': 'updated', 'direction': 'desc'},
+                                parameters=final_parameters,
                                 force_fetch=force_fetch)
 
     @property
@@ -1361,10 +1421,11 @@ class Issue(GithubObjectWithId):
             'labels',
         ]
 
-    def fetch_labels(self, gh, force_fetch=False):
+    def fetch_labels(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('labels', gh,
                                 defaults={'fk': {'repository': self.repository}},
-                                force_fetch=force_fetch)
+                                force_fetch=force_fetch,
+                                parameters=parameters)
 
     @property
     def github_callable_identifiers_for_label(self, label):
@@ -1380,7 +1441,7 @@ class Issue(GithubObjectWithId):
         if self.is_pull_request:
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
 
-    def fetch(self, gh, defaults=None, force_fetch=False):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -1390,7 +1451,9 @@ class Issue(GithubObjectWithId):
                 defaults = {}
             defaults.setdefault('fk', {})['repository'] = self.repository
 
-        return super(Issue, self).fetch(gh, defaults, force_fetch=force_fetch)
+        return super(Issue, self).fetch(gh, defaults,
+                                        force_fetch=force_fetch,
+                                        parameters=parameters)
 
     def defaults_create_values(self):
         return {'fk': {'repository': self.repository}}
@@ -1407,7 +1470,42 @@ class Issue(GithubObjectWithId):
                 self.save(update_fields=['pr_comments_count'])
 
 
-class IssueComment(GithubObjectWithId):
+class _LinkedToIssueBaseModel(GithubObjectWithId):
+    """
+    A base class for all models containing data owned by an issue.
+    """
+
+    class Meta:
+        abstract = True
+
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
+        """
+        Enhance the default fetch by setting the current repository and issue as
+        default values.
+        """
+        if self.repository_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['repository'] = self.repository
+
+        if self.issue_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['issue'] = self.issue
+
+        return super(_LinkedToIssueBaseModel, self).fetch(gh, defaults,
+                                               force_fetch=force_fetch,
+                                               parameters=parameters)
+
+    def defaults_create_values(self):
+        return {'fk': {
+            'issue': self.issue,
+            'repository': self.repository
+            }
+        }
+
+
+class IssueComment(_LinkedToIssueBaseModel):
     repository = models.ForeignKey(Repository, related_name='comments')
     issue = models.ForeignKey(Issue, related_name='comments')
     user = models.ForeignKey(GithubUser, related_name='issue_comments')
@@ -1445,30 +1543,6 @@ class IssueComment(GithubObjectWithId):
     @property
     def github_callable_create_identifiers(self):
         return self.issue.github_callable_identifiers_for_comments
-
-    def fetch(self, gh, defaults=None, force_fetch=False):
-        """
-        Enhance the default fetch by setting the current repository and issue as
-        default values.
-        """
-        if self.repository_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['repository'] = self.repository
-
-        if self.issue_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['issue'] = self.issue
-
-        return super(IssueComment, self).fetch(gh, defaults, force_fetch=force_fetch)
-
-    def defaults_create_values(self):
-        return {'fk': {
-            'issue': self.issue,
-            'repository': self.repository
-            }
-        }
 
 
 class PullRequestCommentEntryPoint(GithubObject):
@@ -1518,7 +1592,7 @@ class PullRequestCommentEntryPoint(GithubObject):
                                     for line in lines[0:1] + lines[1:][-12:]]
 
 
-class PullRequestComment(GithubObjectWithId):
+class PullRequestComment(_LinkedToIssueBaseModel):
     repository = models.ForeignKey(Repository, related_name='pr_comments')
     issue = models.ForeignKey(Issue, related_name='pr_comments')
     user = models.ForeignKey(GithubUser, related_name='pr_comments')
@@ -1560,30 +1634,6 @@ class PullRequestComment(GithubObjectWithId):
     def github_callable_create_identifiers(self):
         return self.issue.github_callable_identifiers_for_pr_comments
 
-    def fetch(self, gh, defaults=None, force_fetch=False):
-        """
-        Enhance the default fetch by setting the current repository and issue as
-        default values.
-        """
-        if self.repository_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['repository'] = self.repository
-
-        if self.issue_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['issue'] = self.issue
-
-        return super(IssueComment, self).fetch(gh, defaults, force_fetch=force_fetch)
-
-    def defaults_create_values(self):
-        return {'fk': {
-            'issue': self.issue,
-            'repository': self.repository
-            }
-        }
-
     def save(self, *args, **kwargs):
         """
         If it's a creation, update the pr_comments_count of the issue
@@ -1594,7 +1644,7 @@ class PullRequestComment(GithubObjectWithId):
             self.issue.update_pr_comments_count()
 
 
-class IssueEvent(GithubObjectWithId):
+class IssueEvent(_LinkedToIssueBaseModel):
     repository = models.ForeignKey(Repository, related_name='issues_events')
     issue = models.ForeignKey(Issue, related_name='events')
     user = models.ForeignKey(GithubUser, related_name='issues_events', blank=True, null=True)
@@ -1619,27 +1669,3 @@ class IssueEvent(GithubObjectWithId):
         return self.repository.github_callable_identifiers_for_issue_events + [
             self.github_id,
         ]
-
-    def fetch(self, gh, defaults=None, force_fetch=False):
-        """
-        Enhance the default fetch by setting the current repository and issue as
-        default values.
-        """
-        if self.repository_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['repository'] = self.repository
-
-        if self.issue_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['issue'] = self.issue
-
-        return super(IssueComment, self).fetch(gh, defaults, force_fetch=force_fetch)
-
-    def defaults_create_values(self):
-        return {'fk': {
-            'issue': self.issue,
-            'repository': self.repository
-            }
-        }
