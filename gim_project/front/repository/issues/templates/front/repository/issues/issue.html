@@ -70,50 +70,62 @@
         </div>
     </article>
     <aside>
-        {% if current_issue_comments|length %}
+        {% if current_issue_activity|length %}
             <ul class="unstyled chat-box timeline issue-comments" id="issue-comments-{{ current_issue.number }}">
-                {% for comment in current_issue_comments %}
-                    {% if comment.commit_id %}
-                    {% with entry_point=comment %}
-                        <li>
-                            <div class="box pr-entry-point">
-                                <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
-                                    <div class="title">
-                                        {% if entry_point.position %}
-                                            <em>{{ entry_point.user.username }}</em> started a discussion in a diff
-                                        {% else %}
-                                            <em>{{ entry_point.user.username }}</em> discussed an outdated diff
-                                        {% endif %}
-                                        <span>{{ entry_point.path }}, line {{ entry_point.original_position }}</span>
-                                    </div>
-                                    <ul class="box-toolbar">
-                                        {% with entry_point_comments_count=entry_point.comments.all|length %}
-                                            <li class="comments-count" title="{{ entry_point_comments_count }} comment{{ entry_point_comments_count|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point_comments_count }}</li>
-                                        {% endwith %}
-                                        <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ entry_point.created_at|ago }}</li>
-                                    </ul>
-                                </div>
-                                <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
-                                    <div class="box-section pr-diff">
-                                        <pre>{% spaceless %}
-                                        {% for type, line in entry_point.parsed_diff %}
-                                            <span{% if type %} class="{{ type }}"{% endif %}><code>{{ line }}</code></span>
-                                        {% endfor %}
-                                        {% endspaceless %}</pre>
-                                    </div>
-                                    <div class="box-section pr-comments">
-                                        <ul class="unstyled chat-box timeline">
-                                            {% for pr_comment in entry_point.comments.all %}
-                                                {% include "front/repository/issues/include_comment.html" with comment=pr_comment %}
-                                            {% endfor %}
+                {% for event in current_issue_activity %}
+                    {% if event.event %}{# IssueEvent #}
+                        {% if event.event == 'closed' %}
+                            {% include "front/repository/issues/include_closed_comment.html" with comment=event %}
+                        {% elif event.event == 'merged' %}
+                            {% include "front/repository/issues/include_merged_comment.html" with comment=event %}
+                        {% elif event.event == 'reopened' %}
+                            {% include "front/repository/issues/include_reopened_comment.html" with comment=event %}
+                        {% elif event.event == 'assigned' %}
+                            {% include "front/repository/issues/include_assigned_comment.html" with comment=event %}
+                        {% elif event.event == 'head_ref_deleted' %}
+                            {% include "front/repository/issues/include_head_ref_deleted_comment.html" with comment=event %}
+                        {% endif %}
+                    {% elif event.commit_id %}{# PullRequestEntryPoint #}
+                        {% with entry_point=event %}
+                            <li class="entry_point">
+                                <div class="box pr-entry-point">
+                                    <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
+                                        <div class="title">
+                                            {% if entry_point.position %}
+                                                <em>{{ entry_point.user.username }}</em> started a discussion in a diff
+                                            {% else %}
+                                                <em>{{ entry_point.user.username }}</em> discussed an outdated diff
+                                            {% endif %}
+                                            <span>{{ entry_point.path }}, line {{ entry_point.original_position }}</span>
+                                        </div>
+                                        <ul class="box-toolbar">
+                                            {% with entry_point_comments_count=entry_point.comments.all|length %}
+                                                <li class="comments-count" title="{{ entry_point_comments_count }} comment{{ entry_point_comments_count|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point_comments_count }}</li>
+                                            {% endwith %}
+                                            <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ entry_point.created_at|ago }}</li>
                                         </ul>
                                     </div>
+                                    <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
+                                        <div class="box-section pr-diff">
+                                            <pre>{% spaceless %}
+                                            {% for type, line in entry_point.parsed_diff %}
+                                                <span{% if type %} class="{{ type }}"{% endif %}><code>{{ line }}</code></span>
+                                            {% endfor %}
+                                            {% endspaceless %}</pre>
+                                        </div>
+                                        <div class="box-section pr-comments">
+                                            <ul class="unstyled chat-box timeline">
+                                                {% for pr_comment in entry_point.comments.all %}
+                                                    {% include "front/repository/issues/include_comment.html" with comment=pr_comment %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                    {% endwith %}
+                            </li>
+                        {% endwith %}
                     {% else %}
-                        {% include "front/repository/issues/include_comment.html" %}
+                        {% include "front/repository/issues/include_comment.html" with comment=event %}
                     {% endif %}
                 {% endfor %}
             </ul>

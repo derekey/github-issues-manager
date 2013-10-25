@@ -1,3 +1,4 @@
+from operator import attrgetter
 import re
 
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -241,6 +242,21 @@ class _Issue(models.Model):
         })
 
         loader.get_template(template).render(context)
+
+    def get_activity(self):
+        """
+        Return the activity of the issue, including comments, events and
+        pr_comments if it's a pull request
+        """
+        types = [
+            list(self.comments.ready().select_related('user')),
+            list(self.events.ready().select_related('user')),
+        ]
+        if self.is_pull_request:
+            types.append(list(self.pr_comments_entry_points.all()
+                                     .select_related('user', 'pr_comments')))
+
+        return sorted(sum(types, []), key=attrgetter('created_at'))
 
 contribute_to_model(_Issue, core_models.Issue)
 

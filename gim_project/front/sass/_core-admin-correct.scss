@@ -18,13 +18,17 @@
     }
  }
 
-// white background for chatbox content
 .chat-box {
     font-size: 13px;
+    // white background for chatbox content
     &.timeline {
         .content {
             background: white;
         }
+    }
+    // correct height if no body
+    .arrow-box-left, .arrow-box-right {
+        min-height: 30px;
     }
 }
 

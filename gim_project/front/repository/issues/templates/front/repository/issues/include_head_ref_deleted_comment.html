@@ -1,0 +1,11 @@
+{% extends "front/repository/issues/include_base_comment.html" %}
+
+{% block node_class %}event event-head_ref_deleted{% endblock %}
+
+{% block comment_info %}
+    <span class="label label-gray">DELETED</span>
+    <strong>{{ comment.user.username }}</strong>
+    deleted the <strong>{{ comment.issue.head_label }}</strong> branch
+{% endblock %}
+
+{% block comment_body %}{% endblock%}

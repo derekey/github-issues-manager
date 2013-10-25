@@ -1,0 +1,12 @@
+{% extends "front/repository/issues/include_base_comment.html" %}
+
+{% block node_class %}event event-assigned{% endblock %}
+
+{% block comment_info %}
+    <span class="label label-purple">ASSIGNED</span>
+    <strong>{{ comment.user.username }}</strong>
+    was assigned to this
+    {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
+{% endblock %}
+
+{% block comment_body %}{% endblock%}

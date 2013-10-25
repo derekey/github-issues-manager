@@ -122,6 +122,15 @@
     padding: 15px 15px;
     .chat-box-entry {
         margin-left: 50px;
+        &.event {
+            > .info {
+                color: #393939;
+                > .label {
+                    margin-left: -4px;
+                    margin-right: 4px;
+                }
+            }
+        }
     }
     .pr-entry-point {
         & > .box-header {

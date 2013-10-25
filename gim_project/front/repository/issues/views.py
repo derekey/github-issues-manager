@@ -514,6 +514,7 @@ class IssueView(UserIssuesView):
         if current_issue:
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
             comments = self.get_all_comments(current_issue)
+            activity = current_issue.get_activity()
             involved = self.get_involved_people(current_issue, comments, context)
         else:
             comments = []
@@ -524,6 +525,7 @@ class IssueView(UserIssuesView):
             'current_issue': current_issue,
             'current_issue_state': current_issue_state,
             'current_issue_comments': comments,
+            'current_issue_activity': activity,
             'current_issue_involved': involved,
         })
 

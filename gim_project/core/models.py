@@ -1669,3 +1669,7 @@ class IssueEvent(_LinkedToIssueBaseModel):
         return self.repository.github_callable_identifiers_for_issue_events + [
             self.github_id,
         ]
+
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/commit/%s' % self.commit_id

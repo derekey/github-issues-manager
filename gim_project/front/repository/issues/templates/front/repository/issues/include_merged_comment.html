@@ -1,0 +1,14 @@
+{% extends "front/repository/issues/include_base_comment.html" %}
+
+{% block node_class %}event event-merged{% endblock %}
+
+{% block comment_info %}
+    <span class="label label-blue">MERGED</span>
+    <strong>{{ comment.user.username }}</strong>
+    merged this
+    {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
+{% endblock %}
+
+{% block comment_inner_body %}
+    The commit <a href="{{ comment.github_url }}" target='_blank'>{{ comment.commit_id }}</a> was merged from <strong>{{ comment.issue.head_label }}</strong> into <strong>{{ comment.issue.base_label }}</strong>
+{% endblock%}
