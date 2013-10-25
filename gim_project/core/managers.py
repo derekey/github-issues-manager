@@ -505,7 +505,7 @@ class IssueManager(WithRepositoryManager):
         if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
             if 'related' not in defaults:
                 defaults['related'] = {}
-            for related in ('labels', 'milestone', 'comments', 'pr_comments'):
+            for related in ('labels', 'milestone', 'comments', 'pr_comments', 'events'):
                 if related not in defaults['related']:
                     defaults['related'][related] = {}
                 if 'fk' not in defaults['related'][related]:

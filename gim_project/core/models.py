@@ -755,6 +755,8 @@ class Repository(GithubObjectWithId):
     comments_etag = models.CharField(max_length=64, blank=True, null=True)
     pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
     pr_comments_etag = models.CharField(max_length=64, blank=True, null=True)
+    issues_events_fetched_at = models.DateTimeField(blank=True, null=True)
+    issues_events_etag = models.CharField(max_length=64, blank=True, null=True)
 
     objects = RepositoryManager()
 
@@ -929,6 +931,18 @@ class Repository(GithubObjectWithId):
         return count
 
     @property
+    def github_callable_identifiers_for_issues_events(self):
+        return self.github_callable_identifiers_for_issues + [
+            'events',
+        ]
+
+    def fetch_issues_events(self, gh, force_fetch=False):
+        return self._fetch_many('issues_events', gh,
+                                defaults={'fk': {'repository': self}},
+                                parameters={},
+                                force_fetch=force_fetch)
+
+    @property
     def github_callable_identifiers_for_comments(self):
         return self.github_callable_identifiers_for_issues + [
             'comments',
@@ -972,11 +986,13 @@ class Repository(GithubObjectWithId):
                                     gh=gh)
         else:
             self.fetch_issues(gh, force_fetch=force_fetch)
+            self.fetch_issues_events(gh, force_fetch=force_fetch)
             self.fetch_comments(gh, force_fetch=force_fetch)
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
 
     def fetch_all_step2(self, gh, force_fetch=False):
         self.fetch_issues(gh, force_fetch=force_fetch, state='closed')
+        self.fetch_issues_events(gh, force_fetch=force_fetch)
         self.fetch_comments(gh, force_fetch=force_fetch)
         self.fetch_pr_comments(gh, force_fetch=force_fetch)
 
@@ -1224,6 +1240,8 @@ class Issue(GithubObjectWithId):
     closed_by_fetched = models.BooleanField(default=False, db_index=True)
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
     comments_etag = models.CharField(max_length=64, blank=True, null=True)
+    events_fetched_at = models.DateTimeField(blank=True, null=True)
+    events_etag = models.CharField(max_length=64, blank=True, null=True)
     # pr stuff
     is_pull_request = models.BooleanField(default=False, db_index=True)
     pr_comments_count = models.PositiveIntegerField(blank=True, null=True)
@@ -1281,6 +1299,12 @@ class Issue(GithubObjectWithId):
         return self.repository.github_callable_identifiers_for_issues
 
     @property
+    def github_callable_identifiers_for_events(self):
+        return self.github_callable_identifiers + [
+            'events',
+        ]
+
+    @property
     def github_callable_identifiers_for_comments(self):
         return self.github_callable_identifiers + [
             'comments',
@@ -1292,6 +1316,15 @@ class Issue(GithubObjectWithId):
             self.number,
             'comments'
         ]
+
+    def fetch_events(self, gh, force_fetch=False):
+        return self._fetch_many('events', gh,
+                                defaults={'fk': {
+                                    'issue': self,
+                                    'repository': self.repository}
+                                },
+                                parameters={},
+                                force_fetch=force_fetch)
 
     def fetch_comments(self, gh, force_fetch=False):
         """
@@ -1342,6 +1375,7 @@ class Issue(GithubObjectWithId):
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(Issue, self).fetch_all(gh, force_fetch=force_fetch)
         #self.fetch_labels(gh, force_fetch=force_fetch)  # already retrieved via self.fetch
+        self.fetch_events(gh, force_fetch=force_fetch)
         self.fetch_comments(gh, force_fetch=force_fetch)
         if self.is_pull_request:
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
@@ -1518,8 +1552,7 @@ class PullRequestComment(GithubObjectWithId):
 
     @property
     def github_callable_identifiers(self):
-        return self.repository.github_callable_identifiers_for_prs + [
-            'comments',
+        return self.repository.github_callable_identifiers_for_pr_comments + [
             self.github_id,
         ]
 
@@ -1559,3 +1592,54 @@ class PullRequestComment(GithubObjectWithId):
         super(PullRequestComment, self).save(*args, **kwargs)
         if is_new:
             self.issue.update_pr_comments_count()
+
+
+class IssueEvent(GithubObjectWithId):
+    repository = models.ForeignKey(Repository, related_name='issues_events')
+    issue = models.ForeignKey(Issue, related_name='events')
+    user = models.ForeignKey(GithubUser, related_name='issues_events', blank=True, null=True)
+    event = models.CharField(max_length=256, blank=True, null=True)
+    commit_id = models.CharField(max_length=256, blank=True, null=True)
+    created_at = models.DateTimeField(db_index=True)
+
+    github_matching = dict(GithubObjectWithId.github_matching)
+    github_matching.update({
+        'actor': 'user',
+    })
+    github_date_field = ('created_at', None, None)
+
+    class Meta:
+        ordering = ('created_at', )
+
+    def __unicode__(self):
+        return u'on Issue #%d' % (self.issue.number if self.issue else '?')
+
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_issue_events + [
+            self.github_id,
+        ]
+
+    def fetch(self, gh, defaults=None, force_fetch=False):
+        """
+        Enhance the default fetch by setting the current repository and issue as
+        default values.
+        """
+        if self.repository_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['repository'] = self.repository
+
+        if self.issue_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['issue'] = self.issue
+
+        return super(IssueComment, self).fetch(gh, defaults, force_fetch=force_fetch)
+
+    def defaults_create_values(self):
+        return {'fk': {
+            'issue': self.issue,
+            'repository': self.repository
+            }
+        }
