@@ -23,7 +23,7 @@ $().ready(function() {
 
     var redraw_full_content = function(data) {
         $('.container-fluid').children('.row-fluid.label-type, .alert').remove();
-        $('.container-fluid > .row-fluid.row-header').after(data);
+        $('#labels-editor-content').html(data);
     }
 
     var LabelEditor = {
@@ -217,7 +217,7 @@ $().ready(function() {
                 $li_tooltip.attr('title', $li_tooltip.attr('original-title'));
                 setTimeout(function() { $li_tooltip.tooltip('hide'); }, 2000);
             }
-        },        
+        },
         on_submit_done: function($form, data) {
             if (data.substr(0, 19) == '<div class="error">') {
                 // we have an error, the whole form is returned
