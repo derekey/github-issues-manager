@@ -1,6 +1,8 @@
-import dateutil.parser
+from dateutil import parser, tz
 
 from github import GitHub, ApiError, ApiAuthError, ApiNotFoundError
+
+UTC = tz.gettz('UTC')
 
 
 class Connection(GitHub):
@@ -15,7 +17,7 @@ class Connection(GitHub):
 
     @staticmethod
     def parse_date(value):
-        return dateutil.parser.parse(value).replace(tzinfo=None)
+        return parser.parse(value).replace(tzinfo=None)
 
     @classmethod
     def get(cls, **auth):
@@ -104,3 +106,19 @@ def parse_header_links(value):
             links[link['rel']] = link
 
     return links
+
+
+def prepare_fetch_headers(if_modified_since=None, if_none_match=None, github_format=None):
+    """
+    Prepare and return the headers to use for the github call: return a dict
+    with Accept, If-Modified-Since and If-None-Match
+    """
+    headers = {
+        'Accept': 'application/vnd.github%s' % (github_format or '+json')
+    }
+    if if_modified_since:
+        headers['If-Modified-Since'] = if_modified_since.replace(tzinfo=UTC).strftime('%a, %d %b %Y %H:%M:%S GMT')
+    if if_none_match:
+        headers['If-None-Match'] = if_none_match
+
+    return headers

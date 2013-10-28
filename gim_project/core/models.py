@@ -16,16 +16,20 @@ from jsonfield import JSONField
 from extended_choices import Choices
 
 from . import GITHUB_HOST
-from .ghpool import parse_header_links, ApiError, ApiNotFoundError, Connection
+from .ghpool import (parse_header_links, ApiError, ApiNotFoundError, Connection,
+                     prepare_fetch_headers)
 from .managers import (MODE_ALLS, MODE_UPDATE,
                        GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager,
                        PullRequestCommentEntryPointManager)
-from .utils import prepare_fetch_headers, MinDateRaised
 
 import username_hack  # force the username length to be 255 chars
+
+
+class MinDateRaised(Exception):
+    pass
 
 
 GITHUB_STATUS_CHOICES = Choices(
