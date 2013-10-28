@@ -18,7 +18,7 @@ from extended_choices import Choices
 from . import GITHUB_HOST
 from .ghpool import (parse_header_links, ApiError, ApiNotFoundError, Connection,
                      prepare_fetch_headers)
-from .managers import (MODE_ALLS, MODE_UPDATE,
+from .managers import (MODE_ALL, MODE_UPDATE,
                        GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager,
@@ -93,7 +93,7 @@ class GithubObject(models.Model):
             obj = self.__class__.objects.get_from_github(
                 gh=gh,
                 identifiers=identifiers,
-                modes=MODE_ALLS,
+                modes=MODE_ALL,
                 defaults=defaults,
                 parameters=parameters,
                 request_headers=request_headers,
@@ -122,7 +122,7 @@ class GithubObject(models.Model):
 
     def _fetch_many(self, field_name, gh, vary=None, defaults=None,
                     parameters=None, remove_missing=True, force_fetch=False,
-                    meta_base_name=None, modes=MODE_ALLS):
+                    meta_base_name=None, modes=MODE_ALL):
         """
         Fetch data from github for the given m2m or related field.
         If defined, "vary" is a dict of list of parameters to fetch. For each
@@ -153,7 +153,7 @@ class GithubObject(models.Model):
             meta_base_name = field_name
 
         if modes is None:
-            modes = MODE_ALLS
+            modes = MODE_ALL
 
         if parameters is None:
             parameters = {}
@@ -353,7 +353,7 @@ class GithubObject(models.Model):
             # but only if we had all fresh data !
             do_remove = (remove_missing
                      and not cache_hit
-                     and modes == MODE_ALLS
+                     and modes == MODE_ALL
                      and not parameters.get('page')
                 )
             self.update_related_field(field_name,
@@ -857,6 +857,8 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_labels(self, gh, force_fetch=False, parameters=None):
+        if not self.has_issues:
+            return 0
         return self._fetch_many('labels', gh,
                                 defaults={'fk': {'repository': self}},
                                 force_fetch=force_fetch,
@@ -869,6 +871,8 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_milestones(self, gh, force_fetch=False, parameters=None):
+        if not self.has_issues:
+            return 0
         return self._fetch_many('milestones', gh,
                                 vary={'state': ('open', 'closed')},
                                 defaults={'fk': {'repository': self}},
@@ -896,19 +900,22 @@ class Repository(GithubObjectWithId):
             vary = {'state': ('open', 'closed')}
             remove_missing = True
 
-        final_issues_parameters = {
-            'sort': Issue.github_date_field[1],
-            'direction': Issue.github_date_field[2],
-        }
-        if parameters:
-            final_issues_parameters.update(parameters)
+        count = 0
+        if self.has_issues:
 
-        count = self._fetch_many('issues', gh,
-                                 vary=vary,
-                                 defaults={'fk': {'repository': self}},
-                                 parameters=final_issues_parameters,
-                                 remove_missing=remove_missing,
-                                 force_fetch=force_fetch)
+            final_issues_parameters = {
+                'sort': Issue.github_date_field[1],
+                'direction': Issue.github_date_field[2],
+            }
+            if parameters:
+                final_issues_parameters.update(parameters)
+
+            count = self._fetch_many('issues', gh,
+                                     vary=vary,
+                                     defaults={'fk': {'repository': self}},
+                                     parameters=final_issues_parameters,
+                                     remove_missing=remove_missing,
+                                     force_fetch=force_fetch)
 
         # now fetch pull requests to have more informations for them (only
         # ones that already exist as an issue, not the new ones)
@@ -920,7 +927,7 @@ class Repository(GithubObjectWithId):
         if parameters_prs:
             final_prs_parameters.update(parameters_prs)
 
-        self._fetch_many('issues', gh,
+        pr_count = self._fetch_many('issues', gh,
                          vary=vary,
                          defaults={
                             'fk': {'repository': self},
@@ -930,9 +937,11 @@ class Repository(GithubObjectWithId):
                          remove_missing=False,
                          force_fetch=force_fetch,
                          meta_base_name='prs',
-                         modes=MODE_UPDATE)
+                         modes=MODE_UPDATE if self.has_issues else MODE_ALL)
+        if not self.has_issues:
+            count = pr_count
 
-        if not state or state == 'closed':
+        if self.has_issues and (not state or state == 'closed'):
             self.fetch_closed_issues_without_closed_by(gh)
 
         return count
@@ -942,6 +951,9 @@ class Repository(GithubObjectWithId):
         # we fetch all closed issue that has no closed_by, one by one (but only
         # if we never did it because some times there is noone who closed an
         # issue on the github api :( ))
+        if not self.has_issues:
+            return 0
+
         issues = list(self.issues.filter(state='closed',
                                         closed_by__isnull=True,
                                         closed_by_fetched=False
@@ -973,6 +985,8 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_issues_events(self, gh, force_fetch=False, parameters=None):
+        # doesn't work for now when has_issues == False, but keep the call
+        # hoping for github to resolve it
         return self._fetch_many('issues_events', gh,
                                 defaults={'fk': {'repository': self}},
                                 parameters=parameters,
@@ -1023,8 +1037,9 @@ class Repository(GithubObjectWithId):
 
         super(Repository, self).fetch_all(gh, force_fetch=force_fetch)
         self.fetch_collaborators(gh, force_fetch=force_fetch)
-        self.fetch_labels(gh, force_fetch=force_fetch)
-        self.fetch_milestones(gh, force_fetch=force_fetch)
+        if self.has_issues:
+            self.fetch_labels(gh, force_fetch=force_fetch)
+            self.fetch_milestones(gh, force_fetch=force_fetch)
 
         if two_steps:
             self.fetch_issues(gh, force_fetch=force_fetch, state='open')
@@ -1305,6 +1320,7 @@ class Issue(GithubObjectWithId):
     head_sha = models.CharField(max_length=256, blank=True, null=True)
     merged_at = models.DateTimeField(blank=True, null=True)
     merged_by = models.ForeignKey(GithubUser, related_name='merged_prs', blank=True, null=True)
+    github_pr_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
 
     objects = IssueManager()
 
@@ -1321,8 +1337,8 @@ class Issue(GithubObjectWithId):
         'update': ('title', 'body', 'assignee__username', 'state', 'milestone__number', 'labels__name', )
     }
 
-    # identifiers when fetching by pull request
-    github_identifiers_prs = {'repository__github_id': ('repository', 'github_id'), 'number': 'number'}
+    # fetch from repo + number because we can have PRs but no issues from github
+    github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'number': 'number'}
 
     github_date_field = ('updated_at', 'updated', 'desc')
 

@@ -9,7 +9,7 @@ from .ghpool import Connection
 
 MODE_CREATE = set(('create', ))
 MODE_UPDATE = set(('update', ))
-MODE_ALLS = set(('create', 'update'))
+MODE_ALL = set(('create', 'update'))
 
 
 class GithubObjectManager(models.Manager):
@@ -45,7 +45,7 @@ class GithubObjectManager(models.Manager):
             result = result(identifier)
         return result
 
-    def get_from_github(self, gh, identifiers, modes=MODE_ALLS, defaults=None,
+    def get_from_github(self, gh, identifiers, modes=MODE_ALL, defaults=None,
                         parameters=None, request_headers=None,
                         response_headers=None, min_date=None):
         """
@@ -97,7 +97,7 @@ class GithubObjectManager(models.Manager):
         """
         return self.model.github_matching.get(field_name, field_name)
 
-    def create_or_update_from_list(self, data, modes=MODE_ALLS, defaults=None,
+    def create_or_update_from_list(self, data, modes=MODE_ALL, defaults=None,
                                                                 min_date=None):
         """
         Take a list of json objects, call create_or_update for each one, and
@@ -139,7 +139,7 @@ class GithubObjectManager(models.Manager):
         except self.model.DoesNotExist:
             return None
 
-    def create_or_update_from_dict(self, data, modes=MODE_ALLS, defaults=None):
+    def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None):
         """
         Taking a dict (passed in the data argument), try to update an existing
         object that match some fields, or create a new one.
@@ -529,23 +529,13 @@ class IssueManager(WithRepositoryManager):
 
         # if we have a real pull request data (from the pull requests api instead
         # of the issues one), remove the github_id to not override the issue's one
+        # but save it in github_pr_id
         if fields['simple'].get('head_sha') or fields['simple'].get('base_sha'):
             if 'github_id' in fields['simple']:
+                fields['simple']['github_pr_id'] = fields['simple']['github_id']
                 del fields['simple']['github_id']
 
         return fields
-
-    def get_from_identifiers(self, fields, identifiers=None):
-        """
-        If we guess that we got data from the pull-requests API, not the issues,
-        one, use a specific "github_identifiers" to get issue from DB using
-        repo+number instead of github_id, because on the github_side, the ids
-        if a PR and its linked issue are not the same.
-        """
-        if fields['simple'].get('head_sha') or fields['simple'].get('base_sha'):
-            identifiers = self.model.github_identifiers_prs
-
-        return super(IssueManager, self).get_from_identifiers(fields, identifiers)
 
 
 class IssueCommentManager(GithubObjectManager):
@@ -679,7 +669,7 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
     Also save the user if it's the first one.
     """
 
-    def create_or_update_from_dict(self, data, modes=MODE_ALLS, defaults=None):
+    def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None):
         from .models import GithubUser
 
         obj = super(PullRequestCommentEntryPointManager, self)\
