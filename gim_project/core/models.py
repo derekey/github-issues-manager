@@ -1502,11 +1502,22 @@ class Issue(GithubObjectWithId):
         """
         If the user, which is mandatory, is not defined, use (and create if
         needed) a special user named 'user.deleted'
+        Also check that if the issue is reopened, we'll be able to fetch the
+        future closed_by
         """
+        fields_to_update = []
+
         if self.user_id is None:
             self.user = GithubUser.objects.get_deleted_user()
-            if kwargs.get('update_fields'):
-                kwargs['update_fields'].append('user')
+            fields_to_update.append('user')
+
+        if self.state != 'closed' and self.closed_by_fetched:
+            self.closed_by_fetched = False
+            fields_to_update.append('closed_by_fetched')
+
+        if fields_to_update and kwargs.get('update_fields'):
+            kwargs['update_fields'].extend(fields_to_update)
+
         super(Issue, self).save(*args, **kwargs)
 
 
