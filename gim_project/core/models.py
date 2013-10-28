@@ -1661,7 +1661,7 @@ class IssueEvent(_LinkedToIssueBaseModel):
     github_date_field = ('created_at', None, None)
 
     class Meta:
-        ordering = ('created_at', )
+        ordering = ('created_at', 'github_id')
 
     def __unicode__(self):
         return u'on Issue #%d' % (self.issue.number if self.issue else '?')
