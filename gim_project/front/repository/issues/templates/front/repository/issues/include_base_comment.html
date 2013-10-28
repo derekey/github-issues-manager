@@ -1,6 +1,7 @@
-{% load frontutils %}
+{% load frontutils staticfiles %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
 <li class="chat-box-entry arrow-box-left gray issue-comment {% block node_class %}{% endblock %}">
-    <div class="avatar"><img class="avatar-small img-circle" src="{{ comment.user.avatar_url }}"></div>
+    <div class="avatar"><img class="avatar-small img-circle" src="{{ comment.user.avatar_url|default:default_avatar }}"></div>
     <div class="info">
         {% block comment_info %}{% endblock %}
         <span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ comment.created_at|ago }}</span>

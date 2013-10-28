@@ -1,4 +1,5 @@
-{% load querystring frontutils issues_tags %}
+{% load querystring frontutils issues_tags staticfiles %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
 {% if current_issue %}
     <nav class="issue-nav">
         <i class="icon-fullscreen resize-issue" title="Toggle fullscreen view"> </i>
@@ -7,7 +8,7 @@
         <div class="area-top state-{{ current_issue.state }}">
             <header class="header">
                 <div class="avatar">
-                    <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url }}" alt="{{ current_issue.user.username }}">
+                    <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url|default:default_avatar }}" alt="{{ current_issue.user.username }}">
                 </div>
                 <h3><a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github">#{{ current_issue.number }} - {{ current_issue.title }}</a></h3>
                 {% if current_issue.is_pull_request %}
@@ -16,7 +17,7 @@
                 <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date:"DATETIME_FORMAT" }}</h5>
                 {% if current_issue.state == 'closed' %}
                     <p class="state state-closed">
-                        Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
+                        Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url|default:default_avatar }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
                     </p>
                 {% else %}
                     {% if current_issue.updated_at and current_issue.created_at != current_issue.updated_at %}
@@ -38,13 +39,13 @@
                         {% endif %}
                         {% if current_issue.assignee %}
                             <span class="issue-footer-info-part issue-assignee" title="Assigned to {{ current_issue.assignee.username }}">
-                                <i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url }}" />
+                                <i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" />
                             </span>
                         {% endif %}
                         {% if current_issue_involved|length > 1 %}
                             <ul class="unstyled issue-footer-info-part issue-involved">
                                 {% for involved_user in current_issue_involved %}
-                                    <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}, {{ involved_user.count }} comment{{ involved_user.count|pluralize }}"></li>
+                                    <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}, {{ involved_user.count }} comment{{ involved_user.count|pluralize }}"></li>
                                 {% endfor %}
                             </ul>
                         {% endif %}

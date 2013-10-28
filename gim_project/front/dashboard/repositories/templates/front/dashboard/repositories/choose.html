@@ -1,5 +1,6 @@
 {% extends "front/dashboard/base.html" %}
 {% load staticfiles frontutils %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
 
 {% block body_id %}dashboard_subscriptions{% endblock %}
 {% block title %}Subscritions | {{ block.super }}{% endblock title %}
@@ -45,7 +46,7 @@
                                         <tr>
                                             <td colspan="7">
                                                 {% if org.name == '__self__' %}
-                                                    <img class="avatar-tiny img-circle" src="{{ user.avatar_url }}" />
+                                                    <img class="avatar-tiny img-circle" src="{{ user.avatar_url|default:default_avatar }}" />
                                                     Repositories you own/participate
                                                 {% elif org.name == '__others__' %}
                                                     <i class="icon-group"> </i>
@@ -53,7 +54,7 @@
                                                 {% else %}
                                                     {% with organization=organizations_by_name|dict_item:org.name %}
                                                         {% if organization %}
-                                                            <img class="avatar-tiny img-circle" src="{{ organization.avatar_url }}" />
+                                                            <img class="avatar-tiny img-circle" src="{{ organization.avatar_url|default:default_avatar }}" />
                                                         {% endif %}
                                                     {% endwith %}
                                                     {{ org.name }}'s repositories

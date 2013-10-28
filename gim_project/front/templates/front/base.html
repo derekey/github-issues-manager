@@ -10,6 +10,7 @@
     <link href="{% static "front/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "front/css/main.css" %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
+    {% static 'front/img/default-avatar.png' as default_avatar %}
 </head>
 <body id="{% block body_id %}{% endblock %}" class="{% block body_classes %}{% endblock %}"{% block body_attributes %}{% endblock %}>
     <header class="navbar navbar-inverse navbar-fixed-top">
@@ -22,7 +23,7 @@
                         <li class="dropdown user_avatar">
                             <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
                                 <span>
-                                    <img src="{{ user.avatar_url }}" class="img-rounded menu-avatar avatar" />
+                                    <img src="{{ user.avatar_url|default:default_avatar }}" class="img-rounded menu-avatar avatar" />
                                     <span>
                                         {{ user.username }}
                                     </span>

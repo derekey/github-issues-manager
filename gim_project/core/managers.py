@@ -393,6 +393,15 @@ class GithubUserManager(GithubObjectManager, UserManager):
 
         return fields
 
+    def get_deleted_user(self):
+        """
+        Return a user to use when the github api doesn't give us a user when
+        we really need one
+        """
+        if not hasattr(self, '_deleted_user'):
+            self._deleted_user, created = self.get_or_create(username='user.deleted')
+        return self._deleted_user
+
 
 class RepositoryManager(GithubObjectManager):
     """

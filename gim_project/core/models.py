@@ -1287,6 +1287,17 @@ class Milestone(GithubObjectWithId):
     def defaults_create_values(self):
         return {'fk': {'repository': self.repository}}
 
+    def save(self, *args, **kwargs):
+        """
+        If the creator, which is mandatory, is not defined, use (and create if
+        needed) a special user named 'user.deleted'
+        """
+        if self.creator_id is None:
+            self.creator = GithubUser.objects.get_deleted_user()
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('creator')
+        super(Milestone, self).save(*args, **kwargs)
+
 
 class Issue(GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues')
@@ -1487,6 +1498,17 @@ class Issue(GithubObjectWithId):
                 self.pr_comments_count = self.pr_comments.count()
                 self.save(update_fields=['pr_comments_count'])
 
+    def save(self, *args, **kwargs):
+        """
+        If the user, which is mandatory, is not defined, use (and create if
+        needed) a special user named 'user.deleted'
+        """
+        if self.user_id is None:
+            self.user = GithubUser.objects.get_deleted_user()
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('user')
+        super(Issue, self).save(*args, **kwargs)
+
 
 class _LinkedToIssueBaseModel(GithubObjectWithId):
     """
@@ -1561,6 +1583,17 @@ class IssueComment(_LinkedToIssueBaseModel):
     @property
     def github_callable_create_identifiers(self):
         return self.issue.github_callable_identifiers_for_comments
+
+    def save(self, *args, **kwargs):
+        """
+        If the user, which is mandatory, is not defined, use (and create if
+        needed) a special user named 'user.deleted'
+        """
+        if self.user_id is None:
+            self.user = GithubUser.objects.get_deleted_user()
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('user')
+        super(IssueComment, self).save(*args, **kwargs)
 
 
 class PullRequestCommentEntryPoint(GithubObject):
@@ -1654,8 +1687,14 @@ class PullRequestComment(_LinkedToIssueBaseModel):
 
     def save(self, *args, **kwargs):
         """
+        If the user, which is mandatory, is not defined, use (and create if
+        needed) a special user named 'user.deleted'
         If it's a creation, update the pr_comments_count of the issue
         """
+        if self.user_id is None:
+            self.user = GithubUser.objects.get_deleted_user()
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('user')
         is_new = not bool(self.pk)
         super(PullRequestComment, self).save(*args, **kwargs)
         if is_new:
