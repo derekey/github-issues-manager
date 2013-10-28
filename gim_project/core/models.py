@@ -1304,7 +1304,6 @@ class Issue(GithubObjectWithId):
     head_label = models.TextField(blank=True, null=True)
     head_sha = models.CharField(max_length=256, blank=True, null=True)
     merged_at = models.DateTimeField(blank=True, null=True)
-    merge_sha = models.CharField(max_length=256, blank=True, null=True)
     merged_by = models.ForeignKey(GithubUser, related_name='merged_prs', blank=True, null=True)
 
     objects = IssueManager()
@@ -1314,7 +1313,6 @@ class Issue(GithubObjectWithId):
         'comments': 'comments_count',
         # "review_comments" is only filled if fetching a pull_request directly (we don't do it, but just in case...)
         'review_comments': 'pr_comments_count',
-        'merge_commit_sha': 'merge_sha',
     })
     github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
     github_format = '.full+json'
