@@ -955,6 +955,8 @@ class Repository(GithubObjectWithId):
         if self.has_issues and (not state or state == 'closed'):
             self.fetch_closed_issues_without_closed_by(gh)
 
+        self.fetch_updated_prs(gh)
+
         return count
 
     def fetch_closed_issues_without_closed_by(self, gh, limit=20):
