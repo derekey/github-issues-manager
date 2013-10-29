@@ -1358,11 +1358,11 @@ class Issue(GithubObjectWithId):
     assignee = models.ForeignKey(GithubUser, related_name='assigned_issues', blank=True, null=True)
     created_at = models.DateTimeField(db_index=True)
     updated_at = models.DateTimeField(db_index=True)
-    closed_at = models.DateTimeField(blank=True, null=True)
+    closed_at = models.DateTimeField(blank=True, null=True, db_index=True)
     milestone = models.ForeignKey(Milestone, related_name='issues', blank=True, null=True)
     state = models.CharField(max_length=10, db_index=True)
     comments_count = models.PositiveIntegerField(blank=True, null=True)
-    closed_by = models.ForeignKey(GithubUser, related_name='closed_issues', blank=True, null=True)
+    closed_by = models.ForeignKey(GithubUser, related_name='closed_issues', blank=True, null=True, db_index=True)
     closed_by_fetched = models.BooleanField(default=False, db_index=True)
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
     comments_etag = models.CharField(max_length=64, blank=True, null=True)
@@ -1370,7 +1370,7 @@ class Issue(GithubObjectWithId):
     events_etag = models.CharField(max_length=64, blank=True, null=True)
     # pr stuff
     is_pull_request = models.BooleanField(default=False, db_index=True)
-    pr_fetched_at = models.DateTimeField(blank=True, null=True)
+    pr_fetched_at = models.DateTimeField(blank=True, null=True, db_index=True)
     pr_comments_count = models.PositiveIntegerField(blank=True, null=True)
     pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
     pr_comments_etag = models.CharField(max_length=64, blank=True, null=True)
@@ -1381,6 +1381,12 @@ class Issue(GithubObjectWithId):
     merged_at = models.DateTimeField(blank=True, null=True)
     merged_by = models.ForeignKey(GithubUser, related_name='merged_prs', blank=True, null=True)
     github_pr_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
+    mergeable = models.BooleanField(default=False)
+    merged = models.BooleanField(default=False)
+    nb_commits = models.PositiveIntegerField(blank=True, null=True)
+    nb_additions = models.PositiveIntegerField(blank=True, null=True)
+    nb_deletions = models.PositiveIntegerField(blank=True, null=True)
+    nb_changed_files = models.PositiveIntegerField(blank=True, null=True)
 
     objects = IssueManager()
 
@@ -1389,6 +1395,10 @@ class Issue(GithubObjectWithId):
         'comments': 'comments_count',
         # "review_comments" is only filled if fetching a pull_request directly (we don't do it, but just in case...)
         'review_comments': 'pr_comments_count',
+        'commits': 'nb_commits',
+        'additions': 'nb_additions',
+        'deletions': 'nb_deletions',
+        'changed_files': 'nb_changed_files'
     })
     github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
     github_format = '.full+json'

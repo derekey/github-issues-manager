@@ -550,6 +550,11 @@ class IssueManager(WithRepositoryManager):
                 fields['simple']['github_pr_id'] = fields['simple']['github_id']
                 del fields['simple']['github_id']
 
+        # set some boolean to False is None
+        for field_name in ('mergeable', 'merged'):
+            if field_name in fields['simple'] and not fields['simple'][field_name]:
+                fields['simple'][field_name] = False
+
         return fields
 
 
