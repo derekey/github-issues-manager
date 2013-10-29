@@ -47,7 +47,8 @@ class GithubObjectManager(models.Manager):
 
     def get_from_github(self, gh, identifiers, modes=MODE_ALL, defaults=None,
                         parameters=None, request_headers=None,
-                        response_headers=None, min_date=None):
+                        response_headers=None, min_date=None,
+                        fetched_at_field='fetched_at'):
         """
         Trying to get data for the model related to this manager, by using
         identifiers to generate the API call. gh is the connection to use.
@@ -66,9 +67,10 @@ class GithubObjectManager(models.Manager):
 
         if isinstance(data, list):
             result = self.create_or_update_from_list(data, modes, defaults,
-                                                            min_date=min_date)
+                        min_date=min_date, fetched_at_field=fetched_at_field)
         else:
-            result = self.create_or_update_from_dict(data, modes, defaults)
+            result = self.create_or_update_from_dict(data, modes, defaults,
+                                            fetched_at_field=fetched_at_field)
             if not result:
                 raise Exception(
                     "Unable to create/update an object of the %s kind (modes=%s)" % (
@@ -98,7 +100,7 @@ class GithubObjectManager(models.Manager):
         return self.model.github_matching.get(field_name, field_name)
 
     def create_or_update_from_list(self, data, modes=MODE_ALL, defaults=None,
-                                                                min_date=None):
+                                min_date=None, fetched_at_field='fetched_at'):
         """
         Take a list of json objects, call create_or_update for each one, and
         return the list of touched objects. Objects that cannot be created are
@@ -106,7 +108,8 @@ class GithubObjectManager(models.Manager):
         """
         objs = []
         for entry in data:
-            obj = self.create_or_update_from_dict(entry, modes, defaults)
+            obj = self.create_or_update_from_dict(entry, modes, defaults,
+                                            fetched_at_field=fetched_at_field)
             if obj:
                 objs.append(obj)
                 if min_date and obj.github_date_field:
@@ -139,7 +142,8 @@ class GithubObjectManager(models.Manager):
         except self.model.DoesNotExist:
             return None
 
-    def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None):
+    def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None,
+                                                fetched_at_field='fetched_at'):
         """
         Taking a dict (passed in the data argument), try to update an existing
         object that match some fields, or create a new one.
@@ -196,7 +200,7 @@ class GithubObjectManager(models.Manager):
                             setattr(obj, field, value)
 
             # always update these two fields
-            obj.fetched_at = datetime.utcnow()
+            setattr(obj, fetched_at_field, datetime.utcnow())
             obj.github_status = obj.GITHUB_STATUS_CHOICES.FETCHED
 
             try:
@@ -207,7 +211,8 @@ class GithubObjectManager(models.Manager):
                     save_params = {
                         'force_update': True,
                         # only save updated fields
-                        'update_fields': updated_fields + ['fetched_at', 'github_status'],
+                        'update_fields': updated_fields + [fetched_at_field,
+                                                           'github_status'],
                     }
 
                 obj.save(**save_params)
@@ -534,7 +539,8 @@ class IssueManager(WithRepositoryManager):
 
         # check if it's a pull request
         if 'is_pull_request' not in fields['simple']:
-            fields['simple']['is_pull_request'] = bool(data.get('pull_request', {}).get('diff_url', False))
+            fields['simple']['is_pull_request'] = bool(data.get('diff_url', False))\
+                    or bool(data.get('pull_request', {}).get('diff_url', False))
 
         # if we have a real pull request data (from the pull requests api instead
         # of the issues one), remove the github_id to not override the issue's one
@@ -678,11 +684,12 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
     Also save the user if it's the first one.
     """
 
-    def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None):
+    def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None,
+                                                fetched_at_field='fetched_at'):
         from .models import GithubUser
 
         obj = super(PullRequestCommentEntryPointManager, self)\
-                            .create_or_update_from_dict(data, modes, defaults)
+            .create_or_update_from_dict(data, modes, defaults, fetched_at_field)
 
         if not obj:
             return None

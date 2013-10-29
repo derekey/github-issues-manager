@@ -48,6 +48,37 @@ class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
         return ' [fetched=%d]' % result
 
 
+class FetchUpdatedPullRequests(RepositoryJob):
+    """
+    Job that fetches updated pull requests from a repository, to have infos we
+    can only have by fetching them one by one
+    """
+    queue_name = 'update-pull-requests'
+
+    limit = fields.InstanceHashField()
+    count = fields.InstanceHashField()
+
+    def run(self, queue):
+        """
+        Get the repository and update some pull requests, and save the count
+        of updated pull requests in the job
+        """
+        super(FetchUpdatedPullRequests, self).run(queue)
+
+        count = self.object.fetch_updated_prs(
+                                limit=int(self.limit.hget() or 20), gh=self.gh)
+
+        self.count.hset(count)
+
+        return count
+
+    def success_message_addon(self, queue, result):
+        """
+        Display the count of pull requests updated
+        """
+        return ' [fetched=%d]' % result
+
+
 class FirstFetch(Job):
     """
     A job to do the first fetch of a repository.

@@ -9,6 +9,7 @@ import zlib
 import base64
 
 from django.db import models
+from django.db.models import F, Q
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 
@@ -76,16 +77,25 @@ class GithubObject(models.Model):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
         """
         Fetch data from github for the current object and update itself.
         If defined, "defaults" is a dict with values that will be used if not
         found in fetched data.
+        The meta_base_name argument is used to get the identifiers to use for
+        calling the github api, and the 'fetched_at' field to use for the
+        'If-Modified-Since' header and field to updated.
         """
-        identifiers = self.github_callable_identifiers
+        if meta_base_name:
+            identifiers = getattr(self, 'github_callable_identifiers_for_%s' % meta_base_name)
+            fetched_at_field = '%s_fetched_at' % meta_base_name
+        else:
+            identifiers = self.github_callable_identifiers
+            fetched_at_field = 'fetched_at'
 
         request_headers = prepare_fetch_headers(
-                    if_modified_since=None if force_fetch else self.fetched_at,
+                    if_modified_since=None if force_fetch else getattr(self, fetched_at_field),
                     github_format=self.github_format)
         response_headers = {}
 
@@ -97,7 +107,8 @@ class GithubObject(models.Model):
                 defaults=defaults,
                 parameters=parameters,
                 request_headers=request_headers,
-                response_headers=response_headers
+                response_headers=response_headers,
+                fetched_at_field=fetched_at_field,
             )
 
         except ApiError, e:
@@ -969,9 +980,42 @@ class Repository(GithubObjectWithId):
             else:
                 count += 1
 
-        if len(issues) == limit:
+        if count >= limit:
             from .tasks.repository import FetchClosedIssuesWithNoClosedBy
             FetchClosedIssuesWithNoClosedBy.add_job(self.id,
+                                    delayed_for=timedelta(seconds=60),
+                                    limit=limit,
+                                    gh=gh)
+
+        return count
+
+    def fetch_updated_prs(self, gh, limit=20):
+        """
+        Fetch pull requests individually when it was never done or when the
+        updated_at retrieved from the issues list is newer than the previous
+        'pr_fetched_at'
+        """
+        prs = list(self.issues.filter(Q(is_pull_request=True)
+                                      &
+                                      (Q(pr_fetched_at__isnull=True)
+                                       |
+                                       Q(pr_fetched_at__lt=F('updated_at'))
+                                      )
+                                    ).order_by('-updated_at')[:limit])
+
+        count = 0
+        for pr in prs:
+            try:
+                pr.fetch(gh, force_fetch=True, meta_base_name='pr',
+                         defaults={'simple': {'is_pull_request': True}})
+            except ApiError:
+                pass
+            else:
+                count += 1
+
+        if count >= limit:
+            from .tasks.repository import FetchUpdatedPullRequests
+            FetchUpdatedPullRequests.add_job(self.id,
                                     delayed_for=timedelta(seconds=60),
                                     limit=limit,
                                     gh=gh)
@@ -1211,7 +1255,8 @@ class Label(GithubObject):
 
         super(Label, self).save(*args, **kwargs)
 
-    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -1223,7 +1268,8 @@ class Label(GithubObject):
 
         return super(Label, self).fetch(gh, defaults,
                                         force_fetch=force_fetch,
-                                        parameters=parameters)
+                                        parameters=parameters,
+                                        meta_base_name=meta_base_name)
 
     def defaults_create_values(self):
         return {'fk': {'repository': self.repository}}
@@ -1270,7 +1316,8 @@ class Milestone(GithubObjectWithId):
     def github_callable_create_identifiers(self):
         return self.repository.github_callable_identifiers_for_milestones
 
-    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -1282,7 +1329,8 @@ class Milestone(GithubObjectWithId):
 
         return super(Milestone, self).fetch(gh, defaults,
                                             force_fetch=force_fetch,
-                                            parameters=parameters)
+                                            parameters=parameters,
+                                            meta_base_name=meta_base_name)
 
     def defaults_create_values(self):
         return {'fk': {'repository': self.repository}}
@@ -1322,6 +1370,7 @@ class Issue(GithubObjectWithId):
     events_etag = models.CharField(max_length=64, blank=True, null=True)
     # pr stuff
     is_pull_request = models.BooleanField(default=False, db_index=True)
+    pr_fetched_at = models.DateTimeField(blank=True, null=True)
     pr_comments_count = models.PositiveIntegerField(blank=True, null=True)
     pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
     pr_comments_etag = models.CharField(max_length=64, blank=True, null=True)
@@ -1372,6 +1421,12 @@ class Issue(GithubObjectWithId):
         ]
 
     @property
+    def github_callable_identifiers_for_pr(self):
+        return self.repository.github_callable_identifiers_for_prs + [
+            self.number,
+        ]
+
+    @property
     def github_callable_create_identifiers(self):
         return self.repository.github_callable_identifiers_for_issues
 
@@ -1393,6 +1448,13 @@ class Issue(GithubObjectWithId):
             self.number,
             'comments'
         ]
+
+    def fetch_pr(self, gh, defaults=None, force_fetch=False, parameters=None):
+        if defaults is None:
+            defaults = {}
+        defaults.setdefault('simple', {})['is_pull_request'] = True
+        return self.fetch(gh=gh, defaults=defaults, force_fetch=force_fetch,
+                                    parameters=parameters, meta_base_name='pr')
 
     def fetch_events(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('events', gh,
@@ -1470,7 +1532,8 @@ class Issue(GithubObjectWithId):
         if self.is_pull_request:
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
 
-    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
         """
         Enhance the default fetch by setting the current repository as a default
         value.
@@ -1482,7 +1545,8 @@ class Issue(GithubObjectWithId):
 
         return super(Issue, self).fetch(gh, defaults,
                                         force_fetch=force_fetch,
-                                        parameters=parameters)
+                                        parameters=parameters,
+                                        meta_base_name=meta_base_name)
 
     def defaults_create_values(self):
         return {'fk': {'repository': self.repository}}
@@ -1529,7 +1593,8 @@ class _LinkedToIssueBaseModel(GithubObjectWithId):
     class Meta:
         abstract = True
 
-    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None):
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
         """
         Enhance the default fetch by setting the current repository and issue as
         default values.
@@ -1546,7 +1611,8 @@ class _LinkedToIssueBaseModel(GithubObjectWithId):
 
         return super(_LinkedToIssueBaseModel, self).fetch(gh, defaults,
                                                force_fetch=force_fetch,
-                                               parameters=parameters)
+                                               parameters=parameters,
+                                               meta_base_name=meta_base_name)
 
     def defaults_create_values(self):
         return {'fk': {
