@@ -993,7 +993,7 @@ $().ready(function() {
             var $link = $(this);
             $link.attr('target', '_blank');
             if (!MarkdownManager.re) {
-                MarkdownManager.re = new RegExp('https?://github.com/' + $('body').data('repository') + '/issues/(\\d+)');
+                MarkdownManager.re = new RegExp('https?://github.com/' + $('body').data('repository') + '/(?:issue|pull)s?/(\\d+)');
             }
             var matches = this.href.match(MarkdownManager.re);
             if (matches) {
