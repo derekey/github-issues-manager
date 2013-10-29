@@ -11,9 +11,6 @@
                     <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url|default:default_avatar }}" alt="{{ current_issue.user.username }}">
                 </div>
                 <h3><a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github">#{{ current_issue.number }} - {{ current_issue.title }}</a></h3>
-                {% if current_issue.is_pull_request %}
-                    <div class="pr-infos"><span class="label label-blue">Pull request from {{ current_issue.head_label|default:current_issue.user.username }}</div>
-                {% endif %}
                 <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date:"DATETIME_FORMAT" }}</h5>
                 {% if current_issue.state == 'closed' %}
                     <p class="state state-closed">
@@ -66,6 +63,19 @@
                 </ul>
             </div>
         </div>
+        {% if current_issue.is_pull_request %}
+        <div class="content pr-infos">
+            {% if current_issue.pr_fetched_at %}
+                <ul class="unstyled">
+                    <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="icon-pencil"></i> {{ current_issue.nb_commits }}</li>
+                    <li class="label label-green" title="{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ current_issue.nb_additions }}</li>
+                    <li class="label label-red" title="{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ current_issue.nb_deletions }}</li>
+                    <li class="label label-black" title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="icon-file"></i> {{ current_issue.nb_changed_files }}</li>
+                </ul>
+            {% endif %}
+            <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
+        </div>
+        {% endif %}
         <div class="content issue-body{% if not current_issue.body_html %} empty{% endif %}" >
             {% if current_issue.body_html %}{{ current_issue.body_html|safe }}{% else %}No description for this issue !{% endif %}
         </div>

@@ -174,7 +174,7 @@ $active-issue-color: #7BC8D7;
         &.active {
             padding-left: 8px;
             border-left: solid $active-issue-color 5px;
-            background: #e6f1f4;
+            background: $highlight-background-color;
             border-top-color: #f0fcff;
         }
 }
