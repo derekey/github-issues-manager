@@ -982,7 +982,7 @@ class Repository(GithubObjectWithId):
             else:
                 count += 1
 
-        if count >= limit:
+        if len(issues):
             from .tasks.repository import FetchClosedIssuesWithNoClosedBy
             FetchClosedIssuesWithNoClosedBy.add_job(self.id,
                                     delayed_for=timedelta(seconds=60),
@@ -1015,7 +1015,7 @@ class Repository(GithubObjectWithId):
             else:
                 count += 1
 
-        if count >= limit:
+        if len(prs):
             from .tasks.repository import FetchUpdatedPullRequests
             FetchUpdatedPullRequests.add_job(self.id,
                                     delayed_for=timedelta(seconds=60),
