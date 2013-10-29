@@ -74,6 +74,23 @@
                 </ul>
             {% endif %}
             <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
+            {% if current_issue.pr_fetched_at %}
+                <div class="pr-merge-status">
+                    {% if current_issue.state == 'open' %}
+                        {% if current_issue.mergeable %}
+                            <div class="alert alert-success">Can be merged</div>
+                        {% else %}
+                            <div class="alert alert-error">Cannot be merged</div>
+                        {% endif %}
+                    {% else %}
+                        {% if current_issue.merged %}
+                            <div class="alert alert-success">Merged</div>
+                        {% else %}
+                            <div class="alert alert-error">Not merged</div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
         {% endif %}
         <div class="content issue-body{% if not current_issue.body_html %} empty{% endif %}" >
