@@ -287,11 +287,11 @@ blockquote p:last-child {
 }
 
 /* line 2, ../../../sass/widgets/_markdown.scss */
-.issue-body a, .issue-comment a {
+.issue-body a, .issue-comment a, .cell-sha a {
   color: #14808A;
 }
 /* line 4, ../../../sass/widgets/_markdown.scss */
-.issue-body a:hover, .issue-comment a:hover {
+.issue-body a:hover, .issue-comment a:hover, .cell-sha a:hover {
   color: #14808A;
   text-decoration: underline;
 }
@@ -4342,31 +4342,31 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   left: 3px;
 }
 
-/* line 9, ../../../sass/main.scss */
+/* line 10, ../../../sass/main.scss */
 body {
   background-color: #f0f0f0;
   font-size: 13px;
 }
-/* line 12, ../../../sass/main.scss */
+/* line 13, ../../../sass/main.scss */
 body > header {
   margin-bottom: 0;
 }
-/* line 16, ../../../sass/main.scss */
+/* line 17, ../../../sass/main.scss */
 body > header .navbar-inner {
   padding: 0 20px !important;
 }
-/* line 20, ../../../sass/main.scss */
+/* line 21, ../../../sass/main.scss */
 body > header .user_avatar .caret {
   vertical-align: middle;
   margin-top: -3px !important;
 }
 
-/* line 29, ../../../sass/main.scss */
+/* line 30, ../../../sass/main.scss */
 #main {
   padding-top: 47px;
 }
 
-/* line 34, ../../../sass/main.scss */
+/* line 35, ../../../sass/main.scss */
 #main > .row-fluid {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -4374,13 +4374,13 @@ body > header .user_avatar .caret {
   padding: 0 22px;
 }
 
-/* line 39, ../../../sass/main.scss */
+/* line 40, ../../../sass/main.scss */
 #main > .row-fluid.row-header {
   padding: 0;
   margin-bottom: 15px;
 }
 
-/* line 46, ../../../sass/main.scss */
+/* line 47, ../../../sass/main.scss */
 #messages {
   position: fixed;
   top: 67px;
@@ -4388,7 +4388,7 @@ body > header .user_avatar .caret {
   z-index: 50;
 }
 
-/* line 54, ../../../sass/main.scss */
+/* line 55, ../../../sass/main.scss */
 .empty-area {
   color: #bbbbbb;
   font-size: 300%;
@@ -4402,27 +4402,27 @@ body > header .user_avatar .caret {
   margin-top: -1em;
 }
 
-/* line 67, ../../../sass/main.scss */
+/* line 68, ../../../sass/main.scss */
 .box-content .empty-area {
   position: static;
   font-size: 150%;
   margin: 0;
 }
 
-/* line 76, ../../../sass/main.scss */
+/* line 77, ../../../sass/main.scss */
 .content {
   color: #505050;
 }
-/* line 78, ../../../sass/main.scss */
+/* line 79, ../../../sass/main.scss */
 .content br {
   margin: 3px 0;
 }
-/* line 81, ../../../sass/main.scss */
+/* line 82, ../../../sass/main.scss */
 .content p:last-child {
   margin-bottom: 0;
 }
 
-/* line 88, ../../../sass/main.scss */
+/* line 89, ../../../sass/main.scss */
 ol.errorlist, ul.errorlist {
   list-style: none;
   margin: 0;
@@ -4430,15 +4430,15 @@ ol.errorlist, ul.errorlist {
   font-style: italic;
 }
 
-/* line 100, ../../../sass/main.scss */
+/* line 101, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"] {
   text-align: center;
 }
-/* line 102, ../../../sass/main.scss */
+/* line 103, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:first-child {
   text-align: left;
 }
-/* line 105, ../../../sass/main.scss */
+/* line 106, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:last-child {
   text-align: right;
 }

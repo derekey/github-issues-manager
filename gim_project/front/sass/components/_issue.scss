@@ -1,3 +1,5 @@
+@import "compass/typography/text/ellipsis";
+
 .issue {
     position: relative;
 
@@ -203,7 +205,59 @@
                 }
             }
         }
-    }
+    } // .pr-entry-point
+    .pr-commits-group {
+        table {
+            td {
+                line-height: 22px;
+                padding: 4px;
+                vertical-align: top;
+                &.cell-author {
+                    width: 105px;
+                    white-space: nowrap;
+                    font-weight: bold;
+                    span {
+                        overflow: hidden;
+                        @include ellipsis();
+                        vertical-align: middle;
+                        display: inline-block;
+                        width: 80px;
+                    }
+                }
+                &.cell-message {
+                    p {
+                        font-family: $monoFontFamily;
+                        font-size: 11px;
+                        margin: 0;
+                        white-space: pre-wrap;
+                        &:first-of-type {
+                            line-height: 25px;
+                            font-size: 12px;
+                        }
+                    }
+                    > span[data-toggle=collapse] {
+                        float: right;
+                        cursor: pointer;
+                        display: block;
+                        height: 12px;
+                        @include border-radius(1px);
+                        background: #ddd;
+                        line-height: 6px;
+                        font-size: 12px;
+                        font-weight: bold;
+                        padding: 1px 3px;
+                        margin: 2px;
+                    }
+                }
+                &.cell-sha {
+                    width: 50px;
+                    text-align: center;
+                    font-family: $monoFontFamily;
+                    font-size: 11px;
+                }
+            }
+        } // table
+    } // .pr-commits-group
 }
 
 #modal-issue-view {

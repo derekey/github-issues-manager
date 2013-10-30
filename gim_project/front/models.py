@@ -258,9 +258,78 @@ class _Issue(models.Model):
             types.append(list(self.pr_comments_entry_points.all()
                                      .select_related('user', 'pr_comments')))
 
-        return sorted(sum(types, []), key=attrgetter('created_at'))
+        activity = sorted(sum(types, []), key=attrgetter('created_at'))
+
+        if self.is_pull_request:
+            activity = GroupedPullRequestCommits.add_commits_in_activity(self, activity)
+
+        return activity
 
 contribute_to_model(_Issue, core_models.Issue)
+
+
+class GroupedPullRequestCommits(list):
+    is_commits_group = True  # for template
+
+    @classmethod
+    def add_commits_in_activity(cls, issue, activity):
+        commits = list(issue.commits.all().select_related('author', 'committer'))
+        if not len(commits):
+            return activity
+
+        final_activity = []
+        current_group = None
+
+        for entry in activity:
+
+            # add in a group all commits before the entry
+            while len(commits) and commits[0].committed_at < entry.created_at:
+                if current_group is None:
+                    current_group = cls()
+                current_group.append(commits.pop(0))
+
+            if current_group:
+                final_activity.append(current_group)
+                current_group = None
+
+            # then add the entry
+            final_activity.append(entry)
+
+        # still some commits, add a group with them
+        if len(commits):
+            final_activity.append(cls(commits))
+
+        return final_activity
+
+    def authors(self):
+        authors = []
+        for commit in self:
+            name = commit.author.username if commit.author_id else commit.author_name
+            if name not in authors:
+                authors.append(name)
+        return authors
+
+
+class _PullRequestCommit(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def short_sha(self):
+        return self.sha[:8]
+
+    @property
+    def splitted_message(self):
+        LEN = 72
+        ln_pos = self.message.find('\n')
+        if 0 <= ln_pos < LEN:
+            result = [self.message[:ln_pos], self.message[ln_pos+1:]]
+            while result[1] and result[1][0] == '\n':
+                result[1] = result[1][1:]
+            return result
+        return [self.message[:LEN], self.message[LEN:]]
+
+contribute_to_model(_PullRequestCommit, core_models.PullRequestCommit)
 
 
 class _WaitingSubscription(models.Model):

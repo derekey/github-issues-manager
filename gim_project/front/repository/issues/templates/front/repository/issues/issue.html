@@ -117,7 +117,7 @@
                         {% endif %}
                     {% elif event.commit_id %}{# PullRequestEntryPoint #}
                         {% with entry_point=event %}
-                            <li class="entry_point">
+                            <li>
                                 <div class="box pr-entry-point">
                                     <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
                                         <div class="title">
@@ -150,6 +150,53 @@
                                                 {% endfor %}
                                             </ul>
                                         </div>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endwith %}
+                    {% elif event.is_commits_group %}{# GroupedPullRequestCommits #}
+                        {% with group=event %}
+                            <li>
+                                <div class="box pr-commits-group">
+                                    <div class="box-header" data-toggle="collapse" data-target="#pr-commits-group-{{ group.0.sha }}" title="Click to collapse/expand">
+                                        <div class="title">
+                                            {% with authors=group.authors %}
+                                                {{ authors.0 }}
+                                                {% if authors|length == 2 %}
+                                                    and {{ authors.1 }}
+                                                {% elif authors|length > 2 %}
+                                                    , {{ authors.1 }} and others
+                                                {% endif %}
+                                            {% endwith %}
+                                            added {{ group|length }} commit{{ group|length|pluralize }}
+                                        </div>
+                                        <ul class="box-toolbar">
+                                            <li class="time" title="{{ group.0.authored_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ group.0.authored_at|ago }}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="box-content collapse in" id="pr-commits-group-{{ group.0.sha }}">
+                                        <table class="table table-normal">
+                                            {% for commit in group %}
+                                                <tr>
+                                                    <td class="cell-author">
+                                                        <img class="avatar-tiny img-circle" src="{{ commit.author.avatar_url|default:default_avatar }}" alt="{{ commit.author|default:commit.author_name }}">
+                                                        <span title="{{ commit.author|default:commit.author_name }}">{{ commit.author|default:commit.author_name }}</span>
+                                                    </td>
+                                                    <td class="cell-message">
+                                                        {% with message=commit.splitted_message %}
+                                                            {% if message.1|length %}
+                                                                <span data-toggle="collapse" data-target="#pr-commit-more-{{ commit.sha }}">…</span>
+                                                                <p>{{ message.0 }}</p>
+                                                                <p class="collapse" id="pr-commit-more-{{ commit.sha }}">{{ message.1 }}</p>
+                                                            {% else %}
+                                                                <p>{{ message.0 }}</p>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </td>
+                                                    <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank'>{{ commit.short_sha }}</a></td>
+                                                </tr>
+                                            {% endfor %}
+                                        </table>
                                     </div>
                                 </div>
                             </li>
