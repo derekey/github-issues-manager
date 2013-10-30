@@ -561,7 +561,7 @@ class IssueManager(WithRepositoryManager):
                 fields['simple']['github_pr_id'] = fields['simple']['github_id']
                 del fields['simple']['github_id']
 
-        # set some boolean to False is None
+        # set some boolean to False if None
         for field_name in ('mergeable', 'merged'):
             if field_name in fields['simple'] and not fields['simple'][field_name]:
                 fields['simple'][field_name] = False
@@ -569,27 +569,28 @@ class IssueManager(WithRepositoryManager):
         return fields
 
 
-class IssueCommentManager(GithubObjectManager):
+class WithIssueManager(GithubObjectManager):
     """
-    This manager is for the IssueComment model, with an enhanced
+    This base manager is for the models linked to an issue, with an enhanced
     get_object_fields_from_dict method, to get the issue and the repository.
     """
 
     def get_object_fields_from_dict(self, data, defaults=None):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
-        issue the comment belongs to, from the issue_url found in the data given
+        issue the object belongs to, from the issue_url found in the data given
         by the github api. Doing the same for the repository. Only set if found.
         """
         from .models import Issue
 
-        fields = super(IssueCommentManager, self).get_object_fields_from_dict(data, defaults)
+        fields = super(WithIssueManager, self).get_object_fields_from_dict(data, defaults)
         if not fields:
             return None
 
         # add the issue if needed
         if 'issue' not in fields['fk']:
-            issue = Issue.objects.get_by_url(data.get('issue_url', None))
+            issue = Issue.objects.get_by_url(
+                    data.get('issue_url', data.get('pull_request_url', None)))
             if issue:
                 fields['fk']['issue'] = issue
             else:
@@ -601,6 +602,14 @@ class IssueCommentManager(GithubObjectManager):
             fields['fk']['repository'] = fields['fk']['issue'].repository
 
         return fields
+
+
+class IssueCommentManager(WithIssueManager):
+    """
+    This manager is for the IssueComment model, with an enhanced
+    get_object_fields_from_dict method, to get the issue and the repository.
+    """
+    pass
 
 
 class LabelTypeManager(models.Manager):
@@ -640,7 +649,7 @@ class LabelTypeManager(models.Manager):
         return self._name_cache[repository.id][name]
 
 
-class PullRequestCommentManager(GithubObjectManager):
+class PullRequestCommentManager(WithIssueManager):
     """
     This manager is for the PullRequestComment model, with an enhanced
     get_object_fields_from_dict method to get the issue, the repository, and
@@ -650,31 +659,18 @@ class PullRequestCommentManager(GithubObjectManager):
     def get_object_fields_from_dict(self, data, defaults=None):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
-        issue the comment belongs to, from the pull_request__url found in the
+        issue the comment belongs to, from the pull_request_url found in the
         data given by the github api. Doing the same for the repository.
         Only set if found.
         Also get/create the entry_point: some fetched data are for the entry
         point, some others are for the comment)
         """
-        from .models import Issue, PullRequestCommentEntryPoint
+        from .models import PullRequestCommentEntryPoint
 
         fields = super(PullRequestCommentManager, self).get_object_fields_from_dict(data, defaults)
 
         if not fields:
             return None
-
-        # add the issue if needed
-        if 'issue' not in fields['fk']:
-            issue = Issue.objects.get_by_url(data.get('pull_request_url', None))
-            if issue:
-                fields['fk']['issue'] = issue
-            else:
-                # no issue found, don't save the object !
-                return None
-
-        # and the repository
-        if 'repository' not in fields['fk']:
-            fields['fk']['repository'] = fields['fk']['issue'].repository
 
         defaults_entry_points = {
             'fk': {
@@ -738,3 +734,29 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
             obj.save(update_fields=update_fields)
 
         return obj
+
+
+class PullRequestCommitManager(WithIssueManager):
+    """
+    This manager is for the PullRequestCommit model, with an enhanced
+    get_object_fields_from_dict method, to get the issue and the repository,
+    and to reformat data in a flat way to match the model.
+    """
+
+    def get_object_fields_from_dict(self, data, defaults=None):
+        """
+        Reformat data to have flat values to match the model
+        """
+        if 'commit' in data:
+            c = data['commit']
+            if 'message' in c:
+                data['message'] = c['message']
+            for user_type, date_field in (('author', 'authored'), ('committer', 'committed')):
+                if user_type in c:
+                    if 'date' in c[user_type]:
+                        data['%s_at' % date_field] = c[user_type]['date']
+                    for field in ('email', 'name'):
+                        if field in c[user_type]:
+                            data['%s_%s' % (user_type, field)] = c[user_type][field]
+
+        return super(PullRequestCommitManager, self).get_object_fields_from_dict(data, defaults)

@@ -24,7 +24,8 @@ from .managers import (MODE_ALL, MODE_UPDATE,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager,
-                       PullRequestCommentEntryPointManager)
+                       PullRequestCommentEntryPointManager,
+                       PullRequestCommitManager)
 
 import username_hack  # force the username length to be 255 chars
 
@@ -1010,6 +1011,7 @@ class Repository(GithubObjectWithId):
             try:
                 pr.fetch(gh, force_fetch=True, meta_base_name='pr',
                          defaults={'simple': {'is_pull_request': True}})
+                pr.fetch_commits(gh)
             except ApiError:
                 pass
             else:
@@ -1073,6 +1075,12 @@ class Repository(GithubObjectWithId):
                                 defaults={'fk': {'repository': self}},
                                 parameters=final_parameters,
                                 force_fetch=force_fetch)
+
+    @property
+    def github_callable_identifiers_for_commits(self):
+        return self.github_callable_identifiers + [
+            'commits',
+        ]
 
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         """
@@ -1389,6 +1397,8 @@ class Issue(GithubObjectWithId):
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
     nb_deletions = models.PositiveIntegerField(blank=True, null=True)
     nb_changed_files = models.PositiveIntegerField(blank=True, null=True)
+    commits_fetched_at = models.DateTimeField(blank=True, null=True)
+    commits_etag = models.CharField(max_length=64, blank=True, null=True)
 
     objects = IssueManager()
 
@@ -1536,6 +1546,22 @@ class Issue(GithubObjectWithId):
             label.name,
         ]
 
+    @property
+    def github_callable_identifiers_for_commits(self):
+        return self.repository.github_callable_identifiers_for_prs + [
+            self.number,
+            'commits'
+        ]
+
+    def fetch_commits(self, gh, force_fetch=False, parameters=None):
+        return self._fetch_many('commits', gh,
+                                defaults={'fk': {
+                                    'issue': self,
+                                    'repository': self.repository}
+                                },
+                                parameters=parameters,
+                                force_fetch=force_fetch)
+
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(Issue, self).fetch_all(gh, force_fetch=force_fetch)
         #self.fetch_labels(gh, force_fetch=force_fetch)  # already retrieved via self.fetch
@@ -1597,13 +1623,10 @@ class Issue(GithubObjectWithId):
         super(Issue, self).save(*args, **kwargs)
 
 
-class _LinkedToIssueBaseModel(GithubObjectWithId):
+class WithIssueMixin(object):
     """
     A base class for all models containing data owned by an issue.
     """
-
-    class Meta:
-        abstract = True
 
     def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
                                                         meta_base_name=None):
@@ -1621,7 +1644,7 @@ class _LinkedToIssueBaseModel(GithubObjectWithId):
                 defaults = {}
             defaults.setdefault('fk', {})['issue'] = self.issue
 
-        return super(_LinkedToIssueBaseModel, self).fetch(gh, defaults,
+        return super(WithIssueMixin, self).fetch(gh, defaults,
                                                force_fetch=force_fetch,
                                                parameters=parameters,
                                                meta_base_name=meta_base_name)
@@ -1634,7 +1657,7 @@ class _LinkedToIssueBaseModel(GithubObjectWithId):
         }
 
 
-class IssueComment(_LinkedToIssueBaseModel):
+class IssueComment(WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='comments')
     issue = models.ForeignKey(Issue, related_name='comments')
     user = models.ForeignKey(GithubUser, related_name='issue_comments')
@@ -1732,7 +1755,7 @@ class PullRequestCommentEntryPoint(GithubObject):
                                     for line in lines[0:1] + lines[1:][-12:]]
 
 
-class PullRequestComment(_LinkedToIssueBaseModel):
+class PullRequestComment(WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='pr_comments')
     issue = models.ForeignKey(Issue, related_name='pr_comments')
     user = models.ForeignKey(GithubUser, related_name='pr_comments')
@@ -1790,7 +1813,42 @@ class PullRequestComment(_LinkedToIssueBaseModel):
             self.issue.update_pr_comments_count()
 
 
-class IssueEvent(_LinkedToIssueBaseModel):
+class PullRequestCommit(WithIssueMixin, GithubObject):
+    repository = models.ForeignKey(Repository, related_name='pr_commits')
+    issue = models.ForeignKey(Issue, related_name='commits')
+    author = models.ForeignKey(GithubUser, related_name='pr_commits_authored', blank=True, null=True)
+    committer = models.ForeignKey(GithubUser, related_name='pr_commits__commited', blank=True, null=True)
+    sha = models.CharField(max_length=256, db_index=True)
+    message = models.TextField(blank=True, null=True)
+    author_name = models.TextField(blank=True, null=True)
+    author_email = models.CharField(max_length=256, blank=True, null=True)
+    committer_name = models.TextField(blank=True, null=True)
+    committer_email = models.CharField(max_length=256, blank=True, null=True)
+    authored_at = models.DateTimeField(db_index=True)
+    committed_at = models.DateTimeField(db_index=True)
+
+    objects = PullRequestCommitManager()
+
+    class Meta:
+        ordering = ('committed_at', )
+
+    github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'sha': 'sha'}
+
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/commit/%s' % self.sha
+
+    def __unicode__(self):
+        return u'%s on PR #%d' % (self.sha, self.issue.number if self.issue else '?')
+
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_commits + [
+            self.sha,
+        ]
+
+
+class IssueEvent(WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues_events')
     issue = models.ForeignKey(Issue, related_name='events')
     user = models.ForeignKey(GithubUser, related_name='issues_events', blank=True, null=True)
