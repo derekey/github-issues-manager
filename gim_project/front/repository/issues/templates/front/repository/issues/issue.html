@@ -114,6 +114,8 @@
                             {% include "front/repository/issues/include_head_ref_deleted_comment.html" with comment=event %}
                         {% elif event.event == 'head_ref_restored' %}
                             {% include "front/repository/issues/include_head_ref_restored_comment.html" with comment=event %}
+                        {% elif event.event == 'referenced' and event.commit_id %}
+                            {% include "front/repository/issues/include_referenced_in_commit_comment.html" with comment=event %}
                         {% endif %}
                     {% elif event.commit_id %}{# PullRequestEntryPoint #}
                         {% with entry_point=event %}
