@@ -1,11 +1,12 @@
 
 import re
 from datetime import datetime
+from time import sleep
 
 from django.db import models, IntegrityError
 from django.contrib.auth.models import UserManager
 
-from .ghpool import Connection
+from .ghpool import Connection, ApiError
 
 MODE_CREATE = set(('create', ))
 MODE_UPDATE = set(('update', ))
@@ -87,9 +88,19 @@ class GithubObjectManager(models.Manager):
         gh_callable = self.get_github_callable(gh, identifiers)
         if not parameters:
             parameters = {}
-        return gh_callable.get(request_headers=request_headers,
-                               response_headers=response_headers,
-                               **parameters)
+        # we'll accept some 502 errors
+        tries = 0
+        while tries < 5:
+            try:
+                return gh_callable.get(request_headers=request_headers,
+                                       response_headers=response_headers,
+                                       **parameters)
+            except ApiError, e:
+                if e.response and e.response['code'] == 502:
+                    tries += 1
+                    sleep(1)
+                else:
+                    raise
 
     def get_matching_field(self, field_name):
         """
