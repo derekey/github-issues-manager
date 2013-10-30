@@ -272,6 +272,11 @@ class ApiError(Exception):
         super(ApiError, self).__init__(url)
         self.request = request
         self.response = response
+        if response:
+            try:
+                self.code = response['code']
+            except Exception:
+                pass
 
 
 class ApiAuthError(ApiError):
