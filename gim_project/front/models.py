@@ -251,12 +251,14 @@ class _Issue(models.Model):
         pr_comments if it's a pull request
         """
         types = [
-            list(self.comments.ready().select_related('user')),
-            list(self.events.ready().select_related('user')),
+            list(self.comments.ready().select_related('user', 'repository__owner')),
+            list(self.events.ready().select_related('user', 'repository__owner')),
         ]
         if self.is_pull_request:
             types.append(list(self.pr_comments_entry_points.all()
-                                     .select_related('user', 'pr_comments')))
+                                     .select_related('user', 'pr_comments',
+                                                        'repository__owner')
+                                     .prefetch_related('comments__user')))
 
         activity = sorted(sum(types, []), key=attrgetter('created_at'))
 
@@ -269,11 +271,16 @@ contribute_to_model(_Issue, core_models.Issue)
 
 
 class GroupedPullRequestCommits(list):
+    """
+    An object to regroup a list of commits in a list of activities: all commits
+    between two entries of the activity list are grouped together
+    """
     is_commits_group = True  # for template
 
     @classmethod
     def add_commits_in_activity(cls, issue, activity):
-        commits = list(issue.commits.all().select_related('author', 'committer'))
+        commits = list(issue.commits.all().select_related('author', 'committer',
+                                                            'repository__owner'))
         if not len(commits):
             return activity
 
