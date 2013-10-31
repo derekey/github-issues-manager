@@ -494,7 +494,7 @@ class IssueView(UserIssuesView):
 
         involved = involved.values()
         for involved_user in involved:
-            if isinstance(involved_user['user'], basestring):
+            if isinstance(involved_user['user'], dict):
                 continue
             involved_user['types'] = []
             if involved_user['user'].id == self.repository.owner_id:
