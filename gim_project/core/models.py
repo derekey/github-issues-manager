@@ -24,8 +24,7 @@ from .managers import (MODE_ALL, MODE_UPDATE,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager,
-                       PullRequestCommentEntryPointManager,
-                       PullRequestCommitManager)
+                       PullRequestCommentEntryPointManager, CommitManager)
 
 import username_hack  # force the username length to be 255 chars
 
@@ -1114,6 +1113,31 @@ class Repository(GithubObjectWithId):
         self.fetch_pr_comments(gh, force_fetch=force_fetch)
 
 
+class WithRepositoryMixin(object):
+    """
+    A base class for all models containing data owned by a repository.
+    """
+
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
+        """
+        Enhance the default fetch by setting the current repository as
+        default value.
+        """
+        if self.repository_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['repository'] = self.repository
+
+        return super(WithRepositoryMixin, self).fetch(gh, defaults,
+                                               force_fetch=force_fetch,
+                                               parameters=parameters,
+                                               meta_base_name=meta_base_name)
+
+    def defaults_create_values(self):
+        return {'fk': {'repository': self.repository}}
+
+
 LABELTYPE_EDITMODE = Choices(
     ('LIST', 3, u'List of labels'),
     ('FORMAT', 2, u'Simple format'),
@@ -1189,7 +1213,7 @@ class LabelType(models.Model):
         super(LabelType, self).delete(*args, **kwargs)
 
 
-class Label(GithubObject):
+class Label(WithRepositoryMixin, GithubObject):
     repository = models.ForeignKey(Repository, related_name='labels')
     name = models.TextField()
     color = models.CharField(max_length=6)
@@ -1265,27 +1289,8 @@ class Label(GithubObject):
 
         super(Label, self).save(*args, **kwargs)
 
-    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
-                                                        meta_base_name=None):
-        """
-        Enhance the default fetch by setting the current repository as a default
-        value.
-        """
-        if self.repository_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['repository'] = self.repository
 
-        return super(Label, self).fetch(gh, defaults,
-                                        force_fetch=force_fetch,
-                                        parameters=parameters,
-                                        meta_base_name=meta_base_name)
-
-    def defaults_create_values(self):
-        return {'fk': {'repository': self.repository}}
-
-
-class Milestone(GithubObjectWithId):
+class Milestone(WithRepositoryMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='milestones')
     number = models.PositiveIntegerField(db_index=True)
     title = models.TextField(db_index=True)
@@ -1326,25 +1331,6 @@ class Milestone(GithubObjectWithId):
     def github_callable_create_identifiers(self):
         return self.repository.github_callable_identifiers_for_milestones
 
-    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
-                                                        meta_base_name=None):
-        """
-        Enhance the default fetch by setting the current repository as a default
-        value.
-        """
-        if self.repository_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['repository'] = self.repository
-
-        return super(Milestone, self).fetch(gh, defaults,
-                                            force_fetch=force_fetch,
-                                            parameters=parameters,
-                                            meta_base_name=meta_base_name)
-
-    def defaults_create_values(self):
-        return {'fk': {'repository': self.repository}}
-
     def save(self, *args, **kwargs):
         """
         If the creator, which is mandatory, is not defined, use (and create if
@@ -1357,7 +1343,49 @@ class Milestone(GithubObjectWithId):
         super(Milestone, self).save(*args, **kwargs)
 
 
-class Issue(GithubObjectWithId):
+class Commit(WithRepositoryMixin, GithubObject):
+    repository = models.ForeignKey(Repository, related_name='commits')
+    author = models.ForeignKey(GithubUser, related_name='commits_authored', blank=True, null=True)
+    committer = models.ForeignKey(GithubUser, related_name='commits__commited', blank=True, null=True)
+    sha = models.CharField(max_length=40, db_index=True)
+    message = models.TextField(blank=True, null=True)
+    author_name = models.TextField(blank=True, null=True)
+    author_email = models.CharField(max_length=256, blank=True, null=True)
+    committer_name = models.TextField(blank=True, null=True)
+    committer_email = models.CharField(max_length=256, blank=True, null=True)
+    authored_at = models.DateTimeField(db_index=True, blank=True, null=True)
+    committed_at = models.DateTimeField(db_index=True, blank=True, null=True)
+    comments_count = models.PositiveIntegerField(blank=True, null=True)
+    parents = models.ManyToManyField('self', related_name='children')
+    tree = models.CharField(max_length=40, blank=True, null=True)
+
+    objects = CommitManager()
+
+    class Meta:
+        ordering = ('committed_at', )
+
+    github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'sha': 'sha'}
+
+    github_matching = dict(GithubObjectWithId.github_matching)
+    github_matching.update({
+        'comment_count': 'comments_count',
+    })
+
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/commit/%s' % self.sha
+
+    def __unicode__(self):
+        return u'%s' % self.sha
+
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_commits + [
+            self.sha,
+        ]
+
+
+class Issue(WithRepositoryMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues')
     number = models.PositiveIntegerField(db_index=True)
     title = models.TextField(db_index=True)
@@ -1399,6 +1427,7 @@ class Issue(GithubObjectWithId):
     nb_changed_files = models.PositiveIntegerField(blank=True, null=True)
     commits_fetched_at = models.DateTimeField(blank=True, null=True)
     commits_etag = models.CharField(max_length=64, blank=True, null=True)
+    commits = models.ManyToManyField(Commit, related_name='issues')
 
     objects = IssueManager()
 
@@ -1555,10 +1584,7 @@ class Issue(GithubObjectWithId):
 
     def fetch_commits(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('commits', gh,
-                                defaults={'fk': {
-                                    'issue': self,
-                                    'repository': self.repository}
-                                },
+                                defaults={'fk': {'repository': self.repository}},
                                 parameters=parameters,
                                 force_fetch=force_fetch)
 
@@ -1569,25 +1595,6 @@ class Issue(GithubObjectWithId):
         self.fetch_comments(gh, force_fetch=force_fetch)
         if self.is_pull_request:
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
-
-    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
-                                                        meta_base_name=None):
-        """
-        Enhance the default fetch by setting the current repository as a default
-        value.
-        """
-        if self.repository_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['repository'] = self.repository
-
-        return super(Issue, self).fetch(gh, defaults,
-                                        force_fetch=force_fetch,
-                                        parameters=parameters,
-                                        meta_base_name=meta_base_name)
-
-    def defaults_create_values(self):
-        return {'fk': {'repository': self.repository}}
 
     @property
     def total_comments_count(self):
@@ -1623,7 +1630,7 @@ class Issue(GithubObjectWithId):
         super(Issue, self).save(*args, **kwargs)
 
 
-class WithIssueMixin(object):
+class WithIssueMixin(WithRepositoryMixin):
     """
     A base class for all models containing data owned by an issue.
     """
@@ -1634,11 +1641,6 @@ class WithIssueMixin(object):
         Enhance the default fetch by setting the current repository and issue as
         default values.
         """
-        if self.repository_id:
-            if not defaults:
-                defaults = {}
-            defaults.setdefault('fk', {})['repository'] = self.repository
-
         if self.issue_id:
             if not defaults:
                 defaults = {}
@@ -1650,11 +1652,9 @@ class WithIssueMixin(object):
                                                meta_base_name=meta_base_name)
 
     def defaults_create_values(self):
-        return {'fk': {
-            'issue': self.issue,
-            'repository': self.repository
-            }
-        }
+        values = super(WithIssueMixin, self).defaults_create_values()
+        values['fk']['issue'] = self.issue
+        return values
 
 
 class IssueComment(WithIssueMixin, GithubObjectWithId):
@@ -1712,8 +1712,8 @@ class PullRequestCommentEntryPoint(GithubObject):
     repository = models.ForeignKey(Repository, related_name='pr_comments_entry_points')
     issue = models.ForeignKey(Issue, related_name='pr_comments_entry_points')
     diff_hunk = models.TextField(blank=True, null=True)
-    commit_id = models.CharField(max_length=256, blank=True, null=True)
-    original_commit_id = models.CharField(max_length=256, blank=True, null=True)
+    commit_sha = models.CharField(max_length=40, blank=True, null=True)
+    original_commit_sha = models.CharField(max_length=40, blank=True, null=True)
     position = models.PositiveIntegerField(blank=True, null=True)
     original_position = models.PositiveIntegerField(blank=True, null=True)
     path = models.TextField(blank=True, null=True)
@@ -1730,7 +1730,7 @@ class PullRequestCommentEntryPoint(GithubObject):
     github_identifiers = {
         'repository__github_id': ('repository', 'github_id'),
         'issue__number': ('issue', 'number'),
-        'original_commit_id': 'original_commit_id',
+        'original_commit_sha': 'original_commit_sha',
         'path': 'path',
         'original_position': 'original_position',
     }
@@ -1813,47 +1813,12 @@ class PullRequestComment(WithIssueMixin, GithubObjectWithId):
             self.issue.update_pr_comments_count()
 
 
-class PullRequestCommit(WithIssueMixin, GithubObject):
-    repository = models.ForeignKey(Repository, related_name='pr_commits')
-    issue = models.ForeignKey(Issue, related_name='commits')
-    author = models.ForeignKey(GithubUser, related_name='pr_commits_authored', blank=True, null=True)
-    committer = models.ForeignKey(GithubUser, related_name='pr_commits__commited', blank=True, null=True)
-    sha = models.CharField(max_length=256, db_index=True)
-    message = models.TextField(blank=True, null=True)
-    author_name = models.TextField(blank=True, null=True)
-    author_email = models.CharField(max_length=256, blank=True, null=True)
-    committer_name = models.TextField(blank=True, null=True)
-    committer_email = models.CharField(max_length=256, blank=True, null=True)
-    authored_at = models.DateTimeField(db_index=True)
-    committed_at = models.DateTimeField(db_index=True)
-
-    objects = PullRequestCommitManager()
-
-    class Meta:
-        ordering = ('committed_at', )
-
-    github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'sha': 'sha'}
-
-    @property
-    def github_url(self):
-        return self.repository.github_url + '/commit/%s' % self.sha
-
-    def __unicode__(self):
-        return u'%s on PR #%d' % (self.sha, self.issue.number if self.issue else '?')
-
-    @property
-    def github_callable_identifiers(self):
-        return self.repository.github_callable_identifiers_for_commits + [
-            self.sha,
-        ]
-
-
 class IssueEvent(WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues_events')
     issue = models.ForeignKey(Issue, related_name='events')
     user = models.ForeignKey(GithubUser, related_name='issues_events', blank=True, null=True)
     event = models.CharField(max_length=256, blank=True, null=True)
-    commit_id = models.CharField(max_length=256, blank=True, null=True)
+    commit_sha = models.CharField(max_length=40, blank=True, null=True)
     created_at = models.DateTimeField(db_index=True)
 
     github_matching = dict(GithubObjectWithId.github_matching)
@@ -1861,6 +1826,11 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         'actor': 'user',
     })
     github_date_field = ('created_at', None, None)
+
+    github_matching = dict(GithubObjectWithId.github_matching)
+    github_matching.update({
+        'commit_id': 'commit_sha',
+    })
 
     class Meta:
         ordering = ('created_at', 'github_id')
@@ -1876,4 +1846,4 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
 
     @property
     def github_url(self):
-        return self.repository.github_url + '/commit/%s' % self.commit_id
+        return self.repository.github_url + '/commit/%s' % self.commit_sha

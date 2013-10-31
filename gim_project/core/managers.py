@@ -65,7 +65,6 @@ class GithubObjectManager(models.Manager):
             request_headers=request_headers,
             response_headers=response_headers
         )
-
         if isinstance(data, list):
             result = self.create_or_update_from_list(data, modes, defaults,
                         min_date=min_date, fetched_at_field=fetched_at_field)
@@ -530,7 +529,7 @@ class IssueManager(WithRepositoryManager):
         if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
             if 'related' not in defaults:
                 defaults['related'] = {}
-            for related in ('labels', 'milestone', 'comments', 'pr_comments', 'events'):
+            for related in ('labels', 'milestone', 'comments', 'pr_comments', 'events', 'commits'):
                 if related not in defaults['related']:
                     defaults['related'][related] = {}
                 if 'fk' not in defaults['related'][related]:
@@ -736,9 +735,9 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
         return obj
 
 
-class PullRequestCommitManager(WithIssueManager):
+class CommitManager(WithRepositoryManager):
     """
-    This manager is for the PullRequestCommit model, with an enhanced
+    This manager is for the Commit model, with an enhanced
     get_object_fields_from_dict method, to get the issue and the repository,
     and to reformat data in a flat way to match the model.
     """
@@ -758,5 +757,17 @@ class PullRequestCommitManager(WithIssueManager):
                     for field in ('email', 'name'):
                         if field in c[user_type]:
                             data['%s_%s' % (user_type, field)] = c[user_type][field]
+            if 'tree' in c:
+                data['tree'] = c['tree']['sha']
 
-        return super(PullRequestCommitManager, self).get_object_fields_from_dict(data, defaults)
+        if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
+            if 'related' not in defaults:
+                defaults['related'] = {}
+            for related in ('tree', 'parents'):
+                if related not in defaults['related']:
+                    defaults['related'][related] = {}
+                if 'fk' not in defaults['related'][related]:
+                    defaults['related'][related]['fk'] = {}
+                defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
+
+        return super(CommitManager, self).get_object_fields_from_dict(data, defaults)

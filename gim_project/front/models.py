@@ -263,14 +263,14 @@ class _Issue(models.Model):
         activity = sorted(sum(types, []), key=attrgetter('created_at'))
 
         if self.is_pull_request:
-            activity = GroupedPullRequestCommits.add_commits_in_activity(self, activity)
+            activity = GroupedCommits.add_commits_in_activity(self, activity)
 
         return activity
 
 contribute_to_model(_Issue, core_models.Issue)
 
 
-class GroupedPullRequestCommits(list):
+class GroupedCommits(list):
     """
     An object to regroup a list of commits in a list of activities: all commits
     between two entries of the activity list are grouped together
@@ -317,7 +317,7 @@ class GroupedPullRequestCommits(list):
         return authors
 
 
-class _PullRequestCommit(models.Model):
+class _Commit(models.Model):
     class Meta:
         abstract = True
 
@@ -336,7 +336,7 @@ class _PullRequestCommit(models.Model):
             return result
         return [self.message[:LEN], self.message[LEN:]]
 
-contribute_to_model(_PullRequestCommit, core_models.PullRequestCommit)
+contribute_to_model(_Commit, core_models.Commit)
 
 
 class _WaitingSubscription(models.Model):

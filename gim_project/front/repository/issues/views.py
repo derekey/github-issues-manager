@@ -8,7 +8,7 @@ from django.db import DatabaseError
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment)
 
-from front.models import GroupedPullRequestCommits
+from front.models import GroupedCommits
 from ..views import BaseRepositoryView
 from ...utils import make_querystring
 
@@ -486,7 +486,7 @@ class IssueView(UserIssuesView):
                     add_involved(pr_comment.user, is_comment=True)
             elif isinstance(entry, IssueComment):
                 add_involved(entry.user, is_comment=True)
-            elif isinstance(entry, GroupedPullRequestCommits):
+            elif isinstance(entry, GroupedCommits):
                 for pr_commit in entry:
                     add_involved(pr_commit.author if pr_commit.author_id
                                                   else pr_commit.author_name,

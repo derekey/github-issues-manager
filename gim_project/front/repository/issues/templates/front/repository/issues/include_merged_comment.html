@@ -10,5 +10,5 @@
 {% endblock %}
 
 {% block comment_inner_body %}
-    The commit <a href="{{ comment.github_url }}" target='_blank'>{{ comment.commit_id }}</a> was merged from <strong>{{ comment.issue.head_label }}</strong> into <strong>{{ comment.issue.base_label }}</strong>
+    The commit <a href="{{ comment.github_url }}" target='_blank'>{{ comment.commit_sha }}</a> was merged from <strong>{{ comment.issue.head_label }}</strong> into <strong>{{ comment.issue.base_label }}</strong>
 {% endblock%}
