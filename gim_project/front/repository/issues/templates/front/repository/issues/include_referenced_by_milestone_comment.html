@@ -1,0 +1,17 @@
+{% extends "front/repository/issues/include_base_comment.html" %}
+
+{% block node_class %}event event-referenced-by-milestone{% endblock %}
+
+{% block comment_info %}
+    <span class="label label-purple">REFERENCED</span>
+    <strong>{{ comment.user.username }}</strong>
+    referenced this {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
+    from a <strong>milestone</strong>
+{% endblock %}
+
+{% block comment_inner_body %}
+    {% with related_milestone=comment.related_object %}
+        <span class="label label-{% if related_milestone.state == 'closed' %}red{% else %}green{% endif %}">{{ related_milestone.state }}</span>
+        <a href="{{ comment.github_url }}" target='_blank'><strong>{{ related_milestone.title }}</strong></a>
+    {% endwith %}
+{% endblock%}

@@ -252,7 +252,8 @@ class _Issue(models.Model):
         """
         types = [
             list(self.comments.ready().select_related('user', 'repository__owner')),
-            list(self.events.ready().select_related('user', 'repository__owner')),
+            list(self.events.exclude(event='referenced', commit_sha__isnull=True)
+                            .select_related('user', 'repository__owner')),
         ]
         if self.is_pull_request:
             types.append(list(self.pr_comments_entry_points.all()

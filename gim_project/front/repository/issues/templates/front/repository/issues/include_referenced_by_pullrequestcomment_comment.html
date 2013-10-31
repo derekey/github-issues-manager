@@ -1,0 +1,22 @@
+{% extends "front/repository/issues/include_base_comment.html" %}
+
+{% block node_class %}event event-referenced-by-pullrequestcomment{% endblock %}
+
+{% block comment_info %}
+    <span class="label label-purple">REFERENCED</span>
+    <strong>{{ comment.user.username }}</strong>
+    referenced this {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
+    {% with related_comment=comment.related_object.issue %}
+        from a <<strong>comment on commit in a pull request</strong>
+    {% endwith %}
+{% endblock %}
+
+{% block comment_inner_body %}
+    {% with related_comment=comment.related_object related_issue=comment.related_object.issue %}
+        <span class="label label-{% if related_issue.state == 'closed' %}red{% else %}green{% endif %}">{{ related_issue.state }}</span>
+        <a href="{{ comment.github_url }}" target='_blank'>#{{ related_issue.number }} - <strong>{{ related_issue.title }}</strong></a>
+        <blockquote>
+            {{ related_comment.body_html|safe }}
+        </blockquote>
+    {% endwith %}
+{% endblock%}

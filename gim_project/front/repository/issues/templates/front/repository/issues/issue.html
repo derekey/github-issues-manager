@@ -116,6 +116,14 @@
                             {% include "front/repository/issues/include_head_ref_restored_comment.html" with comment=event %}
                         {% elif event.event == 'referenced' and event.commit_sha %}
                             {% include "front/repository/issues/include_referenced_in_commit_comment.html" with comment=event %}
+                        {% elif event.event == 'referenced_by_issue' %}
+                            {% include "front/repository/issues/include_referenced_by_issue_comment.html" with comment=event %}
+                        {% elif event.event == 'referenced_by_issuecomment' %}
+                            {% include "front/repository/issues/include_referenced_by_issuecomment_comment.html" with comment=event %}
+                        {% elif event.event == 'referenced_by_pullrequestcomment' %}
+                            {% include "front/repository/issues/include_referenced_by_pullrequestcomment_comment.html" with comment=event %}
+                        {% elif event.event == 'referenced_by_milestone' %}
+                            {% include "front/repository/issues/include_referenced_by_milestone_comment.html" with comment=event %}
                         {% endif %}
                     {% elif event.diff_hunk %}{# PullRequestEntryPoint #}
                         {% with entry_point=event %}

@@ -771,3 +771,60 @@ class CommitManager(WithRepositoryManager):
                 defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
 
         return super(CommitManager, self).get_object_fields_from_dict(data, defaults)
+
+
+class IssueEventManager(WithIssueManager):
+    """
+    This manager is for the IssueEvent model, with method to check references
+    in other objects and create events for found references.
+    """
+
+    CHECK_REF = re.compile(r'(?:^|\W)#(\d+)(?:[^d]|$)')
+
+    def check_references(self, obj, fields, user_field='user'):
+        """
+        Check if the given object has references to some issues in its text.
+        The references are looked up from given fields of the object, using
+        the CHECK_REF regex of the manager.
+        An IssueEvent object is created for each reference.
+        Once done for the object, existing events that do not apply anymore are
+        removed.
+        """
+        from core.models import Issue
+
+        type_event = 'referenced_by_%s' % obj._meta.module_name
+
+        existing_events = obj.repository.issues_events.filter(
+                            event=type_event,
+                            related_object_id=obj.id
+                        )
+        new_events = set()
+        for field in fields:
+            val = getattr(obj, field)
+            if not val:
+                continue
+            for number in self.CHECK_REF.findall(val):
+                try:
+                    issue = obj.repository.issues.get(number=number)
+                except Issue.DoesNotExist:
+                    break
+
+                event, created = self.get_or_create(
+                                    repository=obj.repository,
+                                    issue=issue,
+                                    event=type_event,
+                                    related_object_id=obj.id,
+                                    defaults={
+                                        'user': getattr(obj, user_field),
+                                        'created_at': obj.created_at,
+                                        'related_object': obj,
+                                    }
+                                )
+                new_events.add(event.id)
+
+        # remove old events
+        for existing_event in existing_events:
+            if existing_event.id not in new_events:
+                existing_event.delete()
+
+        return new_events

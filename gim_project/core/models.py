@@ -12,8 +12,10 @@ from django.db import models
 from django.db.models import F, Q
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
-
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 from jsonfield import JSONField
+
 from extended_choices import Choices
 
 from . import GITHUB_HOST
@@ -23,7 +25,7 @@ from .managers import (MODE_ALL, MODE_UPDATE,
                        GithubObjectManager, WithRepositoryManager,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager,
-                       PullRequestCommentManager,
+                       PullRequestCommentManager, IssueEventManager,
                        PullRequestCommentEntryPointManager, CommitManager)
 
 import username_hack  # force the username length to be 255 chars
@@ -1342,6 +1344,11 @@ class Milestone(WithRepositoryMixin, GithubObjectWithId):
                 kwargs['update_fields'].append('creator')
         super(Milestone, self).save(*args, **kwargs)
 
+        if not kwargs.get('updated_field')\
+                or 'description' in kwargs['updated_field']\
+                or 'title' in kwargs['updated_field']:
+            IssueEvent.objects.check_references(self, ['description', 'title'], 'creator')
+
 
 class Commit(WithRepositoryMixin, GithubObject):
     repository = models.ForeignKey(Repository, related_name='commits')
@@ -1629,6 +1636,11 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
         super(Issue, self).save(*args, **kwargs)
 
+        if not kwargs.get('updated_field')\
+                or 'body_html' in kwargs['updated_field']\
+                or 'title' in kwargs['updated_field']:
+            IssueEvent.objects.check_references(self, ['body_html', 'title'])
+
 
 class WithIssueMixin(WithRepositoryMixin):
     """
@@ -1706,6 +1718,9 @@ class IssueComment(WithIssueMixin, GithubObjectWithId):
             if kwargs.get('update_fields'):
                 kwargs['update_fields'].append('user')
         super(IssueComment, self).save(*args, **kwargs)
+
+        if not kwargs.get('updated_field') or 'body_html' in kwargs['updated_field']:
+            IssueEvent.objects.check_references(self, ['body_html'])
 
 
 class PullRequestCommentEntryPoint(GithubObject):
@@ -1812,6 +1827,9 @@ class PullRequestComment(WithIssueMixin, GithubObjectWithId):
         if is_new:
             self.issue.update_pr_comments_count()
 
+        if not kwargs.get('updated_field') or 'body_html' in kwargs['updated_field']:
+            IssueEvent.objects.check_references(self, ['body_html'])
+
 
 class IssueEvent(WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues_events')
@@ -1820,6 +1838,13 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
     event = models.CharField(max_length=256, blank=True, null=True)
     commit_sha = models.CharField(max_length=40, blank=True, null=True)
     created_at = models.DateTimeField(db_index=True)
+
+    related_content_type = models.ForeignKey(ContentType, blank=True, null=True)
+    related_object_id = models.PositiveIntegerField(blank=True, null=True)
+    related_object = generic.GenericForeignKey('related_content_type',
+                                               'related_object_id')
+
+    objects = IssueEventManager()
 
     github_matching = dict(GithubObjectWithId.github_matching)
     github_matching.update({
@@ -1836,7 +1861,7 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         ordering = ('created_at', 'github_id')
 
     def __unicode__(self):
-        return u'on Issue #%d' % (self.issue.number if self.issue else '?')
+        return u'"%s" on Issue #%d' % (self.event, self.issue.number if self.issue else '?')
 
     @property
     def github_callable_identifiers(self):
@@ -1846,4 +1871,7 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
 
     @property
     def github_url(self):
-        return self.repository.github_url + '/commit/%s' % self.commit_sha
+        if self.commit_sha:
+            return self.repository.github_url + '/commit/%s' % self.commit_sha
+        elif self.related_object_id:
+            return self.related_object.github_url

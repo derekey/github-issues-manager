@@ -147,6 +147,15 @@
                     margin-right: 4px;
                 }
             }
+            &.event-referenced-by-issue,
+            &.event-referenced-by-issuecomment,
+            &.event-referenced-by-pullrequestcomment,
+            &.event-referenced-by-milestone {
+                > .content > span.label {
+                    float: right;
+                    margin-top: 1px;
+                }
+            }
         }
     }
     .pr-entry-point {

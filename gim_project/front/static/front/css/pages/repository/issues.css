@@ -560,40 +560,45 @@ p.state-closed {
   margin-left: -4px;
   margin-right: 4px;
 }
-/* line 153, ../../../../../sass/components/_issue.scss */
+/* line 154, ../../../../../sass/components/_issue.scss */
+.issue-comments .chat-box-entry.event.event-referenced-by-issue > .content > span.label, .issue-comments .chat-box-entry.event.event-referenced-by-issuecomment > .content > span.label, .issue-comments .chat-box-entry.event.event-referenced-by-pullrequestcomment > .content > span.label, .issue-comments .chat-box-entry.event.event-referenced-by-milestone > .content > span.label {
+  float: right;
+  margin-top: 1px;
+}
+/* line 162, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header {
   cursor: pointer;
 }
-/* line 155, ../../../../../sass/components/_issue.scss */
+/* line 164, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header .title {
   font-size: 14px;
 }
-/* line 157, ../../../../../sass/components/_issue.scss */
+/* line 166, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header .title > span {
   font-weight: normal;
   font-style: italic;
   display: block;
 }
-/* line 163, ../../../../../sass/components/_issue.scss */
+/* line 172, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header .box-toolbar {
   font-weight: normal;
   color: #949494;
 }
-/* line 167, ../../../../../sass/components/_issue.scss */
+/* line 176, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point > .box-header .time {
   margin-left: 5px;
 }
-/* line 171, ../../../../../sass/components/_issue.scss */
+/* line 180, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .box-section {
   padding-top: 5px;
   padding-bottom: 0;
 }
-/* line 175, ../../../../../sass/components/_issue.scss */
+/* line 184, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff {
   overflow: auto;
   padding: 0;
 }
-/* line 178, ../../../../../sass/components/_issue.scss */
+/* line 187, ../../../../../sass/components/_issue.scss */
 .issue-comments .pr-entry-point .pr-diff pre {
   white-space: pre;
   color: #333;
