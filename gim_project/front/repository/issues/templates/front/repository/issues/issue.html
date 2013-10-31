@@ -42,7 +42,7 @@
                         {% if current_issue_involved|length > 1 %}
                             <ul class="unstyled issue-footer-info-part issue-involved">
                                 {% for involved_user in current_issue_involved %}
-                                    <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}, {{ involved_user.count }} comment{{ involved_user.count|pluralize }}"></li>
+                                    <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
                                 {% endfor %}
                             </ul>
                         {% endif %}

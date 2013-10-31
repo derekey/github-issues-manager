@@ -6,8 +6,9 @@ from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
-                         PullRequestCommentEntryPoint)
+                         PullRequestCommentEntryPoint, IssueComment)
 
+from front.models import GroupedPullRequestCommits
 from ..views import BaseRepositoryView
 from ...utils import make_querystring
 
@@ -443,7 +444,7 @@ class IssueView(UserIssuesView):
                 ).get(number=self.kwargs['issue_number'])
         return issue
 
-    def get_involved_people(self, issue, comments, context):
+    def get_involved_people(self, issue, activity, collaborators_ids):
         """
         Return a list with a dict for each people involved in the issue, with
         the submitter first, the assignee, the the closed_by, and all comments
@@ -451,36 +452,54 @@ class IssueView(UserIssuesView):
         user, the comment's count as "count", and a list of types (one or many
         of "owner", "collaborator", "submitter") as "types"
         """
-        collaborators_ids = context['collaborators_ids']
+        involved = SortedDict()
 
-        involved = SortedDict({
-            issue.user_id: {'user': issue.user, 'count': 0}
-        })
+        def add_involved(user, is_comment=False, is_commit=False):
+            real_user = not isinstance(user, basestring)
+            if real_user:
+                key = user.username
+                val = user
+            else:
+                key = user
+                val = {'username': user}
+
+            d = involved.setdefault(key, {
+                                    'user': val, 'comments': 0, 'commits': 0})
+            if real_user:
+                d['user'] = val  # override if user was a dict
+            if is_comment:
+                d['comments'] += 1
+            if is_commit:
+                d['commits'] += 1
+
+        add_involved(issue.user)
 
         if issue.assignee_id and issue.assignee_id not in involved:
-            involved[issue.assignee_id] = {'user': issue.assignee, 'count': 0}
+            add_involved(issue.assignee)
 
         if issue.state == 'closed' and issue.closed_by_id and issue.closed_by_id not in involved:
-            involved[issue.closed_by_id] = {'user': issue.closed_by, 'count': 0}
+            add_involved(issue.closed_by)
 
-        def add_involved(comment):
-            if comment.user_id not in involved:
-                involved[comment.user_id] = {'user': comment.user, 'count': 0}
-            involved[comment.user_id]['count'] += 1
-
-        for comment in comments:
-            if isinstance(comment, PullRequestCommentEntryPoint):
-                for pr_comment in comment.comments.all():
-                    add_involved(pr_comment)
-            else:
-                add_involved(comment)
+        for entry in activity:
+            if isinstance(entry, PullRequestCommentEntryPoint):
+                for pr_comment in entry.comments.all():
+                    add_involved(pr_comment.user, is_comment=True)
+            elif isinstance(entry, IssueComment):
+                add_involved(entry.user, is_comment=True)
+            elif isinstance(entry, GroupedPullRequestCommits):
+                for pr_commit in entry:
+                    add_involved(pr_commit.author if pr_commit.author_id
+                                                  else pr_commit.author_name,
+                                 is_commit=True)
 
         involved = involved.values()
         for involved_user in involved:
+            if isinstance(involved_user['user'], basestring):
+                continue
             involved_user['types'] = []
             if involved_user['user'].id == self.repository.owner_id:
                 involved_user['types'].append('owner')
-            elif involved_user['user'].id in collaborators_ids:
+            elif collaborators_ids and involved_user['user'].id in collaborators_ids:
                 involved_user['types'].append('collaborator')
             if involved_user['user'].id == issue.user_id:
                 involved_user['types'].append('submitter')
@@ -513,18 +532,16 @@ class IssueView(UserIssuesView):
         # fetch other useful data
         if current_issue:
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
-            comments = self.get_all_comments(current_issue)
             activity = current_issue.get_activity()
-            involved = self.get_involved_people(current_issue, comments, context)
+            involved = self.get_involved_people(current_issue, activity, context['collaborators_ids'])
         else:
-            comments = []
+            activity = []
             involved = []
 
         # final context
         context.update({
             'current_issue': current_issue,
             'current_issue_state': current_issue_state,
-            'current_issue_comments': comments,
             'current_issue_activity': activity,
             'current_issue_involved': involved,
         })
