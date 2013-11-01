@@ -1032,13 +1032,19 @@ class Repository(GithubObjectWithId):
         Fetch commits that were never fetched, for example just created with a
         sha from an IssueEvent
         """
-        commits = list(self.commits.filter(fetched_at__isnull=True)[:limit])
+        commits = list(self.commits.filter(fetched_at__isnull=True)
+                                            .order_by('-authored_at')[:limit])
 
         count = 0
         for commit in commits:
             try:
                 commit.fetch(gh, force_fetch=True)
-            except ApiError:
+            except ApiError, e:
+                if e.response and e.response['code'] == 404:
+                    # the commit doesn't exist anymore !
+                    commit.fetched_at = datetime.utcnow()
+                    commit.deleted = True
+                    commit.save(update_fields=['fetched_at', 'deleted'])
                 pass
             else:
                 count += 1
@@ -1392,8 +1398,8 @@ class Commit(WithRepositoryMixin, GithubObject):
     authored_at = models.DateTimeField(db_index=True, blank=True, null=True)
     committed_at = models.DateTimeField(db_index=True, blank=True, null=True)
     comments_count = models.PositiveIntegerField(blank=True, null=True)
-    parents = models.ManyToManyField('self', related_name='children')
     tree = models.CharField(max_length=40, blank=True, null=True)
+    deleted = models.BooleanField(default=False)
 
     objects = CommitManager()
 
@@ -1919,5 +1925,9 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         if self.event == 'referenced' and self.commit_sha and not self.related_object_id:
             self.related_object, created = Commit.objects.get_or_create(
                 repository=self.repository,
-                sha=self.commit_sha)
+                sha=self.commit_sha,
+                defaults={
+                    'authored_at': self.created_at,
+                    'author': self.user,
+                })
         super(IssueEvent, self).save(*args, **kwargs)
