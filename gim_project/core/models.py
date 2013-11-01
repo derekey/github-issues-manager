@@ -1922,7 +1922,7 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         Create the related Commit object if the event is a reference to a commit.
         Commit will later be fetched by a worker to get its message.
         """
-        if self.event == 'referenced' and self.commit_sha and not self.related_object_id:
+        if self.commit_sha and not self.related_object_id:
             self.related_object, created = Commit.objects.get_or_create(
                 repository=self.repository,
                 sha=self.commit_sha,
