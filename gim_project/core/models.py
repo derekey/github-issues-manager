@@ -1769,6 +1769,12 @@ class PullRequestCommentEntryPoint(GithubObject):
     github_ignore = GithubObject.github_ignore + (
                                     'id', 'created_at', 'updated_at', 'user')
 
+    github_matching = dict(GithubObject.github_matching)
+    github_matching.update({
+        'commit_id': 'commit_sha',
+        'original_commit_id': 'original_commit_sha',
+    })
+
     github_identifiers = {
         'repository__github_id': ('repository', 'github_id'),
         'issue__number': ('issue', 'number'),
