@@ -185,28 +185,7 @@
                                         </ul>
                                     </div>
                                     <div class="box-content collapse in" id="pr-commits-group-{{ group.0.sha }}">
-                                        <table class="table table-normal">
-                                            {% for commit in group %}
-                                                <tr>
-                                                    <td class="cell-author">
-                                                        <img class="avatar-tiny img-circle" src="{{ commit.author.avatar_url|default:default_avatar }}" alt="{{ commit.author|default:commit.author_name }}">
-                                                        <span title="{{ commit.author|default:commit.author_name }}">{{ commit.author|default:commit.author_name }}</span>
-                                                    </td>
-                                                    <td class="cell-message">
-                                                        {% with message=commit.splitted_message %}
-                                                            {% if message.1|length %}
-                                                                <span data-toggle="collapse" data-target="#pr-commit-more-{{ commit.sha }}">…</span>
-                                                                <p>{{ message.0 }}</p>
-                                                                <p class="collapse" id="pr-commit-more-{{ commit.sha }}">{{ message.1 }}</p>
-                                                            {% else %}
-                                                                <p>{{ message.0 }}</p>
-                                                            {% endif %}
-                                                        {% endwith %}
-                                                    </td>
-                                                    <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank'>{{ commit.short_sha }}</a></td>
-                                                </tr>
-                                            {% endfor %}
-                                        </table>
+                                        {% include "front/repository/issues/include_commits.html" with commits=group id_prefix="pr-" %}
                                     </div>
                                 </div>
                             </li>

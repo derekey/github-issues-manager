@@ -182,3 +182,8 @@ def nospaces(parser, token):
     nodelist = parser.parse(('endnospaces',))
     parser.delete_first_token()
     return NoSpacesNode(nodelist)
+
+
+@register.filter
+def tolist(value):
+    return [value]

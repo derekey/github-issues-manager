@@ -1,0 +1,26 @@
+<table class="table table-normal commits-list">
+    {% for commit in commits %}
+        <tr>
+            <td class="cell-author">
+                <img class="avatar-tiny img-circle" src="{{ commit.author.avatar_url|default:default_avatar }}" alt="{{ commit.author|default:commit.author_name }}">
+                <span title="{{ commit.author|default:commit.author_name }}">{{ commit.author|default:commit.author_name }}</span>
+            </td>
+            <td class="cell-message">
+                {% if not commit.fetched_at and not commit.message %}
+                    <i>Commit not fetched yet</i>
+                {% else %}
+                    {% with message=commit.splitted_message %}
+                        {% if message.1|length %}
+                            <span data-toggle="collapse" data-target="#{{ id_prefix }}commit-more-{{ commit.sha }}">…</span>
+                            <p>{{ message.0 }}</p>
+                            <p class="collapse" id="{{ id_prefix }}commit-more-{{ commit.sha }}">{{ message.1 }}</p>
+                        {% else %}
+                            <p>{{ message.0 }}</p>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+            </td>
+            <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank'>{{ commit.short_sha }}</a></td>
+        </tr>
+    {% endfor %}
+</table>

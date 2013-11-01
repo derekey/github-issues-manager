@@ -1,4 +1,5 @@
 {% extends "front/repository/issues/include_base_comment.html" %}
+{% load frontutils %}
 
 {% block node_class %}event event-referenced-in-commit{% endblock %}
 
@@ -10,5 +11,17 @@
 {% endblock %}
 
 {% block comment_inner_body %}
-    Commit <a href="{{ comment.github_url }}" target='_blank'>{{ comment.commit_sha }}</a>
+    {% if not comment.related_object_id %}
+        Commit <a href="{{ comment.github_url }}" target='_blank'>{{ comment.commit_sha }}</a>
+    {% else %}
+        {% with commit=comment.related_object %}
+            {% if commit.deleted %}
+                Deleted commit <strong>{{ comment.commit_sha }}</strong>
+            {% else %}
+                <div class="comment-commits">
+                    {% include "front/repository/issues/include_commits.html" with commits=commit|tolist id_prefix="ref-" %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
 {% endblock%}

@@ -1,4 +1,5 @@
 {% extends "front/repository/issues/include_base_comment.html" %}
+{% load frontutils %}
 
 {% block node_class %}event event-closed{% endblock %}
 
@@ -7,6 +8,17 @@
     <strong>{{ comment.user.username }}</strong>
     closed this
     {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
+    {% if comment.commit_sha and comment.related_object_id %}
+    from a commit
+    {% endif %}
 {% endblock %}
 
-{% block comment_body %}{% endblock%}
+{% block comment_body %}
+{% if comment.commit_sha and comment.related_object_id %}
+    <div class="content">
+        <div class="comment-commits">
+            {% include "front/repository/issues/include_commits.html" with commits=comment.related_object|tolist id_prefix="ref-" %}
+        </div>
+    </div>
+{% endif %}
+{% endblock%}

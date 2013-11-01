@@ -3,7 +3,7 @@
 {% block node_class %}event event-assigned{% endblock %}
 
 {% block comment_info %}
-    <span class="label label-purple">ASSIGNED</span>
+    <span class="label label-dark">ASSIGNED</span>
     <strong>{{ comment.user.username }}</strong>
     was assigned to this
     {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}

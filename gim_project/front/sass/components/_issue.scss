@@ -215,59 +215,62 @@
             }
         }
     } // .pr-entry-point
-    .pr-commits-group {
-        table {
-            td {
-                line-height: 22px;
-                padding: 4px;
-                vertical-align: top;
-                &.cell-author {
-                    width: 105px;
-                    white-space: nowrap;
-                    font-weight: bold;
-                    span {
-                        overflow: hidden;
-                        @include ellipsis();
-                        vertical-align: middle;
-                        display: inline-block;
-                        width: 80px;
-                    }
-                }
-                &.cell-message {
-                    p {
-                        font-family: $monoFontFamily;
-                        font-size: 11px;
-                        margin: 0;
-                        white-space: pre-wrap;
-                        &:first-of-type {
-                            line-height: 25px;
-                            font-size: 12px;
-                        }
-                    }
-                    > span[data-toggle=collapse] {
-                        float: right;
-                        cursor: pointer;
-                        display: block;
-                        height: 12px;
-                        @include border-radius(1px);
-                        background: #ddd;
-                        line-height: 6px;
-                        font-size: 12px;
-                        font-weight: bold;
-                        padding: 1px 3px;
-                        margin: 2px;
-                    }
-                }
-                &.cell-sha {
-                    width: 50px;
-                    text-align: center;
-                    font-family: $monoFontFamily;
-                    font-size: 11px;
+
+    .comment-commits {
+        margin: -5px -10px;
+    }
+}
+
+table.commits-list {
+    td {
+        line-height: 22px;
+        padding: 4px;
+        vertical-align: top;
+        &.cell-author {
+            width: 105px;
+            white-space: nowrap;
+            font-weight: bold;
+            span {
+                overflow: hidden;
+                @include ellipsis();
+                vertical-align: middle;
+                display: inline-block;
+                width: 80px;
+            }
+        }
+        &.cell-message {
+            p {
+                font-family: $monoFontFamily;
+                font-size: 11px;
+                margin: 0;
+                white-space: pre-wrap;
+                &:first-of-type {
+                    margin-top: 3px;
+                    font-size: 12px;
                 }
             }
-        } // table
-    } // .pr-commits-group
-}
+            > span[data-toggle=collapse] {
+                float: right;
+                cursor: pointer;
+                display: block;
+                height: 12px;
+                @include border-radius(1px);
+                background: #ddd;
+                line-height: 6px;
+                font-size: 12px;
+                font-weight: bold;
+                padding: 1px 3px;
+                margin: 6px 6px 2px 2px;
+            }
+        }
+        &.cell-sha {
+            width: 50px;
+            text-align: center;
+            font-family: $monoFontFamily;
+            font-size: 11px;
+        }
+    }
+} // table.commits-list
 
 #modal-issue-view {
     .modal-body {
