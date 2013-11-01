@@ -1039,12 +1039,12 @@ class Repository(GithubObjectWithId):
         for commit in commits:
             try:
                 commit.fetch(gh, force_fetch=True)
-            except ApiError, e:
-                if e.response and e.response['code'] == 404:
-                    # the commit doesn't exist anymore !
-                    commit.fetched_at = datetime.utcnow()
-                    commit.deleted = True
-                    commit.save(update_fields=['fetched_at', 'deleted'])
+            except ApiNotFoundError:
+                # the commit doesn't exist anymore !
+                commit.fetched_at = datetime.utcnow()
+                commit.deleted = True
+                commit.save(update_fields=['fetched_at', 'deleted'])
+            except ApiError:
                 pass
             else:
                 count += 1
