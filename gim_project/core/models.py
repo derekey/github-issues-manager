@@ -1027,6 +1027,31 @@ class Repository(GithubObjectWithId):
 
         return count
 
+    def fetch_unfetched_commits(self, gh, limit=20):
+        """
+        Fetch commits that were never fetched, for example just created with a
+        sha from an IssueEvent
+        """
+        commits = list(self.commits.filter(fetched_at__isnull=True)[:limit])
+
+        count = 0
+        for commit in commits:
+            try:
+                commit.fetch(gh, force_fetch=True)
+            except ApiError:
+                pass
+            else:
+                count += 1
+
+        if len(commits):
+            from .tasks.repository import FetchUnfetchedCommits
+            FetchUnfetchedCommits.add_job(self.id,
+                                          delayed_for=timedelta(seconds=60),
+                                          limit=limit,
+                                          gh=gh)
+
+        return count
+
     @property
     def github_callable_identifiers_for_issues_events(self):
         return self.github_callable_identifiers_for_issues + [
@@ -1107,12 +1132,14 @@ class Repository(GithubObjectWithId):
             self.fetch_issues_events(gh, force_fetch=force_fetch)
             self.fetch_comments(gh, force_fetch=force_fetch)
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
+            self.fetch_unfetched_commits(gh, force_fetch=force_fetch)
 
     def fetch_all_step2(self, gh, force_fetch=False):
         self.fetch_issues(gh, force_fetch=force_fetch, state='closed')
         self.fetch_issues_events(gh, force_fetch=force_fetch)
         self.fetch_comments(gh, force_fetch=force_fetch)
         self.fetch_pr_comments(gh, force_fetch=force_fetch)
+        self.fetch_unfetched_commits(gh, force_fetch=force_fetch)
 
 
 class WithRepositoryMixin(object):
@@ -1865,7 +1892,7 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
 
     @property
     def github_callable_identifiers(self):
-        return self.repository.github_callable_identifiers_for_issue_events + [
+        return self.repository.github_callable_identifiers_for_issues_events + [
             self.github_id,
         ]
 
@@ -1875,3 +1902,14 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
             return self.repository.github_url + '/commit/%s' % self.commit_sha
         elif self.related_object_id:
             return self.related_object.github_url
+
+    def save(self, *args, **kwargs):
+        """
+        Create the related Commit object if the event is a reference to a commit.
+        Commit will later be fetched by a worker to get its message.
+        """
+        if self.event == 'referenced' and self.commit_sha and not self.related_object_id:
+            self.related_object, created = Commit.objects.get_or_create(
+                repository=self.repository,
+                sha=self.commit_sha)
+        super(IssueEvent, self).save(*args, **kwargs)

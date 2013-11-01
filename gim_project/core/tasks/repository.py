@@ -195,3 +195,34 @@ class FirstFetchStep2(RepositoryJob):
         self.object.fetch_all_step2(gh=self.gh, force_fetch=force_fetch)
 
         return None
+
+
+class FetchUnfetchedCommits(RepositoryJob):
+    """
+    Job that fetches commit objects that weren't be fetched, for example just
+    created with a sha.
+    """
+    queue_name = 'fetch-unfetched-commits'
+
+    limit = fields.InstanceHashField()
+    count = fields.InstanceHashField()
+
+    def run(self, queue):
+        """
+        Get the repository and fetch unfetched commits, and save the count
+        of fetched comits in the job
+        """
+        super(FetchUnfetchedCommits, self).run(queue)
+
+        count = self.object.fetch_unfetched_commits(
+                                limit=int(self.limit.hget() or 20), gh=self.gh)
+
+        self.count.hset(count)
+
+        return count
+
+    def success_message_addon(self, queue, result):
+        """
+        Display the count of fetched commits
+        """
+        return ' [fetched=%d]' % result
