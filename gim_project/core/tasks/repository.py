@@ -26,6 +26,7 @@ class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
 
     limit = fields.InstanceHashField()
     count = fields.InstanceHashField()
+    errors = fields.InstanceHashField()
 
     def run(self, queue):
         """
@@ -34,18 +35,19 @@ class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
         """
         super(FetchClosedIssuesWithNoClosedBy, self).run(queue)
 
-        count = self.object.fetch_closed_issues_without_closed_by(
-                                limit=int(self.limit.hget() or 20), gh=self.gh)
+        count, errors, todo = self.object.fetch_closed_issues_without_closed_by(
+                                            limit=int(self.limit.hget() or 20),
+                                            gh=self.gh)
 
-        self.count.hset(count)
+        self.hmset(count=count, errors=errors)
 
-        return count
+        return count, errors, todo
 
     def success_message_addon(self, queue, result):
         """
         Display the count of closed issues fetched
         """
-        return ' [fetched=%d]' % result
+        return ' [fetched=%d, errors=%s, todo=%s]' % result
 
 
 class FetchUpdatedPullRequests(RepositoryJob):
@@ -57,6 +59,7 @@ class FetchUpdatedPullRequests(RepositoryJob):
 
     limit = fields.InstanceHashField()
     count = fields.InstanceHashField()
+    errors = fields.InstanceHashField()
 
     def run(self, queue):
         """
@@ -65,18 +68,19 @@ class FetchUpdatedPullRequests(RepositoryJob):
         """
         super(FetchUpdatedPullRequests, self).run(queue)
 
-        count = self.object.fetch_updated_prs(
-                                limit=int(self.limit.hget() or 20), gh=self.gh)
+        count, errors, todo = self.object.fetch_updated_prs(
+                                            limit=int(self.limit.hget() or 20),
+                                            gh=self.gh)
 
-        self.count.hset(count)
+        self.hmset(count=count, errors=errors)
 
-        return count
+        return count, errors, todo
 
     def success_message_addon(self, queue, result):
         """
         Display the count of pull requests updated
         """
-        return ' [fetched=%d]' % result
+        return ' [fetched=%d, errors=%s, todo=%s]' % result
 
 
 class FirstFetch(Job):
@@ -206,6 +210,8 @@ class FetchUnfetchedCommits(RepositoryJob):
 
     limit = fields.InstanceHashField()
     count = fields.InstanceHashField()
+    errors = fields.InstanceHashField()
+    deleted = fields.InstanceHashField()
 
     def run(self, queue):
         """
@@ -214,15 +220,16 @@ class FetchUnfetchedCommits(RepositoryJob):
         """
         super(FetchUnfetchedCommits, self).run(queue)
 
-        count = self.object.fetch_unfetched_commits(
-                                limit=int(self.limit.hget() or 20), gh=self.gh)
+        count, deleted, errors, todo = self.object.fetch_unfetched_commits(
+                                            limit=int(self.limit.hget() or 20),
+                                            gh=self.gh)
 
-        self.count.hset(count)
+        self.hmset(count=count, errors=errors, deleted=deleted)
 
-        return count
+        return count, deleted, errors, todo
 
     def success_message_addon(self, queue, result):
         """
         Display the count of fetched commits
         """
-        return ' [fetched=%d]' % result
+        return ' [fetched=%d, deleted=%s, errors=%s, todo=%s]' % result

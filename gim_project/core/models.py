@@ -955,9 +955,11 @@ class Repository(GithubObjectWithId):
             count = pr_count
 
         if self.has_issues and (not state or state == 'closed'):
-            self.fetch_closed_issues_without_closed_by(gh)
+            from .tasks.repository import FetchClosedIssuesWithNoClosedBy
+            FetchClosedIssuesWithNoClosedBy.add_job(self.id, limit=20, gh=gh)
 
-        self.fetch_updated_prs(gh)
+        from .tasks.repository import FetchUpdatedPullRequests
+        FetchUpdatedPullRequests.add_job(self.id, limit=20, gh=gh)
 
         return count
 
@@ -967,31 +969,38 @@ class Repository(GithubObjectWithId):
         # if we never did it because some times there is noone who closed an
         # issue on the github api :( ))
         if not self.has_issues:
-            return 0
+            return 0, 0, 0
 
-        issues = list(self.issues.filter(state='closed',
-                                        closed_by__isnull=True,
-                                        closed_by_fetched=False
-                                        ).order_by('-closed_at')[:limit])
+        qs = self.issues.filter(state='closed',
+                                closed_by__isnull=True,
+                                closed_by_fetched=False
+                               )
 
-        count = 0
-        for issue in issues:
-            try:
-                issue.fetch(gh, force_fetch=True,
-                            defaults={'simple': {'closed_by_fetched': True}})
-            except ApiError:
-                pass
-            else:
-                count += 1
+        issues = list(qs.order_by('-closed_at')[:limit])
+
+        count = errors = todo = 0
 
         if len(issues):
-            from .tasks.repository import FetchClosedIssuesWithNoClosedBy
-            FetchClosedIssuesWithNoClosedBy.add_job(self.id,
-                                    delayed_for=timedelta(seconds=60),
-                                    limit=limit,
-                                    gh=gh)
 
-        return count
+            for issue in issues:
+                try:
+                    issue.fetch(gh, force_fetch=True,
+                                defaults={'simple': {'closed_by_fetched': True}})
+                except ApiError:
+                    errors += 1
+                else:
+                    count += 1
+
+            todo = qs.count()
+
+            if todo:
+                from .tasks.repository import FetchClosedIssuesWithNoClosedBy
+                FetchClosedIssuesWithNoClosedBy.add_job(self.id,
+                                        delayed_for=timedelta(seconds=60),
+                                        limit=limit,
+                                        gh=gh)
+
+        return count, errors, todo
 
     def fetch_updated_prs(self, gh, limit=20):
         """
@@ -999,64 +1008,78 @@ class Repository(GithubObjectWithId):
         updated_at retrieved from the issues list is newer than the previous
         'pr_fetched_at'
         """
-        prs = list(self.issues.filter(Q(is_pull_request=True)
-                                      &
-                                      (Q(pr_fetched_at__isnull=True)
-                                       |
-                                       Q(pr_fetched_at__lt=F('updated_at'))
-                                      )
-                                    ).order_by('-updated_at')[:limit])
+        qs = self.issues.filter(Q(is_pull_request=True)
+                                &
+                                (Q(pr_fetched_at__isnull=True)
+                                 |
+                                 Q(pr_fetched_at__lt=F('updated_at'))
+                                )
+                               )
 
-        count = 0
-        for pr in prs:
-            try:
-                pr.fetch(gh, force_fetch=True, meta_base_name='pr',
-                         defaults={'simple': {'is_pull_request': True}})
-                pr.fetch_commits(gh)
-            except ApiError:
-                pass
-            else:
-                count += 1
+        prs = list(qs.order_by('-updated_at')[:limit])
+
+        count = errors = todo = 0
 
         if len(prs):
-            from .tasks.repository import FetchUpdatedPullRequests
-            FetchUpdatedPullRequests.add_job(self.id,
-                                    delayed_for=timedelta(seconds=60),
-                                    limit=limit,
-                                    gh=gh)
 
-        return count
+            for pr in prs:
+                try:
+                    pr.fetch(gh, force_fetch=True, meta_base_name='pr',
+                             defaults={'simple': {'is_pull_request': True}})
+                    pr.fetch_commits(gh)
+                except ApiError:
+                    errors += 1
+                else:
+                    count += 1
+
+            todo = qs.count()
+
+            if todo:
+                from .tasks.repository import FetchUpdatedPullRequests
+                FetchUpdatedPullRequests.add_job(self.id,
+                                        delayed_for=timedelta(seconds=60),
+                                        limit=limit,
+                                        gh=gh)
+
+        return count, errors, todo
 
     def fetch_unfetched_commits(self, gh, limit=20):
         """
         Fetch commits that were never fetched, for example just created with a
         sha from an IssueEvent
         """
-        commits = list(self.commits.filter(fetched_at__isnull=True)
-                                            .order_by('-authored_at')[:limit])
+        qs = self.commits.filter(fetched_at__isnull=True)
 
-        count = 0
-        for commit in commits:
-            try:
-                commit.fetch(gh, force_fetch=True)
-            except ApiNotFoundError:
-                # the commit doesn't exist anymore !
-                commit.fetched_at = datetime.utcnow()
-                commit.deleted = True
-                commit.save(update_fields=['fetched_at', 'deleted'])
-            except ApiError:
-                pass
-            else:
-                count += 1
+        commits = list(qs.order_by('-authored_at')[:limit])
+
+        count = errors = deleted = todo = 0
 
         if len(commits):
-            from .tasks.repository import FetchUnfetchedCommits
-            FetchUnfetchedCommits.add_job(self.id,
-                                          delayed_for=timedelta(seconds=60),
-                                          limit=limit,
-                                          gh=gh)
 
-        return count
+            for commit in commits:
+                try:
+                    commit.fetch(gh, force_fetch=True)
+                except ApiNotFoundError:
+                    # the commit doesn't exist anymore !
+                    commit.fetched_at = datetime.utcnow()
+                    commit.deleted = True
+                    commit.save(update_fields=['fetched_at', 'deleted'])
+                    deleted += 1
+                except ApiError:
+                    errors += 1
+                else:
+                    count += 1
+
+            todo = qs.count()
+
+            if todo:
+                from .tasks.repository import FetchUnfetchedCommits
+                FetchUnfetchedCommits.add_job(self.id,
+                                            delayed_for=timedelta(seconds=60),
+                                            limit=limit,
+                                            gh=gh)
+
+        return count, deleted, errors, todo
 
     @property
     def github_callable_identifiers_for_issues_events(self):
@@ -1072,7 +1095,8 @@ class Repository(GithubObjectWithId):
                                  parameters=parameters,
                                  force_fetch=force_fetch)
 
-        self.fetch_unfetched_commits(gh)
+        from .tasks.repository import FetchUnfetchedCommits
+        FetchUnfetchedCommits.add_job(self.id, limit=20, gh=gh)
 
         return count
 
