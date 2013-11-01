@@ -1061,10 +1061,14 @@ class Repository(GithubObjectWithId):
     def fetch_issues_events(self, gh, force_fetch=False, parameters=None):
         # doesn't work for now when has_issues == False, but keep the call
         # hoping for github to resolve it
-        return self._fetch_many('issues_events', gh,
-                                defaults={'fk': {'repository': self}},
-                                parameters=parameters,
-                                force_fetch=force_fetch)
+        count = self._fetch_many('issues_events', gh,
+                                 defaults={'fk': {'repository': self}},
+                                 parameters=parameters,
+                                 force_fetch=force_fetch)
+
+        self.fetch_unfetched_commits(gh)
+
+        return count
 
     @property
     def github_callable_identifiers_for_comments(self):
@@ -1132,14 +1136,12 @@ class Repository(GithubObjectWithId):
             self.fetch_issues_events(gh, force_fetch=force_fetch)
             self.fetch_comments(gh, force_fetch=force_fetch)
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
-            self.fetch_unfetched_commits(gh, force_fetch=force_fetch)
 
     def fetch_all_step2(self, gh, force_fetch=False):
         self.fetch_issues(gh, force_fetch=force_fetch, state='closed')
         self.fetch_issues_events(gh, force_fetch=force_fetch)
         self.fetch_comments(gh, force_fetch=force_fetch)
         self.fetch_pr_comments(gh, force_fetch=force_fetch)
-        self.fetch_unfetched_commits(gh, force_fetch=force_fetch)
 
 
 class WithRepositoryMixin(object):
