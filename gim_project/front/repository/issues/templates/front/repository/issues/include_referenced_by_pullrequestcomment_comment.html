@@ -7,7 +7,7 @@
     <strong>{{ comment.user.username }}</strong>
     referenced this {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
     {% with related_comment=comment.related_object.issue %}
-        from a <<strong>comment on commit in a pull request</strong>
+        from a <strong>comment on commit in a pull request</strong>
     {% endwith %}
 {% endblock %}
 
