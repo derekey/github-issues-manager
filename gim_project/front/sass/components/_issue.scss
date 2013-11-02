@@ -137,6 +137,10 @@
 
 .issue-comments {
     padding: 15px 15px;
+    .time {
+        color: #949494 !important;
+        font-weight: normal;
+    }
     .chat-box-entry {
         margin-left: 50px;
         &.event {
@@ -156,6 +160,11 @@
                     margin-top: 1px;
                 }
             }
+        }
+    }
+    .pr-commits-group .box-header {
+        > .title, > .box-toolbar > li {
+            font-size: 13px;
         }
     }
     .pr-entry-point {
