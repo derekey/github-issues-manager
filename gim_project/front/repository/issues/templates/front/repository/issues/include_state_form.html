@@ -1,0 +1,11 @@
+{% if current_issue_edit_level == 'full' %}
+    <form class="issue-edit-state-form" data-issue-number="{{ current_issue.number }}" method="post" action="{% if current_issue.state == 'open' %}{{ current_issue.set_closed_url }}{% else %}{{ current_issue.set_open_url }}{% endif %}">
+        {% csrf_token %}
+        <button class="btn btn-{% if current_issue.state == 'open' %}red{% else %}green{% endif %} btn-loading">
+            {% if current_issue.state == 'open' %}Close{% else %}Reopen{% endif %}
+            this
+            {% if current_issue.is_pull_request %}pull request{% else %}issue{% endif %}
+            <i class='icon-spinner icon-spin'> </i>
+        </button>
+    </form>
+{% endif %}

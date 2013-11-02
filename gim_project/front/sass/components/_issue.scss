@@ -87,12 +87,15 @@
         }
     }
 
-    .pr-infos {
+    .pr-infos, .issue-button {
         margin-top: -15px;
         margin-bottom: 15px;
         background: $highlight-background-color;
         padding: 15px;
         border-bottom: solid 1px $box-border-color;
+        overflow: auto;
+    }
+    .pr-infos {
         ul {
             float: right;
             li {
@@ -106,6 +109,15 @@
             display: inline-block;
             padding-right: 14px;
             margin: 0;
+        }
+    }
+    .issue-edit-state-form {
+        float: right;
+        margin-bottom: 0;
+        button {
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 18px;
         }
     }
 

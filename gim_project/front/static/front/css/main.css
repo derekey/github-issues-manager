@@ -4443,6 +4443,15 @@ ol.errorlist, ul.errorlist {
   text-align: right;
 }
 
+/* line 114, ../../../sass/main.scss */
+.btn-loading i {
+  display: none !important;
+}
+/* line 118, ../../../sass/main.scss */
+.btn-loading.loading i {
+  display: inline-block !important;
+}
+
 @media (max-width: 1023px) {
   /* line 4, ../../../sass/_responsive.scss */
   .navbar-fixed-top .user_avatar .dropdown-toggle > span > span:not(.caret) {

@@ -28,6 +28,7 @@ class RepositoryDashboardPartView(RepositoryMixin):
 
     def inherit_from_view(self, view):
         self.object = self.repository = view.repository
+        self.subscription = view.subscription
         self.args = view.args
         self.kwargs = view.kwargs
         self.request = view.request
@@ -275,11 +276,6 @@ class LabelTypeFormBaseView(LinkedToRepositoryFormView):
     form_class = LabelTypeEditForm
     allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
 
-    def get_form_kwargs(self):
-        kwargs = super(LabelTypeFormBaseView, self).get_form_kwargs()
-        kwargs['repository'] = self.repository
-        return kwargs
-
 
 class LabelTypeEditBase(LabelTypeFormBaseView):
     template_name = 'front/repository/dashboard/labels-editor/label-type-edit.html'
@@ -409,16 +405,7 @@ class LabelFormBaseView(LinkedToRepositoryFormView):
     form_class = LabelEditForm
     allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
     http_method_names = [u'post']
-
-    def get_form_kwargs(self):
-        kwargs = super(LabelFormBaseView, self).get_form_kwargs()
-        kwargs['repository'] = self.repository
-        return kwargs
-
-    def post(self, *args, **kwargs):
-        if not self.request.is_ajax():
-            return self.http_method_not_allowed(self.request)
-        return super(LabelFormBaseView, self).post(*args, **kwargs)
+    ajax_only = True
 
     def form_valid(self, form):
         """

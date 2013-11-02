@@ -1095,4 +1095,32 @@ $().ready(function() {
     }); // ajaxSetup
     MessagesManager.init_auto_hide();
 
+    var IssueEditor = {
+
+        on_state_submit: (function IssueEditor__on_state_submit (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var $form = $(this),
+                issue_number = $form.data('issue-number');
+            $form.find('button').addClass('loading');
+            $.post($form.attr('action'), $form.serialize())
+                .done($.proxy(IssueEditor.on_state_submit_done, { issue_number: issue_number }))
+                .fail($.proxy(IssueEditor.on_state_submit_failed, { issue_number: issue_number }));
+        }), // on_state_submit
+
+        on_state_submit_done: (function IssueEditor__on_state_submit_done (data) {
+            IssuesList.display_issue_html(data, this.issue_number);
+        }), // on_state_submit_done
+
+        on_state_submit_failed: (function IssueEditor__on_state_submit_failed () {
+            $form.find('button').removeClass('loading');
+            alert('A problem prevented us to do your action !');
+        }), // on_state_submit_failed
+
+        init: (function IssueEditor__init () {
+            $document.on('submit', '.issue-edit-state-form', IssueEditor.on_state_submit);
+        }) // init
+    }; // IssueEditor
+    IssueEditor.init();
+
 });

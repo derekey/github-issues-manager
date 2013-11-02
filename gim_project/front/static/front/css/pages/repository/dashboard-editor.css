@@ -1433,66 +1433,57 @@ div.selector span {
 }
 
 /* line 86, ../../../../../sass/pages/repository/dashboard-editor.scss */
-.btn-loading i {
-  display: none !important;
-}
-/* line 90, ../../../../../sass/pages/repository/dashboard-editor.scss */
-.btn-loading.loading i {
-  display: inline-block !important;
-}
-
-/* line 97, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form input[name=name] {
   width: 182px;
   margin-right: 5px;
 }
-/* line 101, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 90, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form input[name=color] {
   width: 46px;
   padding-left: 3px;
 }
-/* line 106, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 95, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form .sp-replacer {
   padding: 3px;
   vertical-align: top;
 }
-/* line 110, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 99, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form .sp-preview {
   width: 26px;
   height: 18px;
 }
 
-/* line 116, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 105, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label {
   padding: 0px;
   border: medium none;
   margin-top: 0px;
   margin-bottom: 0px;
 }
-/* line 123, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 112, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label > a.btn {
   line-height: 19px;
   margin-top: 1px;
 }
-/* line 129, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 118, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-title {
   overflow: hidden;
 }
-/* line 131, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 120, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-title strong {
   border-bottom: solid transparent 3px;
   line-height: 1.8em;
 }
-/* line 137, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 126, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-content label {
   float: left;
 }
-/* line 140, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 129, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-content .errorlist li {
   margin: 0;
   margin-left: 5px;
 }
-/* line 146, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 135, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover .popover-content {
   white-space: nowrap;
 }

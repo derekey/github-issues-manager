@@ -4,13 +4,19 @@ from operator import attrgetter
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
+from django.views.generic import UpdateView
+from django.contrib import messages
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment)
+from core.tasks.issue import IssueEditStateJob
+
+from subscriptions.models import SUBSCRIPTION_STATES
 
 from front.models import GroupedCommits
-from ..views import BaseRepositoryView
+from ..views import BaseRepositoryView, LinkedToRepositoryFormView
 from ...utils import make_querystring
+from .forms import IssueStateForm
 
 
 class IssuesView(BaseRepositoryView):
@@ -508,7 +514,7 @@ class IssueView(UserIssuesView):
 
     def get_context_data(self, **kwargs):
         """
-        Add the selected view in the context
+        Add the selected issue in the context
         """
         if self.request.is_ajax():
             # is we respond to an ajax call, bypass all the context stuff
@@ -530,10 +536,16 @@ class IssueView(UserIssuesView):
                 current_issue_state = 'undefined'
 
         # fetch other useful data
+        edit_level = None
         if current_issue:
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
             activity = current_issue.get_activity()
             involved = self.get_involved_people(current_issue, activity, context['collaborators_ids'])
+            if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
+                edit_level = 'full'
+            elif self.subscription.state == SUBSCRIPTION_STATES.READ\
+                                    and current_issue.user == self.request.user:
+                edit_level = 'self'
         else:
             activity = []
             involved = []
@@ -544,6 +556,7 @@ class IssueView(UserIssuesView):
             'current_issue_state': current_issue_state,
             'current_issue_activity': activity,
             'current_issue_involved': involved,
+            'current_issue_edit_level':  edit_level,
         })
 
         return context
@@ -568,3 +581,49 @@ class IssueView(UserIssuesView):
         if self.request.is_ajax():
             self.template_name = self.ajax_template_name
         return super(IssueView, self).get_template_names()
+
+
+class BaseIssueEditView(LinkedToRepositoryFormView):
+    model = Issue
+    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
+    http_method_names = [u'post']
+    ajax_only = True
+
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        return queryset.get(number=self.kwargs['issue_number'])
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+
+class IssueEditState(BaseIssueEditView, UpdateView):
+    url_name = 'issue.edit.state'
+    form_class = IssueStateForm
+
+    def get_form_kwargs(self):
+        kwargs = super(IssueEditState, self).get_form_kwargs()
+        kwargs['state'] = self.kwargs['state']
+        return kwargs
+
+    def form_invalid(self, form):
+        return super(IssueEditState, self).form_invalid(form)
+
+    def form_valid(self, form):
+        """
+        Override the default behavior to add a job to update the issue on the
+        github side
+        """
+        response = super(IssueEditState, self).form_valid(form)
+
+        IssueEditStateJob.add_job(self.object.pk,
+                                  gh=self.request.user.get_connection())
+
+        messages.success(self.request,
+            u'The %s <strong>#%d</strong> will be %s shortly' % (
+                    'pull request' if self.object.is_pull_request else 'issue',
+                    self.object.number,
+                    'closed' if self.object.state == 'closed' else 'reopened'))
+
+        return response

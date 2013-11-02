@@ -108,4 +108,17 @@ ol, ul {
     }
 }
 
+
+// loading spin on buttons, hidden by default
+.btn-loading {
+    i {
+        display: none !important;
+    }
+    &.loading {
+        i {
+            display: inline-block !important;
+        }
+    }
+}
+
 @import "responsive";

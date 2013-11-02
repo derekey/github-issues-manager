@@ -1573,14 +1573,19 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         return self.fetch(gh=gh, defaults=defaults, force_fetch=force_fetch,
                                     parameters=parameters, meta_base_name='pr')
 
-    def fetch_events(self, gh, force_fetch=False, parameters=None):
+    def fetch_events(self, gh, force_fetch=True, parameters=None):
+        """
+        force_fetch is forced to True because for an issue events are in the
+        reverse order (first created first, last created last, maybe on an other
+        page)
+        """
         return self._fetch_many('events', gh,
                                 defaults={'fk': {
                                     'issue': self,
                                     'repository': self.repository}
                                 },
                                 parameters=parameters,
-                                force_fetch=force_fetch)
+                                force_fetch=True)
 
     def fetch_comments(self, gh, force_fetch=False, parameters=None):
         """
