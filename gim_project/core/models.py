@@ -1533,6 +1533,9 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     @property
     def github_callable_identifiers(self):
+        if not self.repository.has_issues:
+            return self.github_callable_identifiers_for_pr
+
         return self.repository.github_callable_identifiers_for_issues + [
             self.number,
         ]
