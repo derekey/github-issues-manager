@@ -1914,13 +1914,9 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
     github_matching = dict(GithubObjectWithId.github_matching)
     github_matching.update({
         'actor': 'user',
-    })
-    github_date_field = ('created_at', None, None)
-
-    github_matching = dict(GithubObjectWithId.github_matching)
-    github_matching.update({
         'commit_id': 'commit_sha',
     })
+    github_date_field = ('created_at', None, None)
 
     class Meta:
         ordering = ('created_at', 'github_id')
