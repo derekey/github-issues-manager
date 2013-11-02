@@ -486,7 +486,7 @@ class GithubObject(models.Model):
                 relation = getattr(self, field_name)
                 if is_m2m or not direct:
                     # we have a many to many relationship
-                    data[field_name] = relation.values_list(subfield_name, flat=True)
+                    data[field_name] = list(relation.values_list(subfield_name, flat=True))
                 else:
                     # we have a foreignkey
                     data[field_name] = None if not relation else getattr(relation, subfield_name)
