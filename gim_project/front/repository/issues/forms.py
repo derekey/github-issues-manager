@@ -9,12 +9,21 @@ from core.models import Issue, IssueComment
 from front.repository.forms import LinkedToRepositoryForm
 
 
+class LinkedToUserForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(LinkedToUserForm, self).__init__(*args, **kwargs)
+        if not self.instance.user_id:
+            self.instance.user = self.user
+
+
 class IssueFormMixin(LinkedToRepositoryForm):
     class Meta:
         model = Issue
 
 
-class IssueStateForm(IssueFormMixin):
+class IssueStateForm(LinkedToUserForm, IssueFormMixin):
     class Meta(IssueFormMixin.Meta):
         fields = []
 
@@ -24,6 +33,12 @@ class IssueStateForm(IssueFormMixin):
 
     def save(self, commit=True):
         self.instance.state = self.state
+        if self.state == 'closed':
+            self.instance.closed_by = self.user
+            self.instance.closed_at = datetime.utcnow()
+        else:
+            self.instance.closed_by = None
+            self.instance.closed_at = None
         return super(IssueStateForm, self).save(commit)
 
 
@@ -52,15 +67,6 @@ class LinkedToIssueForm(forms.ModelForm):
             self.instance.validate_unique(exclude=exclude)
         except forms.ValidationError as e:
             self._update_errors(e.message_dict)
-
-
-class LinkedToUserForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
-        super(LinkedToUserForm, self).__init__(*args, **kwargs)
-        if not self.instance.user_id:
-            self.instance.user = self.user
 
 
 def validate_filled_string(value):

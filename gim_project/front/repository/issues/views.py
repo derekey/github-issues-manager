@@ -590,6 +590,13 @@ class IssueView(UserIssuesView):
         return super(IssueView, self).get_template_names()
 
 
+class LinkedToUserFormView(object):
+    def get_form_kwargs(self):
+        kwargs = super(LinkedToUserFormView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
 class BaseIssueEditView(LinkedToRepositoryFormView):
     model = Issue
     allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
@@ -605,7 +612,7 @@ class BaseIssueEditView(LinkedToRepositoryFormView):
         return self.object.get_absolute_url()
 
 
-class IssueEditState(BaseIssueEditView, UpdateView):
+class IssueEditState(LinkedToUserFormView, BaseIssueEditView, UpdateView):
     url_name = 'issue.edit.state'
     form_class = IssueStateForm
 
@@ -671,13 +678,6 @@ class LinkedToIssueFormView(object):
     def get_form_kwargs(self):
         kwargs = super(LinkedToIssueFormView, self).get_form_kwargs()
         kwargs['issue'] = self.issue
-        return kwargs
-
-
-class LinkedToUserFormView(object):
-    def get_form_kwargs(self):
-        kwargs = super(LinkedToUserFormView, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
         return kwargs
 
 
