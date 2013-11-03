@@ -480,21 +480,26 @@ class GithubObject(models.Model):
         data = {}
 
         for field_name in fields:
+            if isinstance(field_name, tuple):
+                key, field_name = field_name
+            else:
+                key = field_name
+
             if '__' in field_name:
                 field_name, subfield_name = field_name.split('__')
                 field, _, direct, is_m2m = self._meta.get_field_by_name(field_name)
                 relation = getattr(self, field_name)
                 if is_m2m or not direct:
                     # we have a many to many relationship
-                    data[field_name] = list(relation.values_list(subfield_name, flat=True))
+                    data[key] = list(relation.values_list(subfield_name, flat=True))
                 else:
                     # we have a foreignkey
-                    data[field_name] = None if not relation else getattr(relation, subfield_name)
+                    data[key] = None if not relation else getattr(relation, subfield_name)
             else:
                 # it's a direct field
-                data[field_name] = getattr(self, field_name)
+                data[key] = getattr(self, field_name)
                 if isinstance(data[field_name], datetime):
-                    data[field_name] = data[field_name].isoformat()
+                    data[key] = data[field_name].isoformat()
 
         # prepare the request
         identifiers = self.github_callable_identifiers if mode == 'update' else self.github_callable_create_identifiers
@@ -1858,9 +1863,18 @@ class PullRequestComment(WithIssueMixin, GithubObjectWithId):
 
     github_format = '.full+json'
     github_edit_fields = {
-        # TODO
-        'create': ('body', ),
-        'update': ('body', )
+        'create': (
+           'body',
+           ('commit_id', 'entry_point__original_commit_sha'),
+           ('path', 'entry_point__path'),
+           ('position', 'entry_point__original_position'),
+        ),
+        'update': (
+           'body',
+           ('commit_id', 'entry_point__original_commit_sha'),
+           ('path', 'entry_point__path'),
+           ('position', 'entry_point__original_position'),
+        ),
     }
     github_date_field = ('updated_at', 'updated', 'desc')
 
