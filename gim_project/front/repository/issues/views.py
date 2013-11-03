@@ -626,8 +626,7 @@ class IssueEditState(BaseIssueEditView, UpdateView):
 
         messages.success(self.request,
             u'The %s <strong>#%d</strong> will be %s shortly' % (
-                    'pull request' if self.object.is_pull_request else 'issue',
-                    self.object.number,
+                    self.object.type, self.object.number,
                     'closed' if self.object.state == 'closed' else 'reopened'))
 
         return response
@@ -706,7 +705,6 @@ class IssueCommentCreate(LinkedToUserFormView, LinkedToIssueFormView, CreateView
 
         messages.success(self.request,
             u'Your comment on the %s <strong>#%d</strong> will be created shortly' % (
-                    'pull request' if self.issue.is_pull_request else 'issue',
-                    self.issue.number))
+                                            self.issue.type, self.issue.number))
 
         return response

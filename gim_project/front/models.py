@@ -207,6 +207,10 @@ class _Issue(models.Model):
         return reverse_lazy('front:repository:issue.comment.create', kwargs=self.get_reverse_kwargs())
 
     @property
+    def type(self):
+        return 'pull request' if self.is_pull_request else 'issue'
+
+    @property
     def hash(self):
         """
         Hash for this issue representing its state at the current time, used to

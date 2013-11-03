@@ -4,6 +4,7 @@ from limpyd import fields
 from async_messages import messages
 
 from core.models import Issue
+from core.ghpool import ApiError
 
 from . import DjangoModelJob
 
@@ -66,14 +67,42 @@ class IssueEditStateJob(IssueJob):
 
         gh = self.gh
 
-        self.object.dist_edit(mode='update', gh=gh, fields=['state'])
+        issue = self.object
 
-        message = u'The %s <strong>#%d</strong> was correctly %s' % (
-                    'pull request' if self.object.is_pull_request else 'issue',
-                    self.object.number,
-                    'closed' if self.object.state == 'closed' else 'reopened')
+        try:
+            issue.dist_edit(mode='update', gh=gh, fields=['state'])
+        except ApiError, e:
+            message = None
+            issue_state_verb = 'close' if issue.state == 'closed' else 'reopen'
+
+            if e.code == 422:
+                message = u'Github refused to %s the %s <strong>#%s</strong> on <strong>%s</strong>' % (
+                    issue_state_verb, issue.type, issue.number, issue.repository.full_name)
+
+            elif e.code in (401, 403):
+                tries = self.tries.hget()
+                if tries and int(tries) >= 5:
+                    message = u'You seem to not have the right to %s the %s <strong>#%s</strong> on <strong>%s</strong>' % (
+                        issue_state_verb, issue.type, issue.number, issue.repository.full_name)
+
+            if message:
+                messages.error(self.gh_user, message)
+                try:
+                    self.object.fetch(gh, force_fetch=True)
+                except Exception:
+                    pass
+                return None
+
+            else:
+                raise
+
+        message = u'The %s <strong>#%d</strong> on <strong>%s</strong> was correctly %s' % (
+                    issue.type,
+                    issue.number,
+                    issue.repository.full_name,
+                    'closed' if issue.state == 'closed' else 'reopened')
         messages.success(self.gh_user, message)
 
-        self.object.fetch_events(gh, force_fetch=True)
+        self.object.fetch_all(gh)
 
         return None

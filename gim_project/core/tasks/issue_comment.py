@@ -35,8 +35,6 @@ class IssueCommentEditJob(IssueCommentJob):
         except IssueComment.DoesNotExist:
             return None
 
-        issue_type = 'pull request' if comment.issue.is_pull_request else 'issue'
-
         try:
             if mode == 'delete':
                 comment.dist_delete(gh)
@@ -48,25 +46,30 @@ class IssueCommentEditJob(IssueCommentJob):
 
             if e.code == 422:
                 message = u'Github refused to %s your comment on the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                    mode, issue_type, comment.issue.number, comment.repository.full_name)
-                comment.delete()
+                    mode, comment.issue.type, comment.issue.number, comment.repository.full_name)
 
             elif e.code in (401, 403):
                 tries = self.tries.hget()
                 if tries and int(tries) >= 5:
                     message = u'You seem to not have the right to %s a comment on the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                        mode, issue_type, comment.issue.number, comment.repository.full_name)
-                    comment.delete()
+                        mode, comment.issue.type, comment.issue.number, comment.repository.full_name)
 
             if message:
                 messages.error(self.gh_user, message)
+                if mode == 'create':
+                    comment.delete()
+                else:
+                    try:
+                        comment.fetch(gh, force_fetch=True)
+                    except ApiError:
+                        pass
                 return None
 
             else:
                 raise
 
         message = u'Your comment on the %s <strong>#%s</strong> on <strong>%s</strong> was correctly %sd' % (
-            issue_type, comment.issue.number, comment.repository.full_name, mode)
+            comment.issue.type, comment.issue.number, comment.repository.full_name, mode)
         messages.success(self.gh_user, message)
 
         self.object.issue.fetch_all(gh)
@@ -78,4 +81,3 @@ class IssueCommentEditJob(IssueCommentJob):
         Display the action done (created/updated/deleted)
         """
         return ' [%sd]' % self.mode.hget()
-

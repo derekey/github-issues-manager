@@ -3,6 +3,7 @@ from limpyd import fields
 from async_messages import messages
 
 from core.models import Label
+from core.ghpool import ApiError
 
 from . import DjangoModelJob
 
@@ -30,14 +31,46 @@ class LabelEditJob(LabelJob):
         mode = self.mode.hget()
         gh = self.gh
 
-        label = self.object
+        try:
+            label = self.object
+        except Label.DoesNotExist:
+            return None
 
-        if mode == 'delete':
-            label.dist_delete(gh)
-        else:
-            label.dist_edit(mode=mode, gh=gh)
+        try:
+            if mode == 'delete':
+                label.dist_delete(gh)
+            else:
+                label.dist_edit(mode=mode, gh=gh)
 
-        message = u'The label <strong>%s</strong> was correctly %sd' % (label.name, mode)
+        except ApiError, e:
+            message = None
+
+            if e.code == 422:
+                message = u'Github refused to %s the label <strong>%s</strong> on <strong>%s</strong>' % (
+                                mode, label.name, label.repository.full_name)
+
+            elif e.code in (401, 403):
+                tries = self.tries.hget()
+                if tries and int(tries) >= 5:
+                    message = u'You seem to not have the right to %s the label <strong>%s</strong> on <strong>%s</strong>' % (
+                            mode, label.name, label.repository.full_name)
+
+            if message:
+                messages.error(self.gh_user, message)
+                if mode == 'create':
+                    label.delete()
+                else:
+                    try:
+                        label.fetch(gh, force_fetch=True)
+                    except ApiError:
+                        pass
+                return None
+
+            else:
+                raise
+
+        message = u'The label <strong>%s</strong> was correctly %sd on <strong>%s</strong>' % (
+                                label.name, mode, label.repository.full_name)
         messages.success(self.gh_user, message)
 
         return None
@@ -47,3 +80,4 @@ class LabelEditJob(LabelJob):
         Display the action done (created/updated/deleted)
         """
         return ' [%sd]' % self.mode.hget()
+
