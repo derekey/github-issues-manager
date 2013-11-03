@@ -1,4 +1,6 @@
 @import "compass/typography/text/ellipsis";
+@import "compass/css3/box-sizing";
+@import "compass/css3/transition";
 
 .issue {
     position: relative;
@@ -240,6 +242,23 @@
     .comment-commits {
         margin: -5px -10px;
     }
+
+    .issuecomment-create-form {
+        margin: 5px 0;
+        textarea {
+            width: 100%;
+            @include box-sizing(border-box);
+            height: 5em;
+            @include transition(height 0.5s ease 2s);
+        }
+        textarea:focus {
+            height: 15em;
+        }
+        .alert {
+            margin-bottom: 10px;
+        }
+    }
+
 }
 
 table.commits-list {

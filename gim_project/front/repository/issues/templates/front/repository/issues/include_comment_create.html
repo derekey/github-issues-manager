@@ -1,0 +1,23 @@
+{% extends "front/repository/issues/include_base_comment.html" %}
+
+{% block comment_info %}
+    <span class="name">
+        <strong>{{ view.request.user.username }}</strong>
+        {% if view.request.user.id == current_repository.owner.id %}
+            <span class="label label-success" title="{{ view.request.user.username }} is the project's owner">owner</span>
+        {% elif view.request.user.id in collaborators_ids %}
+            <span class="label label-info" title="{{ view.request.user.username }} is a collaborator on this project">collaborator</span>
+        {% endif %}
+        {% if view.request.user.id == current_issue.user.id %}
+            <span class="label" title="{{ view.request.user.username }} submitted this issue">submitter</span>
+        {% endif %}
+    </span>
+{% endblock comment_info %}
+
+{% block comment_inner_body %}
+    <form class="issuecomment-create-form" data-issue-number="{{ current_issue.number }}" method="post" action="{{ current_issue.issuecomment_create_url }}">
+        {% csrf_token %}
+        <div>{{ issue_comment_create_form.body }}</div>
+        <button class="btn btn-blue btn-loading">Add a comment <i class='icon-spinner icon-spin'> </i></button>
+    </form>
+{% endblock comment_inner_body %}

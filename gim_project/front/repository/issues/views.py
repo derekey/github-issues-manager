@@ -4,19 +4,21 @@ from operator import attrgetter
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
-from django.views.generic import UpdateView
+from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment)
 from core.tasks.issue import IssueEditStateJob
+from core.tasks.issue_comment import IssueCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
 
 from front.models import GroupedCommits
 from ..views import BaseRepositoryView, LinkedToRepositoryFormView
 from ...utils import make_querystring
-from .forms import IssueStateForm
+from .forms import IssueStateForm, IssueCommentCreateForm
 
 
 class IssuesView(BaseRepositoryView):
@@ -559,6 +561,11 @@ class IssueView(UserIssuesView):
             'current_issue_edit_level':  edit_level,
         })
 
+        if current_issue:
+            context['issue_comment_create_form'] = IssueCommentCreateForm(
+                                                        issue=current_issue,
+                                                        user=self.request.user)
+
         return context
 
     def get_all_comments(self, issue):
@@ -607,9 +614,6 @@ class IssueEditState(BaseIssueEditView, UpdateView):
         kwargs['state'] = self.kwargs['state']
         return kwargs
 
-    def form_invalid(self, form):
-        return super(IssueEditState, self).form_invalid(form)
-
     def form_valid(self, form):
         """
         Override the default behavior to add a job to update the issue on the
@@ -625,5 +629,84 @@ class IssueEditState(BaseIssueEditView, UpdateView):
                     'pull request' if self.object.is_pull_request else 'issue',
                     self.object.number,
                     'closed' if self.object.state == 'closed' else 'reopened'))
+
+        return response
+
+
+class LinkedToIssueFormView(object):
+    issue_related_name = 'issue'
+    allowed_rights = SUBSCRIPTION_STATES.READ_RIGHTS  # everybody can add an issue
+    ajax_only = False
+
+    def get_issue_kwargs(self):
+        return {
+            'repository__owner__username': self.kwargs.get('owner_username', None),
+            'repository__name': self.kwargs.get('repository_name', None),
+            'number': self.kwargs.get('issue_number', None),
+        }
+
+    def dispatch(self, *args, **kwargs):
+        filters = {
+            'repository__subscriptions__user': self.request.user
+        }
+        if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
+            filters['repository__subscriptions__state__in'] = self.allowed_rights
+
+        queryset = Issue.objects.filter(**filters)
+
+        issue_kwargs = self.get_issue_kwargs()
+        self.issue = get_object_or_404(queryset, **issue_kwargs)
+
+        return super(LinkedToIssueFormView, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        return self.model._default_manager.filter(**{
+                self.issue_related_name: self.issue
+            })
+
+    def post(self, *args, **kwargs):
+        if self.ajax_only and not self.request.is_ajax():
+            return self.http_method_not_allowed(self.request)
+        return super(LinkedToIssueFormView, self).post(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(LinkedToIssueFormView, self).get_form_kwargs()
+        kwargs['issue'] = self.issue
+        return kwargs
+
+
+class LinkedToUserFormView(object):
+    def get_form_kwargs(self):
+        kwargs = super(LinkedToUserFormView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
+class IssueCommentCreate(LinkedToUserFormView, LinkedToIssueFormView, CreateView):
+    url_name = 'issue.comment.create'
+    form_class = IssueCommentCreateForm
+    model = IssueComment
+
+    def post(self, request, *args, **kwargs):
+        return super(IssueCommentCreate, self).post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return self.issue.get_absolute_url()
+
+    def form_valid(self, form):
+        """
+        Override the default behavior to add a job to create the comment on the
+        github side
+        """
+        response = super(IssueCommentCreate, self).form_valid(form)
+
+        IssueCommentEditJob.add_job(self.object.pk,
+                                    mode='create',
+                                    gh=self.request.user.get_connection())
+
+        messages.success(self.request,
+            u'Your comment on the %s <strong>#%d</strong> will be created shortly' % (
+                    'pull request' if self.issue.is_pull_request else 'issue',
+                    self.issue.number))
 
         return response

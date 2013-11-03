@@ -103,104 +103,105 @@
         </div>
     </article>
     <aside>
-        {% if current_issue_activity|length %}
-            <ul class="unstyled chat-box timeline issue-comments" id="issue-comments-{{ current_issue.number }}">
-                {% for event in current_issue_activity %}
-                    {% if event.event %}{# IssueEvent #}
-                        {% if event.event == 'closed' %}
-                            {% include "front/repository/issues/include_closed_comment.html" with comment=event %}
-                        {% elif event.event == 'merged' %}
-                            {% include "front/repository/issues/include_merged_comment.html" with comment=event %}
-                        {% elif event.event == 'reopened' %}
-                            {% include "front/repository/issues/include_reopened_comment.html" with comment=event %}
-                        {% elif event.event == 'assigned' %}
-                            {% include "front/repository/issues/include_assigned_comment.html" with comment=event %}
-                        {% elif event.event == 'head_ref_deleted' %}
-                            {% include "front/repository/issues/include_head_ref_deleted_comment.html" with comment=event %}
-                        {% elif event.event == 'head_ref_restored' %}
-                            {% include "front/repository/issues/include_head_ref_restored_comment.html" with comment=event %}
-                        {% elif event.event == 'referenced' and event.commit_sha %}
-                            {% include "front/repository/issues/include_referenced_in_commit_comment.html" with comment=event %}
-                        {% elif event.event == 'referenced_by_issue' %}
-                            {% include "front/repository/issues/include_referenced_by_issue_comment.html" with comment=event %}
-                        {% elif event.event == 'referenced_by_issuecomment' %}
-                            {% include "front/repository/issues/include_referenced_by_issuecomment_comment.html" with comment=event %}
-                        {% elif event.event == 'referenced_by_pullrequestcomment' %}
-                            {% include "front/repository/issues/include_referenced_by_pullrequestcomment_comment.html" with comment=event %}
-                        {% elif event.event == 'referenced_by_milestone' %}
-                            {% include "front/repository/issues/include_referenced_by_milestone_comment.html" with comment=event %}
-                        {% endif %}
-                    {% elif event.diff_hunk %}{# PullRequestEntryPoint #}
-                        {% with entry_point=event %}
-                            <li>
-                                <div class="box pr-entry-point">
-                                    <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
-                                        <div class="title">
-                                            {% if entry_point.position %}
-                                                <em>{{ entry_point.user.username }}</em> started a discussion in a diff
-                                            {% else %}
-                                                <em>{{ entry_point.user.username }}</em> discussed an outdated diff
-                                            {% endif %}
-                                            <span>{{ entry_point.path }}, line {{ entry_point.original_position }}</span>
-                                        </div>
-                                        <ul class="box-toolbar">
-                                            {% with entry_point_comments_count=entry_point.comments.all|length %}
-                                                <li class="comments-count" title="{{ entry_point_comments_count }} comment{{ entry_point_comments_count|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point_comments_count }}</li>
-                                            {% endwith %}
-                                            <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ entry_point.created_at|ago }}</li>
-                                        </ul>
-                                    </div>
-                                    <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
-                                        <div class="box-section pr-diff">
-                                            <pre>{% spaceless %}
-                                            {% for type, line in entry_point.parsed_diff %}
-                                                <span{% if type %} class="{{ type }}"{% endif %}><code>{{ line }}</code></span>
-                                            {% endfor %}
-                                            {% endspaceless %}</pre>
-                                        </div>
-                                        <div class="box-section pr-comments">
-                                            <ul class="unstyled chat-box timeline">
-                                                {% for pr_comment in entry_point.comments.all %}
-                                                    {% include "front/repository/issues/include_comment.html" with comment=pr_comment %}
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        {% endwith %}
-                    {% elif event.is_commits_group %}{# GroupedPullRequestCommits #}
-                        {% with group=event %}
-                            <li>
-                                <div class="box pr-commits-group">
-                                    <div class="box-header" data-toggle="collapse" data-target="#pr-commits-group-{{ group.0.sha }}" title="Click to collapse/expand">
-                                        <div class="title">
-                                            {% with authors=group.authors %}
-                                                {{ authors.0 }}
-                                                {% if authors|length == 2 %}
-                                                    and {{ authors.1 }}
-                                                {% elif authors|length > 2 %}
-                                                    , {{ authors.1 }} and others
-                                                {% endif %}
-                                            {% endwith %}
-                                            added {{ group|length }} commit{{ group|length|pluralize }}
-                                        </div>
-                                        <ul class="box-toolbar">
-                                            <li class="time" title="{{ group.0.authored_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ group.0.authored_at|ago }}</li>
-                                        </ul>
-                                    </div>
-                                    <div class="box-content collapse in" id="pr-commits-group-{{ group.0.sha }}">
-                                        {% include "front/repository/issues/include_commits.html" with commits=group id_prefix="pr-" %}
-                                    </div>
-                                </div>
-                            </li>
-                        {% endwith %}
-                    {% else %}
-                        {% include "front/repository/issues/include_comment.html" with comment=event %}
+        <ul class="unstyled chat-box timeline issue-comments" id="issue-comments-{{ current_issue.number }}">
+            {% for event in current_issue_activity %}
+                {% if event.event %}{# IssueEvent #}
+                    {% if event.event == 'closed' %}
+                        {% include "front/repository/issues/include_closed_comment.html" with comment=event %}
+                    {% elif event.event == 'merged' %}
+                        {% include "front/repository/issues/include_merged_comment.html" with comment=event %}
+                    {% elif event.event == 'reopened' %}
+                        {% include "front/repository/issues/include_reopened_comment.html" with comment=event %}
+                    {% elif event.event == 'assigned' %}
+                        {% include "front/repository/issues/include_assigned_comment.html" with comment=event %}
+                    {% elif event.event == 'head_ref_deleted' %}
+                        {% include "front/repository/issues/include_head_ref_deleted_comment.html" with comment=event %}
+                    {% elif event.event == 'head_ref_restored' %}
+                        {% include "front/repository/issues/include_head_ref_restored_comment.html" with comment=event %}
+                    {% elif event.event == 'referenced' and event.commit_sha %}
+                        {% include "front/repository/issues/include_referenced_in_commit_comment.html" with comment=event %}
+                    {% elif event.event == 'referenced_by_issue' %}
+                        {% include "front/repository/issues/include_referenced_by_issue_comment.html" with comment=event %}
+                    {% elif event.event == 'referenced_by_issuecomment' %}
+                        {% include "front/repository/issues/include_referenced_by_issuecomment_comment.html" with comment=event %}
+                    {% elif event.event == 'referenced_by_pullrequestcomment' %}
+                        {% include "front/repository/issues/include_referenced_by_pullrequestcomment_comment.html" with comment=event %}
+                    {% elif event.event == 'referenced_by_milestone' %}
+                        {% include "front/repository/issues/include_referenced_by_milestone_comment.html" with comment=event %}
                     {% endif %}
-                {% endfor %}
-            </ul>
-        {% endif %}
+                {% elif event.diff_hunk %}{# PullRequestEntryPoint #}
+                    {% with entry_point=event %}
+                        <li>
+                            <div class="box pr-entry-point">
+                                <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
+                                    <div class="title">
+                                        {% if entry_point.position %}
+                                            <em>{{ entry_point.user.username }}</em> started a discussion in a diff
+                                        {% else %}
+                                            <em>{{ entry_point.user.username }}</em> discussed an outdated diff
+                                        {% endif %}
+                                        <span>{{ entry_point.path }}, line {{ entry_point.original_position }}</span>
+                                    </div>
+                                    <ul class="box-toolbar">
+                                        {% with entry_point_comments_count=entry_point.comments.all|length %}
+                                            <li class="comments-count" title="{{ entry_point_comments_count }} comment{{ entry_point_comments_count|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point_comments_count }}</li>
+                                        {% endwith %}
+                                        <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ entry_point.created_at|ago }}</li>
+                                    </ul>
+                                </div>
+                                <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
+                                    <div class="box-section pr-diff">
+                                        <pre>{% spaceless %}
+                                        {% for type, line in entry_point.parsed_diff %}
+                                            <span{% if type %} class="{{ type }}"{% endif %}><code>{{ line }}</code></span>
+                                        {% endfor %}
+                                        {% endspaceless %}</pre>
+                                    </div>
+                                    <div class="box-section pr-comments">
+                                        <ul class="unstyled chat-box timeline">
+                                            {% for pr_comment in entry_point.comments.all %}
+                                                {% include "front/repository/issues/include_comment.html" with comment=pr_comment %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endwith %}
+                {% elif event.is_commits_group %}{# GroupedPullRequestCommits #}
+                    {% with group=event %}
+                        <li>
+                            <div class="box pr-commits-group">
+                                <div class="box-header" data-toggle="collapse" data-target="#pr-commits-group-{{ group.0.sha }}" title="Click to collapse/expand">
+                                    <div class="title">
+                                        {% with authors=group.authors %}
+                                            {{ authors.0 }}
+                                            {% if authors|length == 2 %}
+                                                and {{ authors.1 }}
+                                            {% elif authors|length > 2 %}
+                                                , {{ authors.1 }} and others
+                                            {% endif %}
+                                        {% endwith %}
+                                        added {{ group|length }} commit{{ group|length|pluralize }}
+                                    </div>
+                                    <ul class="box-toolbar">
+                                        <li class="time" title="{{ group.0.authored_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ group.0.authored_at|ago }}</li>
+                                    </ul>
+                                </div>
+                                <div class="box-content collapse in" id="pr-commits-group-{{ group.0.sha }}">
+                                    {% include "front/repository/issues/include_commits.html" with commits=group id_prefix="pr-" %}
+                                </div>
+                            </div>
+                        </li>
+                    {% endwith %}
+                {% else %}
+                    {% include "front/repository/issues/include_comment.html" with comment=event %}
+                {% endif %}
+            {% endfor %}
+            <li>
+                {% include "front/repository/issues/include_comment_create.html" with use_current_user=True %}
+            </li>
+        </ul>
     </aside>
 {% else %}
     <p class="empty-area">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>

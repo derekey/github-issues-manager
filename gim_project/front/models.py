@@ -203,6 +203,9 @@ class _Issue(models.Model):
         kwargs.update(self.get_reverse_kwargs())
         return reverse_lazy('front:repository:issue.edit.state', kwargs=kwargs)
 
+    def issuecomment_create_url(self):
+        return reverse_lazy('front:repository:issue.comment.create', kwargs=self.get_reverse_kwargs())
+
     @property
     def hash(self):
         """
@@ -261,7 +264,7 @@ class _Issue(models.Model):
         pr_comments if it's a pull request
         """
         types = [
-            list(self.comments.ready().select_related('user', 'repository__owner')),
+            list(self.comments.select_related('user', 'repository__owner')),
             list(self.events.exclude(event='referenced', commit_sha__isnull=True)
                             .select_related('user', 'repository__owner')),
         ]
