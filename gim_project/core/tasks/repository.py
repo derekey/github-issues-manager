@@ -35,19 +35,19 @@ class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
         """
         super(FetchClosedIssuesWithNoClosedBy, self).run(queue)
 
-        count, errors, todo = self.object.fetch_closed_issues_without_closed_by(
+        count, deleted, errors, todo = self.object.fetch_closed_issues_without_closed_by(
                                             limit=int(self.limit.hget() or 20),
                                             gh=self.gh)
 
         self.hmset(count=count, errors=errors)
 
-        return count, errors, todo
+        return count, deleted, errors, todo
 
     def success_message_addon(self, queue, result):
         """
         Display the count of closed issues fetched
         """
-        return ' [fetched=%d, errors=%s, todo=%s]' % result
+        return ' [fetched=%d, deleted=%s, errors=%s, todo=%s]' % result
 
 
 class FetchUpdatedPullRequests(RepositoryJob):
@@ -68,19 +68,19 @@ class FetchUpdatedPullRequests(RepositoryJob):
         """
         super(FetchUpdatedPullRequests, self).run(queue)
 
-        count, errors, todo = self.object.fetch_updated_prs(
+        count, deleted, errors, todo = self.object.fetch_updated_prs(
                                             limit=int(self.limit.hget() or 20),
                                             gh=self.gh)
 
         self.hmset(count=count, errors=errors)
 
-        return count, errors, todo
+        return count, deleted, errors, todo
 
     def success_message_addon(self, queue, result):
         """
         Display the count of pull requests updated
         """
-        return ' [fetched=%d, errors=%s, todo=%s]' % result
+        return ' [fetched=%d, deleted=%s, errors=%s, todo=%s]' % result
 
 
 class FirstFetch(Job):

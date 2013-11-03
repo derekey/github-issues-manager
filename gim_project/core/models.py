@@ -983,7 +983,7 @@ class Repository(GithubObjectWithId):
 
         issues = list(qs.order_by('-closed_at')[:limit])
 
-        count = errors = todo = 0
+        count = errors = deleted = todo = 0
 
         if len(issues):
 
@@ -991,6 +991,10 @@ class Repository(GithubObjectWithId):
                 try:
                     issue.fetch(gh, force_fetch=True,
                                 defaults={'simple': {'closed_by_fetched': True}})
+                except ApiNotFoundError:
+                    # the issue doen't exist anymore !
+                    issue.delete()
+                    deleted += 1
                 except ApiError:
                     errors += 1
                 else:
@@ -1005,7 +1009,7 @@ class Repository(GithubObjectWithId):
                                         limit=limit,
                                         gh=gh)
 
-        return count, errors, todo
+        return count, deleted, errors, todo
 
     def fetch_updated_prs(self, gh, limit=20):
         """
@@ -1023,7 +1027,7 @@ class Repository(GithubObjectWithId):
 
         prs = list(qs.order_by('-updated_at')[:limit])
 
-        count = errors = todo = 0
+        count = errors = deleted = todo = 0
 
         if len(prs):
 
@@ -1032,6 +1036,10 @@ class Repository(GithubObjectWithId):
                     pr.fetch(gh, force_fetch=True, meta_base_name='pr',
                              defaults={'simple': {'is_pull_request': True}})
                     pr.fetch_commits(gh)
+                except ApiNotFoundError:
+                    # the PR doen't exist anymore !
+                    pr.delete()
+                    deleted += 1
                 except ApiError:
                     errors += 1
                 else:
@@ -1046,7 +1054,7 @@ class Repository(GithubObjectWithId):
                                         limit=limit,
                                         gh=gh)
 
-        return count, errors, todo
+        return count, deleted, errors, todo
 
     def fetch_unfetched_commits(self, gh, limit=20):
         """
