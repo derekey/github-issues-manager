@@ -128,7 +128,7 @@ class GitHub(object):
     def __getattr__(self, attr):
         return _Callable(self, '/%s' % attr)
 
-    def _http(self, method, path, request_headers=None, response_headers=None, **kw):
+    def _http(self, method, path, request_headers=None, response_headers=None, kw={}):
         data = None
         if method == 'GET' and kw:
             path = '%s?%s' % (path, _encode_params(kw))
@@ -191,7 +191,7 @@ class _Executable(object):
         self._path = path
 
     def __call__(self, request_headers=None, response_headers=None, **kw):
-        return self._gh._http(self._method, self._path, request_headers, response_headers, **kw)
+        return self._gh._http(self._method, self._path, request_headers, response_headers, kw)
 
     def __str__(self):
         return '_Executable (%s %s)' % (self._method, self._path)
