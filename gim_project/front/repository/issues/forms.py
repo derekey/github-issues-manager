@@ -4,7 +4,7 @@ from markdown import markdown
 
 from django import forms
 
-from core.models import Issue, IssueComment
+from core.models import Issue, IssueComment, PullRequestComment
 
 from front.repository.forms import LinkedToRepositoryForm
 
@@ -74,17 +74,32 @@ def validate_filled_string(value):
         raise forms.ValidationError('You must enter a comment')
 
 
-class IssueCommentCreateForm(LinkedToUserForm, LinkedToIssueForm):
+class BaseCommentCreateForm(LinkedToUserForm, LinkedToIssueForm):
     class Meta:
-        model = IssueComment
         fields = ['body', ]
 
     def __init__(self, *args, **kwargs):
-        super(IssueCommentCreateForm, self).__init__(*args, **kwargs)
+        super(BaseCommentCreateForm, self).__init__(*args, **kwargs)
         self.fields['body'].validators = [validate_filled_string]
         self.fields['body'].required = True
 
     def save(self, commit=True):
         self.instance.created_at = self.instance.updated_at = datetime.utcnow()
         self.instance.body_html = markdown(self.instance.body)
-        return super(IssueCommentCreateForm, self).save(commit)
+        return super(BaseCommentCreateForm, self).save(commit)
+
+
+class IssueCommentCreateForm(BaseCommentCreateForm):
+    class Meta(BaseCommentCreateForm.Meta):
+        model = IssueComment
+
+
+class PullRequestCommentCreateForm(BaseCommentCreateForm):
+    class Meta(BaseCommentCreateForm.Meta):
+        model = PullRequestComment
+
+    def __init__(self, *args, **kwargs):
+        self.entry_point = kwargs.pop('entry_point')
+        super(PullRequestCommentCreateForm, self).__init__(*args, **kwargs)
+        if not self.instance.entry_point_id:
+            self.instance.entry_point = self.entry_point

@@ -203,8 +203,14 @@ class _Issue(models.Model):
         kwargs.update(self.get_reverse_kwargs())
         return reverse_lazy('front:repository:issue.edit.state', kwargs=kwargs)
 
-    def issuecomment_create_url(self):
+    def issue_comment_create_url(self):
         return reverse_lazy('front:repository:issue.comment.create', kwargs=self.get_reverse_kwargs())
+
+    def pr_comment_create_url(self):
+        if not hasattr(self, '_pr_comment_create_url'):
+            self._pr_comment_create_url = reverse_lazy('front:repository:issue.pr_comment.create',
+                                                       kwargs=self.get_reverse_kwargs())
+        return self._pr_comment_create_url
 
     @property
     def type(self):

@@ -1,7 +1,7 @@
 from limpyd import fields
 from async_messages import messages
 
-from core.models import IssueComment
+from core.models import IssueComment, PullRequestComment
 from core.ghpool import ApiError
 
 from . import DjangoModelJob
@@ -15,9 +15,8 @@ class IssueCommentJob(DjangoModelJob):
     model = IssueComment
 
 
-class IssueCommentEditJob(IssueCommentJob):
-
-    queue_name = 'edit-issue-comment'
+class CommentEditJob(IssueCommentJob):
+    abstract = True
 
     mode = fields.InstanceHashField()
 
@@ -25,14 +24,14 @@ class IssueCommentEditJob(IssueCommentJob):
         """
         Get the comment and create/update/delete it
         """
-        super(IssueCommentEditJob, self).run(queue)
+        super(CommentEditJob, self).run(queue)
 
         mode = self.mode.hget()
         gh = self.gh
 
         try:
             comment = self.object
-        except IssueComment.DoesNotExist:
+        except self.model.DoesNotExist:
             return None
 
         try:
@@ -81,3 +80,13 @@ class IssueCommentEditJob(IssueCommentJob):
         Display the action done (created/updated/deleted)
         """
         return ' [%sd]' % self.mode.hget()
+
+
+class IssueCommentEditJob(CommentEditJob):
+    queue_name = 'edit-issue-comment'
+    model = IssueComment
+
+
+class PullRequestCommentEditJob(CommentEditJob):
+    queue_name = 'edit-pr-comment'
+    model = PullRequestComment

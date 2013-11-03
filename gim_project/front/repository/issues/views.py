@@ -9,16 +9,18 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
-                         PullRequestCommentEntryPoint, IssueComment)
+                         PullRequestCommentEntryPoint, IssueComment,
+                         PullRequestComment)
 from core.tasks.issue import IssueEditStateJob
-from core.tasks.issue_comment import IssueCommentEditJob
+from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
 
 from front.models import GroupedCommits
 from ..views import BaseRepositoryView, LinkedToRepositoryFormView
 from ...utils import make_querystring
-from .forms import IssueStateForm, IssueCommentCreateForm
+from .forms import (IssueStateForm,
+                    IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
 class IssuesView(BaseRepositoryView):
@@ -561,11 +563,6 @@ class IssueView(UserIssuesView):
             'current_issue_edit_level':  edit_level,
         })
 
-        if current_issue:
-            context['issue_comment_create_form'] = IssueCommentCreateForm(
-                                                        issue=current_issue,
-                                                        user=self.request.user)
-
         return context
 
     def get_all_comments(self, issue):
@@ -681,13 +678,8 @@ class LinkedToIssueFormView(object):
         return kwargs
 
 
-class IssueCommentCreate(LinkedToUserFormView, LinkedToIssueFormView, CreateView):
-    url_name = 'issue.comment.create'
-    form_class = IssueCommentCreateForm
-    model = IssueComment
-
-    def post(self, request, *args, **kwargs):
-        return super(IssueCommentCreate, self).post(request, *args, **kwargs)
+class BaseCommentCreateView(LinkedToUserFormView, LinkedToIssueFormView, CreateView):
+    job_model = None
 
     def get_success_url(self):
         return self.issue.get_absolute_url()
@@ -697,14 +689,42 @@ class IssueCommentCreate(LinkedToUserFormView, LinkedToIssueFormView, CreateView
         Override the default behavior to add a job to create the comment on the
         github side
         """
-        response = super(IssueCommentCreate, self).form_valid(form)
+        response = super(BaseCommentCreateView, self).form_valid(form)
 
-        IssueCommentEditJob.add_job(self.object.pk,
-                                    mode='create',
-                                    gh=self.request.user.get_connection())
+        self.job_model.add_job(self.object.pk,
+                               mode='create',
+                               gh=self.request.user.get_connection())
 
         messages.success(self.request,
             u'Your comment on the %s <strong>#%d</strong> will be created shortly' % (
                                             self.issue.type, self.issue.number))
 
         return response
+
+
+class IssueCommentCreate(BaseCommentCreateView):
+    url_name = 'issue.comment.create'
+    form_class = IssueCommentCreateForm
+    model = IssueComment
+    job_model = IssueCommentEditJob
+
+
+class PullRequestCommentCreate(BaseCommentCreateView):
+    url_name = 'issue.pr_comment.create'
+    form_class = PullRequestCommentCreateForm
+    model = PullRequestComment
+    job_model = PullRequestCommentEditJob
+
+    def post(self, *args, **kwargs):
+        self.entry_point = None
+        try:
+            entry_point_id = self.request.POST['entry_point_id']
+            self.entry_point = self.issue.pr_comments_entry_points.get(id=entry_point_id)
+        except Exception:
+            return self.http_method_not_allowed(self.request)
+        return super(PullRequestCommentCreate, self).post(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(PullRequestCommentCreate, self).get_form_kwargs()
+        kwargs['entry_point'] = self.entry_point
+        return kwargs

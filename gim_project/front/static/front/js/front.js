@@ -1199,9 +1199,24 @@ $().ready(function() {
             $textarea.focus();
         }), // on_comment_create_submit_failed
 
+        // CREATE THE PR-COMMENT FORM
+        on_comment_create_placeholder_click: (function IssueEditor__on_comment_create_placeholder_click (ev) {
+            var $placeholder = $(this).parent(),
+                $template = $placeholder.closest('.issue').find('.comment-create-container'),
+                $node = $template.clone(),
+                $form = $node.find('form');
+            $node.removeClass('comment-create-container');
+            $form.attr('action', $placeholder.data('url'));
+            $form.prepend('<input type="hidden" name="entry_point_id" value="' + $placeholder.data('entry-point-id') + '"/>')
+            $placeholder.after($node);
+            $placeholder.hide();
+            $form.find('textarea').focus();
+        }), // on_comment_create_placeholder_click
+
         init: (function IssueEditor__init () {
             $document.on('submit', '.issue-edit-state-form', IssueEditor.on_state_submit);
-            $document.on('submit', '.issuecomment-create-form', IssueEditor.on_comment_create_submit);
+            $document.on('submit', '.comment-create-form', IssueEditor.on_comment_create_submit);
+            $document.on('click', '.comment-create-placeholder button', IssueEditor.on_comment_create_placeholder_click);
         }) // init
     }; // IssueEditor
     IssueEditor.init();

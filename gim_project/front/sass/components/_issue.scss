@@ -243,7 +243,7 @@
         margin: -5px -10px;
     }
 
-    .issuecomment-create-form {
+    .comment-create-form {
         margin: 5px 0;
         textarea {
             width: 100%;
@@ -257,6 +257,11 @@
         .alert {
             margin-bottom: 10px;
         }
+    }
+
+    .comment-create-placeholder {
+        margin-left: 50px;
+        margin-bottom: 15px;
     }
 
 }

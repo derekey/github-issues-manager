@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 from .views import (IssuesView, IssueView, UserIssuesView,
                     IssueEditState,
-                    IssueCommentCreate)
+                    IssueCommentCreate, PullRequestCommentCreate)
 
 urlpatterns = patterns('',
     url(r'^$', IssuesView.as_view(), name=IssuesView.url_name),
@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     # edit views
     url(r'^(?P<issue_number>\d+)/edit/state/(?P<state>open|closed)/$', IssueEditState.as_view(), name=IssueEditState.url_name),
 
-    url(r'^(?P<issue_number>\d+)/comments/add/$', IssueCommentCreate.as_view(), name=IssueCommentCreate.url_name),
+    url(r'^(?P<issue_number>\d+)/comment/add/$', IssueCommentCreate.as_view(), name=IssueCommentCreate.url_name),
+    url(r'^(?P<issue_number>\d+)/code-comment/add/$', PullRequestCommentCreate.as_view(), name=PullRequestCommentCreate.url_name),
 )

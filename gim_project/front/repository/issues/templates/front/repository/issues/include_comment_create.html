@@ -1,5 +1,7 @@
 {% extends "front/repository/issues/include_base_comment.html" %}
 
+{% block node_class %}comment-create-container{% endblock %}
+
 {% block comment_info %}
     <span class="name">
         <strong>{{ view.request.user.username }}</strong>
@@ -15,9 +17,9 @@
 {% endblock comment_info %}
 
 {% block comment_inner_body %}
-    <form class="issuecomment-create-form" data-issue-number="{{ current_issue.number }}" method="post" action="{{ current_issue.issuecomment_create_url }}">
+    <form class="comment-create-form" data-issue-number="{{ current_issue.number }}" method="post" action="{{ current_issue.issue_comment_create_url }}">
         {% csrf_token %}
-        <div>{{ issue_comment_create_form.body }}</div>
+        <div><textarea name="body"></textarea></div>
         <button class="btn btn-blue btn-loading">Add a comment <i class='icon-spinner icon-spin'> </i></button>
     </form>
 {% endblock comment_inner_body %}
