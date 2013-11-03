@@ -4321,22 +4321,27 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   text-transform: none;
 }
 
-/* line 132, ../../../sass/_core-admin-correct.scss */
+/* line 130, ../../../sass/_core-admin-correct.scss */
+.btn-disabled, .btn:disabled, .btn[disabled], .btn.disabled {
+  color: #ddd !important;
+}
+
+/* line 137, ../../../sass/_core-admin-correct.scss */
 .action-nav-normal .badge.top, .action-nav-normal .label.top {
   top: 3px;
   bottom: auto;
 }
-/* line 136, ../../../sass/_core-admin-correct.scss */
+/* line 141, ../../../sass/_core-admin-correct.scss */
 .action-nav-normal .badge.bottom, .action-nav-normal .label.bottom {
   top: auto;
   bottom: 3px;
 }
-/* line 140, ../../../sass/_core-admin-correct.scss */
+/* line 145, ../../../sass/_core-admin-correct.scss */
 .action-nav-normal .badge.right, .action-nav-normal .label.right {
   right: 3px;
   left: auto;
 }
-/* line 144, ../../../sass/_core-admin-correct.scss */
+/* line 149, ../../../sass/_core-admin-correct.scss */
 .action-nav-normal .badge.left, .action-nav-normal .label.left {
   right: auto;
   left: 3px;

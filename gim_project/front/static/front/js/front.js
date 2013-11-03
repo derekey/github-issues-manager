@@ -1096,62 +1096,106 @@ $().ready(function() {
     MessagesManager.init_auto_hide();
 
     var IssueEditor = {
+        disable_form: (function IssueEditor__disable_form ($form) {
+            // disabled input will be ignored by serialize, so just set them
+            // readonly
+            $form.find(':input').attr('readonly', true);
+            $form.find(':button').attr('disabled', true);
+            $form.data('disabled', true);
+        }), // disable_form
 
-        on_state_submit: (function IssueEditor__on_state_submit (ev) {
+        enable_form: (function IssueEditor__enable_form ($form) {
+            $form.find(':input').attr('readonly', false);
+            $form.find(':button').attr('disabled', false);
+            $form.data('disabled', false);
+        }), // enable_form
+
+        display_issue: (function IssueEditor__display_issue (html, context) {
+            var is_popup = context.$container.parents('.modal').length > 0;
+            IssuesList.display_issue_html(html, context.issue_number, is_popup);
+        }), // display_issue
+
+        get_form_context: (function IssueEditor__get_form_context ($form) {
+            var context = {
+                issue_number: $form.data('issue-number'),
+                $form: $form,
+                $container: $form.closest('.issue')
+            };
+            return context;
+        }), // get_form_context
+
+        handle_form: (function IssueEditor__handle_form ($form, ev) {
             ev.preventDefault();
             ev.stopPropagation();
-            var $form = $(this),
-                issue_number = $form.data('issue-number');
+            if ($form.data('disabled')) { return false; }
+            IssueEditor.disable_form($form);
+            var context = IssueEditor.get_form_context($form),
+                $alert = $form.find('.alert');
             $form.find('button').addClass('loading');
-            $.post($form.attr('action'), $form.serialize())
-                .done($.proxy(IssueEditor.on_state_submit_done, { issue_number: issue_number }))
-                .fail($.proxy(IssueEditor.on_state_submit_failed, { issue_number: issue_number }));
+            if ($alert.length) { $alert.remove(); }
+            return context;
+        }), // handle_form
+
+        post_form: (function IssueEditor__post_form($form, context, on_done, on_failed, data, action) {
+            if (typeof data == 'undefined') { data = $form.serialize(); }
+            if (typeof action == 'undefined') { action = $form.attr('action'); }
+            $.post(action, data)
+                .done($.proxy(on_done, context))
+                .fail($.proxy(on_failed, context));
+        }), // post_form
+
+        /* CHANGE ISSUE STATE */
+        on_state_submit: (function IssueEditor__on_state_submit (ev) {
+            var $form = $(this),
+                context = IssueEditor.handle_form($form, ev);
+            if (context === false) { return false; }
+
+            IssueEditor.post_form($form, context, IssueEditor.on_state_submit_done,
+                                                  IssueEditor.on_state_submit_failed);
         }), // on_state_submit
 
         on_state_submit_done: (function IssueEditor__on_state_submit_done (data) {
-            IssuesList.display_issue_html(data, this.issue_number);
+            this.$form.find('button').removeClass('loading');
+            IssueEditor.display_issue(data, this);
         }), // on_state_submit_done
 
         on_state_submit_failed: (function IssueEditor__on_state_submit_failed () {
-            $form.find('button').removeClass('loading');
+            IssueEditor.enable_form(this.$form);
+            this.$form.find('button').removeClass('loading');
             alert('A problem prevented us to do your action !');
         }), // on_state_submit_failed
 
+        /* CREATE COMMENT */
         on_comment_create_submit: (function IssueEditor__on_comment_create_submit (ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
             var $form = $(this),
-                issue_number = $form.data('issue-number'),
-                $textarea = $form.find('textarea'),
-                text = $textarea.val().trim(),
-                $alert = $form.find('.alert');
-            if (!text) {
-                if (!$alert.length) {
-                    $textarea.after('<div class="alert alert-error">You must enter a comment</div>');
-                }
+                context = IssueEditor.handle_form($form, ev);
+            if (context === false) { return false; }
+
+            var $textarea = $form.find('textarea');
+
+            if (!$textarea.val().trim()) {
+                $textarea.after('<div class="alert alert-error">You must enter a comment</div>');
+                $form.find('button').removeClass('loading');
+                IssueEditor.enable_form($form);
                 $textarea.focus();
                 return false;
             }
-            if ($alert.length) { $alert.remove(); }
-            $form.find('button').addClass('loading');
-            var context = {
-                issue_number: issue_number,
-                $form: $form
-            };
-            $.post($form.attr('action'), $form.serialize())
-                .done($.proxy(IssueEditor.on_comment_create_submit_done, context))
-                .fail($.proxy(IssueEditor.on_comment_create_submit_failed, context));
+
+            IssueEditor.post_form($form, context, IssueEditor.on_comment_create_submit_done,
+                                                  IssueEditor.on_comment_create_submit_failed);
         }), // on_comment_create_submit
 
         on_comment_create_submit_done: (function IssueEditor__on_comment_create_submit_done (data) {
-            IssuesList.display_issue_html(data, this.issue_number);
+            this.$form.find('button').removeClass('loading');
+            IssueEditor.display_issue(data, this);
         }), // on_comment_create_submit_done
 
         on_comment_create_submit_failed: (function IssueEditor__on_comment_create_submit_failed () {
-            this.$form.find('button').removeClass('loading');
+            IssueEditor.enable_form(this.$form);
             this.$form.find('.alert').remove();
             var $textarea = this.$form.find('textarea');
             $textarea.after('<div class="alert alert-error">We were unable to post your comment</div>');
+            this.$form.find('button').removeClass('loading');
             $textarea.focus();
         }), // on_comment_create_submit_failed
 
