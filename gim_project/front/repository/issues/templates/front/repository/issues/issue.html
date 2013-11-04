@@ -148,7 +148,7 @@
                                                 {% else %}
                                                     <strong>{{ entry_point.user.username }}</strong> discussed an <strong>outdated</strong> diff
                                                 {% endif %}
-                                                <span>{{ entry_point.path }}, line {{ entry_point.original_position }}</span>
+                                                <span>{{ entry_point.path }}</span>
                                             </div>
                                             <ul class="box-toolbar">
                                                 {% with entry_point_comments_count=entry_point.comments.all|length %}
