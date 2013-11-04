@@ -1,0 +1,10 @@
+<div class="box-section pr-comments">
+    <ul class="unstyled chat-box timeline">
+        {% for pr_comment in pr_comments %}
+            {% include "front/repository/issues/include_comment.html" with comment=pr_comment %}
+        {% endfor %}
+        <li class="comment-create-placeholder" data-url="{{ current_issue.pr_comment_create_url }}" data-entry-point-id="{{ entry_point.id }}">
+            <button class="btn btn-blue btn-small">Add a comment</button>
+        </li>
+    </ul>
+</div>

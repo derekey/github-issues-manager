@@ -201,11 +201,12 @@
                 margin-left: 5px;
             }
         }
-        .box-section.pr-comments {
-            padding-top: 5px;
-            padding-bottom: 0;
-        }
     } // .pr-entry-point
+
+    .box-section.pr-comments {
+        padding-top: 5px;
+        padding-bottom: 0;
+    }
 
     .pr-file {
         .box-toolbar {
@@ -281,12 +282,12 @@
     }
 }
 .issue-commits, .issue-files {
-   .content {
+   > .content {
         padding: 15px;
         background: white;
         border-bottom: solid 1px $box-border-color;
         @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
-        button {
+        > button {
             float: right;
             position: relative;
             top: -6px;
@@ -346,13 +347,12 @@ table.commits-list {
 } // table.commits-list
 
 table.table.table-normal.diff-lines {
-    white-space: pre;
-    background: white;
-    font-family: $monoFontFamily;
-    color: #333;
-    tr {
+    tr:not(.diff-comments) {
+        white-space: pre;
+        background: white;
+        font-family: $monoFontFamily;
+        color: #333;
         border: none;
-        background: transparent;
         &.comment{
             background: #F8F8FF;
             color: #999;
@@ -376,23 +376,23 @@ table.table.table-normal.diff-lines {
                 border-color: #E9AEAE;
             }
         }
-    }
-    td {
-        border: none;
-        line-height: 20px;
-        min-height: 20px;
-        padding: 1px 5px;
-        background: transparent;
-        &.line-number {
-            width: 1%;
-            text-align: right;
-            color: rgba(0, 0, 0, 0.3);
-            border-right: {
-                style: solid;
-                width: 1px;
-            }
-            &:before {
-                content: attr(data-line-number);
+        td {
+            border: none;
+            line-height: 20px;
+            min-height: 20px;
+            padding: 1px 5px;
+            background: transparent;
+            &.line-number {
+                width: 1%;
+                text-align: right;
+                color: rgba(0, 0, 0, 0.3);
+                border-right: {
+                    style: solid;
+                    width: 1px;
+                }
+                &:before {
+                    content: attr(data-line-number);
+                }
             }
         }
     }

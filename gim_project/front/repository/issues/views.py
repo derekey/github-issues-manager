@@ -550,6 +550,15 @@ class IssueView(UserIssuesView):
             elif self.subscription.state == SUBSCRIPTION_STATES.READ\
                                     and current_issue.user == self.request.user:
                 edit_level = 'self'
+
+            if current_issue.is_pull_request:
+                entry_points_dict = {}
+                for entry_point in current_issue.all_entry_points:
+                    if not entry_point.position:
+                        continue
+                    entry_points_dict.setdefault(entry_point.path, {})[entry_point.position] = entry_point
+                context['entry_points_dict'] = entry_points_dict
+
         else:
             activity = []
             involved = []

@@ -19,7 +19,7 @@
 {% block comment_inner_body %}
     <form class="comment-create-form" data-issue-number="{{ current_issue.number }}" method="post" action="{{ current_issue.issue_comment_create_url }}">
         {% csrf_token %}
-        <div><textarea name="body"></textarea></div>
+        <div><textarea name="body" placeholder="Leave a comment..."></textarea></div>
         <button class="btn btn-blue btn-loading">Add a comment <i class='icon-spinner icon-spin'> </i></button>
     </form>
 {% endblock comment_inner_body %}

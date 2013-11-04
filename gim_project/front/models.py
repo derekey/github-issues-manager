@@ -283,6 +283,15 @@ class _Issue(models.Model):
                                             'committer', 'repository__owner'))
         return self._all_commits
 
+    @property
+    def all_entry_points(self):
+        if not hasattr(self, '_all_entry_points'):
+            self._all_entry_points = list(self.pr_comments_entry_points.all()
+                                        .select_related('user', 'pr_comments',
+                                                        'repository__owner')
+                                        .prefetch_related('comments__user'))
+        return self._all_entry_points
+
     def get_activity(self):
         """
         Return the activity of the issue, including comments, events and
@@ -294,10 +303,7 @@ class _Issue(models.Model):
                             .select_related('user', 'repository__owner')),
         ]
         if self.is_pull_request:
-            types.append(list(self.pr_comments_entry_points.all()
-                                     .select_related('user', 'pr_comments',
-                                                        'repository__owner')
-                                     .prefetch_related('comments__user')))
+            types.append(self.all_entry_points)
 
         activity = sorted(sum(types, []), key=attrgetter('created_at'))
 

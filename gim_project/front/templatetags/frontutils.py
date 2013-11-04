@@ -213,19 +213,23 @@ def parse_diff(diff, reduce=False):
         parts[-1].append(l)
 
     results = []
+    position = 0
 
     # parse each hunk
     for part in parts:
         diff = whatthepatch.parse_patch(part).next()  # only one file = only one diff
-        result = [['comment', u'…', u'…', part[0]]]
+        result = [['comment', u'…', u'…', part[0], position]]
         for old, new, text in diff.changes:
+            position += 1
             mode = ' ' if old and new else '-' if old else '+'
             result.append([
                 DIFF_LINE_TYPES[mode],
                 old or '',
                 new or '',
                 mode + text,
+                position,
             ])
+        position += 1
         if reduce:
             result = result[0:1] + result[1:][-12:]
 

@@ -1,11 +1,20 @@
-{% spaceless %}
-<table class="table table-normal diff-lines">
-    {% for class, old, new, code in parsed_diff %}
-        <tr class="{{ class }}">
-            <td class="line-number" data-line-number="{{ old }}"></td>
-            <td class="line-number" data-line-number="{{ new }}"></td>
-            <td class="code">{{ code }}</td>
-        </tr>
+{% load frontutils %}
+    <table class="table table-normal diff-lines">
+        {% for class, old, new, code, position in parsed_diff %}{% spaceless %}
+            <tr class="{{ class }}" data-position="{{ position }}">
+                <td class="line-number" data-line-number="{{ old }}"></td>
+                <td class="line-number" data-line-number="{{ new }}"></td>
+                <td class="code">{{ code }}</td>
+            </tr>
+            {% endspaceless %}
+            {% if entry_points and position in entry_points %}
+                {% with entry_point=entry_points|dict_item:position %}
+    </table>
+</div>
+{% include "front/repository/issues/include_pr_comments.html" with pr_comments=entry_point.comments.all %}
+<div class="box-section code-diff">
+    <table class="table table-normal diff-lines">
+            {% endwith %}
+        {% endif %}
     {% endfor %}
-</table>
-{% endspaceless %}
+    </table>

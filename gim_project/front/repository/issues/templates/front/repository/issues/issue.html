@@ -159,18 +159,9 @@
                                         </div>
                                         <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
                                             <div class="box-section code-diff">
-                                                {% include "front/repository/issues/include_diff.html" with parsed_diff=entry_point.diff_hunk|parse_diff:True %}
+                                                {% include "front/repository/issues/include_diff.html" with parsed_diff=entry_point.diff_hunk|parse_diff:True entry_points=None %}
                                             </div>
-                                            <div class="box-section pr-comments">
-                                                <ul class="unstyled chat-box timeline">
-                                                    {% for pr_comment in entry_point.comments.all %}
-                                                        {% include "front/repository/issues/include_comment.html" with comment=pr_comment %}
-                                                    {% endfor %}
-                                                    <li class="comment-create-placeholder" data-url="{{ current_issue.pr_comment_create_url }}" data-entry-point-id="{{ entry_point.id }}">
-                                                        <button class="btn btn-blue btn-small">Add a comment</button>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                            {% include "front/repository/issues/include_pr_comments.html" with pr_comments=entry_point.comments.all %}
                                         </div>
                                     </div>
                                 </li>
@@ -229,7 +220,7 @@
                             <div class="box-content collapse in" id="pr-file-{{ file.id }}">
                                 {% if file.nb_additions or file.nb_deletions %}
                                     <div class="box-section code-diff">
-                                        {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff %}
+                                        {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff entry_points=entry_points_dict|dict_item:file.path %}
                                     </div>
                                 {% else %}
                                     <div class="box-section no-diff">
