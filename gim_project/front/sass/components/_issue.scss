@@ -130,7 +130,6 @@
         border-bottom: solid 1px $box-border-color;
         @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
         &.empty {
-            font-style: italic;
             color: $light-text-color;
         }
     }
@@ -191,7 +190,6 @@
                 font-size: 13px;
                 font-weight: normal;
                 > span {
-                    font-style: italic;
                     display: block;
                 }
             }
@@ -211,19 +209,29 @@
 
     .pr-file {
         .box-toolbar {
-            margin-top: 9px;
-            margin-right: 9px;
+            margin-top: 8px;
+            margin-right: 8px;
+            > li {
+                line-height: normal;
+                padding: 0;
+                margin: 0;
+                float: none;
+                &:first-of-type {
+                    margin-bottom: 3px;
+                }
+                a.btn {
+                    display: block;
+                }
+            }
         }
         & > .box-header {
             cursor: pointer;
         }
         .title span {
-            font-style: italic;
             display: block;
             font-weight: normal;
         }
         .no-diff {
-            font-style: italic;
             color: $light-text-color;
             background: white;
             padding: 10px;

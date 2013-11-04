@@ -210,10 +210,15 @@
                         <div class="box pr-file">
                             <div class="box-header" data-toggle="collapse" data-target="#pr-file-{{ file.id }}" title="Click to collapse/expand">
                                 <ul class="box-toolbar">
-                                    <ul class="unstyled">
-                                        <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ file.nb_additions }}</li>
-                                        <li class="label label-red" title="{{ file.nb_deletions }} deletion{{ file.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ file.nb_deletions }}</li>
-                                    </ul>
+                                    <li>
+                                        <ul class="unstyled">
+                                            <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ file.nb_additions }}</li>
+                                            <li class="label label-red" title="{{ file.nb_deletions }} deletion{{ file.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ file.nb_deletions }}</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <a href="{{ file.github_url }}" target='_blank' class="btn btn-mini btn-default" title="View file @{{ file.tree|short_sha }}">@{{ file.tree|short_sha }}</a>
+                                    </li>
                                 </ul>
                                 <div class="title">
                                     {{ file.path }}
@@ -228,7 +233,7 @@
                                 {% else %}
                                     <div class="box-section no-diff">
                                         {% if file.status == 'added' %}
-                                            File added without content, or <a href="{{ file.github_url }}" target='_blank'>binary</a>
+                                            File added without content (or binary)
                                         {% elif file.status == 'renamed' %}
                                             File renamed without changes
                                         {% elif file.status == 'deleted' %}

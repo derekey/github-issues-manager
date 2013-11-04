@@ -232,3 +232,8 @@ def parse_diff(diff, reduce=False):
         results.append(result)
 
     return chain.from_iterable(results)
+
+
+@register.filter
+def short_sha(sha, length=8):
+    return sha[:length]

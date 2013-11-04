@@ -384,10 +384,6 @@ class _Commit(models.Model):
         abstract = True
 
     @property
-    def short_sha(self):
-        return self.sha[:8]
-
-    @property
     def splitted_message(self):
         LEN = 72
         ln_pos = self.message.find('\n')
