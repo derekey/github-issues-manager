@@ -161,7 +161,7 @@
                                             <div class="box-section code-diff">
                                                 {% include "front/repository/issues/include_diff.html" with parsed_diff=entry_point.diff_hunk|parse_diff:True entry_points=None %}
                                             </div>
-                                            {% include "front/repository/issues/include_pr_comments.html" with pr_comments=entry_point.comments.all %}
+                                            {% include "front/repository/issues/include_pr_comments.html" with pr_comments=entry_point.comments.all classes="" %}
                                         </div>
                                     </div>
                                 </li>
@@ -193,7 +193,12 @@
             </div>
             <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files">
                 <div class="content">
-                    {% if current_issue.nb_changed_files > 1 %}<button class="btn btn-default pr-files-toggle" data-toggle="collapse" data-target=".pr-file .collapse" ><i class="icon-sort"></i> Toogle all</button>{% endif %}
+                    <nav>
+                        <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file .pr-comments.collapse" title="Open/close all comments on files"><i class="icon-sort"></i> Toggle comments</button>
+                        {% if current_issue.nb_changed_files > 1 %}
+                            <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files"><i class="icon-sort"></i> Toggle files</button>
+                        {% endif %}
+                    </nav>
                     <strong>{{ current_issue.nb_changed_files }} file{{ current_issue.nb_changed_files|pluralize }} changed</strong> with <strong>{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}</strong> and <strong>{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}</strong>
                 </div>
                 <ul class="unstyled chat-box timeline issue-comments">

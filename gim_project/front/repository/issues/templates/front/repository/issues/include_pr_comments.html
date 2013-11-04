@@ -1,4 +1,4 @@
-<div class="box-section pr-comments">
+<div class="box-section pr-comments {{ classes }}">
     <ul class="unstyled chat-box timeline">
         {% for pr_comment in pr_comments %}
             {% include "front/repository/issues/include_comment.html" with comment=pr_comment %}
