@@ -798,8 +798,8 @@ $().ready(function() {
         }
     }
 
-    var activate_quicksearches = (function activate_quicksearches () {
-        $('input.quicksearch').each(function() {
+    var activate_quicksearches = (function activate_quicksearches ($inputs) {
+        $inputs.each(function() {
             var $input, target, content, options, qs;
             $input = $(this);
             if (!$input.data('quicksearch')) {
@@ -850,7 +850,8 @@ $().ready(function() {
             }
         });
     });
-    activate_quicksearches();
+    window.activate_quicksearches = activate_quicksearches;
+    activate_quicksearches($('input.quicksearch'));
 
     if ($().deferrable) {
         $('.deferrable').deferrable();

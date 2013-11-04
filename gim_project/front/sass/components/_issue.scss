@@ -291,8 +291,14 @@
             float: right;
             position: relative;
             top: -6px;
-            button {
+            > button {
                 margin-left: 5px;
+            }
+            > div.quicksearch-widget {
+                display: inline-block;
+                input[type='text'] {
+                    width: 100px;
+                }
             }
         }
     }

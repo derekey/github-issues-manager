@@ -194,6 +194,9 @@
             <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files">
                 <div class="content">
                     <nav>
+                        {% with number_str=current_issue.number|slugify %}
+                            {% include "front/include_quicksearch.html" with id='issue-'|add:number_str|add:'-files-search' target='#issue-'|add:number_str|add:'-files .pr-file' content='> .box-header > .title > strong' title="Fiter on file names" only %}
+                        {% endwith %}
                         <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file .pr-comments.collapse" title="Open/close all comments on files"><i class="icon-sort"></i> Toggle comments</button>
                         {% if current_issue.nb_changed_files > 1 %}
                             <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files"><i class="icon-sort"></i> Toggle files</button>
@@ -218,7 +221,7 @@
                                     </li>
                                 </ul>
                                 <div class="title">
-                                    {{ file.path }}
+                                    <strong>{{ file.path }}</strong>
                                     <span>{{ file.status }}</span>
                                 </div>
                             </div>
@@ -247,6 +250,11 @@
         </div>
         {% endif %}
     </article>
+    {% if view.request.is_ajax %}
+        <script type="text/javascript">
+            window.activate_quicksearches($('#issue-{{ current_issue.number }}-files-search input.quicksearch'));
+        </script>
+    {% endif %}
 {% else %}
     <p class="empty-area">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>
 {% endif %}
