@@ -1,0 +1,28 @@
+{% load frontutils %}
+{% with id_prefix=id_prefix|default:"pr-" %}
+    {% for group in groups %}
+        <li>
+            <div class="box pr-commits-group">
+                <div class="box-header" data-toggle="collapse" data-target="#{{ id_prefix }}commits-group-{{ group.0.sha }}" title="Click to collapse/expand">
+                    <div class="title">
+                        {% with authors=group.authors %}
+                            <strong>{{ authors.0 }}</strong>
+                            {% if authors|length == 2 %}
+                                and <strong>{{ authors.1 }}</strong>
+                            {% elif authors|length > 2 %}
+                                , <strong>{{ authors.1 }}</strong> and others
+                            {% endif %}
+                        {% endwith %}
+                        added <strong>{{ group|length }} commit{{ group|length|pluralize }}</strong>
+                    </div>
+                    <ul class="box-toolbar">
+                        <li class="time" title="{{ group.0.authored_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {% if with_ago %}{{ group.0.authored_at|ago }}{% else %}{{ group.0.authored_at|date }}{% endif %}</li>
+                    </ul>
+                </div>
+                <div class="box-content collapse in" id="{{ id_prefix }}commits-group-{{ group.0.sha }}">
+                    {% include "front/repository/issues/include_commits.html" with commits=group %}
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+{% endwith %}

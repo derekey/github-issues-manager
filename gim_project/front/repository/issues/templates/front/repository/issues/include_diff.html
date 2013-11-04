@@ -1,0 +1,11 @@
+{% spaceless %}
+<table class="table table-normal diff-lines">
+    {% for class, old, new, code in parsed_diff %}
+        <tr class="{{ class }}">
+            <td class="line-number" data-line-number="{{ old }}"></td>
+            <td class="line-number" data-line-number="{{ new }}"></td>
+            <td class="code">{{ code }}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% endspaceless %}

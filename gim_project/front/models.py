@@ -217,6 +217,14 @@ class _Issue(models.Model):
         return 'pull request' if self.is_pull_request else 'issue'
 
     @property
+    def nb_authors(self):
+        if not self.is_pull_request or not self.nb_commits:
+            return 0
+        if self.nb_commits == 1:
+            return 1
+        return len(set(self.commits.values_list('author_name', flat=True)))
+
+    @property
     def hash(self):
         """
         Hash for this issue representing its state at the current time, used to
@@ -268,6 +276,13 @@ class _Issue(models.Model):
 
         loader.get_template(template).render(context)
 
+    @property
+    def all_commits(self):
+        if not hasattr(self, '_all_commits'):
+            self._all_commits = list(self.commits.all().select_related('author',
+                                            'committer', 'repository__owner'))
+        return self._all_commits
+
     def get_activity(self):
         """
         Return the activity of the issue, including comments, events and
@@ -287,27 +302,33 @@ class _Issue(models.Model):
         activity = sorted(sum(types, []), key=attrgetter('created_at'))
 
         if self.is_pull_request:
-            activity = GroupedCommits.add_commits_in_activity(self, activity)
+            activity = GroupedCommits.add_commits_in_activity(self.all_commits, activity)
 
         return activity
+
+    def get_commits_per_day(self):
+        if not self.is_pull_request:
+            return []
+        return GroupedCommits.group_commits_by_day(self.all_commits)
 
 contribute_to_model(_Issue, core_models.Issue)
 
 
 class GroupedCommits(list):
     """
-    An object to regroup a list of commits in a list of activities: all commits
-    between two entries of the activity list are grouped together
+    An object to regroup a list of commits
+    - in a list of activities: all commits between two entries of the activity
+      list are grouped together ("add_commits_in_activity")
+    - per day ("group_commits_by_day")
     """
     is_commits_group = True  # for template
 
     @classmethod
-    def add_commits_in_activity(cls, issue, activity):
-        commits = list(issue.commits.all().select_related('author', 'committer',
-                                                            'repository__owner'))
+    def add_commits_in_activity(cls, commits, activity):
         if not len(commits):
             return activity
 
+        commits = list(commits)
         final_activity = []
         current_group = None
 
@@ -331,6 +352,23 @@ class GroupedCommits(list):
             final_activity.append(cls(commits))
 
         return final_activity
+
+    @classmethod
+    def group_commits_by_day(cls, commits):
+        if not len(commits):
+            return []
+
+        groups = []
+        current_date = None
+
+        for commit in commits:
+            commit_date = commit.authored_at.date()
+            if not current_date or commit_date != current_date:
+                groups.append(cls())
+                current_date = commit_date
+            groups[-1].append(commit)
+
+        return groups
 
     def authors(self):
         authors = []

@@ -180,14 +180,17 @@
         > .title, > .box-toolbar > li {
             font-size: 13px;
         }
+        > .title {
+            font-weight: normal;
+        }
     }
     .pr-entry-point {
         & > .box-header {
             cursor: pointer;
             .title {
-                font-size: 14px;
+                font-size: 13px;
+                font-weight: normal;
                 > span {
-                    font-weight: normal;
                     font-style: italic;
                     display: block;
                 }
@@ -200,42 +203,9 @@
                 margin-left: 5px;
             }
         }
-        .box-section {
+        .box-section.pr-comments {
             padding-top: 5px;
             padding-bottom: 0;
-        }
-        .pr-diff {
-            overflow: auto;
-            padding: 0;
-            pre {
-                white-space: pre;
-                color: #333;
-                background: white;
-                display: table;
-                width: 100%;
-                padding: 0;
-                border: none;
-                margin: 0;
-                > span {
-                    display: table-row;
-                    line-height: 20px;
-                    min-height: 20px;
-                    &.comment {
-                        background: #F8F8FF;
-                        color: #999;
-                    }
-                    &.added {
-                        background: #DDFFDD;
-                    }
-                    &.removed {
-                        background: #FFDDDD;
-                    }
-                    > code {
-                        padding: 1px 5px;
-                        white-space: inherit;
-                    }
-                }
-            }
         }
     } // .pr-entry-point
 
@@ -264,6 +234,30 @@
         margin-bottom: 15px;
     }
 
+}
+
+.pr-tabs {
+    margin-bottom: 0;
+    > li {
+        margin-left: 10px;
+        margin-right: 10px;
+        &:first-of-type {
+            margin-left: 30px;
+        }
+    }
+}
+.issue-discussion {
+    .issue-body {
+        margin-top: 0;
+    }
+}
+.issue-commits, .issue-files {
+   .content {
+        padding: 15px;
+        background: white;
+        border-bottom: solid 1px $box-border-color;
+        @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
+    }
 }
 
 table.commits-list {
@@ -316,6 +310,69 @@ table.commits-list {
         }
     }
 } // table.commits-list
+
+table.table.table-normal.diff-lines {
+    white-space: pre;
+    background: white;
+    font-family: $monoFontFamily;
+    color: #333;
+    tr {
+        border: none;
+        background: transparent;
+        &.comment{
+            background: #F8F8FF;
+            color: #999;
+            td.line-number {
+                background-color: #F3F3FF;
+                border-color: #E4E4FF;
+                text-align: center;
+            }
+        }
+        &.added {
+            background: #DDFFDD;
+            td.line-number {
+                background-color: #CEFFCE;
+                border-color: #B4E2B4;
+            }
+        }
+        &.removed {
+            background: #FFDDDD;
+            td {
+                background-color: #F7C8C8;
+                border-color: #E9AEAE;
+            }
+        }
+    }
+    td {
+        border: none;
+        line-height: 20px;
+        min-height: 20px;
+        padding: 1px 5px;
+        background: transparent;
+        &.line-number {
+            width: 1%;
+            text-align: right;
+            color: rgba(0, 0, 0, 0.3);
+            border-right: {
+                style: solid;
+                width: 1px;
+            }
+            &:before {
+                content: attr(data-line-number);
+            }
+        }
+    }
+}
+
+.code-diff {
+    overflow: auto;
+    padding: 0;
+    border-top: 0;
+    table.diff-lines {
+        margin-bottom: 0;
+    }
+}
+
 
 #modal-issue-view {
     .modal-body {

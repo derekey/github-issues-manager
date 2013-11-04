@@ -1,10 +1,13 @@
+# -*-coding: utf8 -*-
+
 """
 dynamic_group comes from http://djangosnippets.org/snippets/2511/
 """
-from itertools import groupby
+from itertools import groupby, chain
 from datetime import datetime
 import time
 import re
+import whatthepatch
 
 from pytimeago.english import english as english_ago
 from pytimeago.english_short import english_short as english_short_ago
@@ -24,7 +27,7 @@ class DynamicRegroupNode(template.Node):
 
     def render(self, context):
         obj_list = self.target.resolve(context, True)
-        if obj_list == None:
+        if obj_list is None:
             # target variable wasn't found in context; fail silently.
             context[self.var_name] = []
             return ''
@@ -187,3 +190,45 @@ def nospaces(parser, token):
 @register.filter
 def tolist(value):
     return [value]
+
+
+DIFF_LINE_TYPES = {
+    '@': 'comment',
+    '+': 'added',
+    '-': 'removed',
+    ' ': '',
+}
+
+
+@register.filter
+def parse_diff(diff, reduce=False):
+    if not diff or not diff.startswith('@@'):
+        return []
+
+    # split hunks
+    parts = []
+    for l in diff.split('\n'):
+        if l.startswith('@@'):
+            parts.append([])
+        parts[-1].append(l)
+
+    results = []
+
+    # parse each hunk
+    for part in parts:
+        diff = whatthepatch.parse_patch(part).next()  # only one file = only one diff
+        result = [['comment', u'…', u'…', part[0]]]
+        for old, new, text in diff.changes:
+            mode = ' ' if old and new else '-' if old else '+'
+            result.append([
+                DIFF_LINE_TYPES[mode],
+                old or '',
+                new or '',
+                mode + text,
+            ])
+        if reduce:
+            result = result[0:1] + result[1:][-12:]
+
+        results.append(result)
+
+    return chain.from_iterable(results)

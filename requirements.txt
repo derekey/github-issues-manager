@@ -15,3 +15,4 @@ redis-limpyd-jobs
 django-async-messages
 django-redis
 django-adv-cache-tag
+whatthepatch
