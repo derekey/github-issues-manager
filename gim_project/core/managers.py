@@ -828,3 +828,27 @@ class IssueEventManager(WithIssueManager):
                 existing_event.delete()
 
         return new_events
+
+
+class PullRequestFileManager(WithIssueManager):
+    tree_finder = re.compile('^https?://github\.com/(?:[^/]+/[^/]+)/blob/(?P<tree>[^/]+)')
+
+    def get_tree_in_url(self, url):
+        """
+        Taking an url, try to return the tree sha
+        """
+        if not url:
+            return None
+        match = self.tree_finder.match(url)
+        if not match:
+            return None
+        return match.groupdict().get('tree', None)
+
+    def get_object_fields_from_dict(self, data, defaults=None):
+        """
+        Set in data the tree got from the blob url
+        """
+        if 'blob_url' in data:
+            data['tree'] = self.get_tree_in_url(data['blob_url'])
+
+        return super(PullRequestFileManager, self).get_object_fields_from_dict(data, defaults)

@@ -26,7 +26,8 @@ from .managers import (MODE_ALL, MODE_UPDATE,
                        IssueCommentManager, GithubUserManager, IssueManager,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager, IssueEventManager,
-                       PullRequestCommentEntryPointManager, CommitManager)
+                       PullRequestCommentEntryPointManager, CommitManager,
+                       PullRequestFileManager)
 
 import username_hack  # force the username length to be 255 chars
 
@@ -1033,9 +1034,9 @@ class Repository(GithubObjectWithId):
 
             for pr in prs:
                 try:
-                    pr.fetch(gh, force_fetch=True, meta_base_name='pr',
-                             defaults={'simple': {'is_pull_request': True}})
+                    pr.fetch_pr(gh, force_fetch=True)
                     pr.fetch_commits(gh)
+                    pr.fetch_files(gh)
                 except ApiNotFoundError:
                     # the PR doen't exist anymore !
                     pr.delete()
@@ -1507,6 +1508,8 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     commits_fetched_at = models.DateTimeField(blank=True, null=True)
     commits_etag = models.CharField(max_length=64, blank=True, null=True)
     commits = models.ManyToManyField(Commit, related_name='issues')
+    files_fetched_at = models.DateTimeField(blank=True, null=True)
+    files_etag = models.CharField(max_length=64, blank=True, null=True)
 
     objects = IssueManager()
 
@@ -1669,9 +1672,25 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
             'commits'
         ]
 
+    @property
+    def github_callable_identifiers_for_files(self):
+        return self.repository.github_callable_identifiers_for_prs + [
+            self.number,
+            'files'
+        ]
+
     def fetch_commits(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('commits', gh,
                                 defaults={'fk': {'repository': self.repository}},
+                                parameters=parameters,
+                                force_fetch=force_fetch)
+
+    def fetch_files(self, gh, force_fetch=False, parameters=None):
+        return self._fetch_many('files', gh,
+                                defaults={'fk': {
+                                    'issue': self,
+                                    'repository': self.repository}
+                                },
                                 parameters=parameters,
                                 force_fetch=force_fetch)
 
@@ -1681,7 +1700,10 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         self.fetch_events(gh, force_fetch=force_fetch)
         self.fetch_comments(gh, force_fetch=force_fetch)
         if self.is_pull_request:
+            self.fetch_pr(gh, force_fetch=force_fetch)
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
+            self.fetch_commits(gh, force_fetch=force_fetch)
+            self.fetch_files(gh, force_fetch=force_fetch)
 
     @property
     def total_comments_count(self):
@@ -1981,3 +2003,41 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
                     'author': self.user,
                 })
         super(IssueEvent, self).save(*args, **kwargs)
+
+
+class PullRequestFile(WithIssueMixin, GithubObject):
+    repository = models.ForeignKey(Repository, related_name='pr_files')
+    issue = models.ForeignKey(Issue, related_name='files')
+    sha = models.CharField(max_length=40, blank=True, null=True)
+    path = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=32, blank=True, null=True)
+    nb_additions = models.PositiveIntegerField(blank=True, null=True)
+    nb_deletions = models.PositiveIntegerField(blank=True, null=True)
+    nb_changes = models.PositiveIntegerField(blank=True, null=True)
+    patch = models.TextField(blank=True, null=True)
+    tree = models.CharField(max_length=40, blank=True, null=True)
+
+    github_matching = dict(GithubObject.github_matching)
+    github_matching.update({
+        'additions': 'nb_additions',
+        'deletions': 'nb_deletions',
+        'changes': 'nb_changes',
+        'filename': 'path'
+    })
+
+    github_identifiers = {
+        'sha': 'sha',
+        'path': 'path',
+    }
+
+    objects = PullRequestFileManager()
+
+    class Meta:
+        ordering = ('path', )
+
+    def __unicode__(self):
+        return u'"%s" on Issue #%d' % (self.path, self.issue.number if self.issue else '?')
+
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/blob/%s/%s' % (self.tree, self.path)
