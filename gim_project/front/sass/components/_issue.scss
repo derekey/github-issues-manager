@@ -209,6 +209,27 @@
         }
     } // .pr-entry-point
 
+    .pr-file {
+        .box-toolbar {
+            margin-top: 9px;
+            margin-right: 9px;
+        }
+        & > .box-header {
+            cursor: pointer;
+        }
+        .title span {
+            font-style: italic;
+            display: block;
+            font-weight: normal;
+        }
+        .no-diff {
+            font-style: italic;
+            color: $light-text-color;
+            background: white;
+            padding: 10px;
+        }
+    }
+
     .comment-commits {
         margin: -5px -10px;
     }

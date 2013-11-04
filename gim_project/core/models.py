@@ -2013,6 +2013,7 @@ class PullRequestFile(WithIssueMixin, GithubObject):
     })
 
     github_identifiers = {
+        'tree': 'tree',
         'sha': 'sha',
         'path': 'path',
     }

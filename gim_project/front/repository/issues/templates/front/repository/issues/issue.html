@@ -209,20 +209,33 @@
                     <li>
                         <div class="box pr-file">
                             <div class="box-header" data-toggle="collapse" data-target="#pr-file-{{ file.id }}" title="Click to collapse/expand">
-                                <div class="title">
-                                    {{ file.path }}
-                                </div>
                                 <ul class="box-toolbar">
                                     <ul class="unstyled">
                                         <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ file.nb_additions }}</li>
                                         <li class="label label-red" title="{{ file.nb_deletions }} deletion{{ file.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ file.nb_deletions }}</li>
                                     </ul>
                                 </ul>
+                                <div class="title">
+                                    {{ file.path }}
+                                    <span>{{ file.status }}</span>
+                                </div>
                             </div>
                             <div class="box-content collapse in" id="pr-file-{{ file.id }}">
-                                <div class="box-section code-diff">
-                                    {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff %}
-                                </div>
+                                {% if file.nb_additions or file.nb_deletions %}
+                                    <div class="box-section code-diff">
+                                        {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff %}
+                                    </div>
+                                {% else %}
+                                    <div class="box-section no-diff">
+                                        {% if file.status == 'added' %}
+                                            File added without content, or <a href="{{ file.github_url }}" target='_blank'>binary</a>
+                                        {% elif file.status == 'renamed' %}
+                                            File renamed without changes
+                                        {% elif file.status == 'deleted' %}
+                                            Deleted file was empty
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </li>
