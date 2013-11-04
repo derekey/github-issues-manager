@@ -202,6 +202,7 @@
             </div>
             <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files">
                 <div class="content">
+                    {% if current_issue.nb_changed_files > 1 %}<button class="btn btn-default pr-files-toggle" data-toggle="collapse" data-target=".pr-file .collapse" ><i class="icon-sort"></i> Toogle all</button>{% endif %}
                     <strong>{{ current_issue.nb_changed_files }} file{{ current_issue.nb_changed_files|pluralize }} changed</strong> with <strong>{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}</strong> and <strong>{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}</strong>
                 </div>
                 <ul class="unstyled chat-box timeline issue-comments">
