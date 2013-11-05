@@ -14,3 +14,6 @@ DJANGO_SETTINGS_MODULE=gim_project.settings limpyd-jobs-worker --worker-class=co
 ```
 
 (you may want to run many workers by repeating the line above in many terms, it's really faster, notably for the `update-issue-tmpl` queue)
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/twidi/github-issues-manager/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
