@@ -152,14 +152,14 @@
                                             </div>
                                             <ul class="box-toolbar">
                                                 {% with entry_point_comments_count=entry_point.comments.all|length %}
-                                                    <li class="comments-count" title="{{ entry_point_comments_count }} comment{{ entry_point_comments_count|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point_comments_count }}</li>
+                                                    <li class="comments-count" title="{{ entry_point.nb_comments }} comment{{ entry_point.nb_comments|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point.nb_comments }}</li>
                                                 {% endwith %}
                                                 <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ entry_point.created_at|ago }}</li>
                                             </ul>
                                         </div>
                                         <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
                                             <div class="box-section code-diff">
-                                                {% include "front/repository/issues/include_diff.html" with parsed_diff=entry_point.diff_hunk|parse_diff:True entry_points=None %}
+                                                {% include "front/repository/issues/include_diff.html" with parsed_diff=entry_point.diff_hunk|parse_diff:True entry_points=None path=entry_point.path sha=entry_point.original_commit_sha %}
                                             </div>
                                             {% include "front/repository/issues/include_pr_comments.html" with pr_comments=entry_point.comments.all classes="" %}
                                         </div>
@@ -192,6 +192,7 @@
                 </ul>
             </div>
             <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files">
+                <div class="box-section pr-comments template" style="display: none"><ul class="unstyled chat-box timeline"></ul></div>
                 <div class="content">
                     <nav>
                         {% with number_str=current_issue.number|slugify %}
@@ -228,7 +229,7 @@
                             <div class="box-content collapse in" id="pr-file-{{ file.id }}">
                                 {% if file.nb_additions or file.nb_deletions %}
                                     <div class="box-section code-diff">
-                                        {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff entry_points=entry_points_dict|dict_item:file.path %}
+                                        {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff entry_points=entry_points_dict|dict_item:file.path path=file.path sha=file.tree %}
                                     </div>
                                 {% else %}
                                     <div class="box-section no-diff">

@@ -201,6 +201,9 @@
                 margin-left: 5px;
             }
         }
+        & > .box-content.collapse.in {
+            position: static;
+        }
     } // .pr-entry-point
 
     .box-section.pr-comments {
@@ -227,6 +230,9 @@
         }
         & > .box-header {
             cursor: pointer;
+        }
+        & > .box-content.collapse.in {
+            position: static;
         }
         .title span {
             display: block;
@@ -392,19 +398,44 @@ table.table.table-normal.diff-lines {
             padding: 1px 5px;
             background: transparent;
             &.line-number {
-                width: 1%;
+                width: 8px;  // size of the "..." cells
                 text-align: right;
                 color: rgba(0, 0, 0, 0.3);
                 border-right: {
                     style: solid;
                     width: 1px;
                 }
+                > span {
+                    display: none;
+                }
                 &:before {
                     content: attr(data-line-number);
                 }
             }
+            &.code {
+                span {
+                    position: absolute;
+                    left: 0;
+                    padding: 1px;
+                    cursor: pointer;
+                    i {
+                        //font-size: 12px;
+                    }
+                    display: none;
+                }
+                vertical-align: baseline;
+            }
+        } // td
+        &:hover {
+            background: #F8EEC7 !important;
+            td {
+                background: transparent !important;
+                &.code span {
+                    display: inline-block;
+                }
+            }
         }
-    }
+    } // tr
 }
 
 .code-diff {

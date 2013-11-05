@@ -286,10 +286,12 @@ class _Issue(models.Model):
     @property
     def all_entry_points(self):
         if not hasattr(self, '_all_entry_points'):
-            self._all_entry_points = list(self.pr_comments_entry_points.all()
-                                        .select_related('user', 'pr_comments',
-                                                        'repository__owner')
-                                        .prefetch_related('comments__user'))
+            self._all_entry_points = list(self.pr_comments_entry_points
+                                .annotate(nb_comments=models.Count('comments'))
+                                .filter(nb_comments__gt=0)
+                                .select_related('user', 'pr_comments',
+                                                'repository__owner')
+                                .prefetch_related('comments__user'))
         return self._all_entry_points
 
     def get_activity(self):

@@ -1203,21 +1203,75 @@ $().ready(function() {
         // CREATE THE PR-COMMENT FORM
         on_comment_create_placeholder_click: (function IssueEditor__on_comment_create_placeholder_click (ev) {
             var $placeholder = $(this).parent(),
-                $template = $placeholder.closest('.issue').find('.comment-create-container'),
-                $node = $template.clone(),
-                $form = $node.find('form');
-            $node.removeClass('comment-create-container');
-            $form.attr('action', $placeholder.data('url'));
-            $form.prepend('<input type="hidden" name="entry_point_id" value="' + $placeholder.data('entry-point-id') + '"/>')
-            $placeholder.after($node);
+                $comment_box = IssueEditor.create_comment_form_from_template($placeholder.closest('.issue'));
+            $comment_box.$form.prepend('<input type="hidden" name="entry_point_id" value="' + $placeholder.data('entry-point-id') + '"/>')
+            $placeholder.after($comment_box.$node);
             $placeholder.hide();
-            $form.find('textarea').focus();
+            $comment_box.$textarea.focus();
         }), // on_comment_create_placeholder_click
+
+        create_comment_form_from_template: (function IssueEditor__create_comment_form_from_template ($issue) {
+            var $template = $issue.find('.comment-create-container'),
+                $node = $template.clone(),
+                $form = $node.find('form'),
+                $textarea;
+            $node.removeClass('comment-create-container');
+            $form.attr('action', $form.data('pr-url'));
+            $textarea = $form.find('textarea');
+            $textarea.val('');
+            return {$node: $node, $form: $form, $textarea: $textarea};
+        }), // create_comment_form_from_template
+
+        // CREATE A NEW ENTRY POINT
+        on_new_entry_point_click: (function IssueEditor__on_new_entry_point_click (ev) {
+            var $tr = $(this).closest('tr'),
+                $table = $tr.closest('table'),
+                is_last_line = $tr.is(':last-of-type'),
+                $entry_point, $textarea, $new_table, path, sha, position, $issue, $box;
+            // check if already an entry-point
+            if (is_last_line) {
+                $entry_point = $tr.closest('.code-diff').next('.pr-comments');
+                if ($entry_point.length) {
+                    // check if we already have a textarea
+                    $textarea = $entry_point.find('textarea');
+                    if ($textarea.length) {
+                        $textarea.focus();
+                    } else {
+                        // no textarea, click on the button to create one
+                        $entry_point.find('.comment-create-placeholder button').click();
+                    }
+                    return false;
+                }
+            }
+            // we need to create an entry point
+            path = $table.data('path');
+            sha = $table.data('sha');
+            position = $tr.data('position');
+            if (!is_last_line) {
+                // start by making room, by moving all next lines in a new table
+                $new_table = $('<table><tbody/></table>').addClass($table[0].className);
+                $new_table.data({path: path, sha: sha});
+                $new_table.children('tbody').append($tr.nextAll('tr'));
+                $table.after($new_table);
+            }
+            // create a box for the entry-point
+            $issue = $table.closest('.issue');
+            $box = $issue.find('.pr-comments.template').clone().removeClass('template').removeAttr('style');
+            $comment_box = IssueEditor.create_comment_form_from_template($issue);
+            $comment_box.$form.prepend('<input type="hidden" name="path" value="' + path + '"/>' +
+                                       '<input type="hidden" name="sha" value="' + sha + '"/>' +
+                                       '<input type="hidden" name="position" value="' + position + '"/>');
+            $box.find('ul').append($comment_box.$node);
+            $table.after($box);
+            $comment_box.$textarea.focus();
+
+        }), // on_new_entry_point_click
 
         init: (function IssueEditor__init () {
             $document.on('submit', '.issue-edit-state-form', IssueEditor.on_state_submit);
             $document.on('submit', '.comment-create-form', IssueEditor.on_comment_create_submit);
             $document.on('click', '.comment-create-placeholder button', IssueEditor.on_comment_create_placeholder_click);
+            $document.on('click', 'td.code span.label', IssueEditor.on_new_entry_point_click);
         }) // init
     }; // IssueEditor
     IssueEditor.init();

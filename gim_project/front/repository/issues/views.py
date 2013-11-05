@@ -1,3 +1,4 @@
+from datetime import datetime
 from math import ceil
 from operator import attrgetter
 
@@ -724,11 +725,51 @@ class PullRequestCommentCreate(BaseCommentCreateView):
     model = PullRequestComment
     job_model = PullRequestCommentEditJob
 
+    def get_entry_point(self):
+        if 'entry_point_id' in self.request.POST:
+            entry_point_id = self.request.POST['entry_point_id']
+            self.entry_point = self.issue.pr_comments_entry_points.get(id=entry_point_id)
+        else:
+            # get and check entre-point params
+
+            if len(self.request.POST['position']) < 10:
+                position = int(self.request.POST['position'])
+            else:
+                raise KeyError('position')
+
+            if len(self.request.POST['sha']) == 40:
+                sha = self.request.POST['sha']
+            else:
+                raise KeyError('sha')
+
+            path = self.request.POST['path']
+            try:
+                file = self.issue.files.get(path=path)
+            except self.issue.files.model.DoesNotExist:
+                file = None
+
+            # get or create the entry_point
+            now = datetime.utcnow()
+            self.entry_point, created = self.issue.pr_comments_entry_points\
+                .get_or_create(
+                    original_commit_sha=sha,
+                    path=path,
+                    original_position=position,
+                    defaults={
+                        'repository': self.issue.repository,
+                        'commit_sha': sha,
+                        'position': position,
+                        'created_at': now,
+                        'updated_at': now,
+                        'diff_hunk': '' if not file else '\n'.join(
+                                            file.patch.split('\n')[:position+1])
+                    }
+                )
+
     def post(self, *args, **kwargs):
         self.entry_point = None
         try:
-            entry_point_id = self.request.POST['entry_point_id']
-            self.entry_point = self.issue.pr_comments_entry_points.get(id=entry_point_id)
+            self.get_entry_point()
         except Exception:
             return self.http_method_not_allowed(self.request)
         return super(PullRequestCommentCreate, self).post(*args, **kwargs)
