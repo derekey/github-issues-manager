@@ -84,6 +84,12 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
         context['subscribed_repositories'] = Repository.objects.filter(
                subscriptions__user=self.request.user,
                subscriptions__state__in=SUBSCRIPTION_STATES.READ_RIGHTS,
-           ).select_related('owner')
+           ).extra(select={
+                    'lower_name': 'lower(name)',
+                    'lower_owner': 'lower(username)',
+                }
+            ).select_related('owner').order_by('lower_owner', 'lower_name')
 
         return context
+
+
