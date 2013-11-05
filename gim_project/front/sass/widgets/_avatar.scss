@@ -20,6 +20,14 @@
     max-height: 24px;
     max-width: 24px;
 }
+.avatar-micro {
+    display: inline-block;
+    overflow: hidden;
+    height: 16px;
+    width: 16px;
+    max-height: 16px;
+    max-width: 16px;
+}
 
 @mixin avatar-small-container {
     width: 40px;

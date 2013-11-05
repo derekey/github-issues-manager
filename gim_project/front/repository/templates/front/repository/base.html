@@ -1,4 +1,6 @@
 {% extends "front/base.html" %}
+{% load staticfiles %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
 
 {% block body_classes %}repository{% endblock %}
 {% block body_attributes %} data-repository={{ current_repository.full_name }}{% endblock %}
@@ -8,11 +10,22 @@
     <ul class="nav">
         <li class="dropdown">
             <a id="repository-switcher" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ current_repository }} <b class="caret"></b></a>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="repository-switcher">
-                {% for repository in subscribed_repositories %}
-                    <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}">{{ repository }}</a></li>
+            {% regroup subscribed_repositories by owner as groups %}
+            <ul class="dropdown-menu" id="repository-switcher-content" role="menu" aria-labelledby="repository-switcher">
+                {% for group in groups %}
+                    <li>
+                        <strong>
+                            <img class="avatar-micro img-circle" src="{{ group.grouper.avatar_url|default:default_avatar }}" />
+                            {{ group.grouper.username }}
+                        </strong>
+                        <ul class="unstyled">
+                            {% for repository in group.list %}
+                                <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}">{{ repository.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    <li class="divider"></li>
                 {% endfor %}
-                <li class="divider"></li>
                 <li><a href="{% url "front:dashboard:repositories:choose" %}">Manage your subscriptions</a></li>
             </ul>
         </li>

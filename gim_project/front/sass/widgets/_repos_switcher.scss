@@ -1,0 +1,52 @@
+@import "compass/css3/border-radius";
+
+#repository-switcher-content {
+    min-width: 500px;
+    > li {
+        overflow: auto;
+        > strong {
+            float: left;
+            margin-right: 10px;
+            margin-left: 5px;
+            min-width: 120px;
+            text-align: right;
+        }
+        > ul {
+            text-align: left;
+            margin-right: 5px;
+            margin-left: 130px;
+            > li {
+                display: inline-block;
+                margin: 0;
+                margin-right: 2px;
+                a {
+                    padding: 0 2px;
+                }
+                &:after {
+                    content: "•";
+                    padding-left: 4px;
+                }
+                &.active {
+                    &:after {
+                        padding-left: 6px;
+                    }
+                    a {
+                        @include border-radius(4px);
+                    }
+                }
+                &:last-of-type:after {
+                    display: none;
+                }
+            }
+        }
+        &.divider {
+            margin: 4px 1px;
+            &:last-of-type {
+                margin-bottom: 9px;
+            }
+        }
+        &:last-of-type {
+            text-align: center;
+        }
+    }
+}

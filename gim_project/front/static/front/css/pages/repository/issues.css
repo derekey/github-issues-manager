@@ -26,6 +26,16 @@
   max-width: 24px;
 }
 
+/* line 23, ../../../../../sass/widgets/_avatar.scss */
+.avatar-micro {
+  display: inline-block;
+  overflow: hidden;
+  height: 16px;
+  width: 16px;
+  max-height: 16px;
+  max-width: 16px;
+}
+
 /* line 1, ../../../../../sass/components/_issues_mixins.scss */
 .issue-item, .issue .area-top {
   position: relative;
