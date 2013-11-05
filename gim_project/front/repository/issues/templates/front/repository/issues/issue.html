@@ -195,9 +195,11 @@
                 <div class="box-section pr-comments template" style="display: none"><ul class="unstyled chat-box timeline"></ul></div>
                 <div class="content">
                     <nav>
-                        {% with number_str=current_issue.number|slugify %}
-                            {% include "front/include_quicksearch.html" with id='issue-'|add:number_str|add:'-files-search' target='#issue-'|add:number_str|add:'-files .pr-file' content='> .box-header > .title > strong' title="Fiter on file names" only %}
-                        {% endwith %}
+                        {% if current_issue.nb_changed_files > 1 %}
+                            {% with number_str=current_issue.number|slugify %}
+                                {% include "front/include_quicksearch.html" with id='issue-'|add:number_str|add:'-files-search' target='#issue-'|add:number_str|add:'-files .pr-file' content='> .box-header > .title > strong' title="Fiter on file names" only %}
+                            {% endwith %}
+                        {% endif %}
                         <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file .pr-comments.collapse" title="Open/close all comments on files"><i class="icon-sort"></i> Toggle comments</button>
                         {% if current_issue.nb_changed_files > 1 %}
                             <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files"><i class="icon-sort"></i> Toggle files</button>
@@ -251,7 +253,7 @@
         </div>
         {% endif %}
     </article>
-    {% if view.request.is_ajax %}
+    {% if view.request.is_ajax and current_issue.is_pull_request and current_issue.nb_changed_files > 1 %}
         <script type="text/javascript">
             window.activate_quicksearches($('#issue-{{ current_issue.number }}-files-search input.quicksearch'));
         </script>
