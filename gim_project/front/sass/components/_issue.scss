@@ -185,7 +185,6 @@
     }
     .pr-entry-point {
         & > .box-header {
-            cursor: pointer;
             .title {
                 font-size: 13px;
                 font-weight: normal;
@@ -227,9 +226,6 @@
                     display: block;
                 }
             }
-        }
-        & > .box-header {
-            cursor: pointer;
         }
         & > .box-content.collapse.in {
             position: static;
@@ -340,7 +336,6 @@ table.commits-list {
             }
             > span[data-toggle=collapse] {
                 float: right;
-                cursor: pointer;
                 display: block;
                 height: 12px;
                 @include border-radius(1px);
@@ -418,9 +413,6 @@ table.table.table-normal.diff-lines {
                     left: 0;
                     padding: 1px;
                     cursor: pointer;
-                    i {
-                        //font-size: 12px;
-                    }
                     display: none;
                 }
                 vertical-align: baseline;

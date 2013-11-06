@@ -91,3 +91,8 @@ $arrows: top, right, left, bottom;
         max-height: none !important;
     }
 }
+
+// always a pointer for collapse triggers
+[data-toggle="collapse"] {
+    cursor: pointer;
+}

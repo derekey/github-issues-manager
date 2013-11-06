@@ -638,6 +638,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                     repos_list.append({
                         'name': datum['name'],
                         'owner': datum['owner']['login'],
+                        'avatar_url': datum['owner']['avatar_url'],
                         'private': datum.get('private', False),
                         'pushed_at': datum['pushed_at'],
                         'has_issues': has_issues,

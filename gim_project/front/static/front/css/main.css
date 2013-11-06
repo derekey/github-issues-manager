@@ -259,6 +259,11 @@ blockquote p:last-child {
   max-height: none !important;
 }
 
+/* line 96, ../../../sass/_bootstrap-correct.scss */
+[data-toggle="collapse"] {
+  cursor: pointer;
+}
+
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar img {
   display: inline-block;

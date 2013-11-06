@@ -23,6 +23,21 @@
     {% url "front:dashboard:repositories:remove" as repository_remove_url %}
     <div class="row-fluid">
         <div class="span10 offset1">
+            <div class="box">
+                <div class="box-footer padded">
+                    <form id="other-repository" action="{{ repository_add_url }}" method="post" class="span10 offset1">
+                        <div class="input-append">
+                            <input id="id_name" name="name" type="text" placeholder="Add a repository by entering name/repository (or choose one below)" class="span12" />
+                            <button type="submit" class="btn btn-green" title="Subscribe to this repository"><i class="icon-plus"> </i></button>
+                            <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span10 offset1">
             {% if available_repositories %}
                 <div class="box" id="available-repositories">
                     <div class="box-content">
@@ -44,7 +59,7 @@
                                             </tr>
                                         {% endif %}
                                         <tr>
-                                            <td colspan="7">
+                                            <td colspan="7" data-toggle="collapse" data-target="#tbody-{{ org.name }}" title="Click to collapse/expand">
                                                 {% if org.name == '__self__' %}
                                                     <img class="avatar-tiny img-circle" src="{{ user.avatar_url|default:default_avatar }}" />
                                                     Repositories you own/participate
@@ -58,11 +73,11 @@
                                                         {% endif %}
                                                     {% endwith %}
                                                     {{ org.name }}'s repositories
-                                                {% endif %} 
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="tbody-{{ org.name }}" class="collapse in">
                                         {% for repo in org.repos %}
                                             {% with repo_fullname=repo.owner|add:"/"|add:repo.name %}
                                                 <tr class="{% nospaces %}
@@ -85,16 +100,20 @@
                                                     {% endif %}
                                                 {% endnospaces %}">
                                                     <td>
+                                                        {% if repo.owner != view.request.user.username and repo.owner != org.name %}
+                                                            <img class="avatar-micro img-circle" src="{{ repo.avatar_url|default:default_avatar }}" /><!--
+                                                        {% else %}<!--
+                                                        {% endif %}
                                                         {% if repo_fullname in subscriptions %}
                                                             {% with subscription=subscriptions|dict_item:repo_fullname %}
                                                                 {% if subscription.state != 4 %}
-                                                                    <a href="{{ subscription.repository.get_absolute_url }}" title="View this repository">{{ repo_fullname }}</a>
+                                                                    --><a href="{{ subscription.repository.get_absolute_url }}" title="View this repository">{{ repo.owner }}/<strong>{{ repo.name }}</strong></a>
                                                                 {% else %}
-                                                                    {{ repo_fullname }}
+                                                                    -->{{ repo.owner }}/<strong>{{ repo.name }}</strong>
                                                                 {% endif %}
                                                             {% endwith %}
                                                         {% else %}
-                                                            {{ repo_fullname }}
+                                                            -->{{ repo.owner }}/<strong>{{ repo.name }}</strong>
                                                         {% endif %}
                                                     </td>
                                                     {% if repo_fullname in subscriptions %}
@@ -186,14 +205,6 @@
                                 {% endif %}
                             {% endfor %}
                         </table>
-                        <div class="box-footer padded">
-                            <form action="{{ repository_add_url }}" method="post" class="span10 offset1">
-                                <div class="input-append">
-                                    <input id="id_name" name="name" type="text" placeholder="Add another by entering name/repository" class="span12" />
-                                    <button type="submit" class="btn btn-green" title="Subscribe to this repository"><i class="icon-plus"> </i></button>
-                                <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
-                            </form>
-                        </div>
                     </div>{# .box-content #}
                 </div>{# .box#available-repositories #}
             {% else %}

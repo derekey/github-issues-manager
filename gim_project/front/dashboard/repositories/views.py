@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 
-from core.models import Repository
+from core.models import Repository, GithubUser
 from subscriptions.models import (WaitingSubscription,
                                   WAITING_SUBSCRIPTION_STATES,
                                   SUBSCRIPTION_STATES, )
@@ -102,6 +102,18 @@ class ChooseRepositoryView(TemplateView):
         """
         return dict((s.repository.full_name, s) for s in self.request.user.subscriptions.all().select_related('repository__owner'))
 
+    def get_avatar_url(self, username):
+        if not hasattr(self, '_avatar_urls'):
+            self._avatar_urls = {}
+        if username not in self._avatar_urls:
+            try:
+                self._avatar_urls[username] = GithubUser.objects.get(
+                                                username=username).avatar_url
+            except GithubUser.DoesNotExist:
+                self._avatar_urls[username] = None
+
+        return self._avatar_urls[username]
+
     def get_context_data(self, *args, **kwargs):
         context = super(ChooseRepositoryView, self).get_context_data(*args, **kwargs)
 
@@ -125,18 +137,20 @@ class ChooseRepositoryView(TemplateView):
                 others_repos['repos'].append({
                     'no_infos': True,
                     'owner': owner,
-                    'name': name
+                    'avatar_url': self.get_avatar_url(owner),
+                    'name': name,
                 })
         for repo_name, subscription in subscriptions.iteritems():
             if repo_name not in available_repos:
                 others_repos['repos'].append({
                     'owner': subscription.repository.owner.username,
+                    'avatar_url': subscription.repository.owner.avatar_url,
                     'name': subscription.repository.name,
                     'private': subscription.repository.private,
                     'is_fork': subscription.repository.is_fork,
                     'has_issues': subscription.repository.has_issues,
-                    'rights': 'admin' if subscription.state == SUBSCRIPTION_STATES.ADMIN \
-                                      else 'push' if subscription.state == SUBSCRIPTION_STATES.USER \
+                    'rights': 'admin' if subscription.state == SUBSCRIPTION_STATES.ADMIN
+                                      else 'push' if subscription.state == SUBSCRIPTION_STATES.USER
                                       else 'read'
                 })
 
