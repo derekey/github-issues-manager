@@ -10,12 +10,6 @@
     }
 }
 
-#milestones, #labels {
-    .box-header .box-toolbar > li {
-        padding-right: 5px;
-        margin-left: 0;
-    }
-}
 
 #milestones {
     .box-section {
@@ -60,7 +54,7 @@
         }
 
         & > h3:not(.collapsed) {
-            & ~ .date, 
+            & ~ .date,
             & ~ .all-issues-link {
                 opacity: 1;
             }
@@ -78,12 +72,21 @@
 #counters {
     margin-bottom: 15px;
     .action-nav-button {
-        width: 8em;
+        width: 100%;
+        a {
+            white-space: normal;
+        }
     }
     .label.left {
         background: transparent;
         color: inherit;
         @include text-shadow(none);
+    }
+}
+
+@media (max-width: 1040px) {
+    #counters .action-nav-button a {
+        height: 90px;
     }
 }
 
@@ -132,5 +135,16 @@ ul.labels {
         margin: 5px 10px;
         padding-bottom: 2px;
         border-bottom: solid 3px transparent;
-    }    
+    }
+}
+
+
+#milestones, #labels {
+    .box-header .box-toolbar > li {
+        padding-right: 5px;
+        margin-left: 0;
+    }
+    .box-content .empty-area {
+        font-size: 125%;
+    }
 }

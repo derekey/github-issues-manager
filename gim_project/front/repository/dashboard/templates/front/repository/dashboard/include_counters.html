@@ -8,7 +8,7 @@
                     <div class="action-nav-button">
                         <a href="{{ assigned_url }}?state=open" title="Assigned to you">
                             <i class="icon-file-alt"></i>
-                            <span>Assigned</span>
+                            <span>Open assigned to you</span>
                         </a>
                         {% with count=counters.assigned %}
                             <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
@@ -22,7 +22,7 @@
                 <div class="action-nav-button">
                     <a href="{{ createdy_url }}?state=open" title="Created by you">
                         <i class="icon-file-alt"></i>
-                        <span>Created</span>
+                        <span>Open created by you</span>
                     </a>
                     {% with count=counters.created %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
@@ -35,7 +35,7 @@
                 <div class="action-nav-button">
                     <a href="{{ createdy_url }}?state=open&amp;pr=yes" title="Your pull requests">
                         <i class="icon-upload-alt"></i>
-                        <span>Pull requests</span>
+                        <span>Your open pull requests</span>
                     </a>
                     {% with count=counters.prs %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
@@ -48,7 +48,7 @@
                 <div class="action-nav-button">
                     <a href="{{ issues_url }}?state=open" title="All open issues">
                         <i class="icon-file-alt"></i>
-                        <span>Open</span>
+                        <span>All open</span>
                     </a>
                     {% with count=counters.all %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
@@ -61,7 +61,7 @@
                 <div class="action-nav-button">
                     <a href="{{ current_repository|base_url_issues_filtered_by_assigned:'none' }}?state=open" title="All open and not assigned issues">
                         <i class="icon-file-alt"></i>
-                        <span>Not assigned</span>
+                        <span>All open not assigned</span>
                     </a>
                     {% with count=counters.all_na %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
@@ -74,7 +74,7 @@
                 <div class="action-nav-button">
                     <a href="{{ issues_url }}?state=open&amp;pr=yes" title="All open pull requests">
                         <i class="icon-upload-alt"></i>
-                        <span>Pull requests</span>
+                        <span>All open pull requests</span>
                     </a>
                     {% with count=counters.all_prs %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
