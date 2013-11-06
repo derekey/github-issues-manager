@@ -10,6 +10,13 @@
     }
 }
 
+#milestones, #labels {
+    .box-header .box-toolbar > li {
+        padding-right: 5px;
+        margin-left: 0;
+    }
+}
+
 #milestones {
     .box-section {
         overflow: auto;

@@ -49,12 +49,14 @@ $().ready(function() {
             this.$node.find('input[name="show-closed-milestones"]').iButton({
                 labelOn: 'With closed',
                 labelOff: 'Without closed',
-                className: 'no-text-transform'
+                className: 'no-text-transform small',
+                handleWidth: 24
             });
             this.$node.find('input[name="show-empty-milestones"]').iButton({
                 labelOn: 'With empty',
                 labelOff: 'Without empty',
-                className: 'no-text-transform'
+                className: 'no-text-transform small',
+                handleWidth: 24
             });
         } // prepare_content
 
@@ -69,7 +71,8 @@ $().ready(function() {
             this.$node.find('input[name="show-empty-labels"]').iButton({
                 labelOn: 'With empty',
                 labelOff: 'Without empty',
-                className: 'no-text-transform'
+                className: 'no-text-transform small',
+                handleWidth: 24
             });
         } // prepare_content
 

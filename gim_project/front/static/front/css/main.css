@@ -1220,7 +1220,7 @@ button.btn {
   border-bottom-right-radius: 2px;
 }
 
-/* line 6, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 9, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-container {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -1240,13 +1240,13 @@ button.btn {
   /* set default width based on ON/OFF labels */
   width: 80px;
 }
-/* line 8, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 11, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-container * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* line 23, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 26, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-container input {
   position: absolute;
   top: 0;
@@ -1258,13 +1258,13 @@ button.btn {
   /* allow checking of input if visible */
   -moz-user-input: enabled  !important;
 }
-/* line 35, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 38, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-container i {
   position: relative;
   top: -2px;
 }
 
-/* line 41, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 44, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-handle {
   display: block;
   height: 24px;
@@ -1279,7 +1279,7 @@ button.btn {
   width: 30px;
 }
 
-/* line 55, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 58, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-handle-right {
   display: none;
   height: 100%;
@@ -1289,7 +1289,7 @@ button.btn {
   z-index: 3;
 }
 
-/* line 64, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 67, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-handle-middle {
   height: 100%;
   width: 100%;
@@ -1297,7 +1297,7 @@ button.btn {
   z-index: 3;
 }
 
-/* line 71, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 74, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-on, .ibutton-label-off {
   white-space: nowrap;
   font-size: 17px;
@@ -1307,28 +1307,27 @@ button.btn {
   text-transform: uppercase;
   cursor: inherit;
   display: block;
-  height: 22px;
   position: absolute;
   width: auto;
   top: 0;
   overflow: hidden;
   height: 24px;
 }
-/* line 87, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 89, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-on span, .ibutton-label-off span {
   display: inline-block;
   text-align: center;
   position: absolute;
 }
-/* line 93, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 95, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-on label, .ibutton-label-off label {
   padding: 0;
   margin: 0;
   height: 24px;
-  line-height: 26px;
+  line-height: 24px;
 }
 
-/* line 101, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 103, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-on {
   background: blue;
   color: #fff;
@@ -1336,13 +1335,13 @@ button.btn {
   left: 0;
   z-index: 1;
 }
-/* line 108, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 110, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-on span {
   left: 0px;
   right: 4px;
 }
 
-/* line 114, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 116, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-off {
   background: yellow;
   color: #7c7c7c;
@@ -1351,34 +1350,34 @@ button.btn {
   text-align: right;
   width: 100%;
 }
-/* line 121, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 123, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-off span {
   right: 0;
   padding-right: 6px;
 }
 
 /* create an outline when button gets focus via keyboard */
-/* line 129, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 131, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-container label {
   cursor: inherit;
   padding: 0px 3px;
   font-size: 1em !important;
 }
 
-/* line 136, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 138, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-focus label {
   /* we must use border, since outline doesn't work in IE */
   border: 1px dotted #666 !important;
   padding: 0 2px;
 }
-/* line 141, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 143, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-focus div.ibutton-label-on span label {
   /* use white for more contrast */
   border-color: #fff !important;
 }
 
 /* add padding to right/left so that text gets clipped before absolute edge */
-/* line 149, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 151, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-padding-left, .ibutton-padding-right {
   display: none;
   position: absolute;
@@ -1388,12 +1387,12 @@ button.btn {
   height: 20px;
 }
 
-/* line 158, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 160, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-padding-left {
   left: 0;
 }
 
-/* line 162, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 164, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-padding-right {
   right: 0;
   background-position: 100% -4px;
@@ -1401,61 +1400,61 @@ button.btn {
 
 /* change the styles of the handle when being dragged */
 /* styles to use when the button is disabled */
-/* line 171, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 173, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled {
   cursor: not-allowed !important;
   /* cursor options: default or not-allowed */
 }
-/* line 174, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 176, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled .ibutton-handle {
   background-position: 0 -81px;
 }
-/* line 177, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 179, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled .ibutton-handle-right {
   background-position: 100% -81px;
 }
-/* line 180, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 182, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled .ibutton-handle-middle {
   background-position: 50% -81px;
 }
-/* line 184, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 186, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled div.ibutton-label-on {
   background-position: 0 -27px;
 }
-/* line 187, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 189, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled div.ibutton-label-off {
   background-position: 100% -27px;
 }
-/* line 191, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 193, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled .ibutton-padding-left {
   background-position: 0 -27px;
 }
-/* line 194, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 196, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled .ibutton-padding-right {
   background-position: 100% -27px;
 }
-/* line 198, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 200, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled div.ibutton-label-on {
   color: #fff;
 }
-/* line 201, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 203, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-disabled div.ibutton-label-off {
   color: #cbcbcb;
 }
 
-/* line 209, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 211, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-off, .ibutton-label-on {
   -webkit-box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.3) inset;
   -moz-box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.3) inset;
   box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.3) inset;
 }
-/* line 211, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 213, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-off label, .ibutton-label-on label {
   color: white;
   text-shadow: 0 1px rgba(0, 0, 0, 0.5);
 }
 
-/* line 217, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 219, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-on {
   background: #7fb3d4;
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2E1Y2FlMSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzdmYjNkNCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
@@ -1473,7 +1472,7 @@ button.btn {
   border-bottom-left-radius: 3px;
 }
 
-/* line 223, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 225, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-label-off {
   -moz-border-radius-topright: 3px;
   -webkit-border-top-right-radius: 3px;
@@ -1491,7 +1490,7 @@ button.btn {
   background-image: linear-gradient(top, #dc7e6f, #e49181);
 }
 
-/* line 229, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 231, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-handle {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1509,7 +1508,7 @@ button.btn {
   background-image: linear-gradient(top, #fdfdfd, #ebebeb);
 }
 
-/* line 235, ../../../core-admin/stylesheets/ibutton.scss */
+/* line 237, ../../../core-admin/stylesheets/ibutton.scss */
 .ibutton-container {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1519,6 +1518,31 @@ button.btn {
   -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* line 243, ../../../core-admin/stylesheets/ibutton.scss */
+.ibutton-container.small {
+  height: 20px;
+}
+/* line 245, ../../../core-admin/stylesheets/ibutton.scss */
+.ibutton-container.small .ibutton-handle {
+  height: 20px;
+  width: 26px;
+}
+/* line 249, ../../../core-admin/stylesheets/ibutton.scss */
+.ibutton-container.small .ibutton-label-on, .ibutton-container.small .ibutton-label-off {
+  font-size: 13px;
+  line-height: 13px;
+  height: 20px;
+}
+/* line 253, ../../../core-admin/stylesheets/ibutton.scss */
+.ibutton-container.small .ibutton-label-on label, .ibutton-container.small .ibutton-label-off label {
+  height: 20px;
+  line-height: 20px;
+}
+/* line 258, ../../../core-admin/stylesheets/ibutton.scss */
+.ibutton-container.small .ibutton-padding-left, .ibutton-container.small .ibutton-padding-right {
+  height: 16px;
 }
 
 /* line 14, ../../../core-admin/stylesheets/badges.scss */
@@ -2082,7 +2106,11 @@ button.btn {
 .box .box-header .box-toolbar .ibutton-container, .box .box-footer .box-toolbar .ibutton-container {
   margin-top: 6px;
 }
-/* line 35, ../../../core-admin/stylesheets/box.scss */
+/* line 33, ../../../core-admin/stylesheets/box.scss */
+.box .box-header .box-toolbar .ibutton-container.small, .box .box-footer .box-toolbar .ibutton-container.small {
+  margin-top: 9px;
+}
+/* line 38, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li, .box .box-footer .box-toolbar > li {
   position: relative;
   float: left;
@@ -2092,16 +2120,16 @@ button.btn {
   color: #636363;
   font-size: 12px;
 }
-/* line 42, ../../../core-admin/stylesheets/box.scss */
+/* line 45, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li ul, .box .box-footer .box-toolbar > li ul {
   left: auto;
   right: 0;
 }
-/* line 49, ../../../core-admin/stylesheets/box.scss */
+/* line 52, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li.toolbar-link, .box .box-footer .box-toolbar > li.toolbar-link {
   padding-right: 0;
 }
-/* line 53, ../../../core-admin/stylesheets/box.scss */
+/* line 56, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li.toolbar-link > a, .box .box-footer .box-toolbar > li.toolbar-link > a {
   border-left: 1px solid #cecece;
   height: 37px;
@@ -2109,11 +2137,11 @@ button.btn {
   display: block;
   padding: 0 10px;
 }
-/* line 60, ../../../core-admin/stylesheets/box.scss */
+/* line 63, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li.toolbar-link > a i, .box .box-footer .box-toolbar > li.toolbar-link > a i {
   font-size: 16px;
 }
-/* line 64, ../../../core-admin/stylesheets/box.scss */
+/* line 67, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li.toolbar-link > a:hover, .box .box-footer .box-toolbar > li.toolbar-link > a:hover {
   background: #efefef;
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VmZWZlZiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
@@ -2124,21 +2152,21 @@ button.btn {
   background-image: -o-linear-gradient(top, #ffffff, #efefef);
   background-image: linear-gradient(top, #ffffff, #efefef);
 }
-/* line 68, ../../../core-admin/stylesheets/box.scss */
+/* line 71, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li.toolbar-link > a:active, .box .box-footer .box-toolbar > li.toolbar-link > a:active {
   background: #e5e5e5;
 }
-/* line 73, ../../../core-admin/stylesheets/box.scss */
+/* line 76, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li > i, .box .box-footer .box-toolbar > li > i {
   font-size: 14px;
   height: 37px;
   line-height: 37px;
 }
-/* line 79, ../../../core-admin/stylesheets/box.scss */
+/* line 82, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .box-toolbar > li.open > a, .box .box-footer .box-toolbar > li.open > a {
   background: #eee;
 }
-/* line 89, ../../../core-admin/stylesheets/box.scss */
+/* line 92, ../../../core-admin/stylesheets/box.scss */
 .box .box-header {
   -moz-border-radius-topright: 3px;
   -webkit-border-top-right-radius: 3px;
@@ -2147,7 +2175,7 @@ button.btn {
   -webkit-border-top-left-radius: 3px;
   border-top-left-radius: 3px;
 }
-/* line 94, ../../../core-admin/stylesheets/box.scss */
+/* line 97, ../../../core-admin/stylesheets/box.scss */
 .box .box-footer {
   -moz-border-radius-bottomright: 3px;
   -webkit-border-bottom-right-radius: 3px;
@@ -2158,11 +2186,11 @@ button.btn {
   border-bottom: none;
   border-top: 1px solid #dddddd;
 }
-/* line 101, ../../../core-admin/stylesheets/box.scss */
+/* line 104, ../../../core-admin/stylesheets/box.scss */
 .box .box-footer .pagination {
   margin: 10px 0;
 }
-/* line 105, ../../../core-admin/stylesheets/box.scss */
+/* line 108, ../../../core-admin/stylesheets/box.scss */
 .box .box-footer.flat {
   border-top: none;
   background: #f1f1f1;
@@ -2175,12 +2203,12 @@ button.btn {
   background-image: linear-gradient(top, #fbfbfb, #f1f1f1);
 }
 
-/* line 117, ../../../core-admin/stylesheets/box.scss */
+/* line 120, ../../../core-admin/stylesheets/box.scss */
 .box-list {
   list-style: none;
   margin: 0;
 }
-/* line 121, ../../../core-admin/stylesheets/box.scss */
+/* line 124, ../../../core-admin/stylesheets/box.scss */
 .box-list > li {
   *zoom: 1;
   background: #f1f1f1;
@@ -2205,16 +2233,16 @@ button.btn {
 .box-list > li:after {
   clear: both;
 }
-/* line 128, ../../../core-admin/stylesheets/box.scss */
+/* line 131, ../../../core-admin/stylesheets/box.scss */
 .box-list > li:last-child {
   border-bottom: none;
 }
-/* line 133, ../../../core-admin/stylesheets/box.scss */
+/* line 136, ../../../core-admin/stylesheets/box.scss */
 .box-list .fields li {
   line-height: 23px;
 }
 
-/* line 140, ../../../core-admin/stylesheets/box.scss */
+/* line 143, ../../../core-admin/stylesheets/box.scss */
 .box-section {
   border-bottom: 1px solid #ddd;
   border-top: 1px solid #fff;
@@ -2223,21 +2251,21 @@ button.btn {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* line 146, ../../../core-admin/stylesheets/box.scss */
+/* line 149, ../../../core-admin/stylesheets/box.scss */
 .box-section:last-child {
   border-bottom: none;
 }
 
-/* line 154, ../../../core-admin/stylesheets/box.scss */
+/* line 157, ../../../core-admin/stylesheets/box.scss */
 .faded-toolbar a {
   margin-right: 10px;
 }
-/* line 159, ../../../core-admin/stylesheets/box.scss */
+/* line 162, ../../../core-admin/stylesheets/box.scss */
 .faded-toolbar.pull-right a {
   margin-left: 10px;
   margin-right: 0;
 }
-/* line 165, ../../../core-admin/stylesheets/box.scss */
+/* line 168, ../../../core-admin/stylesheets/box.scss */
 .faded-toolbar i {
   -webkit-transition: opacity 0.3s;
   -moz-transition: opacity 0.3s;
@@ -2247,24 +2275,24 @@ button.btn {
   color: #989898;
   opacity: .6;
 }
-/* line 170, ../../../core-admin/stylesheets/box.scss */
+/* line 173, ../../../core-admin/stylesheets/box.scss */
 .faded-toolbar i:hover {
   opacity: 1;
 }
 
-/* line 179, ../../../core-admin/stylesheets/box.scss */
+/* line 182, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav {
   margin-bottom: 0;
 }
-/* line 183, ../../../core-admin/stylesheets/box.scss */
+/* line 186, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav-tabs + .title {
   float: right;
 }
-/* line 187, ../../../core-admin/stylesheets/box.scss */
+/* line 190, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav-tabs {
   border-bottom: none;
 }
-/* line 191, ../../../core-admin/stylesheets/box.scss */
+/* line 194, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav-tabs > .active > a, .box .box-header .nav-tabs > .active > a:hover {
   background: #fbfbfb;
   border-left-color: #dddddd;
@@ -2276,22 +2304,22 @@ button.btn {
   -o-border-radius: 0;
   border-radius: 0;
 }
-/* line 200, ../../../core-admin/stylesheets/box.scss */
+/* line 203, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav-tabs.nav-tabs-left {
   float: left;
 }
-/* line 203, ../../../core-admin/stylesheets/box.scss */
+/* line 206, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav-tabs.nav-tabs-left li:first-child a {
   border-left: 0;
   -moz-border-radius-topleft: 3px;
   -webkit-border-top-left-radius: 3px;
   border-top-left-radius: 3px;
 }
-/* line 209, ../../../core-admin/stylesheets/box.scss */
+/* line 212, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav-tabs.nav-tabs-right {
   float: right;
 }
-/* line 212, ../../../core-admin/stylesheets/box.scss */
+/* line 215, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav-tabs.nav-tabs-right li:last-child a {
   border-right: 0;
   -moz-border-radius-topright: 3px;
@@ -2299,22 +2327,22 @@ button.btn {
   border-top-right-radius: 3px;
   margin-right: 0;
 }
-/* line 220, ../../../core-admin/stylesheets/box.scss */
+/* line 223, ../../../core-admin/stylesheets/box.scss */
 .box .box-header .nav > li > a:hover {
   border-color: transparent;
   background: none;
 }
 
-/* line 231, ../../../core-admin/stylesheets/box.scss */
+/* line 234, ../../../core-admin/stylesheets/box.scss */
 .box-header .tooltip {
   line-height: 20px !important;
   text-shadow: none;
 }
-/* line 236, ../../../core-admin/stylesheets/box.scss */
+/* line 239, ../../../core-admin/stylesheets/box.scss */
 .box-header .progress {
   margin-top: 15px;
 }
-/* line 240, ../../../core-admin/stylesheets/box.scss */
+/* line 243, ../../../core-admin/stylesheets/box.scss */
 .box-header .input-with-submit input {
   margin-bottom: 0;
   margin-top: 5px;
