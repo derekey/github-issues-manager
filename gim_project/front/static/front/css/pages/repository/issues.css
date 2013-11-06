@@ -933,6 +933,10 @@ table.table.table-normal.diff-lines tr:not(.diff-comments):hover td.code span {
 #shortcuts-window tr td:first-of-type {
   white-space: nowrap;
 }
+/* line 10, ../../../../../sass/modals/_shortcuts.scss */
+#shortcuts-window table {
+  margin-bottom: 10px;
+}
 
 /* line 1, ../../../../../sass/modals/_gotoissue.scss */
 #go-to-issue-window {
