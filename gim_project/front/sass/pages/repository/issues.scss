@@ -66,6 +66,9 @@ body#repository_issues #main-inner {
 #main-issue-container { // col3
     width: (100%/12*7); // 7 cols of 12
     overflow: auto;
+    .empty-area i {
+        font-size: inherit;
+    }
 }
 
 

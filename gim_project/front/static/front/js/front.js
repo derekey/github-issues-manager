@@ -133,6 +133,7 @@ $().ready(function() {
             return;
         }
         if (!url) { url = this.$link.attr('href'); }
+        IssuesList.loading();
         $.ajax({
             url: url,
             success: in_popup ? this.display_html_in_popup : this.display_html,
@@ -611,6 +612,11 @@ $().ready(function() {
         container.$node.data('issue-number', 0);
         container.$node.html('<p class="empty-area">' + (code ? code + ' :(' : '...') + '</p>');
     }); // IssuesList_clear_issue_html
+
+    IssuesList.loading = (function IssuesList_loading (code, in_popup) {
+        var container = IssuesList.get_issue_html_container(in_popup);
+        container.$node.html('<p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>');
+    }); // IssuesList_loading
 
     IssuesList.toggle_details = (function IssuesList_toggle_details () {
         for (var i = 0; i < IssuesList.all.length; i++) {
