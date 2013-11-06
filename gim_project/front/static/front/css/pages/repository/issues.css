@@ -888,7 +888,7 @@ table.table.table-normal.diff-lines tr:not(.diff-comments) td.code span {
 }
 /* line 429, ../../../../../sass/components/_issue.scss */
 table.table.table-normal.diff-lines tr:not(.diff-comments):hover {
-  background: #F8EEC7 !important;
+  background: #f8eec7 !important;
 }
 /* line 431, ../../../../../sass/components/_issue.scss */
 table.table.table-normal.diff-lines tr:not(.diff-comments):hover td {

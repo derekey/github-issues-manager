@@ -427,7 +427,7 @@ table.table.table-normal.diff-lines {
             }
         } // td
         &:hover {
-            background: #F8EEC7 !important;
+            background: $table-row-hover-background-color !important;
             td {
                 background: transparent !important;
                 &.code span {

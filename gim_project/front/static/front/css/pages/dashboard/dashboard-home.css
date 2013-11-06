@@ -1,42 +1,59 @@
-/* line 2, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 4, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 .area-top .btn {
   margin-top: 6px;
 }
 
-/* line 8, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 10, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories table {
   table-layout: fixed;
 }
-/* line 11, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 13, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories td:not(:first-child) {
   text-align: center;
 }
-/* line 14, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 16, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories tbody tr:not(.total) td:not(:first-child) {
   padding: 0;
 }
-/* line 16, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 18, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories tbody tr:not(.total) td:not(:first-child) a {
   color: inherit;
   display: block;
   line-height: 34px;
 }
-/* line 22, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 24, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories tr.total {
   font-weight: bold;
 }
-/* line 24, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 26, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories tr.total td:first-child span {
   font-weight: normal;
   font-size: smaller;
 }
-/* line 30, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 31, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories tr:nth-child(2n) {
+  background: transparent;
+}
+/* line 34, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories tr.even {
+  background: #F3F4F8;
+}
+/* line 38, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories tr.odd:hover, #subscribed_repositories tr.even:hover {
+  background: #f8eec7;
+}
+/* line 43, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#subscribed_repositories tr.divider td {
+  padding: 0;
+  height: 6px;
+}
+/* line 49, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories td.repository a {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* line 36, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 55, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .box-footer {
   text-align: center;
 }

@@ -1,6 +1,8 @@
+@import "variables";
+
 .area-top {
     .btn {
-        margin-top: 6px;        
+        margin-top: 6px;
     }
 }
 
@@ -9,7 +11,7 @@
         table-layout: fixed;
     }
     td:not(:first-child) {
-        text-align: center;        
+        text-align: center;
     }
     tbody tr:not(.total) td:not(:first-child) {
         padding: 0;
@@ -24,6 +26,23 @@
         td:first-child span {
             font-weight: normal;
             font-size: smaller;
+        }
+    }
+    tr:nth-child(2n) {
+        background: transparent;
+    }
+    tr.even {
+        background: #F3F4F8;
+    }
+    tr.odd, tr.even {
+        &:hover {
+            background: $table-row-hover-background-color;
+        }
+    }
+    tr.divider {
+        td {
+            padding: 0;
+            height: 6px;
         }
     }
     td.repository {

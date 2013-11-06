@@ -1,5 +1,6 @@
 {% extends "front/dashboard/base.html" %}
 {% load staticfiles frontutils repository_tags issues_tags %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
 
 {% block body_id %}dashboard_home{% endblock %}
 {% block extra_css %}
@@ -72,12 +73,22 @@
                                         </td>
                                     {% endwith %}
                                 </tr>
-                                {% for repository in subscribed_repositories %}
+                                {% regroup subscribed_repositories by owner as groups %}
+                                {% for group in groups %}
+                                </tbody>
+                                <thead>
+                                        <tr class="divider">
+                                            <td colspan="6"></td>
+                                        </tr>
+                                    </thead>
+                                <tbody>
+                                    {% for repository in group.list %}
                                     {% with assigned_url=repository|base_url_issues_filtered_by_assigned:user createdy_url=repository|base_url_issues_filtered_by_created_by:user issues_url=repository|repository_view_url:'issues' %}{#subscription=subscription_by_repo_id|dict_item:repository.id %}#}
-                                    <tr>
+                                    <tr class="{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
                                         <td class="repository">
                                             <a href="{{ repository.get_absolute_url }}" title="View the repository '{{ repository }}'">
-                                                {{ repository.owner.username }}/<wbr />{{ repository.name }}
+                                                <img class="avatar-micro img-circle" src="{{ repository.owner.avatar_url|default:default_avatar }}" />
+                                                {{ repository.owner.username }}/<wbr /><strong>{{ repository.name }}</strong>
                                             </a>
                                         </td>
                                         {% comment %}
@@ -118,6 +129,7 @@
                                         {% endwith %}
                                     </tr>
                                     {% endwith %}
+                                    {% endfor %}
                                 {% endfor %}
                             </tbody>
                         </table>
