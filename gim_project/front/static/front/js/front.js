@@ -131,11 +131,15 @@ $().ready(function() {
     }); // IssuesListIssue__set_current
 
     IssuesListIssue.prototype.get_html_and_display = (function IssuesListIssue__get_html_and_display (url, in_popup) {
-        if (!IssuesList.can_display_issue_html(this.number, in_popup)) {
+        var container = IssuesList.can_display_issue_html(this.number, in_popup);
+        if (!container) {
             return;
         }
         if (!url) { url = this.$link.attr('href'); }
-        IssuesList.loading();
+        IssuesList.container_loading(container);
+        if (in_popup && container.$node.data('issue-number') == this.number) {
+            container.$window.modal("show");
+        }
         $.ajax({
             url: url,
             success: in_popup ? this.display_html_in_popup : this.display_html,
@@ -611,7 +615,7 @@ $().ready(function() {
         var container = IssuesList.get_issue_html_container(in_popup);
         if (!in_popup && container.$node.data('issue-number') == issue_number) { return false; }
         container.$node.data('issue-number', issue_number);
-        return true;
+        return container;
     }); // IssuesList_can_display_issue_html
 
     IssuesList.display_issue_html = (function IssuesList_display_issue_html (html, issue_number, in_popup) {
@@ -623,9 +627,6 @@ $().ready(function() {
         }
         MarkdownManager.update_links();
         container.$node.scrollTop(0);
-        if (container.$window) {
-            container.$window.modal("show");
-        }
     }); // IssuesList_display_issue_html
 
     IssuesList.clear_issue_html = (function IssuesList_clear_issue_html (code, in_popup) {
@@ -634,10 +635,9 @@ $().ready(function() {
         container.$node.html('<p class="empty-area">' + (code ? code + ' :(' : '...') + '</p>');
     }); // IssuesList_clear_issue_html
 
-    IssuesList.loading = (function IssuesList_loading (code, in_popup) {
-        var container = IssuesList.get_issue_html_container(in_popup);
+    IssuesList.container_loading = (function IssuesList_container_loading (container) {
         container.$node.html('<p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>');
-    }); // IssuesList_loading
+    }); // IssuesList_container_loading
 
     IssuesList.toggle_details = (function IssuesList_toggle_details () {
         for (var i = 0; i < IssuesList.all.length; i++) {
@@ -840,15 +840,17 @@ $().ready(function() {
             Code to pass focus from panel to panel
         */
         if ($main_issue_container.length) {
-            MainIssueContainer.panel_activated = (function MainIssueContainer__panel_activated () {
+            MainIssueContainer.panel_activated = (function MainIssueContainer__panel_activated (ev) {
                 IssuesList.current.unset_current();
-                $main_issue_container.find('a:first').focus();
+                if (!ev || !$(ev.target).is('a,button,:input')) {
+                    $main_issue_container.find('a:first').focus();
+                }
             }); // panel_activated
             MainIssueContainer.panel_activable = (function MainIssueContainer__panel_activable () {
                 return ($main_issue_container.children('.issue-nav').length > 0);
             }); // panel_activable
         }
-        IssuesList.prototype.panel_activated = (function IssuesList__panel_activated () {
+        IssuesList.prototype.panel_activated = (function IssuesList__panel_activated (ev) {
             this.set_current();
         });
 
@@ -863,9 +865,9 @@ $().ready(function() {
                 panel[0].off(PanelsSwpr.events, PanelsSwpr.on_event);
             }), // remove_handler
             on_event: (function PanelsSwpr__on_event (ev) {
-                PanelsSwpr.select_panel(ev.data.panel);
+                PanelsSwpr.select_panel(ev.data.panel, ev);
             }), // on_event
-            select_panel: (function PanelsSwpr__select_panel (panel) {
+            select_panel: (function PanelsSwpr__select_panel (panel, ev) {
                 if (panel[1].panel_activable && !panel[1].panel_activable()) {
                     return false;
                 }
@@ -873,7 +875,7 @@ $().ready(function() {
                 var old_panel = PanelsSwpr.current_panel;
                 PanelsSwpr.current_panel = panel;
                 PanelsSwpr.add_handler(old_panel);
-                PanelsSwpr.current_panel[1].panel_activated();
+                PanelsSwpr.current_panel[1].panel_activated(ev);
                 return true;
             }), // select_panel
             go_prev_panel: (function PanelsSwpr__go_prev_panel(ev) {
@@ -1149,10 +1151,12 @@ $().ready(function() {
             $('.issue').find('.issue-body, .issue-comment .content').find('a')
                 .each(MarkdownManager.update_link);
         }, // update_links
-        handle_issue_link: function() {
+        handle_issue_link: function(ev) {
             var $link = $(this),
                 issue_number = $link.data('issue-number');
             if (issue_number) {
+                ev.stopPropagation();
+                ev.preventDefault();
                 IssuesListIssue.open_issue(issue_number, true);
                 return false;
             }

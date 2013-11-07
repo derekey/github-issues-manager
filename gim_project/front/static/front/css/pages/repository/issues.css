@@ -919,6 +919,16 @@ table.table.table-normal.diff-lines tr:not(.diff-comments):hover td.code span {
 #modal-issue-view.full-screen .modal-body {
   height: 100%;
 }
+/* line 457, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .empty-area {
+  position: static;
+  height: 200px;
+  margin-top: 100px;
+}
+/* line 461, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .empty-area i {
+  font-size: inherit;
+}
 
 /* line 1, ../../../../../sass/modals/_shortcuts.scss */
 #shortcuts-window {
