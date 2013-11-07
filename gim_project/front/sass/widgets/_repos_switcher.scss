@@ -1,6 +1,8 @@
 @import "compass/css3/border-radius";
+@import "mixins";
 
 #repository-switcher-content {
+    padding-top: 0;
     min-width: 500px;
     > li {
         overflow: auto;
@@ -21,6 +23,9 @@
                 margin-right: 2px;
                 a {
                     padding: 0 2px;
+                    > span {
+                        display: none;
+                    }
                 }
                 &:after {
                     content: "•";
@@ -39,14 +44,34 @@
                 }
             }
         }
-        &.divider {
-            margin: 4px 1px;
-            &:last-of-type {
-                margin-bottom: 9px;
-            }
-        }
         &:last-of-type {
             text-align: center;
         }
+    }
+    .divider {
+        height: 2px;
+        margin: 4px 1px;
+    }
+}
+
+#repository-switcher-filter {
+    margin-bottom: 7px;
+    margin-top: -1px;
+    label {
+        display: block;
+        overflow: hidden;
+        text-align: center; // useful if calc not supported
+    }
+    span.add-on, a {
+        width: 18px;
+    }
+    span.add-on {
+        @include border-top-left-radius(6px);
+    }
+    a {
+        @include border-top-right-radius(6px);
+    }
+    input {
+        @include calc(width, "100% - 72px - 12px"); // 12px for self padding, 72px for add-on and a
     }
 }

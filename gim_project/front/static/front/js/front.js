@@ -61,7 +61,19 @@ $().ready(function() {
                 return callback(e);
             };
             return Ev.stop_event_decorate(decorator);
-        }) // charcode
+        }), // charcode
+
+        set_focus: (function set_focus($node, delay) {
+            /* Event handler to set the focus on the given node.
+            */
+            return function(ev) {
+                if (delay) {
+                    setTimeout(Ev.set_focus($node), delay);
+                } else {
+                    $node.focus();
+                }
+            }
+        }) // set_focus
     };
 
 
@@ -1474,5 +1486,12 @@ $().ready(function() {
         }) // init
     }; // IssueEditor
     IssueEditor.init();
+
+    // focus input for repos-switcher
+    var $repos_switcher_input = $('#repository-switcher-filter').find('input');
+    if ($repos_switcher_input.length) {
+        $repos_switcher_input.closest('li').on('click', function(ev) { ev.stopPropagation(); })
+        $('#repository-switcher').on('focus', Ev.set_focus($repos_switcher_input, 200));
+    }
 
 });
