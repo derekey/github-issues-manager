@@ -82,7 +82,7 @@ body#repository_issues #main-inner {
             & > a {
                 color: #bbb;
             }
-            &:hover > a {
+            &:hover > a, & > a:focus {
                 color: white;
             }
         }

@@ -1050,7 +1050,7 @@ body#repository_issues #main-inner {
   color: #bbb;
 }
 /* line 85, ../../../../../sass/pages/repository/issues.scss */
-#issues-filters .primary-sidebar .nav > li:hover > a {
+#issues-filters .primary-sidebar .nav > li:hover > a, #issues-filters .primary-sidebar .nav > li > a:focus {
   color: white;
 }
 /* line 90, ../../../../../sass/pages/repository/issues.scss */
