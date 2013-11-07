@@ -420,8 +420,10 @@ $().ready(function() {
 
     IssuesList.klass = 'issues-list';
     IssuesList.selector = '.' + IssuesList.klass;
-    IssuesList.modal_window = $('#modal-issue-view');
-    IssuesList.modal_window_issue_container = IssuesList.modal_window.find('.modal-body > .issue');
+    IssuesList.$modal_window = $('#modal-issue-view');
+    IssuesList.$modal_window_issue_container = IssuesList.$modal_window.find('.modal-body > .issue');
+    IssuesList.$modal_window_issue_container.data('$modal', IssuesList.$modal_window);
+    IssuesList.$modal_window.data('$container', IssuesList.$modal_window_issue_container);
     IssuesList.issue_container = $main_issue_container;
     IssuesList.all = [];
     IssuesList.current = null;
@@ -602,8 +604,8 @@ $().ready(function() {
             $node: IssuesList.issue_container,
             after: null
         }, popup = {
-            $window: IssuesList.modal_window,
-            $node: IssuesList.modal_window_issue_container,
+            $window: IssuesList.$modal_window,
+            $node: IssuesList.$modal_window_issue_container,
             after: function($node) {  // TODO: move it in its own function
                 $node.find('.issue-nav').append('<button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>');
             }
@@ -622,6 +624,7 @@ $().ready(function() {
         var container = IssuesList.get_issue_html_container(in_popup);
         if (container.$node.data('issue-number') != issue_number) { return; }
         container.$node.html(html);
+        container.$node.trigger('issue-loaded');
         if (container.after) {
             container.after(container.$node);
         }
@@ -796,124 +799,173 @@ $().ready(function() {
         $document.on('keypress', Ev.key_decorate(Ev.charcode(63, on_help)));  // 63 = ?
     }
 
-    if ($main_issue_container.length) {
-        var MainIssueContainer = {
-            on_selected_panel_key_event: (function MainIssueContainer__on_selected_panel_key_event (method) {
+    if (IssuesList.all.length) {
+        var IssueDetail = {
+            on_current_panel_key_event: (function IssueDetail__on_current_panel_key_event (method) {
                 var decorator = function(e) {
-                    if (PanelsSwpr.current_panel[0] != $main_issue_container) { return; }
-                    return MainIssueContainer[method]();
+                    if (PanelsSwpr.current_panel.obj != IssueDetail) { return; }
+                    return IssueDetail[method](PanelsSwpr.current_panel);
                 };
                 return Ev.key_decorate(decorator);
-            }), // on_selected_panel_key_event
+            }), // on_current_panel_key_event
 
-            select_discussion_tab: (function MainIssueContainer__select_discussion_tab () {
-                var tab_link = $main_issue_container.find('#pr-discussion-tab');
+            select_discussion_tab: (function IssueDetail__select_discussion_tab (panel) {
+                var tab_link = panel.$node.find('#pr-discussion-tab');
                 if (tab_link.length) { tab_link.focus().click(); }
                 return false;
             }), // select_discussion_tab
 
-            select_commits_tab: (function MainIssueContainer__select_commits_tab () {
-                var tab_link = $main_issue_container.find('#pr-commits-tab');
+            select_commits_tab: (function IssueDetail__select_commits_tab (panel) {
+                var tab_link = panel.$node.find('#pr-commits-tab');
                 if (tab_link.length) { tab_link.focus().click(); }
                 return false;
             }), // select_commits_tab
 
-            select_files_tab: (function MainIssueContainer__select_files_tab () {
-                var tab_link = $main_issue_container.find('#pr-files-tab');
+            select_files_tab: (function IssueDetail__select_files_tab (panel) {
+                var tab_link = panel.$node.find('#pr-files-tab');
                 if (tab_link.length) { tab_link.focus().click(); }
                 return false;
             }), // select_files_tab
 
-            init: (function MainIssueContainer__init () {
+            is_modal: (function IssueDetail__is_modal ($node) {
+                return !!$node.data('$modal');
+            }), // is_modal
+
+            panel_activated: (function IssueDetail__panel_activated (panel) {
+                if (IssuesList.current) {
+                    IssuesList.current.unset_current();
+                }
+                panel.$node.focus();
+            }), // panel_activated
+            panel_activable: (function IssueDetail__panel_activable (panel) {
+                if (IssueDetail.is_modal(panel.$node)) {
+                    return panel.$node.data('$modal').hasClass('in');
+                }
+                if (!panel.$node.children('.issue-nav').length) {
+                    return false;
+                }
+                return true;
+            }), // panel_activable
+
+            on_issue_loaded: (function IssueDetail__on_issue_loaded () {
+            }), // on_issue_loaded
+
+            on_modal_shown: (function IssueDetail__on_modal_show () {
+                var $modal = $(this);
+                if (PanelsSwpr.current_panel.$node == $modal.data('$container')) {
+                    return;
+                }
+                $modal.data('previous-panel', PanelsSwpr.current_panel);
+                PanelsSwpr.select_panel_from_node($modal.data('$container'));
+            }), // on_modal_show
+
+            on_modal_hidden: (function IssueDetail__on_modal_hidden () {
+                var $modal = $(this);
+                PanelsSwpr.select_panel($modal.data('previous-panel'));
+                $modal.data('$container').html('');
+            }), // on_modal_hidden
+
+            init: (function IssueDetail__init () {
+                $document.on('issue-loaded', '.issue', IssueDetail.on_issue_loaded);
                 jwerty.key('s', Ev.key_decorate(on_resize_issue_click));
                 $document.on('click', '.resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
-                jwerty.key('d', MainIssueContainer.on_selected_panel_key_event('select_discussion_tab'));
-                jwerty.key('c', MainIssueContainer.on_selected_panel_key_event('select_commits_tab'));
-                jwerty.key('f', MainIssueContainer.on_selected_panel_key_event('select_files_tab'));
-            }) // init
-        }; // MainIssueContainer
-        MainIssueContainer.init();
-    }
-
-    if (IssuesList.all.length) {
-        /*
-            Code to pass focus from panel to panel
-        */
-        if ($main_issue_container.length) {
-            MainIssueContainer.panel_activated = (function MainIssueContainer__panel_activated (ev) {
-                IssuesList.current.unset_current();
-                if (!ev || !$(ev.target).is('a,button,:input')) {
-                    $main_issue_container.find('a:first').focus();
+                jwerty.key('d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
+                jwerty.key('c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
+                jwerty.key('f', IssueDetail.on_current_panel_key_event('select_files_tab'));
+                if (IssuesList.$modal_window.length) {
+                    IssuesList.$modal_window.on('shown', IssueDetail.on_modal_shown);
+                    IssuesList.$modal_window.on('hidden', IssueDetail.on_modal_hidden);
                 }
-            }); // panel_activated
-            MainIssueContainer.panel_activable = (function MainIssueContainer__panel_activable () {
-                return ($main_issue_container.children('.issue-nav').length > 0);
-            }); // panel_activable
-        }
-        IssuesList.prototype.panel_activated = (function IssuesList__panel_activated (ev) {
+            }) // init
+        }; // IssueDetail
+        IssueDetail.init();
+
+        IssuesList.prototype.panel_activated = (function IssuesList__panel_activated (panel) {
             this.set_current();
         });
 
+        /*
+            Code to pass focus from panel to panel
+        */
         var PanelsSwpr = {
             events: 'click focus',
             panels: [],
             current_panel: null,
             add_handler: (function PanelsSwpr__add_handler (panel) {
-                panel[0].on(PanelsSwpr.events, {panel: panel}, PanelsSwpr.on_event);
+                panel.$node.on(PanelsSwpr.events, {panel: panel}, PanelsSwpr.on_event);
             }), // add_handler
             remove_handler: (function PanelsSwpr__remove_handler (panel) {
-                panel[0].off(PanelsSwpr.events, PanelsSwpr.on_event);
+                panel.$node.off(PanelsSwpr.events, PanelsSwpr.on_event);
             }), // remove_handler
             on_event: (function PanelsSwpr__on_event (ev) {
                 PanelsSwpr.select_panel(ev.data.panel, ev);
             }), // on_event
-            select_panel: (function PanelsSwpr__select_panel (panel, ev) {
-                if (panel[1].panel_activable && !panel[1].panel_activable()) {
-                    return false;
+            panel_activable: (function PanelsSwpr__panel_activable (panel) {
+                return (!panel.obj.panel_activable || panel.obj.panel_activable(panel))
+            }), // panel_activable
+            select_panel_from_node: (function PanelsSwpr__select_panel_from_node ($node) {
+                for (var i = 0; i < panels.length; i++) {
+                    if (panels[i].$node == $node) {
+                        PanelsSwpr.select_panel(panels[i]);
+                        return;
+                    }
                 }
-                PanelsSwpr.remove_handler(panel);
+            }), // select_panel_from_node
+            select_panel: (function PanelsSwpr__select_panel (panel, ev) {
+                if (!PanelsSwpr.panel_activable(panel)) { return; }
+                if (panel.handlable) { PanelsSwpr.remove_handler(panel); }
                 var old_panel = PanelsSwpr.current_panel;
                 PanelsSwpr.current_panel = panel;
-                PanelsSwpr.add_handler(old_panel);
-                PanelsSwpr.current_panel[1].panel_activated(ev);
+                if (old_panel.handlable) { PanelsSwpr.add_handler(old_panel); }
+                PanelsSwpr.current_panel.obj.panel_activated(PanelsSwpr.current_panel);
                 return true;
             }), // select_panel
             go_prev_panel: (function PanelsSwpr__go_prev_panel(ev) {
-                var idx = PanelsSwpr.current_panel[2];
+                if (!PanelsSwpr.current_panel.handlable) { return }
+                var idx = PanelsSwpr.current_panel.index;
                 if (idx > 0) {
                     PanelsSwpr.select_panel(PanelsSwpr.panels[idx - 1]);
                 }
             }), // go_prev_panel
             go_next_panel: (function PanelsSwpr__go_next_panel(ev) {
-                var idx = PanelsSwpr.current_panel[2];
+                if (!PanelsSwpr.current_panel.handlable) { return }
+                var idx = PanelsSwpr.current_panel.index;
                 if (idx < PanelsSwpr.panels.length - 1) {
                     PanelsSwpr.select_panel(PanelsSwpr.panels[idx + 1]);
                 }
             }), // go_next_panel
             init: (function PanelsSwpr__init (panels) {
                 PanelsSwpr.panels = panels;
-                PanelsSwpr.current_panel = panels[0];
-                for (var i = 0; i < panels.length; i++) {
-                    panels[i].push(i);
-                    if (i != PanelsSwpr.current_panel[2]) {
-                        PanelsSwpr.add_handler(panels[i]);
-                    }
-                };
-                jwerty.key('ctrl+←', Ev.key_decorate(PanelsSwpr.go_prev_panel));
-                jwerty.key('ctrl+→', Ev.key_decorate(PanelsSwpr.go_next_panel));
+                if (panels.length) {
+                    PanelsSwpr.current_panel = panels[0];
+                    for (var i = 0; i < panels.length; i++) {
+                        panels[i].index = i;
+                        if (panels[i].handlable && i != PanelsSwpr.current_panel.index) {
+                            PanelsSwpr.add_handler(panels[i]);
+                        }
+                    };
+                    jwerty.key('ctrl+←', Ev.key_decorate(PanelsSwpr.go_prev_panel));
+                    jwerty.key('ctrl+→', Ev.key_decorate(PanelsSwpr.go_next_panel));
+                }
             }) // init
 
         };
-        // actually only list of issues and main issue container
+        // add all issues lists
         var panels = [];
         for (var i = 0; i < IssuesList.all.length; i++) {
             var issues_list = IssuesList.all[i];
-            panels.push([issues_list.$node.parent(), issues_list]);
+            panels.push({$node: issues_list.$node.parent(), obj: issues_list, handlable: true});
         };
+        // add the main issue detail if exists
         if ($main_issue_container.length) {
-            panels.push([$main_issue_container, MainIssueContainer]);
+            panels.push({$node: $main_issue_container, obj: IssueDetail, handlable: true});
+        }
+        // add the popup issue detail if exists
+        if (IssuesList.$modal_window_issue_container.length) {
+            panels.push({$node: IssuesList.$modal_window_issue_container, obj: IssueDetail, handlable: false});
         }
         PanelsSwpr.init(panels);
+        window.PanelsSwpr = PanelsSwpr;
     }
 
 
