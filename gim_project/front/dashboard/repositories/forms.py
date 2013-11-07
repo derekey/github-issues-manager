@@ -10,10 +10,11 @@ class ToggleRepositoryBaseForm(forms.Form):
     """
     Base form to use to add/remove a repository
     """
+    RE_SPACES = re.compile('\s+')
 
     name = forms.CharField(
                 validators=[
-                    validators.RegexValidator(re.compile('^[\w\-\.]+/[\w\-\.]+$')),
+                    validators.RegexValidator(re.compile('^\s*[\w\-\.]+\s*/\s*[\w\-\.]+\s*$')),
                 ],
                 error_messages={
                     'required': 'No repository given',
@@ -28,6 +29,16 @@ class ToggleRepositoryBaseForm(forms.Form):
         """
         self.user = kwargs.pop('user')
         super(ToggleRepositoryBaseForm, self).__init__(*args, **kwargs)
+
+    def clean_name(self):
+        """
+        Return spaces in name, if for example copied from the github page:
+        " foo / bar "
+        """
+        name = self.cleaned_data.get('name')
+        if name:
+            name = self.RE_SPACES.sub('', name)
+        return name
 
     def split_name(self, name):
         """
