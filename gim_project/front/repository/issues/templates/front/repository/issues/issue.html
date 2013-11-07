@@ -100,9 +100,9 @@
         {% endif %}
         {% if current_issue.is_pull_request %}
             <ul class="nav nav-tabs pr-tabs">
-                <li class="active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion</a></li>
-                <li><a data-toggle="tab" href="#issue-{{ current_issue.number }}-commits">Commits</a></li>
-                <li><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed</a></li>
+                <li class="active"><a data-toggle="tab" id="pr-discussion-tab" href="#issue-{{ current_issue.number }}-discussion">Discussion</a></li>
+                <li><a data-toggle="tab" id="pr-commits-tab" href="#issue-{{ current_issue.number }}-commits">Commits</a></li>
+                <li><a data-toggle="tab" id="pr-files-tab" href="#issue-{{ current_issue.number }}-files">Files changed</a></li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active issue-discussion" id="issue-{{ current_issue.number }}-discussion">

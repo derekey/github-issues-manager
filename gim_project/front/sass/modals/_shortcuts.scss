@@ -1,8 +1,16 @@
 #shortcuts-window {
     width: 90%;
+    top: 5%;
+    bottom: 5%;
     margin-left: -45%;
     .modal-body {
-        max-height: 430px;
+        max-height: none;
+        position: absolute;
+        top: 50px;
+        bottom: 10px;
+        left: 0px;
+        right: 0px;
+        padding-top: 0;
     }
     tr td:first-of-type {
         white-space: nowrap;

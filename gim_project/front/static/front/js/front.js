@@ -461,7 +461,7 @@ $().ready(function() {
         jwerty.key('⇟', IssuesList.on_current_list_key_event('go_to_last_group'));
         jwerty.key('s', IssuesList.on_current_list_key_event('focus_search_input'));
         jwerty.key('ctrl+u', IssuesList.on_current_list_key_event('clear_search_input'));
-        jwerty.key('d', Ev.key_decorate(IssuesList.toggle_details));
+        jwerty.key('d', IssuesList.on_current_list_key_event('toggle_details'));
         for (var i = 0; i < IssuesList.all.length; i++) {
             var issues_list = IssuesList.all[i];
             if (issues_list.$search_input.length) {
@@ -788,8 +788,6 @@ $().ready(function() {
     }); // on_help
 
     // keyboard events
-    jwerty.key('f', Ev.key_decorate(on_resize_issue_click));
-    $document.on('click', '.resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
     $document.on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
     $document.on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
     $document.on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));
@@ -798,19 +796,58 @@ $().ready(function() {
         $document.on('keypress', Ev.key_decorate(Ev.charcode(63, on_help)));  // 63 = ?
     }
 
+    if ($main_issue_container.length) {
+        var MainIssueContainer = {
+            on_selected_panel_key_event: (function MainIssueContainer__on_selected_panel_key_event (method) {
+                var decorator = function(e) {
+                    if (PanelsSwpr.current_panel[0] != $main_issue_container) { return; }
+                    return MainIssueContainer[method]();
+                };
+                return Ev.key_decorate(decorator);
+            }), // on_selected_panel_key_event
+
+            select_discussion_tab: (function MainIssueContainer__select_discussion_tab () {
+                var tab_link = $main_issue_container.find('#pr-discussion-tab');
+                if (tab_link.length) { tab_link.focus().click(); }
+                return false;
+            }), // select_discussion_tab
+
+            select_commits_tab: (function MainIssueContainer__select_commits_tab () {
+                var tab_link = $main_issue_container.find('#pr-commits-tab');
+                if (tab_link.length) { tab_link.focus().click(); }
+                return false;
+            }), // select_commits_tab
+
+            select_files_tab: (function MainIssueContainer__select_files_tab () {
+                var tab_link = $main_issue_container.find('#pr-files-tab');
+                if (tab_link.length) { tab_link.focus().click(); }
+                return false;
+            }), // select_files_tab
+
+            init: (function MainIssueContainer__init () {
+                jwerty.key('s', Ev.key_decorate(on_resize_issue_click));
+                $document.on('click', '.resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
+                jwerty.key('d', MainIssueContainer.on_selected_panel_key_event('select_discussion_tab'));
+                jwerty.key('c', MainIssueContainer.on_selected_panel_key_event('select_commits_tab'));
+                jwerty.key('f', MainIssueContainer.on_selected_panel_key_event('select_files_tab'));
+            }) // init
+        }; // MainIssueContainer
+        MainIssueContainer.init();
+    }
+
     if (IssuesList.all.length) {
         /*
             Code to pass focus from panel to panel
         */
-        var MainIssueContainer = {
-            panel_activated: (function MainIssueContainer__panel_activated () {
+        if ($main_issue_container.length) {
+            MainIssueContainer.panel_activated = (function MainIssueContainer__panel_activated () {
                 IssuesList.current.unset_current();
                 $main_issue_container.find('a:first').focus();
-            }), // panel_activated
-            panel_activable: (function MainIssueContainer__panel_activable () {
+            }); // panel_activated
+            MainIssueContainer.panel_activable = (function MainIssueContainer__panel_activable () {
                 return ($main_issue_container.children('.issue-nav').length > 0);
-            }) // panel_activable
-        };
+            }); // panel_activable
+        }
         IssuesList.prototype.panel_activated = (function IssuesList__panel_activated () {
             this.set_current();
         });
