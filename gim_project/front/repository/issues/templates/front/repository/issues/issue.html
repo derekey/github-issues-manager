@@ -229,7 +229,7 @@
                                 </div>
                             </div>
                             <div class="box-content collapse in" id="pr-file-{{ file.id }}">
-                                {% if file.nb_additions or file.nb_deletions %}
+                                {% if file.patch %}
                                     <div class="box-section code-diff">
                                         {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff entry_points=entry_points_dict|dict_item:file.path path=file.path sha=file.tree %}
                                     </div>
@@ -241,6 +241,8 @@
                                             File renamed without changes
                                         {% elif file.status == 'deleted' %}
                                             Deleted file was empty
+                                        {% elif file.status == 'modified' %}
+                                            Diff too big (or binary)
                                         {% endif %}
                                     </div>
                                 {% endif %}
