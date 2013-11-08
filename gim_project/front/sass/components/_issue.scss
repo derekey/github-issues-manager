@@ -304,6 +304,40 @@
             }
         }
     }
+    .pr-files-list {
+        clear: both;
+        display: none;
+        margin-bottom: -5px;
+        &.in {
+            margin-top: 15px;
+            display: block;
+        }
+        table {
+            margin-bottom: 0;
+        }
+        td:first-of-type {
+            width: 12px;
+            color: #767676;
+            &.status-added {
+                color: #8cc079;
+            }
+            &.status-removed {
+                color: #b35d5d;
+            }
+            &.status-renamed {
+                color: #7fb3d4;
+            }
+        }
+        td:last-of-type {
+            text-align: right;
+        }
+        tr:last-of-type td {
+            border-bottom: 1px solid #DDD;
+        }
+        ul {
+            margin-bottom: 0;
+        }
+    }
     .empty-area {
         position: static;
         height: 200px;

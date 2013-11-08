@@ -191,9 +191,9 @@
             </div>
             <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
                 <div class="box-section pr-comments template" style="display: none"><ul class="unstyled chat-box timeline"></ul></div>
-                {% if current_issue.nb_additions|add:current_issue.nb_deletions > 300 %}
+                {% if current_issue.nb_additions|add:current_issue.nb_deletions > 300 or current_issue.nb_changed_files > 10 %}
                     <div class="content empty">
-                        Loading diff...
+                        Loading {% if current_issue.nb_additions|add:current_issue.nb_deletions > 500 or current_issue.nb_changed_files > 20 %} big{% endif %}diff...
                     </div>
                     <p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>
                 {% else %}
