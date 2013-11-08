@@ -17,14 +17,6 @@
         padding: 15px {
             bottom: 0;
         }
-        & > h3 {
-            float: left;
-            margin: 0 {
-                bottom: 5px;
-            }
-            font-size: 16px;
-            line-height: normal;
-        }
         & > .date,
         & > .all-issues-link {
             float: right;
@@ -52,16 +44,27 @@
             margin: -10px 0 15px;
             float: left;
         }
+        & > a {
+            overflow: auto;
+            & > h3 {
+                float: left;
+                margin: 0 {
+                    bottom: 5px;
+                }
+                font-size: 16px;
+                line-height: normal;
 
-        & > h3:not(.collapsed) {
-            & ~ .date,
-            & ~ .all-issues-link {
-                opacity: 1;
-            }
-            & ~ div.progress {
-                height: 20px;
-                span {
-                    opacity: 1;
+                &:not(.collapsed) {
+                    & ~ .date,
+                    & ~ .all-issues-link {
+                        opacity: 1;
+                    }
+                    & ~ div.progress {
+                        height: 20px;
+                        span {
+                            opacity: 1;
+                        }
+                    }
                 }
             }
         }

@@ -3148,7 +3148,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   box-sizing: border-box;
 }
 /* line 80, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button a:hover {
+.action-nav-normal .action-nav-button a:hover, .action-nav-normal .action-nav-button a:focus {
   background: #f2f2f2;
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2Y3ZjdmNyIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2YyZjJmMiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
   background-size: 100%;
@@ -3199,7 +3199,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #f8f8f8, #d4d4d4);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.default a:hover {
+.action-nav-normal .action-nav-button.default a:hover, .action-nav-normal .action-nav-button.default a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3226,7 +3226,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #c27272, #a54747);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.red a:hover {
+.action-nav-normal .action-nav-button.red a:hover, .action-nav-normal .action-nav-button.red a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3253,7 +3253,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #91be5a, #6d963b);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.green a:hover {
+.action-nav-normal .action-nav-button.green a:hover, .action-nav-normal .action-nav-button.green a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3280,7 +3280,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #53a1c9, #337ca1);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.blue a:hover {
+.action-nav-normal .action-nav-button.blue a:hover, .action-nav-normal .action-nav-button.blue a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3307,7 +3307,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #8692a2, #626e7f);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.gray a:hover {
+.action-nav-normal .action-nav-button.gray a:hover, .action-nav-normal .action-nav-button.gray a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3334,7 +3334,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #7e7e7e, #5a5a5a);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.black a:hover {
+.action-nav-normal .action-nav-button.black a:hover, .action-nav-normal .action-nav-button.black a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3361,7 +3361,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #65b1d3, #3692bb);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.lightblue a:hover {
+.action-nav-normal .action-nav-button.lightblue a:hover, .action-nav-normal .action-nav-button.lightblue a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3388,7 +3388,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #d3a044, #a87a27);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.gold a:hover {
+.action-nav-normal .action-nav-button.gold a:hover, .action-nav-normal .action-nav-button.gold a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3415,7 +3415,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #567d78, #39534f);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.sea a:hover {
+.action-nav-normal .action-nav-button.sea a:hover, .action-nav-normal .action-nav-button.sea a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3442,7 +3442,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #b88e48, #856733);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.brown a:hover {
+.action-nav-normal .action-nav-button.brown a:hover, .action-nav-normal .action-nav-button.brown a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3469,7 +3469,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #69afff, #2189ff);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.twitter a:hover {
+.action-nav-normal .action-nav-button.twitter a:hover, .action-nav-normal .action-nav-button.twitter a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
@@ -3496,7 +3496,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #4061ad, #2d4479);
 }
 /* line 9, ../../../core-admin/stylesheets/action_nav.scss */
-.action-nav-normal .action-nav-button.facebook a:hover {
+.action-nav-normal .action-nav-button.facebook a:hover, .action-nav-normal .action-nav-button.facebook a:focus {
   opacity: 0.95;
   -webkit-transition: opacity 0.2s ease-in-out;
   -moz-transition: opacity 0.2s ease-in-out;
