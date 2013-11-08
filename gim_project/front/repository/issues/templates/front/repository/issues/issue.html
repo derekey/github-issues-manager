@@ -191,75 +191,20 @@
                     {% include "front/repository/issues/include_commits_groups.html" with groups=current_issue.get_commits_per_day id_prefix="pr-comm-" %}
                 </ul>
             </div>
-            <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files">
+            <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
                 <div class="box-section pr-comments template" style="display: none"><ul class="unstyled chat-box timeline"></ul></div>
-                <div class="content">
-                    <nav>
-                        {% if current_issue.nb_changed_files > 1 %}
-                            {% with number_str=current_issue.number|slugify %}
-                                {% include "front/include_quicksearch.html" with id='issue-'|add:number_str|add:'-files-search' target='#issue-'|add:number_str|add:'-files .pr-file' content='> .box-header > .title > strong' title="Fiter on file names" only %}
-                            {% endwith %}
-                        {% endif %}
-                        <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file .pr-comments.collapse" title="Open/close all comments on files"><i class="icon-sort"></i> Toggle comments</button>
-                        {% if current_issue.nb_changed_files > 1 %}
-                            <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files"><i class="icon-sort"></i> Toggle files</button>
-                        {% endif %}
-                    </nav>
-                    <strong>{{ current_issue.nb_changed_files }} file{{ current_issue.nb_changed_files|pluralize }} changed</strong> with <strong>{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}</strong> and <strong>{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}</strong>
-                </div>
-                <ul class="unstyled chat-box timeline issue-comments">
-                {% for file in current_issue.files.all %}
-                    <li>
-                        <div class="box pr-file">
-                            <div class="box-header" data-toggle="collapse" data-target="#pr-file-{{ file.id }}" title="Click to collapse/expand">
-                                <ul class="box-toolbar">
-                                    <li>
-                                        <ul class="unstyled">
-                                            <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ file.nb_additions }}</li>
-                                            <li class="label label-red" title="{{ file.nb_deletions }} deletion{{ file.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ file.nb_deletions }}</li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <a href="{{ file.github_url }}" target='_blank' class="btn btn-mini btn-default" title="View file @{{ file.tree|short_sha }}">@{{ file.tree|short_sha }}</a>
-                                    </li>
-                                </ul>
-                                <div class="title">
-                                    <strong>{{ file.path }}</strong>
-                                    <span>{{ file.status }}</span>
-                                </div>
-                            </div>
-                            <div class="box-content collapse in" id="pr-file-{{ file.id }}">
-                                {% if file.patch %}
-                                    <div class="box-section code-diff">
-                                        {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff entry_points=entry_points_dict|dict_item:file.path path=file.path sha=file.tree %}
-                                    </div>
-                                {% else %}
-                                    <div class="box-section no-diff">
-                                        {% if file.status == 'added' %}
-                                            File added without content (or binary)
-                                        {% elif file.status == 'renamed' %}
-                                            File renamed without changes
-                                        {% elif file.status == 'deleted' %}
-                                            Deleted file was empty
-                                        {% elif file.status == 'modified' %}
-                                            Diff too big (or binary)
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </li>
-                {% endfor %}
-                </ul>
+                {% if current_issue.nb_additions|add:current_issue.nb_deletions > 300 %}
+                    <div class="content empty">
+                        Loading diff...
+                    </div>
+                    <p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>
+                {% else %}
+                    {% include "front/repository/issues/include_files.html" %}
+                {% endif %}
             </div>
         </div>
         {% endif %}
     </article>
-    {% if view.request.is_ajax and current_issue.is_pull_request and current_issue.nb_changed_files > 1 %}
-        <script type="text/javascript">
-            window.activate_quicksearches($('#issue-{{ current_issue.number }}-files-search input.quicksearch'));
-        </script>
-    {% endif %}
 {% else %}
     <p class="empty-area">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>
 {% endif %}

@@ -877,6 +877,22 @@ $().ready(function() {
                 $modal.data('$container').html('');
             }), // on_modal_hidden
 
+            load_files: (function IssueDetail__load_files (ev) {
+                var $tab = $(ev.target),
+                    $target = $($tab.attr('href'));
+                if ($target.children('.empty-area').length) {
+                    $.ajax({
+                        url: $target.data('url'),
+                        success: function(data) {
+                            $target.html(data);
+                        },
+                        error: function() {
+                            $target.children('.empty-area').html('Loading failed :(');
+                        }
+                    });
+                }
+            }), // load_files
+
             init: (function IssueDetail__init () {
                 $document.on('issue-loaded', '.issue', IssueDetail.on_issue_loaded);
                 jwerty.key('s', Ev.key_decorate(on_resize_issue_click));
@@ -888,6 +904,7 @@ $().ready(function() {
                     IssuesList.$modal_window.on('shown', IssueDetail.on_modal_shown);
                     IssuesList.$modal_window.on('hidden', IssueDetail.on_modal_hidden);
                 }
+                $document.on('shown', '#pr-files-tab', IssueDetail.load_files);
             }) // init
         }; // IssueDetail
         IssueDetail.init();

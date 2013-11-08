@@ -212,6 +212,9 @@ class _Issue(models.Model):
                                                        kwargs=self.get_reverse_kwargs())
         return self._pr_comment_create_url
 
+    def ajax_files_url(self):
+        return reverse_lazy('front:repository:issue.files', kwargs=self.get_reverse_kwargs())
+
     @property
     def type(self):
         return 'pull request' if self.is_pull_request else 'issue'

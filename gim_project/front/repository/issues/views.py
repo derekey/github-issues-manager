@@ -8,6 +8,7 @@ from django.db import DatabaseError
 from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
@@ -595,6 +596,36 @@ class IssueView(UserIssuesView):
         if self.request.is_ajax():
             self.template_name = self.ajax_template_name
         return super(IssueView, self).get_template_names()
+
+
+class SimpleAjaxIssueView(IssueView):
+    """
+    A base class to fetch some parts of an issue via ajax.
+    If not directly overriden, the template must be specified when using this
+    view in urls.py
+    """
+    def dispatch(self, *args, **kwargs):
+        """
+        Accept only ajax
+        """
+        if not self.request.is_ajax():
+            return self.http_method_not_allowed(self.request)
+        return super(SimpleAjaxIssueView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """
+        Add the issue and its files in the context
+        """
+        # we bypass all the context stuff done by IssuesView by calling
+        # directly its baseclass
+        context = super(IssuesView, self).get_context_data(**kwargs)
+
+        try:
+            context['current_issue'] = self.get_current_issue_for_context(context)
+        except Issue.DoesNotExist:
+            raise Http404
+
+        return context
 
 
 class LinkedToUserFormView(object):
