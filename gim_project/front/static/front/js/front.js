@@ -904,7 +904,7 @@ $().ready(function() {
                     IssuesList.$modal_window.on('shown', IssueDetail.on_modal_shown);
                     IssuesList.$modal_window.on('hidden', IssueDetail.on_modal_hidden);
                 }
-                $document.on('shown', '#pr-files-tab', IssueDetail.load_files);
+                $document.on('shown', '#pr-files-tab, #pr-commits-tab', IssueDetail.load_files);
             }) // init
         }; // IssueDetail
         IssueDetail.init();

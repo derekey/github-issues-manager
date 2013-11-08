@@ -179,17 +179,15 @@
             </aside>
         {% if current_issue.is_pull_request %}
             </div>
-            <div class="tab-pane issue-commits" id="issue-{{ current_issue.number }}-commits">
-                <div class="content">
-                    <strong>{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}</strong>
-                    {% with nb_authors=current_issue.nb_authors %}
-                        from
-                        <strong>{{ nb_authors }} author{{ nb_authors|pluralize }}</strong>
-                    {% endwith %}
-                </div>
-                <ul class="unstyled chat-box timeline issue-comments">
-                    {% include "front/repository/issues/include_commits_groups.html" with groups=current_issue.get_commits_per_day id_prefix="pr-comm-" %}
-                </ul>
+            <div class="tab-pane issue-commits" id="issue-{{ current_issue.number }}-commits" data-url="{{ current_issue.ajax_commits_url }}">
+                {% if current_issue.nb_commits > 10 %}
+                    <div class="content empty">
+                        Loading commits...
+                    </div>
+                    <p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>
+                {% else %}
+                    {% include "front/repository/issues/include_issue_commits.html" %}
+                {% endif %}
             </div>
             <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
                 <div class="box-section pr-comments template" style="display: none"><ul class="unstyled chat-box timeline"></ul></div>
@@ -199,7 +197,7 @@
                     </div>
                     <p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>
                 {% else %}
-                    {% include "front/repository/issues/include_files.html" %}
+                    {% include "front/repository/issues/include_issue_files.html" %}
                 {% endif %}
             </div>
         </div>

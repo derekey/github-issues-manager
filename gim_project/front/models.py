@@ -215,6 +215,9 @@ class _Issue(models.Model):
     def ajax_files_url(self):
         return reverse_lazy('front:repository:issue.files', kwargs=self.get_reverse_kwargs())
 
+    def ajax_commits_url(self):
+        return reverse_lazy('front:repository:issue.commits', kwargs=self.get_reverse_kwargs())
+
     @property
     def type(self):
         return 'pull request' if self.is_pull_request else 'issue'

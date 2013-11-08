@@ -10,7 +10,8 @@ urlpatterns = patterns('',
     url(r'^(?P<issue_number>\d+)/$', IssueView.as_view(), name=IssueView.url_name),
 
     # parts
-    url(r'^(?P<issue_number>\d+)/files/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/include_files.html'), name='issue.files'),
+    url(r'^(?P<issue_number>\d+)/files/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/include_issue_files.html'), name='issue.files'),
+    url(r'^(?P<issue_number>\d+)/commits/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/include_issue_commits.html'), name='issue.commits'),
 
     # edit views
     url(r'^(?P<issue_number>\d+)/edit/state/(?P<state>open|closed)/$', IssueEditState.as_view(), name=IssueEditState.url_name),

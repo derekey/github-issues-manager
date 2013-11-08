@@ -1,4 +1,5 @@
-{% load frontutils %}
+{% load frontutils staticfiles %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
 <table class="table table-normal commits-list">
     {% for commit in commits %}
         <tr>
