@@ -778,19 +778,23 @@ $().ready(function() {
             }), // on_issue_loaded
 
             set_issue_waypoints: (function IssueDetail__set_issue_waypoints ($node, is_modal) {
-                var context = is_modal ? $node.parent() : $node;
-                $node.find(' > article > .area-top header').waypoint('sticky', {
-                    context: context,
-                    stuckClass: 'area-top stuck'
-                });
-                var $tabs = $node.find('.pr-tabs');
-                if ($tabs.length) {
-                    $tabs.waypoint('sticky', {
+                var issue_number = $node.data('issue-number');
+                setTimeout(function() {
+                    if ($node.data('issue-number') != issue_number) { return; }
+                    var context = is_modal ? $node.parent() : $node;
+                    $node.find(' > article > .area-top header').waypoint('sticky', {
                         context: context,
-                        stuckClass: 'area-top stuck',
-                        offset: 48
-                    })
-                }
+                        stuckClass: 'area-top stuck'
+                    });
+                    var $tabs = $node.find('.pr-tabs');
+                    if ($tabs.length) {
+                        $tabs.waypoint('sticky', {
+                            context: context,
+                            stuckClass: 'area-top stuck',
+                            offset: 48
+                        })
+                    }
+                }, 500);
             }), // set_issue_waypoints
 
             unset_issue_waypoints: (function IssueDetail__unset_issue_waypoints ($node) {
