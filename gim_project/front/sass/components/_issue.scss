@@ -549,6 +549,9 @@ table.table.table-normal.diff-lines {
         .pr-tabs.stuck {
             margin-top: 46px;
         }
+        .sticky-wrapper > * {
+            top: 10%; // to avoid transition from 0 in chrome, should do nothing on static non-stuck item
+        }
         .stuck {
             @include transition(top 0.35s);
         }

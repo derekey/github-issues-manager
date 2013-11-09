@@ -1055,28 +1055,32 @@ table.table.table-normal.diff-lines tr:not(.diff-comments):hover td.code span {
   margin-top: 46px;
 }
 /* line 552, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .sticky-wrapper > * {
+  top: 10%;
+}
+/* line 555, ../../../../../sass/components/_issue.scss */
 #modal-issue-view .modal-body .stuck {
   -webkit-transition: top 0.35s;
   -moz-transition: top 0.35s;
   -o-transition: top 0.35s;
   transition: top 0.35s;
 }
-/* line 557, ../../../../../sass/components/_issue.scss */
+/* line 560, ../../../../../sass/components/_issue.scss */
 #modal-issue-view.full-screen .modal-body {
   height: 100%;
 }
-/* line 559, ../../../../../sass/components/_issue.scss */
+/* line 562, ../../../../../sass/components/_issue.scss */
 #modal-issue-view.full-screen .modal-body .stuck {
   width: 90% !important;
   top: 5% !important;
 }
-/* line 565, ../../../../../sass/components/_issue.scss */
+/* line 568, ../../../../../sass/components/_issue.scss */
 #modal-issue-view .empty-area {
   position: static;
   height: 200px;
   margin-top: 100px;
 }
-/* line 569, ../../../../../sass/components/_issue.scss */
+/* line 572, ../../../../../sass/components/_issue.scss */
 #modal-issue-view .empty-area i {
   font-size: inherit;
 }
