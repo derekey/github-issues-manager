@@ -860,17 +860,18 @@ $().ready(function() {
             }), // set_container_loading
 
             select_tab: (function IssueDetail__select_tab (panel, type) {
-                var tab_link = panel.$node.find('#pr-' + type + '-tab');
-                if (tab_link.length) { tab_link.focus().click(); }
+                var $tab_link = panel.$node.find('#pr-' + type + '-tab');
+                if ($tab_link.length) { $tab_link.focus().click(); }
                 return false;
             }), // select_tab
-            select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'panel, discussion')},
+            select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'discussion')},
             select_commits_tab: function(panel) { return IssueDetail.select_tab(panel, 'commits')},
             select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'files')},
 
             load_tab: (function IssueDetail__load_tab (ev) {
                 var $tab = $(ev.target),
                     $target = $($tab.attr('href'));
+                // load content if not already available
                 if ($target.children('.empty-area').length) {
                     $.ajax({
                         url: $target.data('url'),
@@ -881,6 +882,19 @@ $().ready(function() {
                             $target.children('.empty-area').html('Loading failed :(');
                         }
                     });
+                }
+                // if the tabs holder is stuck, we'll scroll in a cool way
+                var $node = $tab.closest('.issue'),
+                    $tabs_holder = $node.find('.pr-tabs'),
+                    $stuck_header, position, $stuck;
+                if ($tabs_holder.hasClass('stuck')) {
+                    $stuck_header = $node.find(' > article > .area-top header');
+                    position = $node.find('.tab-content').position().top
+                             + $node.scrollTop()
+                             - $stuck_header.height()
+                             - $tabs_holder.height()
+                             - 3 // little adjustment
+                    $node.scrollTop(position);
                 }
             }), // load_tab
 
@@ -939,7 +953,7 @@ $().ready(function() {
                 jwerty.key('d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
                 jwerty.key('c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
                 jwerty.key('f', IssueDetail.on_current_panel_key_event('select_files_tab'));
-                $document.on('shown', '#pr-files-tab, #pr-commits-tab', IssueDetail.load_tab);
+                $document.on('shown', '.pr-tabs a', IssueDetail.load_tab);
 
                 // modal events
                 if (IssueDetail.$modal.length) {
