@@ -3,6 +3,8 @@
 @import "compass/css3/transition";
 @import "mixins";
 
+$stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed width is viewport so we remove the left col size
+
 .issue {
     position: relative;
 
@@ -19,8 +21,7 @@
             }
             &.stuck {
                 position: fixed;
-                width: -moz-calc();
-                @include calc(width, "0.583333 * (100% - 160px)"); // 58.333% is col width, but fixed width is viewport so we remove the left col size
+                @include calc(width, $stucked-width);
                 right: 0;
                 top: $header-top;
                 z-index: 100;
@@ -288,11 +289,34 @@
 
 .pr-tabs {
     margin-bottom: 0;
+    padding-top: 2px;
     > li {
         margin-left: 10px;
         margin-right: 10px;
         &:first-of-type {
             margin-left: 30px;
+        }
+    }
+    &.stuck {
+        position: fixed;
+        background: #f0f0F0;
+        top: 93px;
+        z-index: 99;
+        padding: 2px 0; // override area-top
+        width: 0;
+        @include calc(width, $stucked-width);
+        > li {
+            margin-bottom: 0;
+            > a {
+                @include border-radius(4px);
+                border-color: none;
+                &:hover, &:focus {
+                    border-color: #ddd;
+                }
+            }
+            &.active > a {
+                border-color: #ddd;
+            }
         }
     }
 }
@@ -499,7 +523,6 @@ table.table.table-normal.diff-lines {
     }
 }
 
-
 #modal-issue-view {
     .modal-body {
         padding: 0;
@@ -508,21 +531,25 @@ table.table.table-normal.diff-lines {
         .issue-nav .close {
             margin-left: 10px;
         }
-        > .issue > article > .area-top header.stuck {
-            top: 10%; // top of the modal
-            margin-top: 1px; // top border of the modal
+        > .issue > article > .area-top header.stuck, .pr-tabs.stuck {
             width: 560px; // width of the modal
-            margin-left: -15px;  // left padding of parent area-top
             right: auto;
+            top: 10%; // top of the modal
+        }
+        > .issue > article > .area-top header.stuck {
+            margin-left: -15px;  // left padding of parent area-top
             @include border-radius(6px 6px 0 0);
+        }
+        .pr-tabs.stuck {
+            margin-top: 46px;
         }
    }
     &.full-screen {
         .modal-body {
             height: 100%;
-            > .issue > article > .area-top header.stuck {
-                width: 90%;
-                top: 5%;
+            .stuck {
+                width: 90% !important;
+                top: 5% !important;
             }
         }
     }

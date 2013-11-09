@@ -778,14 +778,24 @@ $().ready(function() {
             }), // on_issue_loaded
 
             set_issue_waypoints: (function IssueDetail__set_issue_waypoints ($node, is_modal) {
+                var context = is_modal ? $node.parent() : $node;
                 $node.find(' > article > .area-top header').waypoint('sticky', {
-                    context: is_modal ? $node.parent() : $node,
+                    context: context,
                     stuckClass: 'area-top stuck'
                 });
+                var $tabs = $node.find('.pr-tabs');
+                if ($tabs.length) {
+                    $tabs.waypoint('sticky', {
+                        context: context,
+                        stuckClass: 'area-top stuck',
+                        offset: 48
+                    })
+                }
             }), // set_issue_waypoints
 
             unset_issue_waypoints: (function IssueDetail__unset_issue_waypoints ($node) {
                 $node.find(' > article > .area-top header').waypoint('unsticky');
+                $node.find('.pr-tabs').waypoint('unsticky');
             }), // unset_issue_waypoints
 
             is_modal: (function IssueDetail__is_modal ($node) {
