@@ -3038,35 +3038,35 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   margin-bottom: 15px;
 }
 /* line 248, ../../../core-admin/stylesheets/sidebar.scss */
-.area-top .header {
+.area-top .header, .area-top header {
   font-size: 14px;
 }
 /* line 252, ../../../core-admin/stylesheets/sidebar.scss */
-.area-top .header i {
+.area-top .header i, .area-top header i {
   float: left;
   font-size: 24px;
   margin-top: 4px;
   margin-right: 10px;
 }
 /* line 259, ../../../core-admin/stylesheets/sidebar.scss */
-.area-top .header h3, .area-top .header h5 {
+.area-top .header h3, .area-top .header h5, .area-top header h3, .area-top header h5 {
   margin: 0;
   font-weight: 300;
 }
 /* line 264, ../../../core-admin/stylesheets/sidebar.scss */
-.area-top .header h3, .area-top .header i {
+.area-top .header h3, .area-top .header i, .area-top header h3, .area-top header i {
   color: #888;
 }
 /* line 268, ../../../core-admin/stylesheets/sidebar.scss */
-.area-top .header h3 {
+.area-top .header h3, .area-top header h3 {
   line-height: 35px;
 }
 /* line 272, ../../../core-admin/stylesheets/sidebar.scss */
-.area-top .header h5 {
+.area-top .header h5, .area-top header h5 {
   color: #aaa;
 }
 /* line 276, ../../../core-admin/stylesheets/sidebar.scss */
-.area-top .header > * {
+.area-top .header > *, .area-top header > * {
   vertical-align: middle;
   text-shadow: 0 1px #fff;
 }

@@ -270,5 +270,8 @@ body#repository_issues.big-issue {
     }
     #main-issue-container {
         width: 100%;
+        & > article > .area-top header.stuck {
+            width: 100%;
+        }
     }
 }

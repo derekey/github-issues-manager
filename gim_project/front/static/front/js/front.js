@@ -1,8 +1,6 @@
 $().ready(function() {
 
     var $document = $(document);
-    var $main_issue_container = $('#main-issue-container');
-
 
     var Ev = {
         stop_event_decorate: (function stop_event_decorate(callback) {
@@ -431,12 +429,7 @@ $().ready(function() {
         this.current_group = null;
     }); // IssuesList__constructor
 
-    IssuesList.klass = 'issues-list';
-    IssuesList.selector = '.' + IssuesList.klass;
-    IssuesList.$modal_window = $('#modal-issue-view');
-    IssuesList.$modal_window_body = IssuesList.$modal_window.children('.modal-body');
-    IssuesList.$modal_window_issue_container = IssuesList.$modal_window_body.children('.issue');
-    IssuesList.issue_container = $main_issue_container;
+    IssuesList.selector = '.issues-list';
     IssuesList.all = [];
     IssuesList.current = null;
     IssuesList.prev_current = null;
@@ -771,16 +764,29 @@ $().ready(function() {
         var IssueDetail = {
             $main_container: $('#main-issue-container'),
             $modal: $('#modal-issue-view'),
-            $modal_body: null,
-            $modal_container: null,
+            $modal_body: null,  // set in __init__
+            $modal_container: null,  // set in __init__
 
-            on_issue_loaded: (function IssueDetail__on_issue_loaded () {
-                var $node = $(this);
-                if (IssueDetail.is_modal($node)) {
+            on_issue_loaded: (function IssueDetail__on_issue_loaded ($node) {
+                var is_modal = IssueDetail.is_modal($node);
+                if (is_modal) {
                     // focusing $node doesn't FUCKING work
                     $node.find('header h3 a').focus();
                 }
+                // set waypoints
+                IssueDetail.set_issue_waypoints($node, is_modal);
             }), // on_issue_loaded
+
+            set_issue_waypoints: (function IssueDetail__set_issue_waypoints ($node, is_modal) {
+                $node.find(' > article > .area-top header').waypoint('sticky', {
+                    context: is_modal ? $node.parent() : $node,
+                    stuckClass: 'area-top stuck'
+                });
+            }), // set_issue_waypoints
+
+            unset_issue_waypoints: (function IssueDetail__unset_issue_waypoints ($node) {
+                $node.find(' > article > .area-top header').waypoint('unsticky');
+            }), // unset_issue_waypoints
 
             is_modal: (function IssueDetail__is_modal ($node) {
                 return !!$node.data('$modal');
@@ -824,7 +830,7 @@ $().ready(function() {
                 var container = IssueDetail.get_container(force_popup);
                 if (container.$node.data('issue-number') != issue_number) { return; }
                 IssueDetail.fill_container(container, html);
-                container.$node.trigger('issue-loaded');
+                IssueDetail.on_issue_loaded(container.$node);
                 if (container.after) {
                     container.after(container.$node);
                 }
@@ -833,11 +839,13 @@ $().ready(function() {
 
             clear_container: (function IssueDetail__clear_container (error, force_popup) {
                 var container = IssueDetail.get_container(force_popup);
+                IssueDetail.unset_issue_waypoints(container.$node);
                 container.$node.data('issue-number', 0);
                 IssueDetail.fill_container(container, '<p class="empty-area">' + (error ? error + ' :(' : '...') + '</p>');
             }), // clear_container
 
             set_container_loading: (function IssueDetail__set_container_loading (container) {
+                IssueDetail.unset_issue_waypoints(container.$node);
                 IssueDetail.fill_container(container, '<p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>');
             }), // set_container_loading
 
@@ -913,9 +921,6 @@ $().ready(function() {
                 IssueDetail.$modal_container.data('$modal', IssueDetail.$modal);
                 IssueDetail.$modal.data('$container', IssueDetail.$modal_container);
 
-                // object events
-                $document.on('issue-loaded', '.issue', IssueDetail.on_issue_loaded);
-
                 // full screen mode
                 jwerty.key('s', Ev.key_decorate(on_resize_issue_click));
                 $document.on('click', '.resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
@@ -930,6 +935,11 @@ $().ready(function() {
                 if (IssueDetail.$modal.length) {
                     IssueDetail.$modal.on('shown', IssueDetail.on_modal_shown);
                     IssueDetail.$modal.on('hidden', IssueDetail.on_modal_hidden);
+                }
+
+                // waypoints for loaded issue
+                if (IssueDetail.$main_container.data('issue-number')) {
+                    IssueDetail.set_issue_waypoints(IssueDetail.$main_container);
                 }
             }) // init
         }; // IssueDetail
