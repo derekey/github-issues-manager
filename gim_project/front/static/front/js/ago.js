@@ -47,7 +47,7 @@ var replace_time_ago = (function () {
         }
 
         // < 1 hour
-        mins = delta / 60;
+        mins = Math.round(delta / 60);
         if (mins < 60) {
             return mins + fmt.mns;
         }
