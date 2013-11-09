@@ -25,14 +25,16 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
                 right: 0;
                 top: $header-top;
                 z-index: 100;
-                white-space: nowrap;
                 padding: 2px 5px 0 2px; // override area-top
                 h3 {
                     overflow: hidden;
                     @include ellipsis();
                 }
                 &:hover {
-                    white-space: normal;
+                    h3 {
+                        overflow: visible;
+                        white-space: normal;
+                    }
                 }
             }
         }
