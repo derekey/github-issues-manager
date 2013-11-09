@@ -547,6 +547,9 @@ table.table.table-normal.diff-lines {
         .pr-tabs.stuck {
             margin-top: 46px;
         }
+        .stuck {
+            @include transition(top 0.35s);
+        }
    }
     &.full-screen {
         .modal-body {
