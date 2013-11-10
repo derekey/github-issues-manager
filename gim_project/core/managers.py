@@ -13,6 +13,19 @@ MODE_UPDATE = set(('update', ))
 MODE_ALL = set(('create', 'update'))
 
 
+class SavedObjects(dict):
+    """
+    A simple dict with two helpers to get/set saved objects during a fetch, to
+    avoid getting/setting them many time from/to the database
+    """
+
+    def get_object(self, model, filters):
+        return self[model][tuple(sorted(filters.items()))]
+
+    def set_object(self, model, filters, obj, saved=False):
+        self.setdefault(model, {})[tuple(sorted(filters.items()))] = obj
+
+
 class GithubObjectManager(models.Manager):
     """
     This manager is to be used with GithubObject models.
@@ -67,10 +80,12 @@ class GithubObjectManager(models.Manager):
         )
         if isinstance(data, list):
             result = self.create_or_update_from_list(data, modes, defaults,
-                        min_date=min_date, fetched_at_field=fetched_at_field)
+                        min_date=min_date, fetched_at_field=fetched_at_field,
+                        saved_objects=SavedObjects())
         else:
             result = self.create_or_update_from_dict(data, modes, defaults,
-                                            fetched_at_field=fetched_at_field)
+                                            fetched_at_field=fetched_at_field,
+                                            saved_objects=SavedObjects())
             if not result:
                 raise Exception(
                     "Unable to create/update an object of the %s kind (modes=%s)" % (
@@ -110,16 +125,20 @@ class GithubObjectManager(models.Manager):
         return self.model.github_matching.get(field_name, field_name)
 
     def create_or_update_from_list(self, data, modes=MODE_ALL, defaults=None,
-                                min_date=None, fetched_at_field='fetched_at'):
+                                min_date=None, fetched_at_field='fetched_at',
+                                saved_objects=None):
         """
         Take a list of json objects, call create_or_update for each one, and
         return the list of touched objects. Objects that cannot be created are
         not returned.
         """
+        if saved_objects is None:
+            saved_objects = SavedObjects()
+
         objs = []
         for entry in data:
             obj = self.create_or_update_from_dict(entry, modes, defaults,
-                                            fetched_at_field=fetched_at_field)
+                                            fetched_at_field, saved_objects)
             if obj:
                 objs.append(obj)
                 if min_date and obj.github_date_field:
@@ -128,16 +147,11 @@ class GithubObjectManager(models.Manager):
                         break
         return objs
 
-    def get_from_identifiers(self, fields, identifiers=None):
+    def get_filters_from_identifiers(self, fields, identifiers=None):
         """
-        Try to load an existing object from the given fields, using the
-        github_identifiers attribute of the model.
-        This attribute is a dict, with the left part of the queryset filter as
-        key, and the right part as value. If this value is a tuple, we consider
-        that this filter entry is for a FK, using the first part for the fk, and
-        the right part for the fk's field.
-        Returns None if no object found for the given filter.
-        If identifiers is given, use it instead of the default one from the model
+        Return the filters to use as argument to a Queryset to retrieve an
+        object based on some identifiers.
+        See get_from_identifiers for more details
         """
         filters = {}
         if not identifiers:
@@ -147,34 +161,66 @@ class GithubObjectManager(models.Manager):
                 filters[field] = getattr(fields['fk'][lookup[0]], lookup[1])
             else:
                 filters[field] = fields['simple'][lookup]
+        return filters
+
+    def get_from_identifiers(self, fields, identifiers=None, saved_objects=None):
+        """
+        Try to load an existing object from the given fields, using the
+        github_identifiers attribute of the model.
+        This attribute is a dict, with the left part of the queryset filter as
+        key, and the right part as value. If this value is a tuple, we consider
+        that this filter entry is for a FK, using the first part for the fk, and
+        the right part for the fk's field.
+        Return a tuple with, first, the object, or None if no objbect found for
+        the given fields, and then a Boolean, set to True if the object was
+        found in the saved_objects argument, else False
+        If identifiers is given, use it instead of the default one from the model
+        """
+        if saved_objects is None:
+            saved_objects = SavedObjects()
+
+        filters = self.get_filters_from_identifiers(fields, identifiers)
+
         try:
-            return self.get(**filters)
+            return saved_objects.get_object(self.model, filters), True
+        except KeyError:
+            pass
+        try:
+            obj = self.get(**filters)
+            saved_objects.set_object(self.model, filters, obj)
+            return obj, False
         except self.model.DoesNotExist:
-            return None
+            return None, False
 
     def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None,
-                                                fetched_at_field='fetched_at'):
+                            fetched_at_field='fetched_at', saved_objects=None):
         """
         Taking a dict (passed in the data argument), try to update an existing
         object that match some fields, or create a new one.
         Return the object, or None if no object could be updated/created.
         """
-        fields = self.get_object_fields_from_dict(data, defaults)
-
+        fields = self.get_object_fields_from_dict(data, defaults, saved_objects)
         if not fields:
             return None
 
-        def _create_or_update():
+        if saved_objects is None:
+            saved_objects = SavedObjects()
+
+        def _create_or_update(obj=None):
             # get or create a new object
             to_create = False
-            obj = self.get_from_identifiers(fields)
+            if not obj:
+                obj, already_saved = self.get_from_identifiers(fields, saved_objects=saved_objects)
             if not obj:
                 if 'create' not in modes:
-                    return None
+                    return None, False
                 to_create = True
                 obj = self.model()
-            elif 'update' not in modes:
-                return None
+            else:
+                if already_saved:
+                    return obj, True
+                if 'update' not in modes:
+                    return None, False
 
             updated_fields = []
 
@@ -189,6 +235,8 @@ class GithubObjectManager(models.Manager):
 
                 if save_simples:
                     for field, value in fields['simple'].iteritems():
+                        if not hasattr(obj, '%s_id' % field):
+                            continue
                         updated_fields.append(field)
                         setattr(obj, field, value)
 
@@ -198,16 +246,22 @@ class GithubObjectManager(models.Manager):
                 save_fks = True
 
                 if not to_create:
-                    obj_fields = dict((f, getattr(obj, '%s_id' % f)) for f in fields['fk'])
+                    obj_fields = dict((f, getattr(obj, '%s_id' % f)) for f in fields['fk'] if hasattr(obj, '%s_id' % f))
                     fk_fields = dict((f, fields['fk'][f].id if fields['fk'][f] else None) for f in fields['fk'])
                     save_fks = obj_fields != fk_fields
 
-                if save_fks:
-                    for field, value in fields['fk'].iteritems():
+                for field, value in fields['fk'].iteritems():
+                    if not hasattr(obj, '%s_id' % field):
+                        continue
+                    if save_fks:
                         # do not set None FKs if not allowed
-                        if value is not None or obj._meta.get_field(field).null:
-                            updated_fields.append(field)
-                            setattr(obj, field, value)
+                        if value is None and not obj._meta.get_field(field).null:
+                            continue
+                        updated_fields.append(field)
+                        setattr(obj, field, value)
+                    # fill the django cache for FKs
+                    if value and not isinstance(value, (int, long, basestring)):
+                        setattr(obj, '_%s_cache' % field, value)
 
             # always update these two fields
             setattr(obj, fetched_at_field, datetime.utcnow())
@@ -236,28 +290,38 @@ class GithubObjectManager(models.Manager):
                 # is still no object, it's a real IntegrityError that we don't
                 # want to skip
                 if to_create:
-                    obj = self.get_from_identifiers(fields)
+                    obj, already_saved = self.get_from_identifiers(fields, saved_objects=saved_objects)
                     if obj:
-                        return _create_or_update()
+                        if already_saved:
+                            return obj, True
+                        return _create_or_update(obj)
                     else:
                         raise
                 else:
                     raise
 
-            return obj
+            return obj, False
 
-        obj = _create_or_update()
+        obj, already_saved = _create_or_update()
 
         if not obj:
             return None
 
+        if already_saved:
+            return obj
+
         # finally save lists now that we have an object
         for field, values in fields['many'].iteritems():
+            if not hasattr(obj, '%s_id' % field):
+                continue
             obj.update_related_field(field, [o.id for o in values])
+
+        # save object in the cache
+        saved_objects.set_object(self.model, self.get_filters_from_identifiers(fields), obj)
 
         return obj
 
-    def get_object_fields_from_dict(self, data, defaults=None):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         Taking a dict (passed in the data argument), return the fields to use
         to update or create an object. The returned dict contains 3 entries:
@@ -274,6 +338,9 @@ class GithubObjectManager(models.Manager):
         data (if "foo" is a related found in "data", defaults["related"]["foo"]
         will be the "defaults" dict used to create/update "foo)
         """
+
+        if saved_objects is None:
+            saved_objects = SavedObjects()
 
         fields = {
             'simple': {},
@@ -300,31 +367,36 @@ class GithubObjectManager(models.Manager):
 
             # work depending of the field type
             # TODO: nanage OneToOneField, not yet used in our models
-            if is_m2m or not direct:
-                # we have many objects to create
+            if is_m2m or not direct or isinstance(field, models.ForeignKey):
+                # we have many objects to create: m2m
+                # or we have an external object to create: fk
                 if value:
                     model = field.related.parent_model if direct else field.model
-                    defaults_related = None
-                    if defaults and 'related' in defaults and field_name in defaults['related']:
-                        defaults_related = defaults['related'][field_name]
-                    fields['many'][field_name] = model.objects\
-                        .create_or_update_from_list(data=value,
-                                                    defaults=defaults_related)
-                else:
-                    fields['many'][field_name] = []
+                    defaults_related = {}
 
-            elif isinstance(field, models.ForeignKey):
-                # we have an external object to create
-                if value:
-                    model = field.related.parent_model if direct else field.model
-                    defaults_related = None
-                    if defaults and 'related' in defaults and field_name in defaults['related']:
-                        defaults_related = defaults['related'][field_name]
-                    fields['fk'][field_name] = model.objects\
-                        .create_or_update_from_dict(data=value,
-                                                    defaults=defaults_related)
+                    if defaults and 'related' in defaults:
+                        if field_name in defaults['related']:
+                            defaults_related = defaults['related'][field_name]
+                        elif field_name in defaults['related'].get('*', {}):
+                            defaults_related = defaults['related']['*'][field_name]
+                        if '*' in defaults['related'] and '*' not in defaults_related:
+                            defaults_related.update(defaults['related']['*'])
+
+                    if is_m2m or not direct:  # not sure: a list for a "not direct ?" (a through ?)
+                        fields['many'][field_name] = model.objects\
+                            .create_or_update_from_list(data=value,
+                                                        defaults=defaults_related,
+                                                        saved_objects=saved_objects)
+                    else:
+                        fields['fk'][field_name] = model.objects\
+                            .create_or_update_from_dict(data=value,
+                                                        defaults=defaults_related,
+                                                        saved_objects=saved_objects)
                 else:
-                    fields['fk'][field_name] = None
+                    if is_m2m or not direct:
+                        fields['many'][field_name] = []
+                    else:
+                        fields['fk'][field_name] = None
 
             elif isinstance(field, models.DateTimeField):
                 # we need to convert a datetimefield
@@ -359,7 +431,7 @@ class WithRepositoryManager(GithubObjectManager):
     repository belongs the object.
     """
 
-    def get_object_fields_from_dict(self, data, defaults=None):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
         repository the objects belongs to, from the url found in the data given
@@ -367,7 +439,8 @@ class WithRepositoryManager(GithubObjectManager):
         """
         from .models import Repository
 
-        fields = super(WithRepositoryManager, self).get_object_fields_from_dict(data, defaults)
+        fields = super(WithRepositoryManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)
         if not fields:
             return None
 
@@ -392,13 +465,14 @@ class GithubUserManager(GithubObjectManager, UserManager):
     flag.
     """
 
-    def get_object_fields_from_dict(self, data, defaults=None):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         In addition to the default get_object_fields_from_dict, set the
         is_organization flag based on the value of the User field given by the
         github api.
         """
-        fields = super(GithubUserManager, self).get_object_fields_from_dict(data, defaults)
+        fields = super(GithubUserManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)
         if not fields:
             return None
 
@@ -497,20 +571,21 @@ class IssueManager(WithRepositoryManager):
         except self.model.DoesNotExist:
             return None
 
-    def get_by_url(self, url):
+    def get_by_url(self, url, repository=None):
         """
         Taking an url, try to return the matching issue by finding the repository
         by its path, and an issue number, and then fetching the issue from the db.
         Return None if no Issue if found.
         """
-        from .models import Repository
-        repository = Repository.objects.get_by_url(url)
+        if not repository:
+            from .models import Repository
+            repository = Repository.objects.get_by_url(url)
         if not repository:
             return None
         number = self.get_number_from_url(url)
         return self.get_by_repository_and_number(repository, number)
 
-    def get_object_fields_from_dict(self, data, defaults=None):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         Override the default "get_object_fields_from_dict" by adding default
         value for the repository of labels, milestone and comments, if one is
@@ -543,7 +618,8 @@ class IssueManager(WithRepositoryManager):
                 if dikt.get(field):
                     data['%s_%s' % (boundary, field)] = dikt[field]
 
-        fields = super(IssueManager, self).get_object_fields_from_dict(data, defaults)
+        fields = super(IssueManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)
         if not fields:
             return None
 
@@ -574,7 +650,7 @@ class WithIssueManager(GithubObjectManager):
     get_object_fields_from_dict method, to get the issue and the repository.
     """
 
-    def get_object_fields_from_dict(self, data, defaults=None):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
         issue the object belongs to, from the issue_url found in the data given
@@ -582,14 +658,18 @@ class WithIssueManager(GithubObjectManager):
         """
         from .models import Issue
 
-        fields = super(WithIssueManager, self).get_object_fields_from_dict(data, defaults)
+        fields = super(WithIssueManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)
         if not fields:
             return None
+
+        repository = fields['fk'].get('repository')
 
         # add the issue if needed
         if 'issue' not in fields['fk']:
             issue = Issue.objects.get_by_url(
-                    data.get('issue_url', data.get('pull_request_url', None)))
+                    data.get('issue_url', data.get('pull_request_url', None)),
+                    repository)
             if issue:
                 fields['fk']['issue'] = issue
             else:
@@ -597,7 +677,7 @@ class WithIssueManager(GithubObjectManager):
                 return None
 
         # and the repository
-        if 'repository' not in fields['fk']:
+        if not repository:
             fields['fk']['repository'] = fields['fk']['issue'].repository
 
         return fields
@@ -606,7 +686,8 @@ class WithIssueManager(GithubObjectManager):
 class IssueCommentManager(WithIssueManager):
     """
     This manager is for the IssueComment model, with an enhanced
-    get_object_fields_from_dict method, to get the issue and the repository.
+    get_object_fields_from_dict method (from WithIssueManager), to get the issue
+    and the repository.
     """
     pass
 
@@ -655,7 +736,7 @@ class PullRequestCommentManager(WithIssueManager):
     the entry point
     """
 
-    def get_object_fields_from_dict(self, data, defaults=None):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         In addition to the default get_object_fields_from_dict, try to guess the
         issue the comment belongs to, from the pull_request_url found in the
@@ -666,7 +747,8 @@ class PullRequestCommentManager(WithIssueManager):
         """
         from .models import PullRequestCommentEntryPoint
 
-        fields = super(PullRequestCommentManager, self).get_object_fields_from_dict(data, defaults)
+        fields = super(PullRequestCommentManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)
 
         if not fields:
             return None
@@ -680,7 +762,8 @@ class PullRequestCommentManager(WithIssueManager):
 
         entry_point = PullRequestCommentEntryPoint.objects\
                     .create_or_update_from_dict(data=data,
-                                                defaults=defaults_entry_points)
+                                                defaults=defaults_entry_points,
+                                                saved_objects=saved_objects)
         if entry_point:
             fields['fk']['entry_point'] = entry_point
 
@@ -696,11 +779,12 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
     """
 
     def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None,
-                                                fetched_at_field='fetched_at'):
+                            fetched_at_field='fetched_at', saved_objects=None):
         from .models import GithubUser
 
         obj = super(PullRequestCommentEntryPointManager, self)\
-            .create_or_update_from_dict(data, modes, defaults, fetched_at_field)
+            .create_or_update_from_dict(data, modes, defaults, fetched_at_field,
+                                                                saved_objects)
 
         if not obj:
             return None
@@ -720,7 +804,8 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
             obj.created_at = created_at
             update_fields.append('created_at')
             try:
-                obj.user = GithubUser.objects.create_or_update_from_dict(data['user'])
+                obj.user = GithubUser.objects.create_or_update_from_dict(
+                                    data['user'], saved_objects=saved_objects)
                 update_fields.append('user')
             except Exception:
                 pass
@@ -742,7 +827,7 @@ class CommitManager(WithRepositoryManager):
     and to reformat data in a flat way to match the model.
     """
 
-    def get_object_fields_from_dict(self, data, defaults=None):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         Reformat data to have flat values to match the model
         """
@@ -770,7 +855,8 @@ class CommitManager(WithRepositoryManager):
                     defaults['related'][related]['fk'] = {}
                 defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
 
-        return super(CommitManager, self).get_object_fields_from_dict(data, defaults)
+        return super(CommitManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)
 
 
 class IssueEventManager(WithIssueManager):
@@ -794,11 +880,12 @@ class IssueEventManager(WithIssueManager):
 
         type_event = 'referenced_by_%s' % obj._meta.module_name
 
-        existing_events = obj.repository.issues_events.filter(
-                            event=type_event,
-                            related_object_id=obj.id
-                        )
-        new_events = set()
+        existing_events_ids = obj.repository.issues_events.filter(
+                                                    event=type_event,
+                                                    related_object_id=obj.id
+                                                ).values_list('id', flat=True)
+
+        new_events_ids = set()
         for field in fields:
             val = getattr(obj, field)
             if not val:
@@ -820,14 +907,17 @@ class IssueEventManager(WithIssueManager):
                                         'related_object': obj,
                                     }
                                 )
-                new_events.add(event.id)
+                new_events_ids.add(event.id)
 
         # remove old events
-        for existing_event in existing_events:
-            if existing_event.id not in new_events:
-                existing_event.delete()
+        for existing_event_id in existing_events_ids:
+            if existing_event_id not in new_events_ids:
+                try:
+                    self.get(id=existing_event_id).delete()
+                except self.model.DoesNotExist:
+                    pass
 
-        return new_events
+        return new_events_ids
 
 
 class PullRequestFileManager(WithIssueManager):
@@ -844,11 +934,12 @@ class PullRequestFileManager(WithIssueManager):
             return None
         return match.groupdict().get('tree', None)
 
-    def get_object_fields_from_dict(self, data, defaults=None):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         Set in data the tree got from the blob url
         """
         if 'blob_url' in data:
             data['tree'] = self.get_tree_in_url(data['blob_url'])
 
-        return super(PullRequestFileManager, self).get_object_fields_from_dict(data, defaults)
+        return super(PullRequestFileManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)

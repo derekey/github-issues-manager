@@ -931,11 +931,14 @@ class Repository(GithubObjectWithId):
                 final_issues_parameters.update(parameters)
 
             count = self._fetch_many('issues', gh,
-                                     vary=vary,
-                                     defaults={'fk': {'repository': self}},
-                                     parameters=final_issues_parameters,
-                                     remove_missing=remove_missing,
-                                     force_fetch=force_fetch)
+                                    vary=vary,
+                                    defaults={
+                                        'fk': {'repository': self},
+                                        'related': {'*': {'fk': {'repository': self}}},
+                                    },
+                                    parameters=final_issues_parameters,
+                                    remove_missing=remove_missing,
+                                    force_fetch=force_fetch)
 
         # now fetch pull requests to have more informations for them (only
         # ones that already exist as an issue, not the new ones)
@@ -951,6 +954,7 @@ class Repository(GithubObjectWithId):
                          vary=vary,
                          defaults={
                             'fk': {'repository': self},
+                            'related': {'*': {'fk': {'repository': self}}},
                             'simple': {'is_pull_request': True},
                          },
                          parameters=final_prs_parameters,
@@ -1106,7 +1110,10 @@ class Repository(GithubObjectWithId):
         # doesn't work for now when has_issues == False, but keep the call
         # hoping for github to resolve it
         count = self._fetch_many('issues_events', gh,
-                                 defaults={'fk': {'repository': self}},
+                                 defaults={
+                                    'fk': {'repository': self},
+                                    'related': {'*': {'fk': {'repository': self}}},
+                                },
                                  parameters=parameters,
                                  force_fetch=force_fetch)
 
@@ -1135,7 +1142,10 @@ class Repository(GithubObjectWithId):
         if parameters:
             final_parameters.update(parameters)
         return self._fetch_many('comments', gh,
-                                defaults={'fk': {'repository': self}},
+                                defaults={
+                                    'fk': {'repository': self},
+                                    'related': {'*': {'fk': {'repository': self}}},
+                                },
                                 parameters=final_parameters,
                                 force_fetch=force_fetch)
 
@@ -1147,7 +1157,10 @@ class Repository(GithubObjectWithId):
         if parameters:
             final_parameters.update(parameters)
         return self._fetch_many('pr_comments', gh,
-                                defaults={'fk': {'repository': self}},
+                                defaults={
+                                    'fk': {'repository': self},
+                                    'related': {'*': {'fk': {'repository': self}}},
+                                },
                                 parameters=final_parameters,
                                 force_fetch=force_fetch)
 
@@ -1204,6 +1217,7 @@ class WithRepositoryMixin(object):
             if not defaults:
                 defaults = {}
             defaults.setdefault('fk', {})['repository'] = self.repository
+            defaults.setdefault('related', {}).setdefault('*', {})['repository'] = self.repository
 
         return super(WithRepositoryMixin, self).fetch(gh, defaults,
                                                force_fetch=force_fetch,
@@ -1600,9 +1614,15 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         page)
         """
         return self._fetch_many('events', gh,
-                                defaults={'fk': {
-                                    'issue': self,
-                                    'repository': self.repository}
+                                defaults={
+                                    'fk': {
+                                        'issue': self,
+                                        'repository': self.repository
+                                    },
+                                    'related': {'*': {
+                                        'issue': self,
+                                        'repository': self.repository
+                                    }}
                                 },
                                 parameters=parameters,
                                 force_fetch=True)
@@ -1621,9 +1641,15 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         if parameters:
             final_parameters.update(parameters)
         count = self._fetch_many('comments', gh,
-                                defaults={'fk': {
-                                    'issue': self,
-                                    'repository': self.repository}
+                                defaults={
+                                    'fk': {
+                                        'issue': self,
+                                        'repository': self.repository
+                                    },
+                                    'related': {'*': {
+                                        'issue': self,
+                                        'repository': self.repository
+                                    }}
                                 },
                                 parameters=final_parameters,
                                 force_fetch=force_fetch)
@@ -1641,9 +1667,15 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         if parameters:
             final_parameters.update(parameters)
         return self._fetch_many('pr_comments', gh,
-                                defaults={'fk': {
-                                    'issue': self,
-                                    'repository': self.repository}
+                                defaults={
+                                    'fk': {
+                                        'issue': self,
+                                        'repository': self.repository
+                                    },
+                                    'related': {'*': {
+                                        'issue': self,
+                                        'repository': self.repository
+                                    }}
                                 },
                                 parameters=final_parameters,
                                 force_fetch=force_fetch)
@@ -1656,7 +1688,10 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     def fetch_labels(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('labels', gh,
-                                defaults={'fk': {'repository': self.repository}},
+                                defaults={
+                                    'fk': {'repository': self.repository},
+                                    'related': {'*': {'fk': {'repository': self.repository}}},
+                                },
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 
@@ -1688,9 +1723,15 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     def fetch_files(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('files', gh,
-                                defaults={'fk': {
-                                    'issue': self,
-                                    'repository': self.repository}
+                                defaults={
+                                    'fk': {
+                                        'issue': self,
+                                        'repository': self.repository
+                                    },
+                                    'related': {'*': {
+                                        'issue': self,
+                                        'repository': self.repository
+                                    }}
                                 },
                                 parameters=parameters,
                                 force_fetch=force_fetch)
@@ -1760,6 +1801,7 @@ class WithIssueMixin(WithRepositoryMixin):
             if not defaults:
                 defaults = {}
             defaults.setdefault('fk', {})['issue'] = self.issue
+            defaults.setdefault('related', {}).setdefault('*', {})['issue'] = self.issue
 
         return super(WithIssueMixin, self).fetch(gh, defaults,
                                                force_fetch=force_fetch,
@@ -1940,12 +1982,12 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues_events')
     issue = models.ForeignKey(Issue, related_name='events')
     user = models.ForeignKey(GithubUser, related_name='issues_events', blank=True, null=True)
-    event = models.CharField(max_length=256, blank=True, null=True)
+    event = models.CharField(max_length=256, blank=True, null=True, db_index=True)
     commit_sha = models.CharField(max_length=40, blank=True, null=True)
     created_at = models.DateTimeField(db_index=True)
 
     related_content_type = models.ForeignKey(ContentType, blank=True, null=True)
-    related_object_id = models.PositiveIntegerField(blank=True, null=True)
+    related_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
     related_object = generic.GenericForeignKey('related_content_type',
                                                'related_object_id')
 
