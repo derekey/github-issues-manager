@@ -235,7 +235,7 @@ class GithubObjectManager(models.Manager):
 
                 if save_simples:
                     for field, value in fields['simple'].iteritems():
-                        if not hasattr(obj, '%s_id' % field):
+                        if not hasattr(obj, field):
                             continue
                         updated_fields.append(field)
                         setattr(obj, field, value)
@@ -339,6 +339,14 @@ class GithubObjectManager(models.Manager):
         will be the "defaults" dict used to create/update "foo)
         """
 
+        # reduce data to keep only wanted fields
+        for key in data.keys():
+            if key.startswith('_') or \
+                key.endswith('etag') or \
+                key.endswith('fetched_at') or \
+                key in self.model.github_ignore:
+                del data[key]
+
         if saved_objects is None:
             saved_objects = SavedObjects()
 
@@ -353,10 +361,6 @@ class GithubObjectManager(models.Manager):
 
             # maybe we use a different field name on our side
             field_name = self.get_matching_field(key)
-
-            # ignore forbidden fields
-            if field_name in self.model.github_ignore:
-                continue
 
             try:
                 # get informations about the field
@@ -439,14 +443,16 @@ class WithRepositoryManager(GithubObjectManager):
         """
         from .models import Repository
 
+        url = data.get('url')
+
         fields = super(WithRepositoryManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)
         if not fields:
             return None
 
         # add the repository if needed
-        if 'repository' not in fields['fk']:
-            repository = Repository.objects.get_by_url(data.get('url', None))
+        if 'repository' not in fields['fk'] and url:
+            repository = Repository.objects.get_by_url(url)
             if repository:
                 fields['fk']['repository'] = repository
             else:
@@ -471,6 +477,9 @@ class GithubUserManager(GithubObjectManager, UserManager):
         is_organization flag based on the value of the User field given by the
         github api.
         """
+
+        is_org = data.get('type', 'User') == 'Organization'
+
         fields = super(GithubUserManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)
         if not fields:
@@ -478,7 +487,7 @@ class GithubUserManager(GithubObjectManager, UserManager):
 
         # add the is_organization field if needed
         if 'is_organization' not in fields['simple']:
-            fields['simple']['is_organization'] = data.get('type', 'User') == 'Organization'
+            fields['simple']['is_organization'] = is_org
 
         return fields
 
@@ -601,22 +610,15 @@ class IssueManager(WithRepositoryManager):
         (base and head sha/label in pull-request mode)
 
         """
-        if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
-            if 'related' not in defaults:
-                defaults['related'] = {}
-            for related in ('labels', 'milestone', 'comments', 'pr_comments', 'events', 'commits'):
-                if related not in defaults['related']:
-                    defaults['related'][related] = {}
-                if 'fk' not in defaults['related'][related]:
-                    defaults['related'][related]['fk'] = {}
-                defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
-
         # if pull request, we may have the label and sha of base and head
         for boundary in ('base', 'head'):
             dikt = data.get(boundary, {})
             for field in ('label', 'sha'):
                 if dikt.get(field):
                     data['%s_%s' % (boundary, field)] = dikt[field]
+
+        is_pull_request = bool(data.get('diff_url', False))\
+                       or bool(data.get('pull_request', {}).get('diff_url', False))
 
         fields = super(IssueManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)
@@ -625,8 +627,7 @@ class IssueManager(WithRepositoryManager):
 
         # check if it's a pull request
         if 'is_pull_request' not in fields['simple']:
-            fields['simple']['is_pull_request'] = bool(data.get('diff_url', False))\
-                    or bool(data.get('pull_request', {}).get('diff_url', False))
+            fields['simple']['is_pull_request'] = is_pull_request
 
         # if we have a real pull request data (from the pull requests api instead
         # of the issues one), remove the github_id to not override the issue's one
@@ -658,6 +659,8 @@ class WithIssueManager(GithubObjectManager):
         """
         from .models import Issue
 
+        url = data.get('issue_url', data.get('pull_request_url'))
+
         fields = super(WithIssueManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)
         if not fields:
@@ -666,10 +669,8 @@ class WithIssueManager(GithubObjectManager):
         repository = fields['fk'].get('repository')
 
         # add the issue if needed
-        if 'issue' not in fields['fk']:
-            issue = Issue.objects.get_by_url(
-                    data.get('issue_url', data.get('pull_request_url', None)),
-                    repository)
+        if 'issue' not in fields['fk'] and url:
+            issue = Issue.objects.get_by_url(url, repository)
             if issue:
                 fields['fk']['issue'] = issue
             else:
@@ -782,13 +783,6 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
                             fetched_at_field='fetched_at', saved_objects=None):
         from .models import GithubUser
 
-        obj = super(PullRequestCommentEntryPointManager, self)\
-            .create_or_update_from_dict(data, modes, defaults, fetched_at_field,
-                                                                saved_objects)
-
-        if not obj:
-            return None
-
         try:
             created_at = Connection.parse_date(data['created_at'])
         except Exception:
@@ -798,17 +792,24 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
         except Exception:
             updated_at = None
 
+        user = data.get('user')
+
+        obj = super(PullRequestCommentEntryPointManager, self)\
+            .create_or_update_from_dict(data, modes, defaults, fetched_at_field,
+                                                                saved_objects)
+
+        if not obj:
+            return None
+
         update_fields = []
 
         if created_at and not obj.created_at or created_at < obj.created_at:
             obj.created_at = created_at
             update_fields.append('created_at')
-            try:
+            if user:
                 obj.user = GithubUser.objects.create_or_update_from_dict(
-                                    data['user'], saved_objects=saved_objects)
+                                            user, saved_objects=saved_objects)
                 update_fields.append('user')
-            except Exception:
-                pass
 
         if updated_at and not obj.updated_at or updated_at > obj.updated_at:
             obj.updated_at = updated_at
@@ -844,16 +845,6 @@ class CommitManager(WithRepositoryManager):
                             data['%s_%s' % (user_type, field)] = c[user_type][field]
             if 'tree' in c:
                 data['tree'] = c['tree']['sha']
-
-        if defaults and 'fk' in defaults and 'repository' in defaults['fk']:
-            if 'related' not in defaults:
-                defaults['related'] = {}
-            for related in ('tree', 'parents'):
-                if related not in defaults['related']:
-                    defaults['related'][related] = {}
-                if 'fk' not in defaults['related'][related]:
-                    defaults['related'][related]['fk'] = {}
-                defaults['related'][related]['fk']['repository'] = defaults['fk']['repository']
 
         return super(CommitManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)

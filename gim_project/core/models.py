@@ -531,6 +531,7 @@ class GithubObjectWithId(GithubObject):
     github_matching.update({
         'id': 'github_id'
     })
+    github_ignore = GithubObject.github_ignore + ('github_id', )
     github_identifiers = {'github_id': 'github_id'}
 
     class Meta:
@@ -554,8 +555,10 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     github_matching.update({
         'login': 'username',
     })
-    github_ignore = GithubObjectWithId.github_ignore + ('token',
-        'is_organization', 'password', 'is_staff', 'is_active', 'date_joined')
+    github_ignore = GithubObjectWithId.github_ignore + ('token', 'is_organization', 'password',
+        'is_staff', 'is_active', 'date_joined', 'username', ) + ('following_url', 'events_url',
+        'organizations_url', 'url', 'gists_url', 'html_url', 'subscriptions_url', 'repos_url',
+        'received_events_url', 'gravatar_id', 'starred_url', 'site_admin', 'type', 'followers_url', )
 
     class Meta:
         ordering = ('username', )
@@ -800,6 +803,18 @@ class Repository(GithubObjectWithId):
     github_matching.update({
         'fork': 'is_fork',
     })
+    github_ignore = GithubObjectWithId.github_ignore + ('is_fork', ) + ('issues_url', 'has_wiki',
+        'forks_url', 'mirror_url', 'subscription_url', 'notifications_url', 'subscribers_count',
+        'updated_at', 'svn_url', 'pulls_url', 'full_name', 'issue_comment_url', 'contents_url',
+        'keys_url', 'size', 'tags_url', 'contributors_url', 'network_count', 'downloads_url',
+        'assignees_url', 'statuses_url', 'git_refs_url', 'git_commits_url', 'clone_url',
+        'watchers_count', 'git_tags_url', 'milestones_url', 'stargazers_count', 'hooks_url',
+        'homepage', 'commits_url', 'releases_url', 'issue_events_url', 'has_downloads', 'labels_url',
+        'events_url', 'comments_url', 'html_url', 'compare_url', 'open_issues', 'watchers',
+        'git_url', 'forks_count', 'merges_url', 'ssh_url', 'blobs_url', 'master_branch', 'forks',
+        'permissions', 'open_issues_count', 'languages_url', 'language', 'collaborators_url', 'url',
+        'created_at', 'archive_url', 'pushed_at', 'default_branch', 'teams_url', 'trees_url',
+        'branches_url', 'subscribers_url', 'stargazers_url', )
 
     class Meta:
         unique_together = (
@@ -1318,8 +1333,7 @@ class Label(WithRepositoryMixin, GithubObject):
     github_matching.update({
         'url': 'api_url'
     })
-
-    github_ignore = GithubObject.github_ignore + ('label_type', 'typed_name', )
+    github_ignore = GithubObject.github_ignore + ('api_url', 'label_type', 'typed_name', 'order', )
     github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'name': 'name'}
     github_edit_fields = {
         'create': ('color', 'name', ),
@@ -1392,6 +1406,8 @@ class Milestone(WithRepositoryMixin, GithubObjectWithId):
 
     objects = WithRepositoryManager()
 
+    github_ignore = GithubObjectWithId.github_ignore + ('url', 'labels_url',
+                                'updated_at', 'closed_issues', 'open_issues', )
     github_edit_fields = {
         'create': ('title', 'state', 'description', 'due_on', ),
         'update': ('title', 'state', 'description', 'due_on', )
@@ -1465,6 +1481,8 @@ class Commit(WithRepositoryMixin, GithubObject):
     github_matching.update({
         'comment_count': 'comments_count',
     })
+    github_ignore = GithubObject.github_ignore + ('deleted', 'comments_count',
+        ) + ('url', 'parents', 'comments_url', 'html_url', 'commit', )
 
     @property
     def github_url(self):
@@ -1538,7 +1556,13 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         'deletions': 'nb_deletions',
         'changed_files': 'nb_changed_files'
     })
-    github_ignore = GithubObject.github_ignore + ('is_pull_request', 'comments', )
+    github_ignore = GithubObjectWithId.github_ignore + ('is_pull_request', 'closed_by_fetched',
+        'github_pr_id', 'pr_comments_count', 'nb_commits', 'nb_additions', 'nb_deletions',
+        'nb_changed_files', ) + ('head', 'commits_url', 'body_text', 'url', 'labels_url',
+        'events_url', 'comments_url', 'html_url', 'merge_commit_sha', 'review_comments_url',
+        'review_comment_url', 'base', 'patch_url', 'mergeable_state', 'pull_request', 'diff_url',
+        'statuses_url', 'issue_url', )
+
     github_format = '.full+json'
     github_edit_fields = {
         'create': ('title', 'body', 'assignee__username', 'milestone__number', 'labels__name', ),
@@ -1826,6 +1850,7 @@ class IssueComment(WithIssueMixin, GithubObjectWithId):
     objects = IssueCommentManager()
 
     github_format = '.full+json'
+    github_ignore = GithubObjectWithId.github_ignore + ('url', 'html_url', 'issue_url', 'body_text', )
     github_edit_fields = {
         'create': ('body', ),
         'update': ('body', )
@@ -1884,15 +1909,13 @@ class PullRequestCommentEntryPoint(GithubObject):
 
     objects = PullRequestCommentEntryPointManager()
 
-    github_ignore = GithubObject.github_ignore + (
-                                    'id', 'created_at', 'updated_at', 'user')
-
     github_matching = dict(GithubObject.github_matching)
     github_matching.update({
         'commit_id': 'commit_sha',
         'original_commit_id': 'original_commit_sha',
     })
-
+    github_ignore = GithubObject.github_ignore + ('id', 'commit_sha' + 'original_commit_sha'
+                                        ) + ('body_text', 'url', 'html_url', 'pull_request_url', )
     github_identifiers = {
         'repository__github_id': ('repository', 'github_id'),
         'issue__number': ('issue', 'number'),
@@ -1921,6 +1944,8 @@ class PullRequestComment(WithIssueMixin, GithubObjectWithId):
 
     objects = PullRequestCommentManager()
 
+    github_ignore = GithubObjectWithId.github_ignore + ('entry_point', ) + (
+                        'body_text', 'url', 'html_url', 'pull_request_url', )
     github_format = '.full+json'
     github_edit_fields = {
         'create': (
@@ -1998,6 +2023,8 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         'actor': 'user',
         'commit_id': 'commit_sha',
     })
+    github_ignore = GithubObjectWithId.github_ignore + ('related_object_id',
+            'related_content_type', 'related_object', 'commit_sha') + ('url', )
     github_date_field = ('created_at', None, None)
 
     class Meta:
@@ -2047,6 +2074,8 @@ class PullRequestFile(WithIssueMixin, GithubObject):
     patch = models.TextField(blank=True, null=True)
     tree = models.CharField(max_length=40, blank=True, null=True)
 
+    objects = PullRequestFileManager()
+
     github_matching = dict(GithubObject.github_matching)
     github_matching.update({
         'additions': 'nb_additions',
@@ -2054,14 +2083,13 @@ class PullRequestFile(WithIssueMixin, GithubObject):
         'changes': 'nb_changes',
         'filename': 'path'
     })
-
+    github_ignore = GithubObjectWithId.github_ignore + ('nb_additions', 'nb_deletions',
+                                'nb_changes', 'path') + ('raw_url', 'contents_url', 'blob_url', )
     github_identifiers = {
         'tree': 'tree',
         'sha': 'sha',
         'path': 'path',
     }
-
-    objects = PullRequestFileManager()
 
     class Meta:
         ordering = ('path', )
