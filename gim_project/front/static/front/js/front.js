@@ -1519,7 +1519,7 @@ $().ready(function() {
             var $tr = $(this).closest('tr'),
                 $table = $tr.closest('table'),
                 is_last_line = $tr.is(':last-of-type'),
-                $entry_point, $textarea, $new_table, path, sha, position, $issue, $box;
+                $entry_point, $textarea, $new_table, path, sha, position, $issue, $box, $new_table_box;
             // check if already an entry-point
             if (is_last_line) {
                 $entry_point = $tr.closest('.code-diff').next('.pr-comments');
@@ -1535,6 +1535,7 @@ $().ready(function() {
                     return false;
                 }
             }
+            $issue = $table.closest('.issue');
             // we need to create an entry point
             path = $table.data('path');
             sha = $table.data('sha');
@@ -1544,17 +1545,18 @@ $().ready(function() {
                 $new_table = $('<table><tbody/></table>').addClass($table[0].className);
                 $new_table.data({path: path, sha: sha});
                 $new_table.children('tbody').append($tr.nextAll('tr'));
-                $table.after($new_table);
+                $new_table_box = $issue.find('.code-diff.template').clone().removeClass('template').removeAttr('style');
+                $new_table_box.append($new_table);
+                $table.parent().after($new_table_box);
             }
             // create a box for the entry-point
-            $issue = $table.closest('.issue');
             $box = $issue.find('.pr-comments.template').clone().removeClass('template').removeAttr('style');
             $comment_box = IssueEditor.create_comment_form_from_template($issue);
             $comment_box.$form.prepend('<input type="hidden" name="path" value="' + path + '"/>' +
                                        '<input type="hidden" name="sha" value="' + sha + '"/>' +
                                        '<input type="hidden" name="position" value="' + position + '"/>');
             $box.find('ul').append($comment_box.$node);
-            $table.after($box);
+            $table.parent().after($box);
             $comment_box.$textarea.focus();
 
         }), // on_new_entry_point_click

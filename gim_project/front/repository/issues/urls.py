@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 
-from .views import (IssuesView, IssueView, UserIssuesView, SimpleAjaxIssueView,
+from .views import (IssuesView, IssueView, UserIssuesView,
+                    SimpleAjaxIssueView, FilesAjaxIssueView,
                     IssueEditState,
                     IssueCommentCreate, PullRequestCommentCreate)
 
@@ -10,7 +11,7 @@ urlpatterns = patterns('',
     url(r'^(?P<issue_number>\d+)/$', IssueView.as_view(), name=IssueView.url_name),
 
     # parts
-    url(r'^(?P<issue_number>\d+)/files/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/include_issue_files.html'), name='issue.files'),
+    url(r'^(?P<issue_number>\d+)/files/$', FilesAjaxIssueView.as_view(), name='issue.files'),
     url(r'^(?P<issue_number>\d+)/commits/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/include_issue_commits.html'), name='issue.commits'),
 
     # edit views

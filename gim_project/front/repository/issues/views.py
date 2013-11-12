@@ -554,12 +554,7 @@ class IssueView(UserIssuesView):
                 edit_level = 'self'
 
             if current_issue.is_pull_request:
-                entry_points_dict = {}
-                for entry_point in current_issue.all_entry_points:
-                    if not entry_point.position:
-                        continue
-                    entry_points_dict.setdefault(entry_point.path, {})[entry_point.position] = entry_point
-                context['entry_points_dict'] = entry_points_dict
+                context['entry_points_dict'] = self.get_entry_points_dict(current_issue)
 
         else:
             activity = []
@@ -575,6 +570,21 @@ class IssueView(UserIssuesView):
         })
 
         return context
+
+    def get_entry_points_dict(self, issue):
+        """
+        Return a dict that will be used in the issue files template to display
+        pull request comments (entry points).
+        The first level of the dict contains path of the file with entry points.
+        The second level contains the position of the entry point, with the
+        PullRequestCommentEntryPoint object as value
+        """
+        entry_points_dict = {}
+        for entry_point in issue.all_entry_points:
+            if not entry_point.position:
+                continue
+            entry_points_dict.setdefault(entry_point.path, {})[entry_point.position] = entry_point
+        return entry_points_dict
 
     def get_all_comments(self, issue):
         """
@@ -625,6 +635,18 @@ class SimpleAjaxIssueView(IssueView):
         except Issue.DoesNotExist:
             raise Http404
 
+        return context
+
+
+class FilesAjaxIssueView(SimpleAjaxIssueView):
+    """
+    Override SimpleAjaxIssueView to add comments in files (entry points)
+    """
+    ajax_template_name = 'front/repository/issues/include_issue_files.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(FilesAjaxIssueView, self).get_context_data(**kwargs)
+        context['entry_points_dict'] = self.get_entry_points_dict(context['current_issue'])
         return context
 
 
