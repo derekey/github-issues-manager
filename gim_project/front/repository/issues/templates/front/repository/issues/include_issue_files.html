@@ -19,7 +19,7 @@
         {% for file in files %}
             <tr>
                 <td class="status-{{ file.status }}"><i class="icon-{% if file.status == 'added' %}plus{% elif file.status == 'removed'%}remove{% elif file.status == 'renamed' %}resize-horizontal{% elif file.status == 'modified' %}pencil{% else %}file{% endif %}"> </i></td>
-                <td><a class="path" href="#pr-file-{{ file.id }}">{{ file.path }}</a></td>
+                <td><a class="path" href="#pr-file-{{ file.id }}-target">{{ file.path }}</a></td>
                 <td>
                     <ul class="unstyled">
                         <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ file.nb_additions }}</li>
@@ -36,6 +36,7 @@
 {% for file in files %}
     <li>
         <div class="box pr-file">
+            <div id="pr-file-{{ file.id }}-target" class="pr-file-target"></div>
             <div class="box-header" data-toggle="collapse" data-target="#pr-file-{{ file.id }}-content" title="Click to collapse/expand">
                 <ul class="box-toolbar">
                     <li>

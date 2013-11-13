@@ -394,6 +394,16 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
             font-size: inherit;
         }
     }
+    .box.pr-file {
+        position: relative;
+    }
+    .pr-file-target {
+        width:1px;
+        height:1px;
+        position:absolute;
+        top: -110px;
+        right: -14px;
+    }
 }
 
 table.commits-list {
