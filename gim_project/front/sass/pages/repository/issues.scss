@@ -15,6 +15,8 @@
 @import "modals/shortcuts";
 @import "modals/gotoissue";
 
+@import "mixins";
+
 $sidebar-width: 160px;
 
 // enforce height to tell columns to scroll in this height
@@ -259,6 +261,7 @@ body#repository_issues #main-inner {
 
 // full screen issue: hide the two first columns
 body#repository_issues.big-issue {
+    $stuck-full-width: "100% - #{$scrollbar-width}"; // leave room for the scrollbar)
     #main-inner {
         padding-left: 0;
     }
@@ -271,7 +274,8 @@ body#repository_issues.big-issue {
     #main-issue-container {
         width: 100%;
         .stuck {
-            width: 100% !important;
+            // width: 100%!important;
+            @include calc(width, $stuck-full-width);
         }
     }
 }

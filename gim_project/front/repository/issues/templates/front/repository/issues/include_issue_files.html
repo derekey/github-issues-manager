@@ -1,18 +1,30 @@
 {% load frontutils %}
 {% with files=current_issue.files.all %}
-<div class="content">
+<div class="content pr-files-list-container">
     <nav>
         {% if current_issue.nb_changed_files > 1 %}
             {% with number_str=current_issue.number|slugify %}{% with base='issue-'|add:number_str|add:'-files' %}
                 {% include "front/include_quicksearch.html" with id=base|add:'-search' target='#'|add:base|add:' .pr-file, #'|add:base|add:' .pr-files-list tr' content='.path' title="Fiter on file names" only %}
             {% endwith %}{% endwith %}
         {% endif %}
-        <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file .pr-comments.collapse" title="Open/close all comments on files"><i class="icon-sort"></i> Toggle comments</button>
-        {% if current_issue.nb_changed_files > 1 %}
-            <button class="btn btn-default" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files"><i class="icon-sort"></i> Toggle files</button>
+        {% if current_issue.nb_changed_files > 1 or entry_points_dict|length%}
+            <div class="btn-group">
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"> </i></a>
+                <ul class="dropdown-menu pull-right">
+                    {% if current_issue.nb_changed_files > 1 %}
+                        <li><a data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files" href="#">Toggle files</a></li>
+                    {% endif %}
+                    {% if current_issue.nb_changed_files > 1 and entry_points_dict|length%}
+                        <li class="divider"></li>
+                    {% endif %}
+                    {% if entry_points_dict|length %}
+                        <li><a data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file .pr-comments.collapse" title="Open/close all comments" href="#">Toggle comments</a></li>
+                    {% endif %}
+                 </ul>
+            </div>
         {% endif %}
     </nav>
-    {% if current_issue.nb_changed_files > 1 %}<a href="#" title="Click to toogle the list of files" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files-list">{% endif %}<strong>{{ current_issue.nb_changed_files }} file{{ current_issue.nb_changed_files|pluralize }} changed</strong> with <strong>{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}</strong> and <strong>{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}</strong>{% if current_issue.nb_changed_files > 1 %}</a>{% endif %}
+    {% if current_issue.nb_changed_files > 1 %}<a href="#" title="Click to toogle the list of files" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files-list">{% endif %}<strong>{{ current_issue.nb_changed_files }} file{{ current_issue.nb_changed_files|pluralize }} changed</strong> with <strong>{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}</strong> and <strong>{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}</strong>{% if current_issue.nb_changed_files > 1 %}&nbsp;&nbsp;<i class="icon-sort"></i></a>{% endif %}
     {% if current_issue.nb_changed_files > 1 %}
     <div class="collapse in pr-files-list" id="issue-{{ current_issue.number }}-files-list">
         <table class="table table-condensed">
@@ -35,8 +47,7 @@
 <ul class="unstyled chat-box timeline issue-comments">
 {% for file in files %}
     <li>
-        <div class="box pr-file">
-            <div id="pr-file-{{ file.id }}-target" class="pr-file-target"></div>
+        <div class="box pr-file" id="pr-file-{{ file.id }}-target">
             <div class="box-header" data-toggle="collapse" data-target="#pr-file-{{ file.id }}-content" title="Click to collapse/expand">
                 <ul class="box-toolbar">
                     <li>

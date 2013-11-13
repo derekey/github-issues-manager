@@ -10,7 +10,7 @@ $().ready(function() {
             */
             var decorator = function(e) {
                 if (e.isPropagationStopped()) { return false; }
-                if (callback(e) === false) {
+                if (callback.bind(this)(e) === false) {
                     e.preventDefault();
                     e.stopPropagation();
                     return false;
@@ -777,29 +777,51 @@ $().ready(function() {
                 IssueDetail.set_issue_waypoints($node, is_modal);
             }), // on_issue_loaded
 
+            get_scroll_context: (function IssueDetail__get_scroll_context ($node, is_modal) {
+                if (typeof is_modal === 'undefined') {
+                    is_modal = IssueDetail.is_modal($node);
+                }
+                return is_modal ? $node.parent() : $node;
+            }), // get_scroll_context
+
             set_issue_waypoints: (function IssueDetail__set_issue_waypoints ($node, is_modal) {
                 var issue_number = $node.data('issue-number');
                 setTimeout(function() {
                     if ($node.data('issue-number') != issue_number) { return; }
-                    var context = is_modal ? $node.parent() : $node;
+                    var $context = IssueDetail.get_scroll_context($node, is_modal);
                     $node.find(' > article > .area-top header').waypoint('sticky', {
-                        context: context,
+                        context: $context,
                         stuckClass: 'area-top stuck'
                     });
                     var $tabs = $node.find('.pr-tabs');
                     if ($tabs.length) {
                         $tabs.waypoint('sticky', {
-                            context: context,
+                            context: $context,
                             stuckClass: 'area-top stuck',
-                            offset: 48
+                            offset: 47  // stuck header height
                         })
                     }
                 }, 500);
             }), // set_issue_waypoints
 
+            set_tab_files_issue_waypoints: (function IssueDetail__set_tab_files_issue_waypoints ($node, $context) {
+                var $files_list_container = $node.find('.pr-files-list-container');
+                if ($files_list_container.length) {
+                    if (!$context) {
+                        $context = IssueDetail.get_scroll_context($node);
+                    }
+                    $files_list_container.waypoint('sticky', {
+                        context: $context,
+                        wrapper: '<div class="sticky-wrapper files-list-sticky-wrapper" />',
+                          offset: 90  // 47 for stuck header height + 43 for stuck tabs height
+                    });
+                }
+            }), // set_tab_files_issue_waypoints
+
             unset_issue_waypoints: (function IssueDetail__unset_issue_waypoints ($node) {
                 $node.find(' > article > .area-top header').waypoint('unsticky');
                 $node.find('.pr-tabs').waypoint('unsticky');
+                $node.find('.pr-files-list-container').waypoint('unsticky');
             }), // unset_issue_waypoints
 
             is_modal: (function IssueDetail__is_modal ($node) {
@@ -872,33 +894,77 @@ $().ready(function() {
             select_commits_tab: function(panel) { return IssueDetail.select_tab(panel, 'commits')},
             select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'files')},
 
+            on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $target) {
+                if ($target.data('files-list-loaded')) { return;}
+                $target.data('files-list-loaded', true);
+                IssueDetail.set_tab_files_issue_waypoints($node);
+            }), // on_files_list_loaded
+
+            on_files_list_click: (function IssueDetail__on_files_list_click (ev) {
+                var $link = $(this),
+                    $target = $($link.attr('href')),
+                    $node = $link.closest('.issue'),
+                    is_modal = IssueDetail.is_modal($node),
+                    $context = IssueDetail.get_scroll_context($node, is_modal),
+                    stuck_height = $node.find('.sticky-wrapper')
+                                   .toArray()
+                                   .reduce(function(height, wrapper) {
+                                        var $wrapper = $(wrapper),
+                                            $stickable = $wrapper.children().first();
+                                        return height + ($stickable.hasClass('stuck') ? $stickable : $wrapper).outerHeight();
+                                    }, 0),
+                    position = $target.position().top
+                             + (is_modal ? 0 : $context.scrollTop())
+                             - stuck_height
+                             - 14;  // adjust
+
+                $context.scrollTop(position);
+                return false;
+            }), // on_files_list_click
+
+            on_files_list_toggle: (function IssueDetail__on_files_list_toggle (ev) {
+                var $container = $(this).closest('.pr-files-list-container');
+                if ($container.hasClass('stuck')) {
+                    $container.parent().height($container.outerHeight());
+                }
+            }), // on_files_list_toggle
+
             load_tab: (function IssueDetail__load_tab (ev) {
                 var $tab = $(ev.target),
-                    $target = $($tab.attr('href'));
+                    $target = $($tab.attr('href')),
+                    $node = $tab.closest('.issue');
                 // load content if not already available
                 if ($target.children('.empty-area').length) {
                     $.ajax({
                         url: $target.data('url'),
                         success: function(data) {
                             $target.html(data);
+                            if ($target.hasClass('issue-files')) {
+                                IssueDetail.on_files_list_loaded($node, $target);
+                            }
                         },
                         error: function() {
                             $target.children('.empty-area').html('Loading failed :(');
                         }
                     });
+                } else {
+                    if ($target.hasClass('issue-files')) {
+                        IssueDetail.on_files_list_loaded($node, $target);
+                    }
                 }
                 // if the tabs holder is stuck, we'll scroll in a cool way
-                var $node = $tab.closest('.issue'),
-                    $tabs_holder = $node.find('.pr-tabs'),
-                    $stuck_header, position, $stuck;
+                var $tabs_holder = $node.find('.pr-tabs'),
+                    $stuck_header, position, $stuck,
+                    is_modal = IssueDetail.is_modal($node),
+                    $context = IssueDetail.get_scroll_context($node, is_modal);
                 if ($tabs_holder.hasClass('stuck')) {
                     $stuck_header = $node.find(' > article > .area-top header');
                     position = $node.find('.tab-content').position().top
-                             + $node.scrollTop()
+                             + (is_modal ? 0 : $context.scrollTop())
                              - $stuck_header.height()
                              - $tabs_holder.height()
-                             - 3 // little adjustment
-                    $node.scrollTop(position);
+                             - 3 // adjust
+                    $context.scrollTop(position);
                 }
             }), // load_tab
 
@@ -969,6 +1035,10 @@ $().ready(function() {
                 if (IssueDetail.$main_container.data('issue-number')) {
                     IssueDetail.set_issue_waypoints(IssueDetail.$main_container);
                 }
+
+                // files list summary
+                $document.on('click', '.pr-files-list a', Ev.stop_event_decorate(IssueDetail.on_files_list_click));
+                $document.on('shown hidden', '.pr-files-list', IssueDetail.on_files_list_toggle);
             }) // init
         }; // IssueDetail
         IssueDetail.init();

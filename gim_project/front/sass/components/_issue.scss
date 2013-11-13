@@ -1,16 +1,29 @@
+@import "variables";
 @import "compass/typography/text/ellipsis";
 @import "compass/css3/box-sizing";
 @import "compass/css3/transition";
 @import "mixins";
 
-$stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed width is viewport so we remove the left col size
+$stuck-width: "0.583333 * (100% - 160px) - #{$scrollbar-width}"; // 58.333% is col width, but fixed width is viewport so we remove the left col size (and the scrollbar)
+$header-stuck-height: 47px;
+$tabs-stuck-height: 43px;
+$files-min-stuck-height: 49px;
 
 .issue {
+    .stuck {
+        position: fixed;
+        @include calc(width, $stuck-width);
+        right: $scrollbar-width;
+    }
+
     position: relative;
 
     > article > .area-top {
         @include box-shadow(rgba(black, 0.07) 0 1px 1px -1px );
         header {
+            overflow: auto;
+            padding-top: 2px;
+            padding-bottom: 1px;
             .avatar {
                 @include avatar-small-container;
                 float: left;
@@ -20,17 +33,17 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
                 margin-left: 50px;
             }
             &.stuck {
-                position: fixed;
-                @include calc(width, $stucked-width);
-                right: 0;
                 top: $header-top;
+                max-height: $header-stuck-height;
                 z-index: 100;
+                margin: 0;
                 padding: 2px 5px 0 2px; // override area-top
                 h3 {
                     overflow: hidden;
                     @include ellipsis();
                 }
                 &:hover {
+                    max-height: none;
                     h3 {
                         overflow: visible;
                         white-space: normal;
@@ -116,7 +129,7 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
 
     .pr-infos, .issue-button {
         margin-top: -15px;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         background: $highlight-background-color;
         padding: 15px;
         border-bottom: solid 1px $box-border-color;
@@ -295,7 +308,7 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
 
 .pr-tabs {
     margin-bottom: 0;
-    padding-top: 2px;
+    padding-top: 5px;
     > li {
         margin-left: 10px;
         margin-right: 10px;
@@ -304,13 +317,11 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
         }
     }
     &.stuck {
-        position: fixed;
         background: #f0f0F0;
-        top: 93px;
+        max-height: $tabs-stuck-height;
+        top: $header-top + $header-stuck-height;
         z-index: 99;
         padding: 2px 0; // override area-top
-        width: 0;
-        @include calc(width, $stucked-width);
         > li {
             margin-bottom: 0;
             > a {
@@ -332,17 +343,18 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
     }
 }
 .issue-commits, .issue-files {
-    > .content {
+    > .content, .pr-files-list-container {
         padding: 15px;
         background: white;
         border-bottom: solid 1px $box-border-color;
         @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
         > nav {
+            margin-left: 10px;
             float: right;
             position: relative;
             top: -6px;
-            > button {
-                margin-left: 5px;
+            > .btn-group {
+                margin-left: 6px;
             }
             > div.quicksearch-widget {
                 display: inline-block;
@@ -384,6 +396,7 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
         }
         ul {
             margin-bottom: 0;
+            white-space: nowrap;
         }
     }
     .empty-area {
@@ -394,15 +407,27 @@ $stucked-width: "0.583333 * (100% - 160px)"; // 58.333% is col width, but fixed 
             font-size: inherit;
         }
     }
+}
+
+.issue-files {
     .box.pr-file {
         position: relative;
     }
-    .pr-file-target {
-        width:1px;
-        height:1px;
-        position:absolute;
-        top: -110px;
-        right: -14px;
+        .files-list-sticky-wrapper {
+        @include transition(height 0.35s);
+    }
+    .pr-files-list-container {
+        @include box-sizing(border-box);
+        &.stuck {
+            min-height: $files-min-stuck-height;
+            top: $header-top + $header-stuck-height + $tabs-stuck-height;
+            z-index: 98;
+            padding-bottom: 3px;
+            @include calc(width, $stuck-width);
+            .pr-files-list {
+                margin-bottom: 7px;
+            }
+        }
     }
 }
 
@@ -547,8 +572,8 @@ table.table.table-normal.diff-lines {
         .issue-nav .close {
             margin-left: 10px;
         }
-        > .issue > article > .area-top header.stuck, .pr-tabs.stuck {
-            width: 560px; // width of the modal
+        .stuck, {
+            width: 560px - $scrollbar-width; // width of the modal
             right: auto;
             top: 10%; // top of the modal
         }
@@ -557,7 +582,10 @@ table.table.table-normal.diff-lines {
             @include border-radius(6px 6px 0 0);
         }
         .pr-tabs.stuck {
-            margin-top: 46px;
+            margin-top: $header-stuck-height;
+        }
+        .pr-files-list-container.stuck {
+            margin-top: $header-stuck-height + $tabs-stuck-height;
         }
         .sticky-wrapper > * {
             top: 10%; // to avoid transition from 0 in chrome, should do nothing on static non-stuck item
