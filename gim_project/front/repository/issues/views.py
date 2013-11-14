@@ -39,7 +39,7 @@ class IssuesView(BaseRepositoryView):
     allowed_sort_orders = ['asc', 'desc']
     allowed_group_by_fields = ['state', 'creator', 'assigned', 'closed by', 'milestone', 'pull-request']
     allowed_group_by_fields_matching = {'creator': 'user', 'assigned': 'assignee', 'pull-request': 'is_pull_request', 'closed by': 'closed_by'}
-    default_sort = ('created', 'desc')
+    default_sort = ('updated', 'desc')
 
     def _get_state(self, qs_parts):
         """
