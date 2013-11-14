@@ -1,11 +1,6 @@
 $().ready(function() {
     var $document = $(document);
 
-    var on_popover_stop_propopagation_event = function(ev) {
-        // mandatory to avoid events beeing propagated to the modal containing this popover
-        ev.stopPropagation();
-    };
-
     var escapeMarkup = function (markup) {
         var replace_map = {
             '\\': '&#92;',
@@ -146,7 +141,7 @@ $().ready(function() {
                             .replace('%(color)s', color),
                     content: content
                 }
-            )).on('shown', LabelEditor.on_popover_shown);
+            )).on('shown.tooltip', LabelEditor.on_popover_shown);
             $label.removeAttr('title');
         },
         on_popover_shown: function(ev) {
@@ -325,10 +320,6 @@ $().ready(function() {
         on_test_failed: function() {
             TestButton.update_content_and_show('<div class="alert alert-error">A problem prevented us to do the test</div>');
         },
-        on_popover_stop_propopagation_event: function(ev) {
-            // mandatory to avoid events beeing propagated to the modal containing this popover
-            ev.stopPropagation();
-        },
         on_popover_show: function(ev) {
             if (!TestButton.initialized) {
                 TestButton.initialized = true;
@@ -343,10 +334,7 @@ $().ready(function() {
         },
         init: function() {
             TestButton.$button.popover({html: true})
-                .on('show', TestButton.on_popover_show)
-                .on('shown', on_popover_stop_propopagation_event)
-                .on('hide', on_popover_stop_propopagation_event)
-                .on('hidden', on_popover_stop_propopagation_event);
+                .on('show.tooltip', TestButton.on_popover_show);
         }
     }; // TestButton
     TestButton.init();
@@ -415,8 +403,8 @@ $().ready(function() {
             LabelTypeForm.$modal.modal({
                 backdrop: 'static',
                 show: false
-            }).on('hide', LabelTypeForm.on_modal_hide)
-              .on('hidden', LabelTypeForm.on_modal_hidden);
+            }).on('hide.modal', LabelTypeForm.on_modal_hide)
+              .on('hidden.modal', LabelTypeForm.on_modal_hidden);
         },
         update_modal_body_and_show: function($link, html) {
             LabelTypeForm.$modal_body.html(html);
@@ -511,11 +499,7 @@ $().ready(function() {
             }
         },
         init_deletion: function() {
-            LabelTypeForm.$modal_delete.popover()
-                .on('show', on_popover_stop_propopagation_event)
-                .on('shown', on_popover_stop_propopagation_event)
-                .on('hide', on_popover_stop_propopagation_event)
-                .on('hidden', on_popover_stop_propopagation_event);
+            LabelTypeForm.$modal_delete.popover();
             LabelTypeForm.$modal_footer.on('click', '.cancel-deletion', LabelTypeForm.on_cancel_deletion);
             LabelTypeForm.$modal_footer.on('click', '.confirm-deletion', LabelTypeForm.on_confirm_deletion);
         },

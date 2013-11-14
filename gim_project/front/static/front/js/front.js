@@ -254,10 +254,10 @@ $().ready(function() {
         if (on_shown_callback) {
             var group = this,
                 on_shown = function() {
-                    group.$issues_node.off('shown', on_shown);
+                    group.$issues_node.off('shown.collapse', on_shown);
                     on_shown_callback();
                 };
-            this.$issues_node.on('shown', on_shown);
+            this.$issues_node.on('shown.collapse', on_shown);
         }
         this.$issues_node.collapse('show');
         return false; // stop event propagation
@@ -295,8 +295,8 @@ $().ready(function() {
 
     IssuesListGroup.init_events = (function IssuesListGroup_init_events () {
         $document.on('click', IssuesListGroup.link_selector, IssuesListGroup.on_group_node_event('on_click', true));
-        $document.on('show', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_show'));
-        $document.on('hide', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_hide'));
+        $document.on('show.collapse', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_show'));
+        $document.on('hide.collapse', IssuesListGroup.issues_list_selector, IssuesListGroup.on_group_node_event('on_hide'));
         jwerty.key('o/→', IssuesListGroup.on_current_group_key_event('open', true));
         jwerty.key('c/←', IssuesListGroup.on_current_group_key_event('close', true));
         jwerty.key('t', IssuesListGroup.on_current_group_key_event('toggle'));
@@ -724,8 +724,8 @@ $().ready(function() {
             if (!IssueByNumber.$window.length) { return; }
             $document.on('keypress', Ev.key_decorate(Ev.charcode(35, IssueByNumber.open)));  // 35 = #
             jwerty.key('i', Ev.key_decorate(IssueByNumber.open));
-            IssueByNumber.$window.on('show', IssueByNumber.on_show);
-            IssueByNumber.$window.on('shown', IssueByNumber.on_shown);
+            IssueByNumber.$window.on('show.modal', IssueByNumber.on_show);
+            IssueByNumber.$window.on('shown.modal', IssueByNumber.on_shown);
             IssueByNumber.$form.on('submit', Ev.stop_event_decorate(IssueByNumber.on_submit));
         }) // IssueByNumber_init_events
     }; // IssueByNumber
@@ -742,7 +742,7 @@ $().ready(function() {
         return false; // stop event propagation
     }); // on_resize_issue_click
 
-    $document.on('hidden', '.modal', function () {
+    $document.on('hidden.modal', '.modal', function () {
         $(this).removeClass('full-screen');
     });
 
@@ -1023,12 +1023,12 @@ $().ready(function() {
                 jwerty.key('d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
                 jwerty.key('c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
                 jwerty.key('f', IssueDetail.on_current_panel_key_event('select_files_tab'));
-                $document.on('shown', '.pr-tabs a', IssueDetail.load_tab);
+                $document.on('shown.tab', '.pr-tabs a', IssueDetail.load_tab);
 
                 // modal events
                 if (IssueDetail.$modal.length) {
-                    IssueDetail.$modal.on('shown', IssueDetail.on_modal_shown);
-                    IssueDetail.$modal.on('hidden', IssueDetail.on_modal_hidden);
+                    IssueDetail.$modal.on('shown.modal', IssueDetail.on_modal_shown);
+                    IssueDetail.$modal.on('hidden.modal', IssueDetail.on_modal_hidden);
                 }
 
                 // waypoints for loaded issue
@@ -1038,7 +1038,7 @@ $().ready(function() {
 
                 // files list summary
                 $document.on('click', '.pr-files-list a', Ev.stop_event_decorate(IssueDetail.on_files_list_click));
-                $document.on('shown hidden', '.pr-files-list', IssueDetail.on_files_list_toggle);
+                $document.on('shown.collapse hidden.collapse', '.pr-files-list', IssueDetail.on_files_list_toggle);
             }) // init
         }; // IssueDetail
         IssueDetail.init();
