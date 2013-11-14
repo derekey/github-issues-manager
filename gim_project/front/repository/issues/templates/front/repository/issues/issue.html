@@ -32,7 +32,7 @@
                 {% if current_issue.total_comments_count or current_issue.assignee or current_issue_involved|length > 1  %}
                     <div class="issue-footer-infos">
                         {% if current_issue.total_comments_count %}
-                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-comments-{{ current_issue.number }}">
+                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
                                 <i class="icon-comments-alt"> </i>{{ current_issue.total_comments_count }}
                             </a>
                         {% endif %}
@@ -113,7 +113,7 @@
                 {% if current_issue.body_html %}{{ current_issue.body_html|safe }}{% else %}No description for this issue !{% endif %}
             </div>
             <aside>
-                <ul class="unstyled chat-box timeline issue-comments" id="issue-comments-{{ current_issue.number }}">
+                <ul class="unstyled chat-box timeline issue-activity" id="issue-activity-{{ current_issue.number }}">
                     {% for event in current_issue_activity %}
                         {% if event.event %}{# IssueEvent #}
                             {% if event.event == 'closed' %}

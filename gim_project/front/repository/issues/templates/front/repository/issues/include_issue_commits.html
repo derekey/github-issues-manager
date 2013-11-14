@@ -5,6 +5,6 @@
         <strong>{{ nb_authors }} author{{ nb_authors|pluralize }}</strong>
     {% endwith %}
 </div>
-<ul class="unstyled chat-box timeline issue-comments">
+<ul class="unstyled chat-box timeline issue-activity">
     {% include "front/repository/issues/include_commits_groups.html" with groups=current_issue.get_commits_per_day id_prefix="pr-comm-" %}
 </ul>

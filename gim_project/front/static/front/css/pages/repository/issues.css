@@ -611,112 +611,112 @@ p.state-closed {
 }
 
 /* line 189, ../../../../../sass/components/_issue.scss */
-.issue-comments {
+.issue-activity {
   padding: 15px 15px;
 }
 /* line 191, ../../../../../sass/components/_issue.scss */
-.issue-comments .time {
+.issue-activity .time {
   color: #949494 !important;
   font-weight: normal;
 }
 /* line 195, ../../../../../sass/components/_issue.scss */
-.issue-comments .chat-box-entry {
+.issue-activity .chat-box-entry {
   margin-left: 50px;
 }
 /* line 198, ../../../../../sass/components/_issue.scss */
-.issue-comments .chat-box-entry.event > .info {
+.issue-activity .chat-box-entry.event > .info {
   color: #393939;
 }
 /* line 200, ../../../../../sass/components/_issue.scss */
-.issue-comments .chat-box-entry.event > .info > .label {
+.issue-activity .chat-box-entry.event > .info > .label {
   margin-left: -4px;
   margin-right: 4px;
 }
 /* line 209, ../../../../../sass/components/_issue.scss */
-.issue-comments .chat-box-entry.event.event-referenced-by-issue > .content > span.label, .issue-comments .chat-box-entry.event.event-referenced-by-issuecomment > .content > span.label, .issue-comments .chat-box-entry.event.event-referenced-by-pullrequestcomment > .content > span.label, .issue-comments .chat-box-entry.event.event-referenced-by-milestone > .content > span.label {
+.issue-activity .chat-box-entry.event.event-referenced-by-issue > .content > span.label, .issue-activity .chat-box-entry.event.event-referenced-by-issuecomment > .content > span.label, .issue-activity .chat-box-entry.event.event-referenced-by-pullrequestcomment > .content > span.label, .issue-activity .chat-box-entry.event.event-referenced-by-milestone > .content > span.label {
   float: right;
   margin-top: 1px;
 }
 /* line 217, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-commits-group .box-header > .title, .issue-comments .pr-commits-group .box-header > .box-toolbar > li {
+.issue-activity .pr-commits-group .box-header > .title, .issue-activity .pr-commits-group .box-header > .box-toolbar > li {
   font-size: 13px;
 }
 /* line 220, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-commits-group .box-header > .title {
+.issue-activity .pr-commits-group .box-header > .title {
   font-weight: normal;
 }
 /* line 226, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-entry-point > .box-header .title {
+.issue-activity .pr-entry-point > .box-header .title {
   font-size: 13px;
   font-weight: normal;
 }
 /* line 229, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-entry-point > .box-header .title > span {
+.issue-activity .pr-entry-point > .box-header .title > span {
   display: block;
 }
 /* line 233, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-entry-point > .box-header .box-toolbar {
+.issue-activity .pr-entry-point > .box-header .box-toolbar {
   font-weight: normal;
   color: #949494;
 }
 /* line 237, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-entry-point > .box-header .time {
+.issue-activity .pr-entry-point > .box-header .time {
   margin-left: 5px;
 }
 /* line 241, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-entry-point > .box-content.collapse.in {
+.issue-activity .pr-entry-point > .box-content.collapse.in {
   position: static;
 }
 /* line 246, ../../../../../sass/components/_issue.scss */
-.issue-comments .box-section.pr-comments {
+.issue-activity .box-section.pr-comments {
   padding-top: 5px;
   padding-bottom: 0;
 }
 /* line 252, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-file .box-toolbar {
+.issue-activity .pr-file .box-toolbar {
   margin-top: 8px;
   margin-right: 8px;
 }
 /* line 255, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-file .box-toolbar > li {
+.issue-activity .pr-file .box-toolbar > li {
   line-height: normal;
   padding: 0;
   margin: 0;
   float: none;
 }
 /* line 260, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-file .box-toolbar > li:first-of-type {
+.issue-activity .pr-file .box-toolbar > li:first-of-type {
   margin-bottom: 3px;
 }
 /* line 263, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-file .box-toolbar > li a.btn {
+.issue-activity .pr-file .box-toolbar > li a.btn {
   display: block;
 }
 /* line 268, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-file > .box-content.collapse.in {
+.issue-activity .pr-file > .box-content.collapse.in {
   position: static;
 }
 /* line 271, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-file .title span {
+.issue-activity .pr-file .title span {
   display: block;
   font-weight: normal;
 }
 /* line 275, ../../../../../sass/components/_issue.scss */
-.issue-comments .pr-file .no-diff {
+.issue-activity .pr-file .no-diff {
   color: #bbbbbb;
   background: white;
   padding: 10px;
 }
 /* line 282, ../../../../../sass/components/_issue.scss */
-.issue-comments .comment-commits {
+.issue-activity .comment-commits {
   margin: -5px -10px;
 }
 /* line 286, ../../../../../sass/components/_issue.scss */
-.issue-comments .comment-create-form {
+.issue-activity .comment-create-form {
   margin: 5px 0;
 }
 /* line 288, ../../../../../sass/components/_issue.scss */
-.issue-comments .comment-create-form textarea {
+.issue-activity .comment-create-form textarea {
   width: 100%;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -729,15 +729,15 @@ p.state-closed {
   transition: height 0.5s ease 2s;
 }
 /* line 294, ../../../../../sass/components/_issue.scss */
-.issue-comments .comment-create-form textarea:focus {
+.issue-activity .comment-create-form textarea:focus {
   height: 15em;
 }
 /* line 297, ../../../../../sass/components/_issue.scss */
-.issue-comments .comment-create-form .alert {
+.issue-activity .comment-create-form .alert {
   margin-bottom: 10px;
 }
 /* line 302, ../../../../../sass/components/_issue.scss */
-.issue-comments .comment-create-placeholder {
+.issue-activity .comment-create-placeholder {
   margin-left: 50px;
   margin-bottom: 15px;
 }
