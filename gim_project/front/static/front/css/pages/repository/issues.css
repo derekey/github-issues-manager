@@ -1045,7 +1045,7 @@ table.table.table-normal.diff-lines tr:not(.diff-comments) td.code {
 /* line 544, ../../../../../sass/components/_issue.scss */
 table.table.table-normal.diff-lines tr:not(.diff-comments) td.code span {
   position: absolute;
-  left: 0;
+  left: -15px;
   padding: 1px;
   cursor: pointer;
   display: none;
