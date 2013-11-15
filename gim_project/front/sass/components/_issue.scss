@@ -388,8 +388,16 @@ $files-min-stuck-height: 49px;
                 color: #7fb3d4;
             }
         }
+        td:nth-child(2) i {
+            color: white;
+        }
         td:last-of-type {
             text-align: right;
+        }
+        tr.active {
+            td:nth-child(2) i {
+                color: inherit;
+            }
         }
         tr:last-of-type td {
             border-bottom: 1px solid #DDD;
@@ -553,6 +561,17 @@ table.table.table-normal.diff-lines {
             }
         }
     } // tr
+}
+
+.files-navigator {
+    width: 20em;
+    li a {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+    li.horizontal-4.disabled {
+        text-align: right;
+    }
 }
 
 .code-diff {

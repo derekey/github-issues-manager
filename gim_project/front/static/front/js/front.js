@@ -903,8 +903,14 @@ $().ready(function() {
             on_files_list_click: (function IssueDetail__on_files_list_click (ev) {
                 var $link = $(this),
                     $target = $($link.attr('href')),
-                    $node = $link.closest('.issue'),
-                    is_modal = IssueDetail.is_modal($node),
+                    $node = $link.closest('.issue');
+                IssueDetail.scroll_in_files_list($node, $target.position().top);
+                IssueDetail.set_active_file($node, $link.closest('tr').data('pos'), true);
+                return false;
+            }), // on_files_list_click
+
+            scroll_in_files_list: (function IssueDetail__scroll_in_files_list ($node, position, delta) {
+                var is_modal = IssueDetail.is_modal($node),
                     $context = IssueDetail.get_scroll_context($node, is_modal),
                     stuck_height = $node.find('.sticky-wrapper')
                                    .toArray()
@@ -912,15 +918,13 @@ $().ready(function() {
                                         var $wrapper = $(wrapper),
                                             $stickable = $wrapper.children().first();
                                         return height + ($stickable.hasClass('stuck') ? $stickable : $wrapper).outerHeight();
-                                    }, 0),
-                    position = $target.position().top
-                             + (is_modal ? 0 : $context.scrollTop())
-                             - stuck_height
-                             - 14;  // adjust
+                                    }, 0);
+                    position += (is_modal ? 0 : $context.scrollTop())
+                              - stuck_height
+                              - 14 - (delta || 0);  // adjust
 
                 $context.scrollTop(position);
-                return false;
-            }), // on_files_list_click
+            }), // scroll_in_files_list
 
             on_files_list_toggle: (function IssueDetail__on_files_list_toggle (ev) {
                 var $container = $(this).closest('.pr-files-list-container');
@@ -928,6 +932,133 @@ $().ready(function() {
                     $container.parent().height($container.outerHeight());
                 }
             }), // on_files_list_toggle
+
+            on_file_mouseenter: (function IssueDetail__on_file_mouseenter (ev) {
+                var $file_node = $(this),
+                    $node = $file_node.closest('.issue');
+                IssueDetail.set_active_file($node, $file_node.data('pos'), false);
+            }), // on_file_mouseenter
+
+            go_to_previous_file: (function IssueDetail__go_to_previous_file () {
+                var $node = $(this).closest('.issue'),
+                    $files_list = $node.find('.pr-files-list'),
+                    $current_line = $files_list.find('tr.active'),
+                    $line = $current_line.prevAll('tr:not(.hidden)').first();
+                if ($line.length) {
+                    $line.find('a').click();
+                }
+                return false;
+            }), // go_to_previous_file
+
+            go_to_next_file: (function IssueDetail__go_to_next_file () {
+                var $node = $(this).closest('.issue'),
+                    $files_list = $node.find('.pr-files-list'),
+                    $current_line = $files_list.find('tr.active'),
+                    $line = $current_line.nextAll('tr:not(.hidden)').first();
+                if ($line.length) {
+                    $line.find('a').click();
+                }
+                return false;
+            }), // go_to_next_file
+
+            on_files_filter_done: (function IssueDetail__on_files_filter_done () {
+                var $node = $(this).closest('.issue'),
+                    $files_list = $node.find('.pr-files-list'),
+                    $first_link = $files_list.find('tr:not(.hidden) a').first();
+                if (($first_link).length) {
+                    $first_link.click();
+                }
+            }), // on_files_filter_done
+
+            set_active_file: (function IssueDetail__set_active_file ($node, pos, reset_active_comment) {
+                var $files_list = $node.find('.pr-files-list'),
+                    $line;
+                if (!$files_list.length) { return; }
+                $line = $files_list.find('tr:nth-child('+ pos +')');
+                $files_list.find('tr.active').removeClass('active');
+                $line.addClass('active');
+                $node.find('.go-to-previous-file').parent().toggleClass('disabled', $line.prevAll('tr:not(.hidden)').length === 0);
+                $node.find('.go-to-next-file').parent().toggleClass('disabled', $line.nextAll('tr:not(.hidden)').length === 0);
+                if (reset_active_comment) {
+                    $files_list.closest('.pr-files-list-container').data('active-comment', null);
+                    $node.find('.go-to-previous-file-comment, .go-to-next-file-comment').parent().removeClass('disabled');
+                }
+            }), // set_active_file
+
+            visible_files_comments: (function IssueDetail__visible_files_comments ($node) {
+                var $files_list = $node.find('.pr-files-list');
+                if ($files_list.length) {
+                    return $files_list.find('tr:not(.hidden) a')
+                                .toArray()
+                                .reduce(function(groups, file_link) {
+                                    return groups.concat($(
+                                        $(file_link).attr('href')
+                                    ).find('.pr-comments').toArray());
+                                }, []);
+                } else {
+                    return $node.find('.issue-files .pr-comments').toArray();
+                }
+            }), // visible_files_comments
+
+            go_to_previous_file_comment: (function IssueDetail__go_to_previous_file_comment () {
+                var $node = $(this).closest('.issue');
+                IssueDetail.go_to_file_comment($node, 'previous');
+                return false;
+            }), // go_to_previous_file_comment
+
+            go_to_next_file_comment: (function IssueDetail__go_to_next_file_comment () {
+                var $node = $(this).closest('.issue');
+                IssueDetail.go_to_file_comment($node, 'next');
+                return false;
+            }), // go_to_next_file_comment
+
+            go_to_file_comment: (function IssueDetail__go_to_file_comment ($node, direction) {
+                var $files_list_container = $node.find('.pr-files-list-container'),
+                    $files_list = $node.find('.pr-files-list'),
+                    comments = IssueDetail.visible_files_comments($node),
+                    current = $files_list_container.data('active-comment'),
+                    comment, $comment, $file_node, position, file_pos;
+
+                if (current) {
+                    // we are on a comment, use it as a base
+                    index = comments.indexOf(current) + (direction === 'previous' ? -1 : +1);
+                } else {
+                    if ($files_list.length) {
+                        // we have a list of files, get index based on position
+                        $file_node = $($files_list.find('tr.active a').attr('href'));
+                        file_pos = $file_node.data('pos');
+                        index = -1;
+                        for (var i = 0; i < comments.length; i++) {
+                            if ($(comments[i]).closest('.pr-file').data('pos') >= file_pos) {
+                                // we are at the first comment for/after the file:
+                                //  - if we wanted the next, we got it
+                                //  - if we wanted the previous, return it if we previously has one, else go 0
+                                index = direction == 'next' ? i : (index >= 0 ? index : 0);
+                                break;
+                            } else if (direction == 'previous') {
+                                // we are before the file, mark the one found as the last one
+                                // and continue: the last one will be used when the loop end
+                                // or if we pass the current file
+                                index = i;
+                            }
+                        }
+                    } else {
+                        // we have only one file, go to the first comment
+                        index = 0;
+                    }
+                }
+                if (!((index || index === 0) && index >= 0 && index < comments.length)) {
+                    index = 0;
+                }
+                comment = comments[index];
+                $comment = $(comment);
+                $file_node = $comment.closest('.pr-file');
+                $files_list_container.data('active-comment', comment);
+                IssueDetail.set_active_file($node, $file_node.data('pos'), false);
+                IssueDetail.scroll_in_files_list($node, $file_node.position().top + $comment.position().top, 30);
+                $node.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
+                $node.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
+            }), // go_to_file_comment
 
             load_tab: (function IssueDetail__load_tab (ev) {
                 var $tab = $(ev.target),
@@ -1039,6 +1170,12 @@ $().ready(function() {
                 // files list summary
                 $document.on('click', '.pr-files-list a', Ev.stop_event_decorate(IssueDetail.on_files_list_click));
                 $document.on('shown.collapse hidden.collapse', '.pr-files-list', IssueDetail.on_files_list_toggle);
+                $document.on('mouseenter', '.pr-file', IssueDetail.on_file_mouseenter);
+                $document.on('click', 'li:not(.disabled) a.go-to-previous-file', Ev.stop_event_decorate(IssueDetail.go_to_previous_file));
+                $document.on('click', 'li:not(.disabled) a.go-to-next-file', Ev.stop_event_decorate(IssueDetail.go_to_next_file));
+                $document.on('quicksearch.after', '.files-filter input.quicksearch', IssueDetail.on_files_filter_done);
+                $document.on('click', 'li:not(.disabled) a.go-to-previous-file-comment', Ev.stop_event_decorate(IssueDetail.go_to_previous_file_comment));
+                $document.on('click', 'li:not(.disabled) a.go-to-next-file-comment', Ev.stop_event_decorate(IssueDetail.go_to_next_file_comment));
             }) // init
         }; // IssueDetail
         IssueDetail.init();
