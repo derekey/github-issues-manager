@@ -886,7 +886,7 @@ $().ready(function() {
             }), // set_container_loading
 
             select_tab: (function IssueDetail__select_tab (panel, type) {
-                var $tab_link = panel.$node.find('#pr-' + type + '-tab');
+                var $tab_link = panel.$node.find('.pr-' + type + '-tab > a');
                 if ($tab_link.length) { $tab_link.focus().click(); }
                 return false;
             }), // select_tab
@@ -962,8 +962,9 @@ $().ready(function() {
             }), // go_to_next_file
 
             on_files_filter_done: (function IssueDetail__on_files_filter_done () {
-                var $node = $(this).closest('.issue'),
-                    $files_list = $node.find('.pr-files-list'),
+                var $node = $(this).closest('.issue');
+                if (!$node.find('.pr-files-tab.active').length) { return; }
+                var $files_list = $node.find('.pr-files-list'),
                     $first_link = $files_list.find('tr:not(.hidden) a').first();
                 if (($first_link).length) {
                     $first_link.click();
