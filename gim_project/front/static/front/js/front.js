@@ -1056,7 +1056,7 @@ $().ready(function() {
                 $file_node = $comment.closest('.pr-file');
                 $files_list_container.data('active-comment', comment);
                 IssueDetail.set_active_file($node, $file_node.data('pos'), false);
-                IssueDetail.scroll_in_files_list($node, $file_node.position().top + $comment.position().top, 30);
+                IssueDetail.scroll_in_files_list($node, $comment.position().top, 30);
                 $node.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
                 $node.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
             }), // go_to_file_comment
