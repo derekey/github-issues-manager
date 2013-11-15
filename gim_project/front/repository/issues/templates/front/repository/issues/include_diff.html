@@ -13,7 +13,7 @@
 </div>
 {% include "front/repository/issues/include_pr_comments.html" with pr_comments=entry_point.comments.all classes="collapse in" %}
 <div class="box-section code-diff">
-    <table class="table table-normal diff-lines">
+    <table class="table table-normal diff-lines" data-path="{{ path }}" data-sha="{{ sha }}">
             {% endwith %}
         {% endif %}
     {% endfor %}
