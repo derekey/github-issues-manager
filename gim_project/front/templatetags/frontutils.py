@@ -215,6 +215,9 @@ def parse_diff(diff, reduce=False):
     results = []
     position = 0
 
+    if reduce:
+        parts = parts[-1:]
+
     # parse each hunk
     for part in parts:
         diff = whatthepatch.parse_patch(part).next()  # only one file = only one diff
