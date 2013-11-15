@@ -418,10 +418,7 @@ $files-min-stuck-height: 49px;
 }
 
 .issue-files {
-    .box.pr-file {
-        position: relative;
-    }
-        .files-list-sticky-wrapper {
+    .files-list-sticky-wrapper {
         @include transition(height 0.35s);
     }
     .pr-files-list-container {
@@ -543,7 +540,7 @@ table.table.table-normal.diff-lines {
             &.code {
                 span {
                     position: absolute;
-                    left: -15px;
+                    left: 0;
                     padding: 1px;
                     cursor: pointer;
                     display: none;
