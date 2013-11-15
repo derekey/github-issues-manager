@@ -366,11 +366,11 @@ $files-min-stuck-height: 49px;
     }
     .pr-files-list {
         clear: both;
-        display: none;
-        margin-bottom: -5px;
+        margin-bottom: -12px;
+        @include transition(height 0.01s ease);
         &.in {
             margin-top: 15px;
-            display: block;
+            margin-bottom: -5px;
         }
         table {
             margin-bottom: 0;
@@ -418,11 +418,10 @@ $files-min-stuck-height: 49px;
 }
 
 .issue-files {
-    .files-list-sticky-wrapper {
-        @include transition(height 0.35s);
-    }
     .pr-files-list-container {
         @include box-sizing(border-box);
+        .pr-files-list {
+        }
         &.stuck {
             min-height: $files-min-stuck-height;
             top: $header-top + $header-stuck-height + $tabs-stuck-height;
@@ -430,7 +429,10 @@ $files-min-stuck-height: 49px;
             padding-bottom: 3px;
             @include calc(width, $stuck-width);
             .pr-files-list {
-                margin-bottom: 7px;
+                margin-bottom: 0;
+                &.in {
+                    margin-bottom: 7px;
+                }
             }
         }
     }
