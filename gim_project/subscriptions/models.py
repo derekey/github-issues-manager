@@ -1,8 +1,11 @@
+from random import choice
+
 from django.db import models
 
 from extended_choices import Choices
 
 from core.models import GithubUser, Repository
+from core.utils import contribute_to_model
 
 
 WAITING_SUBSCRIPTION_STATES = Choices(
@@ -94,3 +97,23 @@ class Subscription(models.Model):
         return u'%s for %s (%s)' % (self.repository.name,
                                     self.user.username,
                                     self.get_state_display())
+
+
+class _Repository(models.Model):
+    class Meta:
+        abstract = True
+
+    def get_gh(self, rights=SUBSCRIPTION_STATES.READ_RIGHTS):
+        """
+        Return a github connection for a user able to do stuff on the current
+        repository. Default rights to test are SUBSCRIPTION_STATES.READ_RIGHTS,
+        but it can be SUBSCRIPTION_STATES.WRITE_RIGHTS or, for admin rights
+        only, [SUBSCRIPTION_STATES.ADMIN]
+        """
+        subscriptions = list(self.subscriptions.filter(state__in=rights))
+        if not subscriptions:
+            return None
+        subscription = choice(subscriptions)
+        return subscription.user.get_connection()
+
+contribute_to_model(_Repository, Repository)

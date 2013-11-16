@@ -7,6 +7,43 @@ from core.models import Issue
 from core.ghpool import ApiError
 
 from . import DjangoModelJob
+from .repository import RepositoryJob
+
+
+class FetchIssueByNumber(RepositoryJob):
+    """
+    Fetch the whole issue for a repository, given only the issue's number
+    """
+    queue_name = 'fetch-issue-by-number'
+
+    number = fields.InstanceHashField()
+
+    def run(self, queue):
+        """
+        Fetch the issue with the given number for the current repository
+        """
+        super(FetchIssueByNumber, self).run(queue)
+
+        repository = self.object
+        number = self.number.hget()
+
+        try:
+            gh = self.gh
+        except Exception:
+            gh = repository.get_gh()
+
+        try:
+            issue = repository.issues.get(number=number)
+        except Issue.DoesNotExist:
+            issue = Issue(repository=repository, number=number)
+
+        issue.fetch_all(gh)
+
+    def success_message_addon(self, queue, result):
+        """
+        Display the issue number
+        """
+        return ' [#%s]' % self.number.hget
 
 
 class IssueJob(DjangoModelJob):

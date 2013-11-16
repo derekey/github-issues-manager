@@ -617,8 +617,11 @@ class IssueManager(WithRepositoryManager):
                 if dikt.get(field):
                     data['%s_%s' % (boundary, field)] = dikt[field]
 
-        is_pull_request = bool(data.get('diff_url', False))\
-                       or bool(data.get('pull_request', {}).get('diff_url', False))
+        try:
+            is_pull_request = defaults['simple']['is_pull_request']
+        except KeyError:
+            is_pull_request = bool(data.get('diff_url', False))\
+                   or bool(data.get('pull_request', {}).get('diff_url', False))
 
         fields = super(IssueManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)
