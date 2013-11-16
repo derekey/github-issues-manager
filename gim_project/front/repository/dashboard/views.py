@@ -2,8 +2,6 @@
 from itertools import groupby
 from operator import attrgetter, itemgetter
 
-from markdown import markdown
-
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DeleteView
@@ -73,9 +71,6 @@ class MilestonesPart(RepositoryDashboardPartView):
         milestones = list(reversed(queryset))
 
         for milestone in milestones:
-            if milestone.description:
-                # no way to get the html version from github :(
-                milestone.description = markdown(milestone.description)
 
             issues = milestone.issues.ready()
 

@@ -16,7 +16,7 @@
         <span class="label label-{% if related_issue.state == 'closed' %}red{% else %}green{% endif %}">{{ related_issue.state }}</span>
         <a href="{{ comment.github_url }}" target='_blank'>#{{ related_issue.number }} - <strong>{{ related_issue.title }}</strong></a>
         <blockquote>
-            {{ related_comment.body_html|safe }}
+            {{ related_comment.html_content|safe }}
         </blockquote>
     {% endwith %}
 {% endblock%}

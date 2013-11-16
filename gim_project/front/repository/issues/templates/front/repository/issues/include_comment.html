@@ -15,5 +15,5 @@
 {% endblock comment_info %}
 
 {% block comment_inner_body %}
-    {{ comment.body_html|safe|default:comment.body }}
+    {{ comment.html_content|safe }}
 {% endblock comment_inner_body %}

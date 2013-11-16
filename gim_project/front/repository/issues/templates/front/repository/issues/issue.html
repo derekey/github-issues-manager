@@ -109,8 +109,8 @@
             <div class="tab-content">
                 <div class="tab-pane active issue-discussion" id="issue-{{ current_issue.number }}-discussion">
         {% endif %}
-            <div class="content issue-body{% if not current_issue.body_html %} empty{% endif %}" >
-                {% if current_issue.body_html %}{{ current_issue.body_html|safe }}{% else %}No description for this issue !{% endif %}
+            <div class="content issue-body{% if not current_issue.body %} empty{% endif %}" >
+                {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this issue !{% endif %}
             </div>
             <aside>
                 <ul class="unstyled chat-box timeline issue-activity" id="issue-activity-{{ current_issue.number }}">

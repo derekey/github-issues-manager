@@ -85,7 +85,6 @@ class BaseCommentCreateForm(LinkedToUserForm, LinkedToIssueForm):
 
     def save(self, commit=True):
         self.instance.created_at = self.instance.updated_at = datetime.utcnow()
-        self.instance.body_html = markdown(self.instance.body)
         return super(BaseCommentCreateForm, self).save(commit)
 
 

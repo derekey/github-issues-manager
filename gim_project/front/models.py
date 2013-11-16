@@ -7,12 +7,21 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template import loader, Context
 
+from markdown import markdown
+
 from limpyd import model as lmodel, fields as lfields
 
 from core import models as core_models, main_limpyd_database
 from core.utils import contribute_to_model
 
 from subscriptions import models as subscriptions_models
+
+
+def html_content(self, body_field='body'):
+    html = getattr(self, '%s_html' % body_field, None)
+    if html is None:
+        html = markdown(getattr(self, body_field))
+    return html
 
 
 class _GithubUser(models.Model):
@@ -173,6 +182,10 @@ class _Milestone(models.Model):
         """
         return core_models.Issue.objects.filter(milestone=self)
 
+    @property
+    def html_content(self):
+        return html_content(self, 'description')
+
 contribute_to_model(_Milestone, core_models.Milestone)
 
 
@@ -325,6 +338,10 @@ class _Issue(models.Model):
             return []
         return GroupedCommits.group_commits_by_day(self.all_commits)
 
+    @property
+    def html_content(self):
+        return html_content(self)
+
 contribute_to_model(_Issue, core_models.Issue)
 
 
@@ -423,6 +440,28 @@ class _WaitingSubscription(models.Model):
         return self.state == subscriptions_models.WAITING_SUBSCRIPTION_STATES.FAILED
 
 contribute_to_model(_WaitingSubscription, subscriptions_models.WaitingSubscription)
+
+
+class _IssueComment(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def html_content(self):
+        return html_content(self)
+
+contribute_to_model(_IssueComment, core_models.IssueComment)
+
+
+class _PullRequestComment(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def html_content(self):
+        return html_content(self)
+
+contribute_to_model(_PullRequestComment, core_models.PullRequestComment)
 
 
 class Hash(lmodel.RedisModel):
