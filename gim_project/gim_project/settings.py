@@ -94,15 +94,14 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'bac===uh%p&y^o1$!buz@#ki+-a1@5&u$0y%q5-$_s#z@@l+dx'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    # ('django.template.loaders.cached.Loader', (
+    ('django.template.loaders.cached.Loader', (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
-    # )),
+    )),
 )
 
 MIDDLEWARE_CLASSES = (
@@ -115,7 +114,6 @@ MIDDLEWARE_CLASSES = (
     'async_messages.middleware.AsyncMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'gim_project.urls'
@@ -155,8 +153,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'debug_toolbar',
-    'template_timings_panel',
 
     'south',
 
@@ -188,7 +184,7 @@ DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.headers.HeaderDebugPanel',
     'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
     'debug_toolbar.panels.template.TemplateDebugPanel',
-    # 'template_timings_panel.panels.TemplateTimings.TemplateTimings',
+    'template_timings_panel.panels.TemplateTimings.TemplateTimings',
     'debug_toolbar.panels.sql.SQLDebugPanel',
     'debug_toolbar.panels.signals.SignalDebugPanel',
     'debug_toolbar.panels.logger.LoggingPanel',
@@ -197,26 +193,6 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "redis_cache.cache.RedisCache",
-        "LOCATION": "127.0.0.1:6379:1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
-            "PARSER_CLASS": "redis.connection.HiredisParser",
-            "PICKLE_VERSION": 2,
-        }
-    },
-    "issues_tag": {
-        "BACKEND": "redis_cache.cache.RedisCache",
-        "LOCATION": "127.0.0.1:6379:2",
-        "OPTIONS": {
-            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
-            "PARSER_CLASS": "redis.connection.HiredisParser",
-            "PICKLE_VERSION": 2,
-        }
-    },
-}
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
@@ -257,22 +233,82 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_URL = reverse_lazy('front:auth:login')
 
-# define settings below in local_settings.py
-GITHUB_CLIENT_ID = None
-GITHUB_CLIENT_SECRET = None
 GITHUB_SCOPE = 'repo'
-
-LIMPYD_DB_CONFIG = {
-    'host': 'localhost',
-    'port': 6379,
-    'db': 0
-}
-
-WORKERS_REDIS_CONFIG = LIMPYD_DB_CONFIG
 
 WORKERS_LOGGER_CONFIG = {
     'handler': logging.StreamHandler(),
     'level': logging.INFO
 }
 
-from local_settings import *
+try:
+    from .local_conf import conf
+except ImportError:
+    conf = {}
+
+# define settings below in local_conf.py, in a "conf" dictionnary
+# SECRET_KEY, GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET **MUST** be defined
+
+SECRET_KEY = conf['SECRET_KEY']
+
+
+GITHUB_CLIENT_ID = conf['GITHUB_CLIENT_ID']
+GITHUB_CLIENT_SECRET = conf['GITHUB_CLIENT_SECRET']
+
+DATABASES = {  # default to a sqlite db "gim.db"
+    'default': {
+        'ENGINE': conf.get('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': conf.get('DB_NAME', os.path.normpath(os.path.join(DJANGO_ROOT, '..', 'gim.db'))),
+        'USER': conf.get('DB_USER', ''),
+        'PASSWORD': conf.get('DB_PASSWORD', ''),
+        'HOST': conf.get('DB_HOST', ''),
+        'PORT': conf.get('DB_PORT', ''),
+    }
+}
+
+LIMPYD_DB_CONFIG = {
+    'host': conf.get('LIMPYD_DB_HOST', 'localhost'),
+    'port': conf.get('LIMPYD_DB_PORT', 6379),
+    'db': conf.get('LIMPYD_DB_HOST', 0),
+}
+
+WORKERS_REDIS_CONFIG = LIMPYD_DB_CONFIG
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.cache.RedisCache',
+        'LOCATION': '%s:%d:%d' % (
+                conf.get('CACHE_DEFAULT_HOST', 'localhost'),
+                conf.get('CACHE_DEFAULT_PORT', 6379),
+                conf.get('CACHE_DEFAULT_DB', 2),
+            ),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'redis_cache.client.DefaultClient',
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'PICKLE_VERSION': 2,
+        }
+    },
+    'issues_tag': {
+        'BACKEND': 'redis_cache.cache.RedisCache',
+        'LOCATION': '%s:%d:%d' % (
+                conf.get('CACHE_ISSUES_TAG_HOST', 'localhost'),
+                conf.get('CACHE_ISSUES_TAG_PORT', 6379),
+                conf.get('CACHE_ISSUES_TAG_DB', 2),
+            ),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'redis_cache.client.DefaultClient',
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'PICKLE_VERSION': 2,
+        }
+    },
+}
+
+DEBUG_TOOLBAR = False
+try:
+    from local_settings import *
+except ImportError:
+    pass
+else:
+    if DEBUG_TOOLBAR:
+        INSTALLED_APPS += ('debug_toolbar', 'template_timings_panel', )
+        MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
