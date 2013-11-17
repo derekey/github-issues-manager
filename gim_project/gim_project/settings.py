@@ -241,7 +241,7 @@ WORKERS_LOGGER_CONFIG = {
 }
 
 try:
-    from .local_conf import conf
+    from local_conf import conf
 except ImportError:
     conf = {}
 
@@ -250,6 +250,10 @@ except ImportError:
 
 SECRET_KEY = conf['SECRET_KEY']
 
+DEBUG = conf.get('DEBUG', True)
+TEMPLATE_DEBUG = DEBUG
+
+ALLOWED_HOSTS = conf.get('ALLOWED_HOSTS', [])
 
 GITHUB_CLIENT_ID = conf['GITHUB_CLIENT_ID']
 GITHUB_CLIENT_SECRET = conf['GITHUB_CLIENT_SECRET']

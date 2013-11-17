@@ -1,6 +1,9 @@
 conf = {
     'SECRET_KEY': 'GENERATE IT',
 
+    'DEBUG': True,
+    'ALLOWED_HOSTS': [],
+
     'GITHUB_CLIENT_ID': "FILL IT FROM GITHUB",
     'GITHUB_CLIENT_SECRET': "FILL IT FROM GITHUB",
 

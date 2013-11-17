@@ -3,7 +3,6 @@
 *.pyc
 local_settings.py
 local_conf.py
-local_conf.py.prod
 /bin/
 /include/
 /lib/
