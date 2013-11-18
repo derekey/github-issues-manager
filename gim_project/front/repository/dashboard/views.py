@@ -150,17 +150,6 @@ class LabelsPart(RepositoryDashboardPartView):
     template_name = 'front/repository/dashboard/include_labels.html'
     url_name = 'dashboard.labels'
 
-    issues_count_subquery = """
-        SELECT COUNT(*)
-            FROM core_issue
-                INNER JOIN core_issue_labels
-                    ON core_issue.id = core_issue_labels.issue_id
-            WHERE
-                core_issue_labels.label_id = core_label.id
-                AND
-                state = 'open'
-    """
-
     def group_labels(self, labels):
 
         groups = [
@@ -181,15 +170,11 @@ class LabelsPart(RepositoryDashboardPartView):
         return groups
 
     def get_labels_groups(self):
-        extra = {
-            'select': {'issues_count': self.issues_count_subquery},
-        }
+        labels_with_count = self.repository.labels.ready().annotate(
+                                            issues_count=Count('issues'))
 
         if not self.request.GET.get('show-empty-labels', False):
-            extra['where'] = ['issues_count > 0']
-
-        labels_with_count = self.repository.labels.ready().extra(
-                                        **extra).select_related('label_type')
+            labels_with_count = labels_with_count.filter(issues_count__gt=0)
 
         return self.group_labels(labels_with_count)
 
