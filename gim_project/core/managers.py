@@ -312,8 +312,6 @@ class GithubObjectManager(models.Manager):
 
         # finally save lists now that we have an object
         for field, values in fields['many'].iteritems():
-            if not hasattr(obj, '%s_id' % field):
-                continue
             obj.update_related_field(field, [o.id for o in values])
 
         # save object in the cache

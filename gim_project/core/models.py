@@ -1232,7 +1232,7 @@ class WithRepositoryMixin(object):
             if not defaults:
                 defaults = {}
             defaults.setdefault('fk', {})['repository'] = self.repository
-            defaults.setdefault('related', {}).setdefault('*', {})['repository'] = self.repository
+            defaults.setdefault('related', {}).setdefault('*', {}).setdefault('fk', {})['repository'] = self.repository
 
         return super(WithRepositoryMixin, self).fetch(gh, defaults,
                                                force_fetch=force_fetch,
@@ -1644,8 +1644,10 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
                                         'repository': self.repository
                                     },
                                     'related': {'*': {
-                                        'issue': self,
-                                        'repository': self.repository
+                                        'fk': {
+                                            'issue': self,
+                                            'repository': self.repository
+                                        }
                                     }}
                                 },
                                 parameters=parameters,
@@ -1671,8 +1673,10 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
                                         'repository': self.repository
                                     },
                                     'related': {'*': {
-                                        'issue': self,
-                                        'repository': self.repository
+                                        'fk': {
+                                            'issue': self,
+                                            'repository': self.repository
+                                        }
                                     }}
                                 },
                                 parameters=final_parameters,
@@ -1697,8 +1701,10 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
                                         'repository': self.repository
                                     },
                                     'related': {'*': {
-                                        'issue': self,
-                                        'repository': self.repository
+                                        'fk': {
+                                            'issue': self,
+                                            'repository': self.repository
+                                        }
                                     }}
                                 },
                                 parameters=final_parameters,
@@ -1753,8 +1759,10 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
                                         'repository': self.repository
                                     },
                                     'related': {'*': {
-                                        'issue': self,
-                                        'repository': self.repository
+                                        'fk': {
+                                            'issue': self,
+                                            'repository': self.repository
+                                        }
                                     }}
                                 },
                                 parameters=parameters,
@@ -1825,7 +1833,7 @@ class WithIssueMixin(WithRepositoryMixin):
             if not defaults:
                 defaults = {}
             defaults.setdefault('fk', {})['issue'] = self.issue
-            defaults.setdefault('related', {}).setdefault('*', {})['issue'] = self.issue
+            defaults.setdefault('related', {}).setdefault('*', {}).setdefaults('fk', {})['issue'] = self.issue
 
         return super(WithIssueMixin, self).fetch(gh, defaults,
                                                force_fetch=force_fetch,
