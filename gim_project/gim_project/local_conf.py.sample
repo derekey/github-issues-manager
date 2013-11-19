@@ -6,6 +6,7 @@ conf = {
 
     'GITHUB_CLIENT_ID': "FILL IT FROM GITHUB",
     'GITHUB_CLIENT_SECRET': "FILL IT FROM GITHUB",
+    'GITHUB_HOOK_URL': "http://my.doma.in/hooks/github/web/",
 
     # 'DB_ENGINE': '',
     # 'DB_NAME': '',

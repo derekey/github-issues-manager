@@ -258,6 +258,8 @@ ALLOWED_HOSTS = conf.get('ALLOWED_HOSTS', [])
 GITHUB_CLIENT_ID = conf['GITHUB_CLIENT_ID']
 GITHUB_CLIENT_SECRET = conf['GITHUB_CLIENT_SECRET']
 
+GITHUB_HOOK_URL = conf.get('GITHUB_HOOK_URL', None)
+
 DATABASES = {  # default to a sqlite db "gim.db"
     'default': {
         'ENGINE': conf.get('DB_ENGINE', 'django.db.backends.sqlite3'),

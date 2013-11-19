@@ -11,42 +11,6 @@ from core.tasks.issue import FetchIssueByNumber
 from . import EVENTS
 
 
-def set_hook(gh, repository, url):
-    """
-    Try to create or update our Web hook on Github for the given repository,
-    hosted on the given url
-    """
-    identifiers = repository.github_callable_identifiers + ['hooks']
-
-    # start by trying to fetch it
-    hooks = Repository.objects.get_data_from_github(gh=gh, identifiers=identifiers)
-
-    try:
-        hook_id = [h for h in hooks if h['name'] == 'web' and h['config']['url'] == url][0]['id']
-    except Exception:
-        # our hook doesn't exist, we'll create it
-        method = 'post'
-    else:
-        # our hook exists, we'll update it
-        identifiers += [hook_id]
-        method = 'patch'
-
-    # defining our hook
-    data = {
-        'name': 'web',
-        'active': True,
-        'events': EVENTS,
-        'config': {
-            'url': url,
-            'content_type': 'form'
-        }
-    }
-
-    # talking to github, returning the new hook
-    gh_callable = Repository.objects.get_github_callable(gh, identifiers)
-    return getattr(gh_callable, method)(**data)
-
-
 class GithubWebHook(View):
     http_method_names = [u'post', u'head', ]
 
