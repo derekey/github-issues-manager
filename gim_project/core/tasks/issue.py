@@ -3,20 +3,17 @@ import time
 from limpyd import fields
 from async_messages import messages
 
-from core.models import Issue
+from core.models import Issue, Repository
 from core.ghpool import ApiError
 
-from . import DjangoModelJob
-from .repository import RepositoryJob
+from . import DjangoModelJob, Job
 
 
-class FetchIssueByNumber(RepositoryJob):
+class FetchIssueByNumber(Job):
     """
     Fetch the whole issue for a repository, given only the issue's number
     """
     queue_name = 'fetch-issue-by-number'
-
-    number = fields.InstanceHashField()
 
     def run(self, queue):
         """
@@ -24,8 +21,9 @@ class FetchIssueByNumber(RepositoryJob):
         """
         super(FetchIssueByNumber, self).run(queue)
 
-        repository = self.object
-        number = self.number.hget()
+        repository_id, issue_number = self.identifier.hget().split('#')
+
+        repository = Repository.objects.get(id=repository_id)
 
         try:
             gh = self.gh
@@ -33,17 +31,11 @@ class FetchIssueByNumber(RepositoryJob):
             gh = repository.get_gh()
 
         try:
-            issue = repository.issues.get(number=number)
+            issue = repository.issues.get(number=issue_number)
         except Issue.DoesNotExist:
-            issue = Issue(repository=repository, number=number)
+            issue = Issue(repository=repository, number=issue_number)
 
         issue.fetch_all(gh)
-
-    def success_message_addon(self, queue, result):
-        """
-        Display the issue number
-        """
-        return ' [#%s]' % self.number.hget
 
 
 class IssueJob(DjangoModelJob):
