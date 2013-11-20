@@ -3,8 +3,11 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 
+
 from core import models as core_models
 from core.ghpool import prepare_fetch_headers, ApiError
+from core.managers import SavedObjects, MODE_ALL
+from core.tasks.issue import FetchIssueByNumber
 from core.utils import contribute_to_model
 
 from . import EVENTS
@@ -111,3 +114,115 @@ class _Repository(models.Model):
         return False
 
 contribute_to_model(_Repository, core_models.Repository)
+
+
+class EventManager(object):
+    def __init__(self, repository_payload):
+        self.get_repository(repository_payload)
+
+    def get_repository(self, repository_payload):
+        try:
+            self.repository = core_models.Repository.objects.get(github_id=repository_payload['id'])
+        except Exception:
+            self.repository = None
+        return self.repository
+
+    def get_defaults(self):
+        return {
+            'fk': {
+                'repository': self.repository
+            },
+            'related': {
+                '*': {
+                    'fk': {
+                        'repository': self.repository
+                    }
+                }
+            }
+        }
+
+    def fetch_issue(self, number):
+        FetchIssueByNumber.add_job(self.repository.pk, number=number)
+
+    def event_issues(self, payload):
+        try:
+            result = core_models.Issue.objects.create_or_update_from_dict(
+                        data=payload,
+                        modes=MODE_ALL,
+                        defaults=self.get_defaults(),
+                        saved_objects=SavedObjects(),
+                    )
+
+            self.fetch_issue(result.number)
+
+            return result
+
+        except Exception:
+            return None
+
+    def event_issue_comment(self, payload):
+        try:
+            result = core_models.IssueComment.objects.create_or_update_from_dict(
+                        data=payload,
+                        modes=MODE_ALL,
+                        defaults=self.get_defaults(),
+                        saved_objects=SavedObjects(),
+                    )
+
+            self.fetch_issue(result.issue.number)
+
+            return result
+
+        except Exception:
+            return None
+
+    def event_pull_request(self, payload, defaults=None):
+        try:
+            defaults = self.get_defaults()
+            defaults.setdefault('simple', {})['is_pull_request'] = True
+
+            result = core_models.Issue.objects.create_or_update_from_dict(
+                        data=payload,
+                        modes=MODE_ALL,
+                        defaults=defaults,
+                        fetched_at_field='pr_fetched_at',
+                        saved_objects=SavedObjects(),
+                    )
+
+            self.fetch_issue(result.number)
+
+            return result
+
+        except Exception:
+            return None
+
+    def event_pull_request_review_comment(self, payload):
+        try:
+            defaults = self.get_defaults()
+
+            # is the issue already exists ?
+            number = core_models.Issue.objects.get_number_from_url(payload['pull_request_url'])
+            if not number:
+                return None
+
+            try:
+                issue = self.repository.issues.get(number=number)
+            except core_models.Issue.DoesNotExist:
+                self.fetch_issue(number)
+            else:
+                defaults['fk']['issue'] = issue
+                defaults.setdefault('related', {}).setdefault('issue', {}).setdefault('simple', {})['is_pull_request'] = True
+
+                result = core_models.PullRequestComment.objects.create_or_update_from_dict(
+                            data=payload,
+                            modes=MODE_ALL,
+                            defaults=defaults,
+                            saved_objects=SavedObjects(),
+                        )
+
+                self.fetch_issue(result.issue.number)
+
+                return result
+
+        except Exception:
+            return None

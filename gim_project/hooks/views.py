@@ -4,11 +4,8 @@ from django.views.generic import View
 
 import json
 
-from core.models import Repository, Issue, IssueComment, PullRequestComment
-from core.managers import SavedObjects, MODE_ALL
-from core.tasks.issue import FetchIssueByNumber
-
 from . import EVENTS
+from .models import EventManager
 
 
 class GithubWebHook(View):
@@ -30,128 +27,30 @@ class GithubWebHook(View):
             return HttpResponse('Event not managged')
 
         try:
-            # pass the paylaod to a method depending of the event
-            method(json.loads(request.POST['payload']))
-        except:
+
+            payload = json.loads(request.POST['payload'])
+            self.event_manager = EventManager(payload['repository'])
+            if not self.event_manager.repository:
+                return HttpResponse('Repository not managed')
+
+            method(payload)
+        except Exception:
             pass
 
         return HttpResponse('OK')
 
-    def get_repository(self, repository_payload):
-        try:
-            self.repository = Repository.objects.get(github_id=repository_payload['id'])
-        except Exception:
-            self.repository = None
-        return self.repository
-
-    def get_defaults(self, payload):
-        self.get_repository(payload['repository'])
-        return {
-            'fk': {
-                'repository': self.repository
-            },
-            'related': {
-                '*': {
-                    'fk': {
-                        'repository': self.repository
-                    }
-                }
-            }
-        }
-
-    def fetch_issue(self, number):
-        FetchIssueByNumber.add_job(self.repository.pk, number=number)
-
     def event_issues(self, payload):
-        # url = payload['issue']['url']
-        try:
-            payload['issue']['repository'] = payload['repository']
-
-            result = Issue.objects.create_or_update_from_dict(
-                        data=payload['issue'],
-                        modes=MODE_ALL,
-                        defaults=self.get_defaults(payload),
-                        saved_objects=SavedObjects(),
-                    )
-
-            self.fetch_issue(result.number)
-
-            return result
-
-        except Exception:
-            return None
+        payload['issue']['repository'] = payload['repository']
+        return self.event_manager.event_issues(payload['issue'])
 
     def event_issue_comment(self, payload):
-        # url = payload['comment']['url']
-        try:
-            payload['comment']['issue'] = payload['issue']
-            payload['comment']['issue']['repository'] = payload['repository']
-
-            result = IssueComment.objects.create_or_update_from_dict(
-                        data=payload['comment'],
-                        modes=MODE_ALL,
-                        defaults=self.get_defaults(payload),
-                        saved_objects=SavedObjects(),
-                    )
-
-            self.fetch_issue(result.issue.number)
-
-            return result
-
-        except Exception:
-            return None
+        payload['comment']['issue'] = payload['issue']
+        payload['comment']['issue']['repository'] = payload['repository']
+        return self.event_manager.event_issue_comment(payload['comment'])
 
     def event_pull_request(self, payload):
-        # url = payload['pull_request']['url']
-        try:
-            payload['pull_request']['repository'] = payload['repository']
-
-            defaults = self.get_defaults(payload)
-            defaults.setdefault('simple', {})['is_pull_request'] = True
-
-            result = Issue.objects.create_or_update_from_dict(
-                        data=payload['pull_request'],
-                        modes=MODE_ALL,
-                        defaults=defaults,
-                        fetched_at_field='pr_fetched_at',
-                        saved_objects=SavedObjects(),
-                    )
-
-            self.fetch_issue(result.number)
-
-            return result
-
-        except Exception:
-            return None
+        payload['pull_request']['repository'] = payload['repository']
+        return self.event_manager.event_pull_request(payload['pull_request'])
 
     def event_pull_request_review_comment(self, payload):
-        # url = payload['comment']['url']
-        try:
-            defaults = self.get_defaults(payload)
-
-            # is the issue already exists ?
-            number = Issue.objects.get_number_from_url(payload['comment']['pull_request_url'])
-            if not number:
-                return None
-
-            try:
-                issue = defaults['fk']['repository'].issues.get(number=number)
-            except Issue.DoesNotExist:
-                self.fetch_issue(number)
-            else:
-                defaults['fk']['issue'] = issue
-                defaults.setdefault('related', {}).setdefault('issue', {}).setdefault('simple', {})['is_pull_request'] = True
-
-                result = PullRequestComment.objects.create_or_update_from_dict(
-                            data=payload['comment'],
-                            modes=MODE_ALL,
-                            defaults=defaults,
-                            saved_objects=SavedObjects(),
-                        )
-
-                self.fetch_issue(result.issue.number)
-
-                return result
-
-        except Exception:
-            return None
+        return self.event_manager.event_pull_request_review_comment(payload['comment'])
