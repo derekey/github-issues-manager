@@ -40,16 +40,13 @@ class GithubWebHook(View):
         return HttpResponse('OK')
 
     def event_issues(self, payload):
-        payload['issue']['repository'] = payload['repository']
         return self.event_manager.event_issues(payload['issue'])
 
     def event_issue_comment(self, payload):
         payload['comment']['issue'] = payload['issue']
-        payload['comment']['issue']['repository'] = payload['repository']
         return self.event_manager.event_issue_comment(payload['comment'])
 
     def event_pull_request(self, payload):
-        payload['pull_request']['repository'] = payload['repository']
         return self.event_manager.event_pull_request(payload['pull_request'])
 
     def event_pull_request_review_comment(self, payload):

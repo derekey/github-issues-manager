@@ -1,6 +1,7 @@
-EVENTS = (
-    'issues',
-    'issue_comment',
-    'pull_request',
-    'pull_request_review_comment',
-)
+EVENTS = {
+    # event name in hook: event name in events api
+    'issues': 'IssuesEvent',
+    'issue_comment': 'IssueCommentEvent',
+    'pull_request': 'PullRequestEvent',
+    'pull_request_review_comment': 'PullRequestReviewCommentEvent',
+}
