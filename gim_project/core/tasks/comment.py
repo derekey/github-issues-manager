@@ -71,7 +71,7 @@ class CommentEditJob(IssueCommentJob):
             comment.issue.type, comment.issue.number, comment.repository.full_name, mode)
         messages.success(self.gh_user, message)
 
-        self.object.issue.fetch_all(gh)
+        comment.issue.fetch_all(gh)
 
         return None
 
