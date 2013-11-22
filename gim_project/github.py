@@ -128,14 +128,17 @@ class GitHub(object):
     def __getattr__(self, attr):
         return _Callable(self, '/%s' % attr)
 
-    def _http(self, method, path, request_headers=None, response_headers=None, kw={}):
+    def _http(self, method, path, request_headers=None, response_headers=None, json_post=True, kw={}):
         data = None
         if method == 'GET' and kw:
             path = '%s?%s' % (path, _encode_params(kw))
         if method in ('POST', 'PUT', 'PATCH'):
-            data = _encode_json(kw)
+            if json_post:
+                data = _encode_json(kw)
+            else:
+                data = urllib.urlencode(kw)
         url = '%s%s' % (_URL, path)
-        print 'REQUEST', method, url, request_headers
+        print '************** REQUEST', method, url, request_headers
         opener = urllib2.build_opener(urllib2.HTTPSHandler)
         request = urllib2.Request(url, data=data, headers=request_headers or {})
         request.get_method = _METHOD_MAP[method]
@@ -148,8 +151,13 @@ class GitHub(object):
             is_json = self._process_resp(response.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(response.headers.dict.copy())
-            print 'RESPONSE', 200, response_headers
+            # print 'RESPONSE', 200, response_headers
+            print "  ======> 200"
             content = response.read()
+            # print 'CONTENT\n' + '=' * 40 + '\n'
+            # from pprint import pprint
+            # pprint(_parse_json(content) if is_json else content)
+            # print '\n' + '=' * 40 + '\n'
             if is_json:
                 return _parse_json(content)
             else:
@@ -158,7 +166,8 @@ class GitHub(object):
             is_json = self._process_resp(e.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(e.headers.dict.copy())
-            print 'RESPONSE', e.code, response_headers
+            # print 'RESPONSE', e.code, response_headers
+            print "  ======> ", e.code
             if is_json:
                 _json = _parse_json(e.read())
             else:
@@ -190,8 +199,8 @@ class _Executable(object):
         self._method = method
         self._path = path
 
-    def __call__(self, request_headers=None, response_headers=None, **kw):
-        return self._gh._http(self._method, self._path, request_headers, response_headers, kw)
+    def __call__(self, request_headers=None, response_headers=None, json_post=True, **kw):
+        return self._gh._http(self._method, self._path, request_headers, response_headers, json_post, kw)
 
     def __str__(self):
         return '_Executable (%s %s)' % (self._method, self._path)
