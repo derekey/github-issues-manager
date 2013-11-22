@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.db import DatabaseError
 
 from limpyd import fields
 from limpyd_jobs.models import (
@@ -64,6 +65,10 @@ class Worker(LimpydWorker):
         if isinstance(exception, ApiError):
             fields['gh_request'] = json.dumps(exception.request)
             fields['gh_response'] = json.dumps(exception.response)
+
+        if isinstance(exception, DatabaseError):
+            self.log('DatabaseError detected, force end', level='critical')
+            self.end_forced = True
 
         return fields
 
