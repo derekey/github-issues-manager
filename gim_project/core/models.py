@@ -1122,8 +1122,9 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_issues_events(self, gh, force_fetch=False, parameters=None):
-        # doesn't work for now when has_issues == False, but keep the call
-        # hoping for github to resolve it
+        if not self.has_issues:
+            # bug in the github api, not able to retrieve issue events if only PRs
+            return 0
         count = self._fetch_many('issues_events', gh,
                                  defaults={
                                     'fk': {'repository': self},
@@ -1588,9 +1589,6 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     @property
     def github_callable_identifiers(self):
-        if not self.repository.has_issues:
-            return self.github_callable_identifiers_for_pr
-
         return self.repository.github_callable_identifiers_for_issues + [
             self.number,
         ]
@@ -1619,10 +1617,16 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     @property
     def github_callable_identifiers_for_pr_comments(self):
-        return self.repository.github_callable_identifiers_for_prs + [
-            self.number,
+        return self.github_callable_identifiers_for_pr + [
             'comments'
         ]
+
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
+        if not self.repository.has_issues:
+            # do not use the issues api endpoint if repos with PRs only
+            meta_base_name = 'pr'
+        return super(Issue, self).fetch(gh, defaults, force_fetch, parameters, meta_base_name)
 
     def fetch_pr(self, gh, defaults=None, force_fetch=False, parameters=None):
         if defaults is None:
@@ -1637,6 +1641,10 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         reverse order (first created first, last created last, maybe on an other
         page)
         """
+        if not self.repository.has_issues:
+            # bug in the github api, not able to retrieve issue events if only PRs
+            return
+
         return self._fetch_many('events', gh,
                                 defaults={
                                     'fk': {
@@ -1727,15 +1735,13 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     @property
     def github_callable_identifiers_for_commits(self):
-        return self.repository.github_callable_identifiers_for_prs + [
-            self.number,
+        return self.github_callable_identifiers_for_pr + [
             'commits'
         ]
 
     @property
     def github_callable_identifiers_for_files(self):
-        return self.repository.github_callable_identifiers_for_prs + [
-            self.number,
+        return self.github_callable_identifiers_for_pr + [
             'files'
         ]
 
