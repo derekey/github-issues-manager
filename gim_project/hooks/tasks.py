@@ -44,7 +44,7 @@ class CheckRepositoryEvents(RepositoryJob):
         if result is None:
             return
 
-        self.clone(delayed_for=result)
+        self.clone(delayed_for=result + randint(0, 10))
 
 
 class CheckRepositoryHook(RepositoryJob):
