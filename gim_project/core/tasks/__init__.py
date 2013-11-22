@@ -79,6 +79,7 @@ class Job(LimpydJob):
     queue_model = Queue
     queue_name = None
     gh_args = fields.HashField()  # will store info to create a Github connection
+    clonable_fields = ()
 
     def run(self, queue):
         return None
@@ -124,6 +125,43 @@ class Job(LimpydJob):
         Return the user used to make the connection
         """
         return GithubUser.objects.get(username=self.gh_args.hget('username'))
+
+    def clone(self, priority=0, delayed_for=None, delayed_until=None, **force_fields):
+        """
+        Create a copy of the current job, copying the fiels defined in
+        self.clonable_fields, possibly overriden by ones passed in force_fields.
+        The job is then queued/delayed depending on delayed_for and delayed_until
+        """
+        instancehash_fields = [f for f in self.clonable_fields
+                    if isinstance(getattr(self, f), fields.InstanceHashField)]
+        if instancehash_fields:
+            instancehash_values = self.hmget(*instancehash_fields)
+            new_job_args = dict(zip(instancehash_fields, instancehash_values))
+        else:
+            new_job_args = {}
+
+        for field in set(self.clonable_fields).difference(instancehash_fields):
+            value = getattr(self, field).proxy_get()
+            if value is not None:
+                new_job_args[field] = value
+
+        try:
+            new_job_args['gh'] = self.gh
+        except:
+            pass
+
+        new_job_args.update(force_fields)
+
+        # and add the job
+        new_job = self.__class__.add_job(
+                    identifier=self.identifier.hget(),
+                    priority=priority,
+                    delayed_for=delayed_for,
+                    delayed_until=delayed_until,
+                    **new_job_args
+                )
+
+        return new_job
 
 
 class DjangoModelJob(Job):
