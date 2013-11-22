@@ -63,7 +63,7 @@ class _Repository(models.Model):
 
         gh = gh or self.get_gh()
         if not gh:
-            return None
+            return None, None, None
 
         if request_headers is None:
             request_headers = {}
@@ -121,6 +121,7 @@ class _Repository(models.Model):
         event_manager = None
 
         code, events, updated_fields = self.simple_list_fetch(
+                    gh=gh,
                     meta_base_name='events',
                     identifiers=self.github_callable_identifiers_for_events,
                     force_fetch=force,
@@ -177,7 +178,8 @@ class _Repository(models.Model):
             for number in issues_to_fetch:
                 event_manager.fetch_issue(number)
 
-        self.save(update_fields=updated_fields)
+        if updated_fields:
+            self.save(update_fields=updated_fields)
 
         try:
             return int(response_headers['x-poll-interval'])
@@ -197,6 +199,7 @@ class _Repository(models.Model):
         try:
             code, hooks, updated_fields = self.simple_list_fetch(
                         meta_base_name='hooks',
+                        gh=gh,
                         identifiers=self.github_callable_identifiers_for_hooks,
                         force_fetch=force,
                         parameters={'per_page': 100}

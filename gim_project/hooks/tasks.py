@@ -2,6 +2,8 @@ from random import randint
 
 from core.tasks.repository import RepositoryJob
 
+from subscriptions.models import SUBSCRIPTION_STATES
+
 
 class CheckRepositoryEvents(RepositoryJob):
     """
@@ -25,6 +27,10 @@ class CheckRepositoryEvents(RepositoryJob):
             gh = self.gh
         except Exception:
             gh = repository.get_gh()
+
+        if not gh:
+            # no subscription, stop updating this repository
+            return
 
         return repository.check_events(gh) or 60
 
@@ -59,9 +65,10 @@ class CheckRepositoryHook(RepositoryJob):
         try:
             gh = self.gh
         except Exception:
-            gh = repository.get_gh()
+            gh = repository.get_gh(rights=[SUBSCRIPTION_STATES.ADMIN])
 
-        repository.check_hook(gh)
+        if gh:
+            repository.check_hook(gh)
 
         if not repository.hook_set:
             # no hook, we need to go on the "check-events" mode

@@ -145,10 +145,11 @@ class Job(LimpydJob):
             if value is not None:
                 new_job_args[field] = value
 
-        try:
-            new_job_args['gh'] = self.gh
-        except:
-            pass
+            if 'gh' not in force_fields and 'gh_args' not in force_fields:
+                try:
+                    new_job_args['gh'] = self.gh
+                except:
+                    pass
 
         new_job_args.update(force_fields)
 
