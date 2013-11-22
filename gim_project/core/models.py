@@ -1726,12 +1726,6 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
                                 parameters=parameters)
 
     @property
-    def github_callable_identifiers_for_label(self, label):
-        return self.github_callable_identifiers_for_labels + [
-            label.name,
-        ]
-
-    @property
     def github_callable_identifiers_for_commits(self):
         return self.repository.github_callable_identifiers_for_prs + [
             self.number,
