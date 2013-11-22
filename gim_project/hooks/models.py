@@ -151,26 +151,22 @@ class _Repository(models.Model):
                                                            fetch_issue=False)
                         if issue:
                             issues_to_fetch.add(issue.number)
-                        print "add IssuesEvent: ", issue
                     elif event['type'] == 'IssueCommentEvent':
                         event['payload']['comment']['issue'] = event['payload']['issue']
                         comment = event_manager.event_issue_comment(event['payload']['comment'],
                                                                      fetch_issue=False)
                         if comment:
                             issues_to_fetch.add(comment.issue.number)
-                        print "add IssueCommentEvent: ", comment
                     elif event['type'] == 'PullRequestEvent':
                         issue = event_manager.event_pull_request(event['payload']['pull_request'],
                                                                  fetch_issue=False)
                         if issue:
                             issues_to_fetch.add(issue.number)
-                        print "add PullRequestEvent: ", issue
                     elif event['type'] == 'PullRequestReviewCommentEvent':
                         comment = event_manager.event_pull_request_review_comment(event['payload']['comment'],
                                                                                   fetch_issue=False)
                         if comment:
                             issues_to_fetch.add(comment.issue.number)
-                        print "add PullRequestReviewCommentEvent: ", comment
 
                 except Exception:
                     raise
@@ -242,7 +238,12 @@ class _Repository(models.Model):
             identifiers += [hook_id]
 
         gh_callable = self.__class__.objects.get_github_callable(gh, identifiers)
-        return getattr(gh_callable, method)(**HOOK_INFOS)
+        hook_data = getattr(gh_callable, method)(**HOOK_INFOS)
+
+        self.hook_set = True
+        self.save(update_fields=['hook_set'])
+
+        return hook_data
 
     def remove_hook(self, gh):
         """
@@ -256,7 +257,12 @@ class _Repository(models.Model):
             identifiers = self.github_callable_identifiers_for_hooks + [hook_id]
             gh_callable = self.__class__.objects.get_github_callable(gh, identifiers)
             gh_callable.delete()
+
+            self.hook_set = False
+            self.save(update_fields=['hook_set'])
+
             return True
+
         return False
 
 contribute_to_model(_Repository, core_models.Repository)
