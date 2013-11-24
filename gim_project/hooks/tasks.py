@@ -32,7 +32,9 @@ class CheckRepositoryEvents(RepositoryJob):
             # no subscription, stop updating this repository
             return
 
-        return repository.check_events(gh) or 60
+        updated_issues_count, delay = repository.check_events(gh)
+
+        return updated_issues_count, delay or 60
 
     def on_success(self, queue, result):
         """
@@ -44,7 +46,20 @@ class CheckRepositoryEvents(RepositoryJob):
         if result is None:
             return
 
-        self.clone(delayed_for=result + randint(0, 10))
+        updated_issues_count, delay = result
+
+        self.clone(delayed_for=updated_issues_count + randint(0, 10))
+
+    def success_message_addon(self, queue, result):
+        """
+        Display the count of updated issues
+        """
+        if result is None:
+            return
+
+        updated_issues_count, delay = result
+
+        return ' [updated=%d]' % updated_issues_count
 
 
 class CheckRepositoryHook(RepositoryJob):

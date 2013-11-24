@@ -182,9 +182,11 @@ class _Repository(models.Model):
             self.save(update_fields=updated_fields)
 
         try:
-            return int(response_headers['x-poll-interval'])
+            delay = int(response_headers['x-poll-interval'])
         except Exception:
-            return 60
+            delay = 60
+
+        return (len(issues_to_fetch), delay)
 
     def check_hook(self, gh=None, force=False):
         """
