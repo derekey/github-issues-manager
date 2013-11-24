@@ -1,3 +1,4 @@
+from random import randint
 
 from limpyd import fields
 from async_messages import messages
@@ -233,3 +234,37 @@ class FetchUnfetchedCommits(RepositoryJob):
         Display the count of fetched commits
         """
         return ' [fetched=%d, deleted=%s, errors=%s, todo=%s]' % result
+
+
+class FetchForUpdate(RepositoryJob):
+    """
+    Job that will do an unforced full fetch of the repository to update all that
+    needs to.
+    When done, clone the job to be done again 15 min laters (+-2mn)
+    """
+    queue_name = 'update-repo'
+
+    def run(self, queue):
+        """
+        Fetch the whole repository stuff if it has a subscription
+        """
+        super(FetchForUpdate, self).run(queue)
+
+        repository = self.object
+
+        try:
+            gh = self.gh
+        except Exception:
+            gh = repository.get_gh()
+
+        if not gh:
+            # no subscription, don't fetch for now
+            return
+
+        repository.fetch_all(gh)
+
+    def on_success(self, queue, result):
+        """
+        Go fetch again in 15 +- 2mn
+        """
+        self.clone(delayed_for=60 * 13 + randint(0, 60 * 4))
