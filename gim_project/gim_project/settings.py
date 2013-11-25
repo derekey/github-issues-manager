@@ -163,6 +163,7 @@ INSTALLED_APPS = (
     'subscriptions',
 
     'hooks',
+    'events',
 
     'front',
     'front.auth',
