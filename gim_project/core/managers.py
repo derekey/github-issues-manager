@@ -217,10 +217,18 @@ class GithubObjectManager(models.Manager):
                 to_create = True
                 obj = self.model()
             else:
-                if already_saved:
-                    return obj, True
                 if 'update' not in modes:
                     return None, False
+                # don't update object with old data
+                updated_at = getattr(obj, 'updated_at', None)
+                if updated_at:
+                    new_updated_at = fields['simple'].get('updated_at')
+                    if new_updated_at and new_updated_at < updated_at:
+                        if not already_saved:
+                            saved_objects.set_object(self.model, self.get_filters_from_identifiers(fields), obj)
+                        return obj, True
+                if already_saved:
+                    return obj, True
 
             updated_fields = []
 
