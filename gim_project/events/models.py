@@ -15,6 +15,7 @@ class Event(models.Model):
     issue = models.ForeignKey(Issue)
     created_at = models.DateTimeField(db_index=True)
     title = models.TextField()
+    is_update = models.BooleanField()
 
     related_content_type = models.ForeignKey(ContentType, blank=True, null=True)
     related_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
@@ -24,6 +25,9 @@ class Event(models.Model):
     RENDERERS = {
         'issue': IssueRenderer,
     }
+
+    class Meta:
+        ordering = ('created_at', )
 
     def __unicode__(self):
         return u'%s' % self.title
@@ -40,12 +44,18 @@ class Event(models.Model):
     def render_as_html(self):
         pass
 
+    def add_bulk_parts(self, parts):
+        EventPart.objects.bulk_create([
+            EventPart(event=self, **part)
+                for part in parts
+        ])
+
 
 class EventPart(models.Model):
     event = models.ForeignKey(Event, related_name='parts')
     field = models.CharField(max_length=50, db_index=True)
-    old_value = JSONField()
-    new_value = JSONField()
+    old_value = JSONField(blank=True, null=True)
+    new_value = JSONField(blank=True, null=True)
 
     def __unicode__(self):
         return u'%s: %s' % (self.event, self.field)
@@ -56,12 +66,12 @@ class EventPart(models.Model):
 
     def render_as_text(self):
         try:
-            return getattr(self.renderer, 'render_%s' % self.field)(self, 'text')
+            return getattr(self.renderer, 'render_part_%s' % self.field)(self, 'text')
         except Exception:
             return '%s has changed' % self.field.capitalize()
 
     def render_as_html(self):
         try:
-            return getattr(self.renderer, 'render_%s' % self.field)(self, 'html')
+            return getattr(self.renderer, 'render_part_%s' % self.field)(self, 'html')
         except Exception:
             return '%s has changed' % self.field

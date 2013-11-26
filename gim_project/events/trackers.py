@@ -30,19 +30,22 @@ class ChangeTracker(object):
 
     @classmethod
     def create_event(cls, instance, **kwargs):
+        event = None
         if kwargs['created']:
             event = cls.add_created_event(instance)
         else:
             changed_fields = instance.changed_fields()
             if changed_fields:
                 event = cls.add_changed_event(instance, changed_fields)
-                cls.add_changed_parts(instance, changed_fields, event)
+                if not cls.add_changed_parts(instance, changed_fields, event):
+                    event.delete()
 
         return event
 
     @classmethod
     def add_changed_parts(cls, instance, changed_fields, event):
-        from .models import EventPart
+
+        parts_count = 0
 
         for field in changed_fields:
             new = getattr(instance, field)
@@ -57,11 +60,12 @@ class ChangeTracker(object):
                     'old_value': {field: old},
                     'new_value': {field: new},
                 }]
+
             if parts:
-                EventPart.objects.bulk_create([
-                    EventPart(event=event, **part)
-                        for part in parts
-                ])
+                event.add_bulk_parts(parts)
+                parts_count += len(parts)
+
+        return parts_count > 0
 
     @classmethod
     def _prepare_m2m_fields(cls):
@@ -120,13 +124,41 @@ class IssueTracker(ChangeTracker):
     def add_created_event(cls, instance):
         from .models import Event
 
-        return Event.objects.create(
+        event = Event.objects.create(
             repository=instance.repository,
             issue=instance,
-            created_at=instance.updated_at,
+            created_at=instance.created_at,
+            is_update=False,
             related_object=instance,
-            title="Issue #%s was created" % instance.number,
+            title="%s #%s was created" % (instance.type.capitalize(), instance.number),
         )
+
+        # add some parts to the events for some fields
+        parts = []
+
+        if instance.milestone_id:
+            parts.extend(cls.event_part_for_milestone_id(instance, instance.milestone_id, None))
+
+        if instance.assignee_id:
+            parts.extend(cls.event_part_for_assignee_id(instance, instance.assignee_id, None))
+
+        if instance.state == 'closed':
+            parts.extend(cls.event_part_for_state(instance, 'closed', 'open'))
+
+        if instance.is_pull_request:
+
+            if instance.mergeable is not None:
+                parts.extend(cls.event_part_for_mergeable(instance, instance.mergeable, None))
+
+            if instance.state == 'closed' and instance.merged is not None:
+                parts.extend(cls.event_part_for_merged(instance, instance.merged, None))
+
+        parts.extend(cls.event_part_for_labels__ids(instance, instance.labels__ids, []))
+
+        if parts:
+            event.add_bulk_parts(parts)
+
+        return event
 
     @classmethod
     def add_changed_event(cls, instance, changed_fields):
@@ -136,9 +168,28 @@ class IssueTracker(ChangeTracker):
             repository=instance.repository,
             issue=instance,
             created_at=instance.updated_at,
+            is_update=True,
             related_object=instance,
-            title="Issue #%s was changed" % instance.number,
+            title="%s #%s was changed" % (instance.type.capitalize(), instance.number),
         )
+
+    @staticmethod
+    def event_part_for_title(instance, new, old):
+        if old:
+            return [{
+                'field': 'title',
+                'old_value': {'title': old},
+                'new_value': {'title': new},
+            }]
+
+    @staticmethod
+    def event_part_for_body(instance, new, old):
+        if old:
+            return [{
+                'field': 'body',
+                'old_value': {'body': old},
+                'new_value': {'body': new},
+            }]
 
     @staticmethod
     def event_part_for_assignee_id(instance, new, old):
@@ -195,7 +246,7 @@ class IssueTracker(ChangeTracker):
     @staticmethod
     def event_part_for_state(instance, new, old):
         result = {
-            'field': 'merged',
+            'field': 'state',
             'old_value': {'state': old},
             'new_value': {'state': new},
         }
@@ -216,6 +267,11 @@ class IssueTracker(ChangeTracker):
 
     @staticmethod
     def event_part_for_merged(instance, new, old):
+        if old is None and not new:
+            return
+        if instance.state != 'closed':
+            return
+
         result = {
             'field': 'merged',
             'old_value': {'merged': old},
@@ -231,7 +287,21 @@ class IssueTracker(ChangeTracker):
         return [result]
 
     @staticmethod
+    def event_part_for_mergeable(instance, new, old):
+        if instance.state == 'closed':
+            return
+
+        return [{
+            'field': 'mergeable',
+            'old_value': {'mergeable': old},
+            'new_value': {'mergeable': new},
+        }]
+
+    @staticmethod
     def event_part_for_labels__ids(instance, new, old):
+        if old is None:
+            old = []
+
         diff = {
             'added': set(new).difference(old),
             'removed': set(old).difference(new),
@@ -241,7 +311,6 @@ class IssueTracker(ChangeTracker):
         if not diff['added'] and not diff['removed']:
             return []
 
-        import debug
         # get all added/removed labels from DB in one uery with label type
         labels_by_id = Label.objects.select_related('label_type').in_bulk(
                                         diff['added'].union(diff['removed']))
@@ -287,6 +356,10 @@ class IssueTracker(ChangeTracker):
                     'labels': modes.get('added', []),
                 },
                 'old_value': {
+                    'label_type': {
+                        'id': type.id,
+                        'name': type.name,
+                    },
                     'labels': modes.get('removed', []),
                 },
             })
@@ -296,7 +369,6 @@ class IssueTracker(ChangeTracker):
             if 'added' in by_type[None]:
                 result.append({
                     'field': 'labels',
-                    'old_value': {'labels': []},
                     'new_value': {
                         'labels': by_type[None]['added']
                     }
@@ -304,7 +376,6 @@ class IssueTracker(ChangeTracker):
             if 'removed' in by_type[None]:
                 result.append({
                     'field': 'labels',
-                    'new_value': {'labels': []},
                     'old_value': {
                         'labels': by_type[None]['removed']
                     }

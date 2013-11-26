@@ -23,12 +23,15 @@ class Renderer(object):
 
 class IssueRenderer(Renderer):
 
-    def render_title(self, part, mode):
-        title = 'Title is now "%(title)s"'
-        params = {'title': self.helper_strong(part.new, mode, quote_if_text=False)}
+    def render_part_title(self, part, mode):
+        new, old = part.new_value, part.old_value
+
+        # part must not be created if no old title
+        title = 'Old title was "%(title)s"'
+        params = {'title': self.helper_strong(old['title'], mode, quote_if_text=False)}
         return title % params
 
-    def render_state(self, part, mode):
+    def render_part_state(self, part, mode):
         new, old = part.new_value, part.old_value
 
         title = 'Reopened' if new['state'] == 'open' else 'Closed'
@@ -40,13 +43,21 @@ class IssueRenderer(Renderer):
 
         return title
 
-    def render_mergeable(self, part, mode):
-        return 'Now mergeable' if part.new_value else 'Not mergeable anymore'
-
-    def render_merged(self, part, mode):
+    def render_part_mergeable(self, part, mode):
         new, old = part.new_value, part.old_value
 
-        title = 'Merged' if new['state'] == 'open' else 'Unmerged ?!?'
+        if old and old['mergeable'] is False:
+            return 'Now mergeable' if part.new_value else 'Not mergeable anymore'
+        else:
+            return 'Mergeable' if part.new_value else 'Not mergeable'
+
+    def render_part_merged(self, part, mode):
+        new, old = part.new_value, part.old_value
+
+        if old and old['merged'] is False:
+            title = 'Merged' if new['merged'] else 'Unmerged ?!?'
+        else:
+            title = 'Merged' if new['merged'] else 'Not merged'
 
         if 'by' in new:
             title += ' by %(by)s'
@@ -55,33 +66,37 @@ class IssueRenderer(Renderer):
 
         return title
 
-    def render_assignee(self, part, mode):
+    def render_part_assignee(self, part, mode):
         new, old = part.new_value, part.old_value
 
         if new and old:
             title = 'Assigned to %(new_assignee)s (previously %(old_assignee)s)'
         elif new:
             title = 'Assigned to %(new_assignee)s'
-        else:
+        elif old:
             title = '%(unassigned)s (previously assigned to %(old_assignee)s)'
+        else:
+            title = '%(unassigned)s'
 
         params = {'unassigned': self.helper_strong('Unassigned', mode, quote_if_text=False)}
         if new:
-            params['new_assignee'] = self.helper_render_user(new['username'], mode)
+            params['new_assignee'] = self.helper_render_user(new, mode)
         if old:
-            params['old_assignee'] = self.helper_render_user(old['username'], mode)
+            params['old_assignee'] = self.helper_render_user(old, mode)
 
         return title % params
 
-    def render_milestone(self, part, mode):
+    def render_part_milestone(self, part, mode):
         new, old = part.new_value, part.old_value
 
         if new and old:
             title = 'Milestone set to "%(new_milestone)s" (previously "%(old_milestone)s")'
         elif new:
             title = 'Milestone set to "%(new_milestone)s"'
-        else:
+        elif old:
             title = 'Milestone %(removed)s (previously set to "%(old_milestone)s")'
+        else:
+            title = 'No milestone set'
 
         params = {'removed': self.helper_strong('removed', mode, quote_if_text=False)}
         if new:
@@ -102,7 +117,7 @@ class IssueRenderer(Renderer):
                 } for l in labels
             ]))
 
-    def render_labels(self, part, mode):
+    def render_part_labels(self, part, mode):
         new, old = part.new_value, part.old_value
         if new['labels']:
             title = 'Added label%(plural)s: %(labels)s'
@@ -118,7 +133,7 @@ class IssueRenderer(Renderer):
 
         return title % params
 
-    def render_label_type(self, part, mode):
+    def render_part_label_type(self, part, mode):
         new, old = part.new_value, part.old_value
 
         params = {'type': self.helper_strong(new['label_type']['name'], mode, quote_if_text=False)}
