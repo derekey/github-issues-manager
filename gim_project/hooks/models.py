@@ -133,19 +133,19 @@ class _Repository(models.Model):
             # will be set to the date of last (first in list) event
             self.events_fetched_at = None
 
-            for event in events:
+            # fetch events in the reverse order (oldest first) to let use create
+            # our own events in the correct order
+            for event in reversed(events):
                 if 'created_at' not in event:
                     continue
-                if self.events_fetched_at is None:
-                    self.events_fetched_at = Connection.parse_date(event['created_at'])
+                event_date = self.events_fetched_at = Connection.parse_date(event['created_at'])
                 if 'created_at' not in event or 'type' not in event or 'repo' not in event:
                     continue
                 if event['type'] not in EVENTS.values():
                     continue
-                if min_date and not force:
-                    event_date = Connection.parse_date(event['created_at'])
-                    if event_date < min_date:
-                        break
+                if min_date and not force and event_date < min_date:
+                    # not readched the min date, continue until a good one
+                    continue
                 try:
                     if event['type'] == 'IssuesEvent':
                         issue = event_manager.event_issues(event['payload']['issue'],
