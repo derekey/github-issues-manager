@@ -23,6 +23,14 @@ class Renderer(object):
 
 class IssueRenderer(Renderer):
 
+    def render_event_title(self, mode):
+        return '[%(is_update)s] %(type)s #%(number)s "%(title)s"' % {
+            'is_update': 'changed' if self.event.is_update else 'created',
+            'type': self.event.issue.type.capitalize(),
+            'number': self.event.issue.number,
+            'title': self.event.issue.title,
+        }
+
     def render_part_title(self, part, mode):
         new, old = part.new_value, part.old_value
 

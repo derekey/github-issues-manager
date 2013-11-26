@@ -39,10 +39,36 @@ class Event(models.Model):
         return self._renderer
 
     def render_as_text(self):
-        pass
+        try:
+            return self.renderer.render_as_text()
+        except AttributeError:
+            parts = list(self.parts.all())
+            params = {
+                'title': self.renderer.render_event_title('text'),
+            }
+            if len(parts):
+                result = "%(title)s:\n%(parts)s"
+                params['parts'] = '\n'.join('  - %s' % p.render_as_text() for p in parts)
+            else:
+                result = "%(title)s"
+
+            return result % params
 
     def render_as_html(self):
-        pass
+        try:
+            return self.renderer.render_as_html()
+        except AttributeError:
+            parts = list(self.parts.all())
+            params = {
+                'title': self.renderer.render_event_title('html'),
+            }
+            if len(parts):
+                result = "<div><strong>%(title)s</strong>:\n<ul class='unstyled'>%(parts)s</ul></div>"
+                params['parts'] = '\n'.join('  <li>%s</li>' % p.render_as_text() for p in parts)
+            else:
+                result = "<div><strong>%(title)s</strong></div>"
+
+            return result % params
 
     def add_bulk_parts(self, parts):
         EventPart.objects.bulk_create([
