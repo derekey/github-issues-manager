@@ -37,7 +37,7 @@
         {% for file in files %}
             <tr{% if forloop.first %} class="active"{% endif %} data-pos="{{ forloop.counter }}">
                 <td class="status-{{ file.status }}"><i class="icon-{% if file.status == 'added' %}plus{% elif file.status == 'removed'%}remove{% elif file.status == 'renamed' %}resize-horizontal{% elif file.status == 'modified' %}pencil{% else %}file{% endif %}"> </i></td>
-                <td><i class="icon-angle-right"> </i><a class="path" href="#pr-file-{{ file.id }}-target">{{ file.path }}</a></td>
+                <td title="{{ file.path }}"><i class="icon-angle-right"> </i><a class="path" href="#pr-file-{{ file.id }}-target">{{ file.path }}</a></td>
                 <td>
                     <ul class="unstyled">
                         <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ file.nb_additions }}</li>

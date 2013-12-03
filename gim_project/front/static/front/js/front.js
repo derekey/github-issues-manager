@@ -927,9 +927,13 @@ $().ready(function() {
             }), // scroll_in_files_list
 
             on_files_list_toggle: (function IssueDetail__on_files_list_toggle (ev) {
-                var $container = $(this).closest('.pr-files-list-container');
+                var $files_list = $(this),
+                    $container = $files_list.closest('.pr-files-list-container');
                 if ($container.hasClass('stuck')) {
                     $container.parent().height($container.outerHeight());
+                }
+                if ($files_list.hasClass('in')) {
+                   IssueDetail.set_active_file_visible($files_list);
                 }
             }), // on_files_list_toggle
 
@@ -978,6 +982,7 @@ $().ready(function() {
                 $line = $files_list.find('tr:nth-child('+ pos +')');
                 $files_list.find('tr.active').removeClass('active');
                 $line.addClass('active');
+                IssueDetail.set_active_file_visible($files_list, $line);
                 $node.find('.go-to-previous-file').parent().toggleClass('disabled', $line.prevAll('tr:not(.hidden)').length === 0);
                 $node.find('.go-to-next-file').parent().toggleClass('disabled', $line.nextAll('tr:not(.hidden)').length === 0);
                 if (reset_active_comment) {
@@ -985,6 +990,39 @@ $().ready(function() {
                     $node.find('.go-to-previous-file-comment, .go-to-next-file-comment').parent().removeClass('disabled');
                 }
             }), // set_active_file
+
+            set_active_file_visible: (function IssueDetail__set_active_file_visible ($files_list, $line) {
+                var line_top, line_height, list_visible_height, list_scroll;
+                if (typeof $files_list == 'undefined') {
+                    $files_list = $node.find('.pr-files-list');
+                }
+                // files list not opened: do nothing
+                if (!$files_list.hasClass('in')) {
+                    return;
+                }
+                if (typeof $line == 'undefined') {
+                    $line = $files_list.find('tr.active');
+                }
+                // no active line: do nothing
+                if (!$line.length) {
+                    return;
+                }
+                line_top = $line.position().top;
+                list_scroll = $files_list.scrollTop();
+                // above the visible part of the list: set it visible at top
+                if (line_top < 0) {
+                    $files_list.scrollTop(list_scroll + line_top);
+                    return;
+                }
+                line_height = $line.height();
+                list_visible_height = $files_list.height();
+                // in the visible part: do nothing
+                if (line_top + line_height < list_visible_height) {
+                    return;
+                }
+                // below the visible part: set it visible at the bottom
+                $files_list.scrollTop(list_scroll + line_top - list_visible_height + line_height);
+            }), // set_active_file_visible
 
             visible_files_comments: (function IssueDetail__visible_files_comments ($node) {
                 var $files_list = $node.find('.pr-files-list');
@@ -1250,7 +1288,8 @@ $().ready(function() {
                 }
             }) // init
 
-        };
+        }; // PanelsSwpr
+
         // add all issues lists
         var panels = [];
         for (var i = 0; i < IssuesList.all.length; i++) {
@@ -1267,7 +1306,7 @@ $().ready(function() {
         }
         PanelsSwpr.init(panels);
         window.PanelsSwpr = PanelsSwpr;
-    }
+    } // if (IssuesList.all.length) {
 
 
     // select the issue given in the url's hash, or an active one in the html,
