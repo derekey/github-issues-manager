@@ -80,10 +80,12 @@
                     <div class="pr-merge-status">
                         {% include "front/repository/issues/include_state_form.html" %}
                         {% if current_issue.state == 'open' %}
-                            {% if current_issue.mergeable %}
+                            {% if current_issue.mergeable == True %}
                                 <div class="alert alert-success">Can be merged</div>
-                            {% else %}
+                            {% elif current_issue.mergeable == False %}
                                 <div class="alert alert-error">Cannot be merged</div>
+                            {% else %}
+                                <div class="alert alert-infos">Mergeable status unknown</div>
                             {% endif %}
                         {% else %}
                             {% if current_issue.merged %}

@@ -288,6 +288,8 @@ class IssueTracker(ChangeTracker):
 
     @staticmethod
     def event_part_for_mergeable(instance, new, old):
+        if old is None and not new:
+            return
         if instance.state == 'closed':
             return
 

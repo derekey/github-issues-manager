@@ -55,9 +55,9 @@ class IssueRenderer(Renderer):
         new, old = part.new_value, part.old_value
 
         if old and old['mergeable'] is False:
-            return 'Now mergeable' if part.new_value else 'Not mergeable anymore'
+            return 'Now mergeable' if new['mergeable'] else 'Not mergeable anymore'
         else:
-            return 'Mergeable' if part.new_value else 'Not mergeable'
+            return 'Mergeable' if new['mergeable'] else 'Not mergeable'
 
     def render_part_merged(self, part, mode):
         new, old = part.new_value, part.old_value
