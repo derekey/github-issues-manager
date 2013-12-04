@@ -948,6 +948,12 @@ $().ready(function() {
                 }
             }), // on_files_list_toggle
 
+            toggle_files_list: (function IssueDetail__toggle_files_list () {
+                var $node = $(this).closest('.issue'),
+                    $link = $node.find('.pr-files-list-container .files-list-summary');
+                if ($link.length) { $link.click(); }
+            }), // toggle_files_list
+
             on_file_mouseenter: (function IssueDetail__on_file_mouseenter (ev) {
                 var $file_node = $(this),
                     $node = $file_node.closest('.issue');
@@ -1243,6 +1249,9 @@ $().ready(function() {
                 $document.on('click', '.pr-files-list a', Ev.stop_event_decorate(IssueDetail.on_files_list_click));
                 $document.on('shown.collapse hidden.collapse', '.pr-files-list', IssueDetail.on_files_list_toggle);
                 $document.on('mouseenter', '.pr-file', IssueDetail.on_file_mouseenter);
+                jwerty.key('f', IssueDetail.on_files_list_key_event('focus_search_input'));
+                jwerty.key('t', IssueDetail.on_files_list_key_event('toggle_files_list'));
+                // files list navugation
                 $document.on('click', 'li:not(.disabled) a.go-to-previous-file', Ev.stop_event_decorate(IssueDetail.go_to_previous_file));
                 $document.on('click', 'li:not(.disabled) a.go-to-next-file', Ev.stop_event_decorate(IssueDetail.go_to_next_file));
                 $document.on('quicksearch.after', '.files-filter input.quicksearch', IssueDetail.on_files_filter_done);
@@ -1252,7 +1261,6 @@ $().ready(function() {
                 jwerty.key('n/j', IssueDetail.on_files_list_key_event('go_to_next_file'));
                 jwerty.key('shift+p/shift+k', IssueDetail.on_files_list_key_event('go_to_previous_file_comment'));
                 jwerty.key('shift+n/shift+j', IssueDetail.on_files_list_key_event('go_to_next_file_comment'));
-                jwerty.key('f', IssueDetail.on_files_list_key_event('focus_search_input'));
             }) // init
         }; // IssueDetail
         IssueDetail.init();

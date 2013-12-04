@@ -30,7 +30,7 @@
             </div>
         {% endif %}
     </nav>
-    {% if current_issue.nb_changed_files > 1 %}<a href="#" title="Click to toogle the list of files" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files-list">{% endif %}<strong>{{ current_issue.nb_changed_files }} file{{ current_issue.nb_changed_files|pluralize }} changed</strong> with <strong>{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}</strong> and <strong>{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}</strong>{% if current_issue.nb_changed_files > 1 %}&nbsp;&nbsp;<i class="icon-sort"></i></a>{% endif %}
+    {% if current_issue.nb_changed_files > 1 %}<a href="#" title="Click to toogle the list of files" class="files-list-summary" data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files-list">{% endif %}<strong>{{ current_issue.nb_changed_files }} file{{ current_issue.nb_changed_files|pluralize }} changed</strong> with <strong>{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}</strong> and <strong>{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}</strong>{% if current_issue.nb_changed_files > 1 %}&nbsp;&nbsp;<i class="icon-sort"></i></a>{% endif %}
     {% if current_issue.nb_changed_files > 1 %}
     <div class="collapse in pr-files-list" id="issue-{{ current_issue.number }}-files-list">
         <table class="table table-condensed">
