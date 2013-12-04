@@ -5,6 +5,7 @@
 @import "mixins";
 
 $stuck-width: "0.583333 * (100% - 160px) - #{$scrollbar-width}"; // 58.333% is col width, but fixed width is viewport so we remove the left col size (and the scrollbar)
+$top-border: 5px;
 $header-stuck-height: 47px;
 $tabs-stuck-height: 43px;
 $files-min-stuck-height: 49px;
@@ -33,7 +34,7 @@ $files-min-stuck-height: 49px;
                 margin-left: 50px;
             }
             &.stuck {
-                top: $header-top;
+                top: $header-top + $top-border;
                 max-height: $header-stuck-height;
                 z-index: 100;
                 margin: 0;
@@ -319,7 +320,7 @@ $files-min-stuck-height: 49px;
     &.stuck {
         background: #f0f0F0;
         max-height: $tabs-stuck-height;
-        top: $header-top + $header-stuck-height;
+        top: $header-top + $top-border + $header-stuck-height;
         z-index: 99;
         padding: 2px 0; // override area-top
         > li {
@@ -427,7 +428,7 @@ $files-min-stuck-height: 49px;
         }
         &.stuck {
             min-height: $files-min-stuck-height;
-            top: $header-top + $header-stuck-height + $tabs-stuck-height;
+            top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height;
             z-index: 98;
             padding-bottom: 3px;
             @include calc(width, $stuck-width);

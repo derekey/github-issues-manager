@@ -4608,6 +4608,11 @@ ol.errorlist, ul.errorlist {
   display: inline-block !important;
 }
 
+/* line 125, ../../../sass/main.scss */
+.active-panel {
+  border-top: solid 5px #7BC8D7 !important;
+}
+
 @media (max-width: 1023px) {
   /* line 4, ../../../sass/_responsive.scss */
   .navbar-fixed-top .user_avatar .dropdown-toggle > span > span:not(.caret) {

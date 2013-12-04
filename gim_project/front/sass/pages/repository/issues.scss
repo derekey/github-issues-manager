@@ -48,6 +48,7 @@ body#repository_issues #main-inner {
     height: 100%;
     overflow: hidden;
     position: relative;
+    border-top: solid #FAFAFA 5px;
 }
 #issues-filters { // col 1, sidebar with fixed width
     width: $sidebar-width;
@@ -197,17 +198,22 @@ body#repository_issues #main-inner {
 }
 
 // style of the options navbar
-#issues-list-options .nav {
-    // each of the 3 nav items will be forced to be 1/3 of width
-    float: none;
-    margin-right: 0;
-    & > li[class*="span"] {
-        width: (100%/3);
-        margin-left: 0;
+#issues-list-options {
+    .navbar-inner {
+        border-top: none;
+    }
+    .nav {
+        // each of the 3 nav items will be forced to be 1/3 of width
+        float: none;
         margin-right: 0;
-        a {
-            padding-top: 3px;
-            padding-bottom: 3px;
+        & > li[class*="span"] {
+            width: (100%/3);
+            margin-left: 0;
+            margin-right: 0;
+            a {
+                padding-top: 3px;
+                padding-bottom: 3px;
+            }
         }
     }
 }

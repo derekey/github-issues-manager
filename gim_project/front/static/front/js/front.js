@@ -1302,6 +1302,8 @@ $().ready(function() {
                 var old_panel = PanelsSwpr.current_panel;
                 PanelsSwpr.current_panel = panel;
                 if (old_panel.handlable) { PanelsSwpr.add_handler(old_panel); }
+                $('.active-panel').removeClass('active-panel');
+                PanelsSwpr.current_panel.$node.addClass('active-panel');
                 PanelsSwpr.current_panel.obj.on_panel_activated(PanelsSwpr.current_panel);
                 return true;
             }), // select_panel
@@ -1323,6 +1325,7 @@ $().ready(function() {
                 PanelsSwpr.panels = panels;
                 if (panels.length) {
                     PanelsSwpr.current_panel = panels[0];
+                    PanelsSwpr.current_panel.$node.addClass('active-panel');
                     for (var i = 0; i < panels.length; i++) {
                         panels[i].index = i;
                         if (panels[i].handlable && i != PanelsSwpr.current_panel.index) {
