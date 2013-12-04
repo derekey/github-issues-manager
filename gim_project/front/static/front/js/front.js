@@ -482,6 +482,11 @@ $().ready(function() {
                 issues_list.$search_input.on('keydown', jwerty.event('return', issues_list.go_to_first_issue, issues_list))
             }
         }
+
+        // keyboard events
+        $document.on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.on_current_list_key_event('toggle_details')));
+        $document.on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.on_current_list_key_event('close_all_groups')));
+        $document.on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.on_current_list_key_event('open_all_groups')));
     }); // IssuesList_init_event
 
     IssuesList.prototype.on_filter_done = (function IssuesList__on_filter_done () {
@@ -606,10 +611,21 @@ $().ready(function() {
     IssuesList.toggle_details = (function IssuesList_toggle_details () {
         for (var i = 0; i < IssuesList.all.length; i++) {
             var list = IssuesList.all[i];
-            list.$node.toggleClass('without-details');
+            list.toggle_details();
         }
         return false; // stop event propagation
     }); // IssuesList_toggle_details
+
+    IssuesList.prototype.toggle_details = (function IssuesList__toggle_details () {
+        this.$node.toggleClass('without-details');
+        for (var i = 0; i < this.groups.length; i++) {
+            var group = this.groups[i];
+            if (!group.collapsed) {
+                group.$issues_node.height('auto');
+            }
+        }
+        return false; // stop event propagation
+    }); // IssuesList__toggle_details
 
     IssuesList.close_all_groups = (function IssuesList_close_all_groups () {
         for (var i = 0; i < IssuesList.all.length; i++) {
@@ -750,11 +766,6 @@ $().ready(function() {
         $('#show-shortcuts').click();
         return false; // stop event propagation
     }); // on_help
-
-    // keyboard events
-    $document.on('click', '#toggle-issues-details', Ev.stop_event_decorate_dropdown(IssuesList.toggle_details));
-    $document.on('click', '#close-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.close_all_groups));
-    $document.on('click', '#open-all-groups', Ev.stop_event_decorate_dropdown(IssuesList.open_all_groups));
 
     if ($('#show-shortcuts').length) {
         $document.on('keypress', Ev.key_decorate(Ev.charcode(63, on_help)));  // 63 = ?
