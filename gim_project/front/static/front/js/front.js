@@ -1035,7 +1035,7 @@ $().ready(function() {
                                     ).find('.pr-comments').toArray());
                                 }, []);
                 } else {
-                    return $node.find('.issue-files .pr-comments').toArray();
+                    return [];
                 }
             }), // visible_files_comments
 
@@ -1055,8 +1055,11 @@ $().ready(function() {
                 var $files_list_container = $node.find('.pr-files-list-container'),
                     $files_list = $node.find('.pr-files-list'),
                     comments = IssueDetail.visible_files_comments($node),
-                    current = $files_list_container.data('active-comment'),
-                    comment, $comment, $file_node, position, file_pos;
+                    current, comment, $comment, $file_node, position, file_pos;
+
+                if (!comments.length) { return; }
+
+                current = $files_list_container.data('active-comment');
 
                 if (current) {
                     // we are on a comment, use it as a base
@@ -1178,6 +1181,17 @@ $().ready(function() {
                 $modal.data('$container').html('');
             }), // on_modal_hidden
 
+            on_files_list_key_event:  (function IssueDetail__on_files_list_key_event (method) {
+                var decorator = function(e) {
+                    if (PanelsSwpr.current_panel.obj != IssueDetail) { return; }
+                    var $node = PanelsSwpr.current_panel.$node,
+                        $tab = $node.find('.pr-files-tab.active');
+                    if (!$tab.length) { return; }
+                    return IssueDetail[method].call($tab);
+                };
+                return Ev.key_decorate(decorator);
+            }), // on_files_list_key_event
+
             init: (function IssueDetail__init () {
                 // init modal container
                 IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1215,6 +1229,10 @@ $().ready(function() {
                 $document.on('quicksearch.after', '.files-filter input.quicksearch', IssueDetail.on_files_filter_done);
                 $document.on('click', 'li:not(.disabled) a.go-to-previous-file-comment', Ev.stop_event_decorate(IssueDetail.go_to_previous_file_comment));
                 $document.on('click', 'li:not(.disabled) a.go-to-next-file-comment', Ev.stop_event_decorate(IssueDetail.go_to_next_file_comment));
+                jwerty.key('p/k', IssueDetail.on_files_list_key_event('go_to_previous_file'));
+                jwerty.key('n/j', IssueDetail.on_files_list_key_event('go_to_next_file'));
+                jwerty.key('shift+p/shift+k', IssueDetail.on_files_list_key_event('go_to_previous_file_comment'));
+                jwerty.key('shift+n/shift+j', IssueDetail.on_files_list_key_event('go_to_next_file_comment'));
             }) // init
         }; // IssueDetail
         IssueDetail.init();
