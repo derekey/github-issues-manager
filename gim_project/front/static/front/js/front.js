@@ -470,7 +470,7 @@ $().ready(function() {
         jwerty.key('n/j/↓', IssuesList.on_current_list_key_event('go_to_next_item'));
         jwerty.key('⇞', IssuesList.on_current_list_key_event('go_to_first_group'));
         jwerty.key('⇟', IssuesList.on_current_list_key_event('go_to_last_group'));
-        jwerty.key('s', IssuesList.on_current_list_key_event('focus_search_input'));
+        jwerty.key('f', IssuesList.on_current_list_key_event('focus_search_input'));
         jwerty.key('ctrl+u', IssuesList.on_current_list_key_event('clear_search_input'));
         jwerty.key('d', IssuesList.on_current_list_key_event('toggle_details'));
         for (var i = 0; i < IssuesList.all.length; i++) {
@@ -1203,6 +1203,14 @@ $().ready(function() {
                 return Ev.key_decorate(decorator);
             }), // on_files_list_key_event
 
+            focus_search_input: (function IssueDetail__focus_search_input () {
+                var $node = $(this).closest('.issue'),
+                    $files_list_container = $node.find('.pr-files-list-container'),
+                    $search_input = $files_list_container.find('input.quicksearch');
+                $search_input.focus();
+                return false;
+            }), // focus_search_input
+
             init: (function IssueDetail__init () {
                 // init modal container
                 IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1215,9 +1223,9 @@ $().ready(function() {
                 $document.on('click', '.resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
 
                 // tabs activation
-                jwerty.key('d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
-                jwerty.key('c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
-                jwerty.key('f', IssueDetail.on_current_panel_key_event('select_files_tab'));
+                jwerty.key('shift+d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
+                jwerty.key('shift+c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
+                jwerty.key('shift+f', IssueDetail.on_current_panel_key_event('select_files_tab'));
                 $document.on('shown.tab', '.pr-tabs a', IssueDetail.load_tab);
 
                 // modal events
@@ -1244,6 +1252,7 @@ $().ready(function() {
                 jwerty.key('n/j', IssueDetail.on_files_list_key_event('go_to_next_file'));
                 jwerty.key('shift+p/shift+k', IssueDetail.on_files_list_key_event('go_to_previous_file_comment'));
                 jwerty.key('shift+n/shift+j', IssueDetail.on_files_list_key_event('go_to_next_file_comment'));
+                jwerty.key('f', IssueDetail.on_files_list_key_event('focus_search_input'));
             }) // init
         }; // IssueDetail
         IssueDetail.init();
