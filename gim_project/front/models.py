@@ -298,8 +298,10 @@ class _Issue(models.Model):
     @property
     def all_commits(self):
         if not hasattr(self, '_all_commits'):
-            self._all_commits = list(self.commits.all().select_related('author',
-                                            'committer', 'repository__owner'))
+            self._all_commits = list(self.commits.all()
+                                         .select_related('author',
+                                            'committer', 'repository__owner')
+                                         .order_by('authored_at'))
         return self._all_commits
 
     @property
@@ -366,7 +368,7 @@ class GroupedCommits(list):
         for entry in activity:
 
             # add in a group all commits before the entry
-            while len(commits) and commits[0].committed_at < entry.created_at:
+            while len(commits) and commits[0].authored_at < entry.created_at:
                 if current_group is None:
                     current_group = cls()
                 current_group.append(commits.pop(0))
