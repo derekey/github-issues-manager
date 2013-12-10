@@ -234,6 +234,14 @@ $files-min-stuck-height: 49px;
             .box-toolbar {
                 font-weight: normal;
                 color: #949494;
+                li.link {
+                    float: none;
+                    clear: both;
+                    text-align: right;
+                    top: -5px;
+                    line-height: 21px;
+                    display: block;
+                }
             }
             .time {
                 margin-left: 5px;

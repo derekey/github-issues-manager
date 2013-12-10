@@ -1938,6 +1938,15 @@ class PullRequestCommentEntryPoint(GithubObject):
     def __unicode__(self):
         return u'Entry point on PR #%d' % self.issue.number
 
+    @property
+    def github_url(self):
+        if not self.commit_sha:
+            return None
+        url = self.repository.github_url + '/blob/%s/%s' % (self.commit_sha, self.path)
+        if self.position:
+            url += '#L%s' % self.position
+        return url
+
 
 class PullRequestComment(WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='pr_comments')
