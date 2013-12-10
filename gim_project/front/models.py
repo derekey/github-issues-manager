@@ -351,7 +351,7 @@ class GroupedCommits(list):
     """
     An object to regroup a list of commits
     - in a list of activities: all commits between two entries of the activity
-      list are grouped together ("add_commits_in_activity")
+      list are grouped together per day ("add_commits_in_activity")
     - per day ("group_commits_by_day")
     """
     is_commits_group = True  # for template
@@ -374,7 +374,8 @@ class GroupedCommits(list):
                 current_group.append(commits.pop(0))
 
             if current_group:
-                final_activity.append(current_group)
+                # final_activity.append(current_group)
+                final_activity.extend(GroupedCommits.group_commits_by_day(current_group))
                 current_group = None
 
             # then add the entry
@@ -382,7 +383,8 @@ class GroupedCommits(list):
 
         # still some commits, add a group with them
         if len(commits):
-            final_activity.append(cls(commits))
+            #final_activity.append(cls(commits))
+            final_activity.extend(GroupedCommits.group_commits_by_day(commits))
 
         return final_activity
 
