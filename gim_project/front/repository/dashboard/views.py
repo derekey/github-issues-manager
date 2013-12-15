@@ -1,4 +1,5 @@
 
+from collections import Counter
 from itertools import groupby
 from operator import attrgetter, itemgetter
 
@@ -155,9 +156,9 @@ class LabelsPart(RepositoryDashboardPartView):
         groups = [
             (
                 label_type,
-                sorted(labels, key=lambda l: l.name.lower())
+                sorted(label_type_labels, key=lambda l: l.name.lower())
             )
-            for label_type, labels
+            for label_type, label_type_labels
             in groupby(
                 labels,
                 attrgetter('label_type')
@@ -170,24 +171,33 @@ class LabelsPart(RepositoryDashboardPartView):
         return groups
 
     def get_labels_groups(self):
-        labels_with_count = self.repository.labels.ready().annotate(
-                                            issues_count=Count('issues'))
+        show_empty = self.request.GET.get('show-empty-labels', False)
 
-        if not self.request.GET.get('show-empty-labels', False):
-            labels_with_count = labels_with_count.filter(issues_count__gt=0)
+        counts = Counter(self.repository.issues.filter(state='open').values_list('labels', flat=True))
+        count_without_labels = counts.pop(None, 0)
 
-        return self.group_labels(labels_with_count)
+        labels_with_count = []
+        for label in self.repository.labels.ready():
+            if label.id in counts:
+                label.issues_count = counts[label.id]
+                labels_with_count.append(label)
+            elif show_empty:
+                label.issues_count = 0
+                labels_with_count.append(label)
+
+        return self.group_labels(labels_with_count), count_without_labels
 
     def get_context_data(self, **kwargs):
         context = super(LabelsPart, self).get_context_data(**kwargs)
 
         reverse_kwargs = self.repository.get_reverse_kwargs()
 
+        labels_groups, count_without_labels = self.get_labels_groups()
+
         context.update({
             'show_empty_labels': self.request.GET.get('show-empty-labels', False),
-            'labels_groups': self.get_labels_groups(),
-            'without_labels': self.repository.issues.ready().filter(
-                                    state='open', labels__isnull=True).count(),
+            'labels_groups': labels_groups,
+            'without_labels': count_without_labels,
             'labels_editor_url': reverse_lazy(
                 'front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs),
         })
