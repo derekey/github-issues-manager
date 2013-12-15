@@ -268,9 +268,9 @@ class IssueTracker(ChangeTracker):
     @staticmethod
     def event_part_for_merged(instance, new, old):
         if old is None and not new:
-            return
+            return []
         if instance.state != 'closed':
-            return
+            return []
 
         result = {
             'field': 'merged',
@@ -289,9 +289,9 @@ class IssueTracker(ChangeTracker):
     @staticmethod
     def event_part_for_mergeable(instance, new, old):
         if old is None and not new:
-            return
+            return []
         if instance.state == 'closed':
-            return
+            return []
 
         return [{
             'field': 'mergeable',
