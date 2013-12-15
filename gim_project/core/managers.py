@@ -708,6 +708,8 @@ class LabelTypeManager(models.Manager):
     to quickly return label type and typed name for a label.
     """
     _name_cache = {}
+    AUTO_TYPE_FIND_RE = re.compile(r'^(.*)(\s*):(\s*)(.*)$')
+    AUTO_TYPE_FORMAT = '%s%s:%s{label}'
 
     def _reset_cache(self, repository):
         """
@@ -724,16 +726,36 @@ class LabelTypeManager(models.Manager):
             self._name_cache[repository.id] = {}
 
         if name not in self._name_cache[repository.id]:
-            result = None
+            found_label_type = None
+
+            # search an existing label type
             for label_type in repository.label_types.all():
                 if label_type.match(name):
-                    name, order = label_type.get_name_and_order(name)
-                    result = (
-                        label_type,
-                        name,
-                        int(order) if order is not None else None,
-                    )
+                    found_label_type = label_type
                     break
+
+            # try to add an automatic group
+            if found_label_type is None:
+                match = self.AUTO_TYPE_FIND_RE.match(name)
+                if match:
+                    type_name, spaces1, spaces2, label = match.groups()
+                    format_string = self.AUTO_TYPE_FORMAT % (type_name, spaces1, spaces2)
+                    found_label_type = repository.label_types.create(
+                        name=type_name.capitalize(),
+                        edit_mode=self.model.LABELTYPE_EDITMODE.FORMAT,
+                        edit_details={'format_string': format_string},
+                        regex=self.model.regex_from_format(format_string)
+                    )
+
+            result = None
+            if found_label_type:
+                name, order = found_label_type.get_name_and_order(name)
+                result = (
+                    found_label_type,
+                    name,
+                    int(order) if order is not None else None,
+                )
+
             self._name_cache[repository.id][name] = result
 
         return self._name_cache[repository.id][name]

@@ -1252,6 +1252,8 @@ LABELTYPE_EDITMODE = Choices(
 
 
 class LabelType(models.Model):
+    LABELTYPE_EDITMODE = LABELTYPE_EDITMODE
+
     repository = models.ForeignKey(Repository, related_name='label_types')
     regex = models.TextField(
         help_text='Must contain at least this part: (?P<label>visible-part-of-the-label)", and can include "(?P<order>\d+)" for ordering',
@@ -1317,6 +1319,16 @@ class LabelType(models.Model):
     def delete(self, *args, **kwargs):
         LabelType.objects._reset_cache(self.repository)
         super(LabelType, self).delete(*args, **kwargs)
+
+    @staticmethod
+    def regex_from_format(format_string):
+        return '^%s$' % re.escape(format_string)\
+                          .replace('\\{label\\}', '(?P<label>.+)', 1) \
+                          .replace('\\{order\\}', '(?P<order>\d+)', 1)
+
+    @staticmethod
+    def regex_from_list(labels_list):
+        return '^(?P<label>%s)$' % u'|'.join(map(re.escape, labels_list.split(u',')))
 
 
 class Label(WithRepositoryMixin, GithubObject):

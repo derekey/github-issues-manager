@@ -92,13 +92,10 @@ class LabelTypeEditForm(LinkedToRepositoryForm):
         data = super(LabelTypeEditForm, self).clean()
 
         if self.edit_mode_value == LABELTYPE_EDITMODE.FORMAT and data.get('format_string'):
-            data['regex'] = '^%s$' % re.escape(data['format_string'])\
-                                .replace('\\{label\\}', '(?P<label>.+)', 1) \
-                                .replace('\\{order\\}', '(?P<order>\d+)', 1)
+            data['regex'] = LabelType.regex_from_format(data['format_string'])
 
         if self.edit_mode_value == LABELTYPE_EDITMODE.LIST and data.get('labels_list'):
-            data['regex'] = '^(?P<label>%s)$' % u'|'.join(
-                            map(re.escape, data['labels_list'].split(u',')))
+            data['regex'] = LabelType.regex_from_list(data['labels_list'])
 
         return data
 
