@@ -175,7 +175,7 @@ INSTALLED_APPS = (
     'front.repository.issues',
     'front.repository.dashboard',
     'front.repository.timeline',
-    'front.repository.workflow',
+    'front.repository.board',
 )
 
 DEBUG_TOOLBAR_PANELS = (
