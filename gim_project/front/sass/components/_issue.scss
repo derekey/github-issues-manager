@@ -288,6 +288,11 @@ $files-min-stuck-height: 49px;
         }
     }
 
+    .pr-entry-point, .pr-file {
+        div.collapse.in {
+            height: auto !important;
+        }
+    }
     .comment-commits {
         margin: -5px -10px;
     }
