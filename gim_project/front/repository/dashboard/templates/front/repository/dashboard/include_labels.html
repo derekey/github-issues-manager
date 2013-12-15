@@ -31,7 +31,7 @@
                     {% for label in labels %}
                         <li style="border-bottom-color: #{{ label.color }}">
                             <a href="{{ issues_url }}?state=open&amp;labels={{ label.name }}">
-                                {{ label.typed_name }}
+                                {% if label.label_type_id %}{{ label.typed_name }}{% else %}{{ label.name }}{% endif %}
                                 <span>{{ label.issues_count }}</span>
                             </a>
                         </li>
