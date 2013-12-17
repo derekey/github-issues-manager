@@ -748,15 +748,13 @@ $().ready(function() {
 
     IssueByNumber.init_events();
 
-    var on_resize_issue_click = (function on_resize_issue_click(e) {
+    var toggle_full_screen_for_current_modal = (function toggle_full_screen_for_current_modal() {
         var $modal = $('.modal.in');
         if ($modal.length) {
             $modal.toggleClass('full-screen');
-        } else {
-            $('body').toggleClass('big-issue');
         }
         return false; // stop event propagation
-    }); // on_resize_issue_click
+    }); // toggle_full_screen_for_current_modal
 
     $document.on('hidden.modal', '.modal', function () {
         $(this).removeClass('full-screen');
@@ -1166,6 +1164,15 @@ $().ready(function() {
                 return Ev.key_decorate(decorator);
             }), // on_current_panel_key_event
 
+            on_main_issue_panel_key_event: (function IssueDetail__on_main_issue_panel_key_event (method) {
+                var decorator = function(e) {
+                    if (!IssueDetail.$main_container.length) { return; }
+                    PanelsSwpr.select_panel_from_node(IssueDetail.$main_container);
+                    return IssueDetail[method](PanelsSwpr.current_panel);
+                };
+                return Ev.key_decorate(decorator);
+            }), // on_main_issue_panel_key_event
+
             on_panel_activated: (function IssueDetail__on_panel_activated (panel) {
                 if (IssuesList.current) {
                     IssuesList.current.unset_current();
@@ -1217,6 +1224,14 @@ $().ready(function() {
                 return false;
             }), // focus_search_input
 
+            toggle_full_screen: (function IssueDetail__toggle_full_screen (panel) {
+                if (IssueDetail.is_modal(panel.$node)) {
+                    toggle_full_screen_for_current_modal();
+                }
+                panel.$node.toggleClass('big-issue');
+                return false;
+            }), // toggle_full_screen
+
             init: (function IssueDetail__init () {
                 // init modal container
                 IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1225,8 +1240,9 @@ $().ready(function() {
                 IssueDetail.$modal.data('$container', IssueDetail.$modal_container);
 
                 // full screen mode
-                jwerty.key('s', Ev.key_decorate(on_resize_issue_click));
-                $document.on('click', '.resize-issue', Ev.stop_event_decorate(on_resize_issue_click));
+                jwerty.key('s', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
+                jwerty.key('s', IssueDetail.on_main_issue_panel_key_event('toggle_full_screen'));
+                $document.on('click', '.resize-issue', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
 
                 // tabs activation
                 jwerty.key('shift+d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));

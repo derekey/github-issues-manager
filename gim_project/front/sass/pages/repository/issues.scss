@@ -263,25 +263,3 @@ body#repository_issues #main-inner {
 
 
 // third column: the issue
-
-
-// full screen issue: hide the two first columns
-body#repository_issues.big-issue {
-    $stuck-full-width: "100% - #{$scrollbar-width}"; // leave room for the scrollbar)
-    #main-inner {
-        padding-left: 0;
-    }
-    #issues-filters {
-        display: none;
-    }
-    #issues-list-container {
-        display: none;
-    }
-    #main-issue-container {
-        width: 100%;
-        .stuck {
-            // width: 100%!important;
-            @include calc(width, $stuck-full-width);
-        }
-    }
-}
