@@ -10,11 +10,12 @@ class ToggleRepositoryBaseForm(forms.Form):
     """
     Base form to use to add/remove a repository
     """
-    RE_SPACES = re.compile('\s+')
+    # allow foo/bar but also a full github url
+    RE_REPO = re.compile('^(?:https?://(?:www.)?github\.com/)?\s*([\w\-\.]+)\s*/\s*([\w\-\.]+)(?:$|\s*|/)?')
 
     name = forms.CharField(
                 validators=[
-                    validators.RegexValidator(re.compile('^\s*[\w\-\.]+\s*/\s*[\w\-\.]+\s*$')),
+                    validators.RegexValidator(RE_REPO),
                 ],
                 error_messages={
                     'required': 'No repository given',
@@ -37,7 +38,7 @@ class ToggleRepositoryBaseForm(forms.Form):
         """
         name = self.cleaned_data.get('name')
         if name:
-            name = self.RE_SPACES.sub('', name)
+            name = '/'.join(self.RE_REPO.match(name).groups())
         return name
 
     def split_name(self, name):

@@ -39,7 +39,7 @@
                                     <td colspan='7' class="repository-input">
                                         <form action="{{ repository_add_url }}" method="post" class="span10 offset1">
                                             <div class="input-append">
-                                                <input id="id_name" name="name" type="text" placeholder="Add a repository by entering name/repository (or choose one below)" class="span12" />
+                                                <input id="id_name" name="name" type="text" placeholder="Add a repository by entering github url, or name/repository (or choose one below)" class="span12" />
                                                 <button type="submit" class="btn btn-green" title="Subscribe to this repository"><i class="icon-plus"> </i></button>
                                                 <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                                             </div>
