@@ -1,6 +1,7 @@
 $().ready(function() {
 
-    var $document = $(document);
+    var $document = $(document),
+        $body = $('body');
 
     var Ev = {
         stop_event_decorate: (function stop_event_decorate(callback) {
@@ -822,7 +823,7 @@ $().ready(function() {
                     $files_list_container.waypoint('sticky', {
                         context: $context,
                         wrapper: '<div class="sticky-wrapper files-list-sticky-wrapper" />',
-                          offset: 90  // 47 for stuck header height + 43 for stuck tabs height
+                          offset: 84  // 47 for stuck header height + 37 for stuck tabs height
                     });
                 }
             }), // set_tab_files_issue_waypoints
@@ -899,21 +900,22 @@ $().ready(function() {
                 if ($tab_link.length) { $tab_link.focus().click(); }
                 return false;
             }), // select_tab
-            select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'discussion')},
-            select_commits_tab: function(panel) { return IssueDetail.select_tab(panel, 'commits')},
-            select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'files')},
+            select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'discussion'); },
+            select_commits_tab: function(panel) { return IssueDetail.select_tab(panel, 'commits'); },
+            select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'files'); },
 
             on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $target) {
                 if ($target.data('files-list-loaded')) { return;}
                 $target.data('files-list-loaded', true);
                 IssueDetail.set_tab_files_issue_waypoints($node);
+                $target.find('a.path').first().click();
             }), // on_files_list_loaded
 
             on_files_list_click: (function IssueDetail__on_files_list_click (ev) {
                 var $link = $(this),
                     $target = $($link.attr('href')),
                     $node = $link.closest('.issue');
-                IssueDetail.scroll_in_files_list($node, $target.position().top);
+                IssueDetail.scroll_in_files_list($node, $target.offset().top);
                 IssueDetail.set_active_file($node, $link.closest('tr').data('pos'), true);
                 return false;
             }), // on_files_list_click
@@ -921,7 +923,9 @@ $().ready(function() {
             scroll_in_files_list: (function IssueDetail__scroll_in_files_list ($node, position, delta) {
                 var is_modal = IssueDetail.is_modal($node),
                     $context = IssueDetail.get_scroll_context($node, is_modal),
-                    stuck_height = $node.find('.sticky-wrapper')
+                    is_list_on_top = (parseInt($node.find('.pr-files-list-container').css('bottom'), 10) != 0),
+                    is_full_screen = ($context.css('position') == 'absolute'),
+                    stuck_height = $node.find('.sticky-wrapper' + (is_list_on_top ? '' : ':not(.files-list-sticky-wrapper)'))
                                    .toArray()
                                    .reduce(function(height, wrapper) {
                                         var $wrapper = $(wrapper),
@@ -930,7 +934,9 @@ $().ready(function() {
                                     }, 0);
                     position += (is_modal ? 0 : $context.scrollTop())
                               - stuck_height
-                              - 14 - (delta || 0);  // adjust
+                              - 52 // diff between position.top and offset.top when list on top, don't know what it is
+                              - 15 // adjust (margin ?)
+                              - (delta || 0);
 
                 $context.scrollTop(position);
             }), // scroll_in_files_list
@@ -1112,7 +1118,7 @@ $().ready(function() {
                 $file_node = $comment.closest('.pr-file');
                 $files_list_container.data('active-comment', comment);
                 IssueDetail.set_active_file($node, $file_node.data('pos'), false);
-                IssueDetail.scroll_in_files_list($node, $comment.position().top, 30);
+                IssueDetail.scroll_in_files_list($node, $comment.offset().top, 30);  // 30 = 2 previous diff lines
                 $node.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
                 $node.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
             }), // go_to_file_comment
@@ -1596,7 +1602,7 @@ $().ready(function() {
             var $link = $(this);
             $link.attr('target', '_blank');
             if (!MarkdownManager.re) {
-                MarkdownManager.re = new RegExp('https?://github.com/' + $('body').data('repository') + '/(?:issue|pull)s?/(\\d+)');
+                MarkdownManager.re = new RegExp('https?://github.com/' + $body.data('repository') + '/(?:issue|pull)s?/(\\d+)');
             }
             var matches = this.href.match(MarkdownManager.re);
             if (matches) {
@@ -1644,7 +1650,7 @@ $().ready(function() {
                 if ($messages.length) {
                     $messages.append($new_messages.children());
                 } else {
-                    $('body > header:first-of-type').after($new_messages);
+                    $body.children('header:first-of-type').after($new_messages);
                 }
                 MessagesManager.init_auto_hide();
                 return $fake_node.html();

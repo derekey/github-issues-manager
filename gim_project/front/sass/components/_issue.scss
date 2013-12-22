@@ -7,7 +7,7 @@
 $stuck-width: "0.583333 * (100% - 160px) - #{$scrollbar-width}"; // 58.333% is col width, but fixed width is viewport so we remove the left col size (and the scrollbar)
 $top-border: 5px;
 $header-stuck-height: 47px;
-$tabs-stuck-height: 43px;
+$tabs-stuck-height: 37px;
 $files-min-stuck-height: 49px;
 
 .issue {
@@ -195,6 +195,56 @@ $files-min-stuck-height: 49px;
 
 } // .issue
 
+@media (min-width: 1023px) {
+    .issue.big-issue .issue-files {
+        $file-list-width: 400px;
+        position: relative;
+        .files-list-sticky-wrapper {
+            height: auto !important;
+        }
+        .pr-files-list-container {
+            left: 0;
+            width: $file-list-width !important;
+            bottom: 0;
+            padding-top: 50px;
+            height: auto;
+            border-right: 1px solid #ddd;
+            &:not(.stuck) {
+                position: absolute;
+                top: 0;
+            }
+            &.stuck {
+                border-right-color: #ccc;
+                @include box-shadow(rgba(black, 0.07) 2px 0 1px -1px);
+            }
+        }
+        .pr-files-list {
+            max-height: none;
+            position: absolute;
+            top: 85px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            height: auto !important;  // bypass collapsing;
+            margin: 5px 0 0 !important;
+        }
+        .files-list-summary {
+            cursor: default;
+            position: absolute;
+            top: 14px;
+            i.icon-sort {
+                display: none;
+            }
+        }
+        .issue-activity {
+            margin-left: $file-list-width;
+        }
+        table.table.table-normal.diff-lines tr:not(.diff-comments) td.code span {
+            left: $file-list-width;
+        }
+    }
+}
+
 // the toolbar of an issue is placed on the top right corner
 .issue-nav {
     position: absolute;
@@ -349,6 +399,10 @@ $files-min-stuck-height: 49px;
         &:first-of-type {
             margin-left: 30px;
         }
+        > a {
+            padding-bottom: 8px;
+            padding-top: 5px;
+        }
     }
     &.stuck {
         background: #f0f0F0;
@@ -361,6 +415,7 @@ $files-min-stuck-height: 49px;
             > a {
                 @include border-radius(4px);
                 border-color: none;
+                padding-bottom: 5px;
                 &:hover, &:focus {
                     border-color: #ddd;
                 }
