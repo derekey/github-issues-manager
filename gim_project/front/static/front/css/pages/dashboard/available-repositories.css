@@ -59,3 +59,10 @@
 #available-repositories tbody.collapse tr:hover {
   background: #f8eec7;
 }
+
+/* line 59, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#ask-fetch {
+  float: right;
+  margin-top: 6px;
+  margin-right: -3px;
+}

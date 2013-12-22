@@ -1,4 +1,4 @@
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, RedirectView
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
@@ -161,3 +161,18 @@ class ChooseRepositoryView(TemplateView):
             'organizations_by_name': organizations_by_name,
         })
         return context
+
+
+class AskFetchAvailableRepositories(BaseFrontViewMixin, RedirectView):
+    """
+    Fetch the available repositories of the current user from github then
+    redirect him to the subscriptions page
+    """
+    permanent = False
+    http_method_names = [u'post']
+    url = reverse_lazy("front:dashboard:repositories:choose")
+
+    def post(self, *args, **kwargs):
+        self.request.user.fetch_available_repositories()
+        messages.success(self.request, 'The list of repositories you can subscribe to was just updated')
+        return super(AskFetchAvailableRepositories, self).post(*args, **kwargs)

@@ -91,5 +91,3 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
             ).select_related('owner').order_by('lower_owner', 'lower_name')
 
         return context
-
-
