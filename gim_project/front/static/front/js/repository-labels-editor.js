@@ -38,8 +38,6 @@ $().ready(function() {
                 var width = tip.offsetWidth + 10,  // arrow size
                     pos = this.getPosition();
 
-                console.log(width, pos.right, pos.right + width, document.body.offsetWidth);
-
                 return (document.body.offsetWidth < pos.right + width) ? 'left' : 'right';
             },
             trigger: 'manual',
