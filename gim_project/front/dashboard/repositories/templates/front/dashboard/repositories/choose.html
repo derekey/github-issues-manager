@@ -30,10 +30,10 @@
                         <table class="table table-normal">
                             <thead>
                                     <tr>
-                                        <td>Your available repositories</td>
-                                        <td colspan='6'>
+                                        <td colspan='7'>
+                                            Your available repositories
                                             {% if available_repositories %}
-                                                {% include "front/include_quicksearch.html" with target="#available-repositories tbody:not(.repository-input) tr" content="td:not(.repository-input):first-child" class="pull-right" only %}
+                                                {% include "front/include_quicksearch.html" with target="#available-repositories tbody:not(.repository-input) tr" content="td:not(.repository-input):first-child" class="small pull-right" only %}
                                             {% endif %}
                                         </td>
                                     </tr>
