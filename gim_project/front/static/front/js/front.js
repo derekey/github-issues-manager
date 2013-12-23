@@ -1238,6 +1238,12 @@ $().ready(function() {
                 return false;
             }), // toggle_full_screen
 
+            view_on_github: (function IssueDetail__view_on_github (panel) {
+                var $link = panel.$node.find('header h3 a').first();
+                window.open($link.attr('href'), '_blank');
+                return false;
+            }), // view_on_github
+
             init: (function IssueDetail__init () {
                 // init modal container
                 IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1249,6 +1255,9 @@ $().ready(function() {
                 jwerty.key('s', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
                 jwerty.key('s', IssueDetail.on_main_issue_panel_key_event('toggle_full_screen'));
                 $document.on('click', '.resize-issue', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
+
+                jwerty.key('v', IssueDetail.on_current_panel_key_event('view_on_github'));
+                jwerty.key('v', IssueDetail.on_main_issue_panel_key_event('view_on_github'));
 
                 // tabs activation
                 jwerty.key('shift+d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
