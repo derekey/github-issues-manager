@@ -59,8 +59,17 @@
 #available-repositories tbody.collapse tr:hover {
   background: #f8eec7;
 }
+/* line 58, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#available-repositories form.toggle-form button.btn-loading {
+  width: 26px;
+  height: 22px;
+}
+/* line 62, ../../../../../sass/pages/dashboard/available-repositories.scss */
+#available-repositories form.toggle-form button.btn-loading.loading i.icon-remove, #available-repositories form.toggle-form button.btn-loading.loading i.icon-plus {
+  display: none;
+}
 
-/* line 59, ../../../../../sass/pages/dashboard/available-repositories.scss */
+/* line 69, ../../../../../sass/pages/dashboard/available-repositories.scss */
 #ask-fetch {
   float: right;
   margin-top: 6px;

@@ -4600,11 +4600,11 @@ ol.errorlist, ul.errorlist {
 }
 
 /* line 115, ../../../sass/main.scss */
-.btn-loading i {
+.btn-loading i.icon-spinner, .btn-loading i.icon-spin {
   display: none !important;
 }
 /* line 119, ../../../sass/main.scss */
-.btn-loading.loading i {
+.btn-loading.loading i.icon-spinner, .btn-loading.loading i.icon-spin {
   display: inline-block !important;
 }
 

@@ -1,0 +1,9 @@
+{% load staticfiles %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
+{% url "front:dashboard:repositories:add" as repository_add_url %}
+{% url "front:dashboard:repositories:remove" as repository_remove_url %}
+{% if repo %}
+    <table><tbody>
+    {% include "front/dashboard/repositories/include_repo.html" %}
+    </tbody></table>
+{% endif %}

@@ -29,6 +29,7 @@ class ToggleRepositoryBaseForm(forms.Form):
         A user must be passed in kwargs.
         """
         self.user = kwargs.pop('user')
+        self.repo_full_name = None
         super(ToggleRepositoryBaseForm, self).__init__(*args, **kwargs)
 
     def clean_name(self):
@@ -39,6 +40,7 @@ class ToggleRepositoryBaseForm(forms.Form):
         name = self.cleaned_data.get('name')
         if name:
             name = '/'.join(self.RE_REPO.match(name).groups())
+        self.repo_full_name = name
         return name
 
     def split_name(self, name):

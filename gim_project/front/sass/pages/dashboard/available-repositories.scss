@@ -54,6 +54,16 @@
             }
         }
     }
+
+    form.toggle-form button.btn-loading {
+        width: 26px;
+        height: 22px;
+        &.loading {
+            i.icon-remove, i.icon-plus {
+                display: none;
+            }
+        }
+    }
 }
 
 #ask-fetch {

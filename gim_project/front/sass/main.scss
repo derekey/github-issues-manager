@@ -112,11 +112,11 @@ ol, ul {
 
 // loading spin on buttons, hidden by default
 .btn-loading {
-    i {
+    i.icon-spinner, i.icon-spin {
         display: none !important;
     }
     &.loading {
-        i {
+        i.icon-spinner, i.icon-spin {
             display: inline-block !important;
         }
     }
