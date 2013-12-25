@@ -255,6 +255,10 @@ class AskFetchAvailableRepositories(BaseFrontViewMixin, RedirectView):
     url = reverse_lazy("front:dashboard:repositories:choose")
 
     def post(self, *args, **kwargs):
-        self.request.user.fetch_available_repositories()
-        messages.success(self.request, 'The list of repositories you can subscribe to was just updated')
+        try:
+            self.request.user.fetch_available_repositories()
+        except Exception:
+            messages.error(self.request, 'The list of repositories you can subscribe could not be updated :(')
+        else:
+            messages.success(self.request, 'The list of repositories you can subscribe to was just updated')
         return super(AskFetchAvailableRepositories, self).post(*args, **kwargs)
