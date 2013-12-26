@@ -2129,3 +2129,6 @@ class PullRequestFile(WithIssueMixin, GithubObject):
     @property
     def github_url(self):
         return self.repository.github_url + '/blob/%s/%s' % (self.tree, self.path)
+
+
+from core.tasks import *

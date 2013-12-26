@@ -1,3 +1,9 @@
+__all__ = [
+    'FetchIssueByNumber',
+    'UpdateIssueCacheTemplate',
+    'IssueEditStateJob',
+]
+
 import time
 
 from limpyd import fields
@@ -6,7 +12,7 @@ from async_messages import messages
 from core.models import Issue, Repository
 from core.ghpool import ApiError
 
-from . import DjangoModelJob, Job
+from .base import DjangoModelJob, Job
 
 
 class FetchIssueByNumber(Job):

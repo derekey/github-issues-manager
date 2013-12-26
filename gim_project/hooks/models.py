@@ -390,3 +390,5 @@ class EventManager(object):
 
         except Exception:
             return None
+
+from .tasks import *

@@ -1,3 +1,6 @@
+__all__ = [
+    'LabelEditJob',
+]
 
 from limpyd import fields
 from async_messages import messages
@@ -5,7 +8,7 @@ from async_messages import messages
 from core.models import Label
 from core.ghpool import ApiError
 
-from . import DjangoModelJob
+from .base import DjangoModelJob
 
 
 class LabelJob(DjangoModelJob):

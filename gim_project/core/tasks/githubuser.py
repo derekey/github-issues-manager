@@ -1,10 +1,13 @@
+__all__ = [
+    'FetchAvailableRepositoriesJob',
+]
 
 from limpyd import fields
 from async_messages import messages
 
 from core.models import GithubUser
 
-from . import DjangoModelJob
+from .base import DjangoModelJob
 
 
 class UserJob(DjangoModelJob):

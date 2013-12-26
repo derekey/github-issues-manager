@@ -1,10 +1,16 @@
+__all__ = [
+    'IssueCommentEditJob',
+    'PullRequestCommentEditJob',
+]
+
+
 from limpyd import fields
 from async_messages import messages
 
 from core.models import IssueComment, PullRequestComment
 from core.ghpool import ApiError
 
-from . import DjangoModelJob
+from .base import DjangoModelJob
 
 
 class IssueCommentJob(DjangoModelJob):

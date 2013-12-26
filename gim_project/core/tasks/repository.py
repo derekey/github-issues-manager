@@ -1,3 +1,12 @@
+__all__ = [
+    'FetchClosedIssuesWithNoClosedBy',
+    'FetchUpdatedPullRequests',
+    'FirstFetch',
+    'FirstFetchStep2',
+    'FetchUnfetchedCommits',
+    'FetchForUpdate',
+]
+
 from random import randint
 
 from limpyd import fields
@@ -6,7 +15,7 @@ from async_messages import messages
 from core.models import Repository, GithubUser
 from subscriptions.models import WaitingSubscription, WAITING_SUBSCRIPTION_STATES
 
-from . import DjangoModelJob, Job
+from .base import DjangoModelJob, Job
 
 
 class RepositoryJob(DjangoModelJob):
