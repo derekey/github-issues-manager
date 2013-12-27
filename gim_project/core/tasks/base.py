@@ -56,7 +56,7 @@ class Worker(LimpydWorker):
         to the default success message
         """
         message = super(Worker, self).job_success_message(job, queue, job_result)
-        return message + job.success_message_addon(queue, job_result)
+        return message + (job.success_message_addon(queue, job_result) or '')
 
     def additional_error_fields(self, job, queue, exception, trace=None):
         """
