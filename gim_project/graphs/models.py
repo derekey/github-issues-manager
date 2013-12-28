@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -9,6 +10,7 @@ from limpyd import model as lmodel, fields as lfields
 
 from core import main_limpyd_database
 from core.models import Repository, Issue
+from core.utils import contribute_to_model
 
 
 class GraphData(lmodel.RedisModel):
@@ -69,19 +71,35 @@ class GraphData(lmodel.RedisModel):
         max_score = int(str(today).replace('-', ''))
 
         data = self.issues_by_day.zrangebyscore(min_score, max_score)
-        splitted_data = [x.split(':') for x in data]
+        if len(data):
+            splitted_data = [x.split(':') for x in data]
 
-        if include_dates:
-            result = [(parse(d).date(), int(i), int(p)) for d, i, p in splitted_data]
+            if include_dates:
+                result = [(parse(d).date(), int(i), int(p)) for d, i, p in splitted_data]
+            else:
+                result = [(int(i), int(p)) for d, i, p in splitted_data]
+
+            max_value = max([r[-1] + r[-2] for r in result])
         else:
-            result = [(int(i), int(p)) for d, i, p in splitted_data]
-
-        max_value = max([r[-1] + r[-2] for r in result])
+            max_value = 0
+            result = []
 
         return {
             'max': max_value,
             'data': result,
         }
+
+
+class _Repository(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def graphs(self):
+        r, created = GraphData.get_or_connect(repository_id=self.id)
+        return r
+
+contribute_to_model(_Repository, Repository)
 
 
 @receiver(post_save, sender=Issue, dispatch_uid="update_graphs_data")

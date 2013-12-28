@@ -16,5 +16,6 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
     url(r'^hooks/', include('hooks.urls', namespace='hooks')),
+    url(r'^graphs/', include('graphs.urls', namespace='graphs')),
     url(r'^', include('front.urls', namespace='front', app_name='front')),
 )

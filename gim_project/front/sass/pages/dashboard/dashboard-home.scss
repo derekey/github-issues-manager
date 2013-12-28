@@ -7,52 +7,55 @@
 }
 
 #subscribed_repositories {
-    table {
-        table-layout: fixed;
-    }
-    td:not(:first-child) {
-        text-align: center;
-    }
-    tbody tr:not(.total) td:not(:first-child) {
-        padding: 0;
-        a {
-            color: inherit;
-            display: block;
-            line-height: 34px;
-        }
-    }
-    tr.total {
-        font-weight: bold;
-        td:first-child span {
-            font-weight: normal;
-            font-size: smaller;
-        }
-    }
-    tr:nth-child(2n) {
-        background: transparent;
-    }
-    tr.even {
-        background: #F3F4F8;
-    }
-    tr.odd, tr.even {
-        &:hover {
-            background: $table-row-hover-background-color;
-        }
-    }
-    tr.divider {
-        td {
-            padding: 0;
-            height: 6px;
-        }
-    }
-    td.repository {
-        a {
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    }
     .box-footer {
         text-align: center;
+    }
+}
+
+#subscribed_repositories {
+    .news-content {
+        position: relative;
+        overflow: hidden;
+        height: 63px;
+        margin-bottom: -10px;
+    }
+    .news-title {
+        position: relative;
+        z-index: 2;
+    }
+    .issues-by-day {
+        position: absolute;
+        line-height: 1px;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+    }
+    .counters {
+        float: right;
+        margin-top: -13px;
+        font-size: 14px;
+        text-align: right;
+        font-weight: bold;
+        li {
+            padding: 0 5px;
+        }
+        .high a {
+            color: #C75D5D;
+        }
+        .medium a {
+            color: #6E97AA;
+        }
+        .low a {
+            color: #808080;
+        }
+        .none a {
+            color: #8FAE53;
+        }
+        .not-collab {
+            font-weight: normal;
+        }
+        .all-prs {
+            border-top: dashed #ccc 1px;
+        }
     }
 }

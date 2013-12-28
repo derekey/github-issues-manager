@@ -24,10 +24,10 @@ class DashboardHome(SubscribedRepositoriesMixin, ListView):
         }
 
         for repository in repositories:
-            issues = repository.issues.ready()
+            issues = repository.issues.ready().filter(state='open')
 
             repository.user_counts_open = {
-                'all': issues.filter(state='open').count(),
+                'all': issues.count(),
             }
 
             # count prs only if we have issues (no issues = no prs)
@@ -37,21 +37,21 @@ class DashboardHome(SubscribedRepositoriesMixin, ListView):
             else:
                 repository.user_counts_open['all_prs'] = 0
 
-            repository.user_counts_open['created'] = issues.filter(state='open',
+            repository.user_counts_open['created'] = issues.filter(
                                                 user=self.request.user).count()
 
-            # count prs only if we have issues (no issues = no prs)
-            if repository.user_counts_open['created']:
-                repository.user_counts_open['prs'] = issues.filter(state='open',
-                        is_pull_request=True, user=self.request.user).count()
-            else:
-                repository.user_counts_open['prs'] = 0
+            # # count prs only if we have issues (no issues = no prs)
+            # if repository.user_counts_open['created']:
+            #     repository.user_counts_open['prs'] = issues.filter(
+            #             is_pull_request=True, user=self.request.user).count()
+            # else:
+            #     repository.user_counts_open['prs'] = 0
 
             # count assigned only if owner or collaborator
             subscription = subscription_by_repo_id.get(repository.id, None)
             if subscription and subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
                 repository.user_counts_open['assigned'] = issues.filter(
-                            state='open', assignee=self.request.user).count()
+                                            assignee=self.request.user).count()
 
             for key, count in repository.user_counts_open.items():
                 total_counts[key] += count
