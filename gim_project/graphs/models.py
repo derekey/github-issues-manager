@@ -36,33 +36,35 @@ class GraphData(lmodel.RedisModel):
         issues = list(self.repository.issues.values(
                         'created_at', 'closed_at', 'state', 'is_pull_request'
                     ).order_by('created_at'))
-        min_date = issues[0]['created_at'].date()
 
-        # save counts
-        for issue in issues:
-            start = issue['created_at'].date()
-            end = (issue['closed_at'] or today).date()
-            closed = issue['state'] == 'closed'
-            for d in [0] + range(1, (end - start).days + (0 if closed else 1)):
-                counter = nb_prs if issue['is_pull_request'] else nb_issues
-                key = str(start + timedelta(days=d))
-                counter[key] += 1
+        if len(issues):
+            min_date = issues[0]['created_at'].date()
 
-        # prepare zset
-        z_issues = {}
-        for d in xrange((today.date() - min_date).days + 1):
-            key = str(min_date + timedelta(days=d))
-            score = int(key.replace('-', ''))
-            value = '%s:%d:%d' % (score, nb_issues.get(key, 0), nb_prs.get(key, 0))
-            z_issues[value] = score
+            # save counts
+            for issue in issues:
+                start = issue['created_at'].date()
+                end = (issue['closed_at'] or today).date()
+                closed = issue['state'] == 'closed'
+                for d in [0] + range(1, (end - start).days + (0 if closed else 1)):
+                    counter = nb_prs if issue['is_pull_request'] else nb_issues
+                    key = str(start + timedelta(days=d))
+                    counter[key] += 1
 
-        # delete and save in one pass
-        with self.database.pipeline() as pipeline:
-            self.issues_by_day.delete()
+            # prepare zset
+            z_issues = {}
+            for d in xrange((today.date() - min_date).days + 1):
+                key = str(min_date + timedelta(days=d))
+                score = int(key.replace('-', ''))
+                value = '%s:%d:%d' % (score, nb_issues.get(key, 0), nb_prs.get(key, 0))
+                z_issues[value] = score
 
-            self.issues_by_day.zadd(**z_issues)
+            # delete and save in one pass
+            with self.database.pipeline() as pipeline:
+                self.issues_by_day.delete()
 
-            pipeline.execute()
+                self.issues_by_day.zadd(**z_issues)
+
+                pipeline.execute()
 
     def get_issues_and_prs_by_day(self, duration=365, include_dates=True):
         today = datetime.utcnow().date()
