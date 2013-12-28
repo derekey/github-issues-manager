@@ -164,6 +164,7 @@ INSTALLED_APPS = (
 
     'hooks',
     'events',
+    'graphs',
 
     'front',
     'front.auth',
