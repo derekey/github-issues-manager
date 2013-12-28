@@ -1,3 +1,7 @@
+__all__ = [
+    'UpdateGraphsData',
+]
+
 from core.tasks.repository import RepositoryJob
 
 from .models import GraphData
