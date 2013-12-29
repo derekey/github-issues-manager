@@ -136,7 +136,7 @@ class GithubObject(models.Model):
 
     def _fetch_many(self, field_name, gh, vary=None, defaults=None,
                     parameters=None, remove_missing=True, force_fetch=False,
-                    meta_base_name=None, modes=MODE_ALL):
+                    meta_base_name=None, modes=MODE_ALL, max_pages=None):
         """
         Fetch data from github for the given m2m or related field.
         If defined, "vary" is a dict of list of parameters to fetch. For each
@@ -202,8 +202,8 @@ class GithubObject(models.Model):
                         # direction_param = (parameters or {}).get('direction')
                         # if (not sort and not sort_param or sort and sort_param == sort)\
                         #     and (not direction and not direction_param or direction and direction_param == direction):
-                        if (parameters or {}).get('sort') == sort and\
-                           (parameters or {}).get('direction') == direction:
+                        if parameters.get('sort') == sort and\
+                           parameters.get('direction') == direction:
                             min_date = fetched_at
 
         request_headers = prepare_fetch_headers(
@@ -314,6 +314,7 @@ class GithubObject(models.Model):
         etags = {}
         objs = []
         cache_hit = False
+        max_pages_raised = False
         something_fetched = False
         for parameters_combination, etag_field in parameters_combinations:
 
@@ -329,12 +330,14 @@ class GithubObject(models.Model):
 
             try:
                 # fetch all available pages
-                page = 0
+                page = parameters.get('page', 0)
+                pages_total = 0
                 page_parameters = parameters_combination.copy()
                 while True:
                     page += 1
                     page_parameters, page_etag = fetch_page_and_next(objs,
                                                     page_parameters, min_date)
+                    pages_total += 1
                     if page == 1:
                         etags[etag_field] = page_etag
                         if request_etag:
@@ -345,6 +348,10 @@ class GithubObject(models.Model):
                                 github_format=model.github_format)
 
                     if page_parameters is None:
+                        break
+
+                    if max_pages and pages_total >= max_pages:
+                        max_pages_raised = True
                         break
 
             except MinDateRaised, e:
@@ -365,14 +372,18 @@ class GithubObject(models.Model):
         # now update the list with created/updated objects
         if something_fetched:
             # but only if we had all fresh data !
+            started_at_first_page = parameters.get('page', 1) in (0, 1, None)
             do_remove = (remove_missing
                      and not cache_hit
                      and modes == MODE_ALL
-                     and not parameters.get('page')
+                     and not max_pages_raised
+                     and started_at_first_page
                 )
+            save_etags_and_fetched_at = started_at_first_page
             self.update_related_field(field_name,
                                       [obj.id for obj in objs],
                                       do_remove=do_remove,
+                                      save_etags_and_fetched_at=save_etags_and_fetched_at,
                                       etags=etags,
                                       fetched_at_field=fetched_at_field)
 
@@ -382,8 +393,8 @@ class GithubObject(models.Model):
         else:
             return len(objs)
 
-    def update_related_field(self, field_name, ids, do_remove=True, etags=None,
-                                                        fetched_at_field=None):
+    def update_related_field(self, field_name, ids, do_remove=True,
+            save_etags_and_fetched_at=True, etags=None, fetched_at_field=None):
         """
         For the given field name, with must be a m2m or the reverse side of
         a m2m or a fk, use the given list of ids as the lists of ids of all the
@@ -431,19 +442,20 @@ class GithubObject(models.Model):
         # check if we have something to save on the main object
         update_fields = []
 
-        # can we save a fetch date ?
-        if not fetched_at_field:
-            fetched_at_field = '%s_fetched_at' % field_name
-        if hasattr(self, fetched_at_field):
-            setattr(self, fetched_at_field, datetime.utcnow())
-            update_fields.append(fetched_at_field)
+        if save_etags_and_fetched_at:
+            # can we save a fetch date ?
+            if not fetched_at_field:
+                fetched_at_field = '%s_fetched_at' % field_name
+            if hasattr(self, fetched_at_field):
+                setattr(self, fetched_at_field, datetime.utcnow())
+                update_fields.append(fetched_at_field)
 
-        # do we have etags to save ?
-        if etags:
-            for etag_field, etag in etags.items():
-                if hasattr(self, etag_field):
-                    setattr(self, etag_field, etag)
-                    update_fields.append(etag_field)
+            # do we have etags to save ?
+            if etags:
+                for etag_field, etag in etags.items():
+                    if hasattr(self, etag_field):
+                        setattr(self, etag_field, etag)
+                        update_fields.append(etag_field)
 
         # save main object if needed
         if update_fields:
@@ -927,7 +939,7 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_issues(self, gh, force_fetch=False, state=None, parameters=None,
-                                                        parameters_prs=None):
+                                        parameters_prs=None, max_pages=None):
         if state:
             vary = {'state': (state, )}
             remove_missing = False
@@ -953,7 +965,8 @@ class Repository(GithubObjectWithId):
                                     },
                                     parameters=final_issues_parameters,
                                     remove_missing=remove_missing,
-                                    force_fetch=force_fetch)
+                                    force_fetch=force_fetch,
+                                    max_pages=max_pages)
 
         # now fetch pull requests to have more informations for them (only
         # ones that already exist as an issue, not the new ones)
@@ -966,19 +979,20 @@ class Repository(GithubObjectWithId):
             final_prs_parameters.update(parameters_prs)
 
         pr_count = self._fetch_many('issues', gh,
-                         vary=vary,
-                         defaults={
+                        vary=vary,
+                        defaults={
                             'fk': {'repository': self},
                             'related': {'*': {'fk': {'repository': self}}},
                             'simple': {'is_pull_request': True},
-                         },
-                         parameters=final_prs_parameters,
-                         remove_missing=False,
-                         force_fetch=force_fetch,
-                         meta_base_name='prs',
-                         modes=MODE_UPDATE if self.has_issues else MODE_ALL)
-        if not self.has_issues:
-            count = pr_count
+                        },
+                        parameters=final_prs_parameters,
+                        remove_missing=False,
+                        force_fetch=force_fetch,
+                        meta_base_name='prs',
+                        modes=MODE_UPDATE if self.has_issues else MODE_ALL,
+                        max_pages=max_pages)
+
+        count += pr_count
 
         if self.has_issues and (not state or state == 'closed'):
             from .tasks.repository import FetchClosedIssuesWithNoClosedBy
@@ -1121,7 +1135,8 @@ class Repository(GithubObjectWithId):
             'events',
         ]
 
-    def fetch_issues_events(self, gh, force_fetch=False, parameters=None):
+    def fetch_issues_events(self, gh, force_fetch=False, parameters=None,
+                                                            max_pages=None):
         if not self.has_issues:
             # bug in the github api, not able to retrieve issue events if only PRs
             return 0
@@ -1131,7 +1146,8 @@ class Repository(GithubObjectWithId):
                                     'related': {'*': {'fk': {'repository': self}}},
                                 },
                                  parameters=parameters,
-                                 force_fetch=force_fetch)
+                                 force_fetch=force_fetch,
+                                 max_pages=max_pages)
 
         from .tasks.repository import FetchUnfetchedCommits
         FetchUnfetchedCommits.add_job(self.id, limit=20, gh=gh)
@@ -1150,7 +1166,8 @@ class Repository(GithubObjectWithId):
             'comments'
         ]
 
-    def fetch_comments(self, gh, force_fetch=False, parameters=None):
+    def fetch_comments(self, gh, force_fetch=False, parameters=None,
+                                                                max_pages=None):
         final_parameters = {
             'sort': IssueComment.github_date_field[1],
             'direction': IssueComment.github_date_field[2],
@@ -1163,9 +1180,11 @@ class Repository(GithubObjectWithId):
                                     'related': {'*': {'fk': {'repository': self}}},
                                 },
                                 parameters=final_parameters,
-                                force_fetch=force_fetch)
+                                force_fetch=force_fetch,
+                                max_pages=max_pages)
 
-    def fetch_pr_comments(self, gh, force_fetch=False, parameters=None):
+    def fetch_pr_comments(self, gh, force_fetch=False, parameters=None,
+                                                                max_pages=None):
         final_parameters = {
             'sort': PullRequestComment.github_date_field[1],
             'direction': PullRequestComment.github_date_field[2],
@@ -1178,7 +1197,8 @@ class Repository(GithubObjectWithId):
                                     'related': {'*': {'fk': {'repository': self}}},
                                 },
                                 parameters=final_parameters,
-                                force_fetch=force_fetch)
+                                force_fetch=force_fetch,
+                                max_pages=max_pages)
 
     @property
     def github_callable_identifiers_for_commits(self):
@@ -1206,16 +1226,37 @@ class Repository(GithubObjectWithId):
                                     force_fetch=int(force_fetch or False),
                                     gh=gh)
         else:
-            self.fetch_issues(gh, force_fetch=force_fetch)
-            self.fetch_issues_events(gh, force_fetch=force_fetch)
-            self.fetch_comments(gh, force_fetch=force_fetch)
-            self.fetch_pr_comments(gh, force_fetch=force_fetch)
+            self.fetch_all_step2(gh, force_fetch)
 
-    def fetch_all_step2(self, gh, force_fetch=False):
-        self.fetch_issues(gh, force_fetch=force_fetch, state='closed')
-        self.fetch_issues_events(gh, force_fetch=force_fetch)
-        self.fetch_comments(gh, force_fetch=force_fetch)
-        self.fetch_pr_comments(gh, force_fetch=force_fetch)
+    def fetch_all_step2(self, gh, force_fetch=False, start_page=None,
+                        max_pages=None, to_ignore=None, issues_state=None):
+        if not to_ignore:
+            to_ignore = set()
+
+        parameters = {}
+        if start_page and start_page > 1:
+            parameters['page'] = start_page
+
+        kwargs = {
+            'gh': gh,
+            'force_fetch': force_fetch,
+            'max_pages': max_pages,
+            'parameters': parameters,
+        }
+
+        counts = {}
+
+        if 'issues' not in to_ignore:
+            counts['issues'] = self.fetch_issues(parameters_prs=parameters,
+                                                 state=issues_state, **kwargs)
+        if 'issues_events' not in to_ignore:
+            counts['issues_events'] = self.fetch_issues_events(**kwargs)
+        if 'comments' not in to_ignore:
+            counts['comments'] = self.fetch_comments(**kwargs)
+        if 'pr_comments' not in to_ignore:
+            counts['pr_comments'] = self.fetch_pr_comments(**kwargs)
+
+        return counts
 
 
 class WithRepositoryMixin(object):

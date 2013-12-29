@@ -196,8 +196,12 @@ class FirstFetchStep2(RepositoryJob):
     comments)
     """
     queue_name = 'repository-fetch-step2'
+    clonable_fields = ('gh', 'force_fetch', 'max_pages', )
 
     force_fetch = fields.InstanceHashField()
+    start_page = fields.InstanceHashField()
+    max_pages = fields.InstanceHashField()
+    to_ignore = fields.SetField()
 
     def run(self, queue):
         """
@@ -206,19 +210,67 @@ class FirstFetchStep2(RepositoryJob):
         """
         super(FirstFetchStep2, self).run(queue)
 
+        self._force_fetch, self._start_page, self._max_pages = self.hmget('force_fetch', 'start_page', 'max_pages')
+
         try:
-            force_fetch = bool(int(self.force_fetch.hget()))
+            self._force_fetch = bool(int(self._force_fetch))
         except Exception:
-            force_fetch = False
+            self._force_fetch = False
+
+        try:
+            self._start_page = int(self._start_page)
+        except Exception:
+            self._start_page = 1
+
+        try:
+            self._max_pages = int(self._max_pages)
+        except Exception:
+            self._max_pages = 5
+
+        try:
+            self._to_ignore = set(self.to_ignore.smembers())
+        except:
+            self._to_ignore = None
 
         repository = self.object
 
-        repository.fetch_all_step2(gh=self.gh, force_fetch=force_fetch)
+        counts = repository.fetch_all_step2(
+                        gh=self.gh, force_fetch=self._force_fetch,
+                        start_page=self._start_page, max_pages=self._max_pages,
+                        to_ignore=self._to_ignore, issues_state='closed')
 
-        # add a job to do future fetches
-        FetchForUpdate.add_job(repository.id)
+        return counts
 
-        return None
+    def on_success(self, queue, result):
+
+        if sum(result.values()):
+            # we got data, continue at least one time
+
+            self._to_ignore.update([k for k, v in result.iteritems() if not v])
+
+            kwargs = {'start_page': self._start_page + self._max_pages}
+            if self._to_ignore:
+                kwargs['to_ignore'] = self._to_ignore  # cannot sadd an empty set
+
+            self.clone(delayed_for=60, **kwargs)
+
+        else:
+            # got nothing, it's the end, add a job to do future fetches
+
+            FetchForUpdate.add_job(self.object.id)
+
+    def success_message_addon(self, queue, result):
+        msg = ' [%s]' % (', '.join(['%s=%s' % (k, v) for k, v in result.iteritems()]))
+
+        if sum(result.values()):
+
+            msg += ' - Continue (start page %s for %s pages)' % (
+                            self._start_page + self._max_pages, self._max_pages)
+
+        else:
+            msg += ' - The end.'
+
+        return msg
 
 
 class FetchUnfetchedCommits(RepositoryJob):
