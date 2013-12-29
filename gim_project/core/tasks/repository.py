@@ -175,6 +175,11 @@ class FirstFetch(Job):
         # save count in the job
         self.converted_subscriptions.hset(count)
 
+        # check the hook (add check-hook/events jobs)
+        # should not be in core but for now...
+        from hooks.tasks import CheckRepositoryHook
+        CheckRepositoryHook.add_job(repository.id)
+
         # return the number of converted subscriptions
         return count
 
@@ -206,7 +211,12 @@ class FirstFetchStep2(RepositoryJob):
         except Exception:
             force_fetch = False
 
-        self.object.fetch_all_step2(gh=self.gh, force_fetch=force_fetch)
+        repository = self.object
+
+        repository.fetch_all_step2(gh=self.gh, force_fetch=force_fetch)
+
+        # add a job to do future fetches
+        FetchForUpdate.add_job(repository.id)
 
         return None
 

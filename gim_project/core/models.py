@@ -1199,10 +1199,6 @@ class Repository(GithubObjectWithId):
             self.fetch_labels(gh, force_fetch=force_fetch)
             self.fetch_milestones(gh, force_fetch=force_fetch)
 
-        # should not be in core but for now...
-        from hooks.tasks import CheckRepositoryHook
-        CheckRepositoryHook.add_job(self.id)
-
         if two_steps:
             self.fetch_issues(gh, force_fetch=force_fetch, state='open')
             from .tasks.repository import FirstFetchStep2
@@ -1214,16 +1210,12 @@ class Repository(GithubObjectWithId):
             self.fetch_issues_events(gh, force_fetch=force_fetch)
             self.fetch_comments(gh, force_fetch=force_fetch)
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
-            from .tasks.repository import FetchForUpdate
-            FetchForUpdate.add_job(self.id)
 
     def fetch_all_step2(self, gh, force_fetch=False):
         self.fetch_issues(gh, force_fetch=force_fetch, state='closed')
         self.fetch_issues_events(gh, force_fetch=force_fetch)
         self.fetch_comments(gh, force_fetch=force_fetch)
         self.fetch_pr_comments(gh, force_fetch=force_fetch)
-        from .tasks.repository import FetchForUpdate
-        FetchForUpdate.add_job(self.id)
 
 
 class WithRepositoryMixin(object):
