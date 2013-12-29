@@ -16,7 +16,7 @@ class IssuesByDayForRepo(BaseDetailView):
 
         data = self.object.graphs.get_issues_and_prs_by_day()
 
-        height = float(self.request.GET.get('height', 200))
+        height = float(self.request.GET.get('height', None) or 200)
         ratio = 1
         if data['max'] > height:
             ratio = height / data['max']

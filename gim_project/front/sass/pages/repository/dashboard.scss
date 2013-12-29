@@ -151,3 +151,16 @@ ul.labels {
         font-size: 125%;
     }
 }
+
+body > main > .row-header .area-top {
+    position: relative;
+    & > .header {
+        position: relative;
+        z-index: 2;
+    }
+    & > .issues-by-day {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+}

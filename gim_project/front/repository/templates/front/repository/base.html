@@ -3,7 +3,7 @@
 {% static 'front/img/default-avatar.png' as default_avatar %}
 
 {% block body_classes %}repository{% endblock %}
-{% block body_attributes %} data-repository={{ current_repository.full_name }}{% endblock %}
+{% block body_attributes %} data-repository={{ current_repository.full_name }} data-repository-id={{ current_repository.id }}{% endblock %}
 {% block title %}{{ current_repository }} | {{ view.name }}{% endblock title %}
 
 {% block header_nav %}

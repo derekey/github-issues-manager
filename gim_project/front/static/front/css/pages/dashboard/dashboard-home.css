@@ -23,12 +23,11 @@
 /* line 26, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .issues-by-day {
   position: absolute;
-  line-height: 1px;
   right: 0;
   bottom: 0;
   z-index: 1;
 }
-/* line 33, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 32, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters {
   float: right;
   margin-top: -13px;
@@ -36,31 +35,31 @@
   text-align: right;
   font-weight: bold;
 }
-/* line 39, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 38, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters li {
   padding: 0 5px;
 }
-/* line 42, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 41, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .high a {
   color: #C75D5D;
 }
-/* line 45, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 44, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .medium a {
   color: #6E97AA;
 }
-/* line 48, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 47, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .low a {
   color: #808080;
 }
-/* line 51, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 50, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .none a {
   color: #8FAE53;
 }
-/* line 54, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 53, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .not-collab {
   font-weight: normal;
 }
-/* line 57, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 56, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .all-prs {
   border-top: dashed #ccc 1px;
 }

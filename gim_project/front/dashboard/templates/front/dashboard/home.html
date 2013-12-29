@@ -94,35 +94,14 @@
 {% block js_footer %}
     {{ block.super }}
     <script type="text/javascript" src="{% static "graphs/js/jquery.sparkline.min.js" %}" ></script>
+    <script type="text/javascript" src="{% static "graphs/js/graphs.js" %}" ></script>
     <script type="text/javascript">
-        var graph_data_url = "{% url 'graphs:issues_by_day_for_repo' repository_id=99999 %}?height=40";
+        var graph_data_urls = graph_data_urls || {};
+        graph_data_urls.issues_by_day = "{% url 'graphs:issues_by_day_for_repo' repository_id=99999 %}";
         $().ready(function() {
-            var $repo_nodes = $('#subscribed_repositories .box-section[data-repo-id]');
-            var make_graph = function($repo_node, data) {
-                var $graph_node = $repo_node.find('.issues-by-day');
-                if ($graph_node.length) { $graph_node.remove(); }
-                $graph_node = $('<span class="issues-by-day"/>');
-                $repo_node.children('.news-content').append($graph_node);
-                $graph_node.sparkline(data.graph_data, {
-                    type: 'bar',
-                    height: data.max_height,
-                    stackedBarColor: ['#E5E5E5', '#D5D5D5'],
-                    highlightColor: '#F0F0F0',
-                    tooltipFormatter: function(sparkline, options, fields) {
-                        return '<div style="text-align:center; font-weight: bold; text-decoration: underline; margin-bottom: 3px;">' + data.dates[fields[0].offset] + '</div>'
-                             + '<div><strong>Issues: </strong>' + fields[0].value + '</div>'
-                             + '<div><strong>Pull requests: </strong>' + fields[1].value + '</div>'
-                             + '<div><Strong>Total: </strong>' + (fields[0].value + fields[1].value) + '</div>';
-                    }
-                });
-            };
-            $repo_nodes.each(function() {
-                var $repo_node = $(this),
-                    repo_id = $repo_node.data('repo-id'),
-                    url = graph_data_url.replace('99999', repo_id);
-                $.get(url, function(data) {
-                    make_graph($repo_node, data);
-                });
+            $('#subscribed_repositories .box-section[data-repo-id]').each(function() {
+                var $repo_node = $(this);
+                IssuesByDayGraph.fetch_and_make_graph($repo_node.data('repo-id'), 40, $repo_node.children('.news-content'));
             });
         });
     </script>

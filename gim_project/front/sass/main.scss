@@ -122,8 +122,14 @@ ol, ul {
     }
 }
 
+// show which panel is the current one with a top blue border
 .active-panel {
     border-top: solid 5px #7BC8D7 !important;
+}
+
+// allow minimal size for sparkline graphs
+.sparkline-graph {
+    line-height: 1px !important;
 }
 
 @import "responsive";

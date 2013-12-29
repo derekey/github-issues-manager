@@ -169,3 +169,19 @@ ul.labels li {
 #milestones .box-content .empty-area, #labels .box-content .empty-area {
   font-size: 125%;
 }
+
+/* line 155, ../../../../../sass/pages/repository/dashboard.scss */
+body > main > .row-header .area-top {
+  position: relative;
+}
+/* line 157, ../../../../../sass/pages/repository/dashboard.scss */
+body > main > .row-header .area-top > .header {
+  position: relative;
+  z-index: 2;
+}
+/* line 161, ../../../../../sass/pages/repository/dashboard.scss */
+body > main > .row-header .area-top > .issues-by-day {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}

@@ -81,4 +81,6 @@ $().ready(function() {
     MilestonesDashboardWidget();
     LabelsDashboardWidget();
 
+    var $body = $('body');
+    IssuesByDayGraph.fetch_and_make_graph($body.data('repository-id'), 40, $body.find('main > .row-header .area-top'));
 });
