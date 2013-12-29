@@ -1,6 +1,7 @@
 import json
 
 from django.http import HttpResponse
+from django.utils.cache import patch_response_headers
 from django.views.generic.detail import BaseDetailView
 
 from core.models import Repository
@@ -36,8 +37,12 @@ class IssuesByDayForRepo(BaseDetailView):
             'dates': context['dates'],
         })
 
-        return HttpResponse(
+        response = HttpResponse(
             json_data,
             content_type='application/json',
             **response_kwargs
         )
+
+        # http cache for 15mn
+        patch_response_headers(response, 15 * 60)
+        return response
