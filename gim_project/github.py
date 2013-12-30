@@ -47,6 +47,24 @@ import base64
 import urllib
 import urllib2
 
+import logging
+from pprint import pformat
+
+LOGGER_NAME = 'github'
+logger = logging.getLogger(LOGGER_NAME)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(
+                                ' '.join(['[%(process)d]',
+                                          '%(asctime)s',
+                                          '(%(name)s)',
+                                          '%(levelname)-8s',
+                                          '%(message)s',
+                                         ])
+                            ))
+    logger.addHandler(handler)
+
 try:
     import json
 except ImportError:
@@ -138,7 +156,10 @@ class GitHub(object):
             else:
                 data = urllib.urlencode(kw)
         url = '%s%s' % (_URL, path)
-        print '************** REQUEST', method, url, request_headers
+        if logger.level > logging.DEBUG:
+            logger.info('REQUEST %s %s %s', method, url, pformat(request_headers))
+        else:
+            logger.info('%s REQUEST %s %s %s', '*' * 10, method, url, pformat(request_headers))
         opener = urllib2.build_opener(urllib2.HTTPSHandler)
         request = urllib2.Request(url, data=data, headers=request_headers or {})
         request.get_method = _METHOD_MAP[method]
@@ -151,13 +172,15 @@ class GitHub(object):
             is_json = self._process_resp(response.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(response.headers.dict.copy())
-            # print 'RESPONSE', 200, response_headers
-            print "  ======> 200"
+            if logger.level > logging.DEBUG:
+                logger.info('==> %s', 200)
+            else:
+                logger.debug('=========> RESPONSE %s %s', 200, pformat(response_headers))
             content = response.read()
-            # print 'CONTENT\n' + '=' * 40 + '\n'
-            # from pprint import pprint
-            # pprint(_parse_json(content) if is_json else content)
-            # print '\n' + '=' * 40 + '\n'
+            # if logger.level <= logging.DEBUG:
+            #     logger.debug('CONTENT\n' + '=' * 40)
+            #     logger.debug('%s', pformat(_parse_json(content) if is_json else content))
+            #     logger.debug('\n' + '=' * 40)
             if is_json:
                 return _parse_json(content)
             else:
@@ -166,8 +189,10 @@ class GitHub(object):
             is_json = self._process_resp(e.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(e.headers.dict.copy())
-            # print 'RESPONSE', e.code, response_headers
-            print "  ======> ", e.code
+            if logger.level > logging.DEBUG:
+                logger.info('==> %s', e.code)
+            else:
+                logger.debug('=========> RESPONSE %s %s', e.code, pformat(response_headers))
             if is_json:
                 _json = _parse_json(e.read())
             else:
