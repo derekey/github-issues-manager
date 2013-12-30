@@ -10,7 +10,7 @@ from limpyd import fields
 from async_messages import messages
 
 from core.models import Issue, Repository
-from core.ghpool import ApiError
+from core.ghpool import ApiError, ApiNotFoundError
 
 from .base import DjangoModelJob, Job
 
@@ -20,6 +20,7 @@ class FetchIssueByNumber(Job):
     Fetch the whole issue for a repository, given only the issue's number
     """
     queue_name = 'fetch-issue-by-number'
+    deleted = fields.InstanceHashField()
 
     def run(self, queue):
         """
@@ -41,7 +42,23 @@ class FetchIssueByNumber(Job):
         except Issue.DoesNotExist:
             issue = Issue(repository=repository, number=issue_number)
 
-        issue.fetch_all(gh)
+        try:
+            issue.fetch_all(gh)
+        except ApiNotFoundError:
+            # we have a 404, but... check if it's the issue itself
+            try:
+                issue.fetch(gh)
+            except ApiNotFoundError:
+                # ok the issue doesn't exist anymore, delete id
+                issue.delete()
+                self.deleted.hset(1)
+                return False
+
+        return True
+
+    def success_message_addon(self, queue, result):
+        if result is False:
+            return ' [deleted]'
 
 
 class IssueJob(DjangoModelJob):
