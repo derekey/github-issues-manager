@@ -7,7 +7,6 @@ from jsonfield import JSONField
 from core.models import Repository, Issue
 
 from .renderers import IssueRenderer
-from .trackers import *
 
 
 class Event(models.Model):
@@ -101,3 +100,6 @@ class EventPart(models.Model):
             return getattr(self.renderer, 'render_part_%s' % self.field)(self, 'html')
         except Exception:
             return '%s has changed' % self.field
+
+
+from .trackers import *
