@@ -157,7 +157,7 @@ class GitHub(object):
                 data = urllib.urlencode(kw)
         url = '%s%s' % (_URL, path)
         if logger.level > logging.DEBUG:
-            logger.info('REQUEST %s %s %s', method, url, pformat(request_headers))
+            logger.info('REQUEST %s %s %s', method, url, request_headers)
         else:
             logger.info('%s REQUEST %s %s %s', '*' * 10, method, url, pformat(request_headers))
         opener = urllib2.build_opener(urllib2.HTTPSHandler)
