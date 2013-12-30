@@ -457,11 +457,12 @@ class WithRepositoryManager(GithubObjectManager):
             return None
 
         # add the repository if needed
-        if 'repository' not in fields['fk'] and url:
-            repository = Repository.objects.get_by_url(url)
-            if repository:
-                fields['fk']['repository'] = repository
-            else:
+        if not fields['fk'].get('repository'):
+            if url:
+                repository = Repository.objects.get_by_url(url)
+                if repository:
+                    fields['fk']['repository'] = repository
+            if not fields['fk'].get('repository'):
                 # no repository found, don't save the object !
                 return None
 
@@ -678,11 +679,13 @@ class WithIssueManager(GithubObjectManager):
         repository = fields['fk'].get('repository')
 
         # add the issue if needed
-        if 'issue' not in fields['fk'] and url:
-            issue = Issue.objects.get_by_url(url, repository)
-            if issue:
-                fields['fk']['issue'] = issue
-            else:
+        if not fields['fk'].get('issue'):
+            if url:
+                issue = Issue.objects.get_by_url(url, repository)
+                if issue:
+                    fields['fk']['issue'] = issue
+
+            if not fields['fk'].get('issue'):
                 # no issue found, don't save the object !
                 return None
 
