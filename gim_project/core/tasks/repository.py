@@ -202,6 +202,9 @@ class FirstFetchStep2(RepositoryJob):
     max_pages = fields.InstanceHashField()
     to_ignore = fields.SetField()
 
+    counts = fields.HashField()
+    last_one = fields.InstanceHashField()
+
     def run(self, queue):
         """
         Call the fetch_all_step2 method of the linked repository, using the
@@ -215,11 +218,13 @@ class FirstFetchStep2(RepositoryJob):
             self._start_page = int(self._start_page)
         except Exception:
             self._start_page = 1
+            self.start_page.hset(self._start_page)
 
         try:
             self._max_pages = int(self._max_pages)
         except Exception:
             self._max_pages = 5
+            self.max_pages.hset(self._max_pages)
 
         try:
             self._to_ignore = set(self.to_ignore.smembers())
@@ -237,7 +242,13 @@ class FirstFetchStep2(RepositoryJob):
 
     def on_success(self, queue, result):
 
-        if sum(result.values()):
+        if result:
+            self.counts.hmset(**result)
+            total_count = sum(result.values())
+        else:
+            total_count = 0
+
+        if total_count:
             # we got data, continue at least one time
 
             self._to_ignore.update([k for k, v in result.iteritems() if not v])
@@ -250,13 +261,13 @@ class FirstFetchStep2(RepositoryJob):
 
         else:
             # got nothing, it's the end, add a job to do future fetches
-
+            self.last_one.hset(1)
             FetchForUpdate.add_job(self.object.id)
 
     def success_message_addon(self, queue, result):
         msg = ' [%s]' % (', '.join(['%s=%s' % (k, v) for k, v in result.iteritems()]))
 
-        if sum(result.values()):
+        if result and sum(result.values()):
 
             msg += ' - Continue (start page %s for %s pages)' % (
                             self._start_page + self._max_pages, self._max_pages)
