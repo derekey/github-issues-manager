@@ -1222,9 +1222,7 @@ class Repository(GithubObjectWithId):
         if two_steps:
             self.fetch_issues(gh, force_fetch=force_fetch, state='open')
             from .tasks.repository import FirstFetchStep2
-            FirstFetchStep2.add_job(self.id,
-                                    force_fetch=int(force_fetch or False),
-                                    gh=gh)
+            FirstFetchStep2.add_job(self.id, gh=gh)
         else:
             self.fetch_all_step2(gh, force_fetch)
 

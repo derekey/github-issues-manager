@@ -154,7 +154,7 @@ class FirstFetch(Job):
 
         # fetch the repository if never fetched
         if not repository.fetched_at:
-            repository.fetch_all(gh=self.gh, two_steps=True)
+            repository.fetch_all(gh=self.gh, force_fetch=True, two_steps=True)
 
         # and convert waiting subscriptions to real ones
         count = 0
@@ -196,9 +196,8 @@ class FirstFetchStep2(RepositoryJob):
     comments)
     """
     queue_name = 'repository-fetch-step2'
-    clonable_fields = ('gh', 'force_fetch', 'max_pages', )
+    clonable_fields = ('gh', 'max_pages', )
 
-    force_fetch = fields.InstanceHashField()
     start_page = fields.InstanceHashField()
     max_pages = fields.InstanceHashField()
     to_ignore = fields.SetField()
@@ -206,16 +205,11 @@ class FirstFetchStep2(RepositoryJob):
     def run(self, queue):
         """
         Call the fetch_all_step2 method of the linked repository, using the
-        value of the force_fetch job's attribute
+        value of the start_page and max_pages job's attributes
         """
         super(FirstFetchStep2, self).run(queue)
 
-        self._force_fetch, self._start_page, self._max_pages = self.hmget('force_fetch', 'start_page', 'max_pages')
-
-        try:
-            self._force_fetch = bool(int(self._force_fetch))
-        except Exception:
-            self._force_fetch = False
+        self._start_page, self._max_pages = self.hmget('start_page', 'max_pages')
 
         try:
             self._start_page = int(self._start_page)
@@ -235,7 +229,7 @@ class FirstFetchStep2(RepositoryJob):
         repository = self.object
 
         counts = repository.fetch_all_step2(
-                        gh=self.gh, force_fetch=self._force_fetch,
+                        gh=self.gh, force_fetch=True,
                         start_page=self._start_page, max_pages=self._max_pages,
                         to_ignore=self._to_ignore, issues_state='closed')
 

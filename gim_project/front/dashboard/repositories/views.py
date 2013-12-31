@@ -80,8 +80,7 @@ class AddRepositoryView(ToggleRepositoryBaseView):
             repository = subscription.repository
         except Repository.DoesNotExist:
             # add a job to fetch the repository
-            FirstFetch.add_job(name, gh=self.request.user.get_connection(),
-                                                            force_fetch=True)
+            FirstFetch.add_job(name, gh=self.request.user.get_connection())
         else:
             if repository.fetched_at:
                 message = 'Your subscription to <strong>%s</strong> was just added'
