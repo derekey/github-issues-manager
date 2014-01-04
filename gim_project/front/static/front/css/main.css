@@ -457,6 +457,102 @@ blockquote p:last-child {
   width: calc(100% - 72px - 12px) ;
 }
 
+/* line 2, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments) {
+  white-space: pre;
+  background: white;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  color: #333;
+  border: none;
+}
+/* line 8, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments).comment {
+  background: #F8F8FF;
+  color: #999;
+}
+/* line 11, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments).comment td.line-number {
+  background-color: #F3F3FF;
+  border-color: #E4E4FF;
+  text-align: center;
+}
+/* line 17, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments).added {
+  background: #DDFFDD;
+}
+/* line 19, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments).added td.line-number {
+  background-color: #CEFFCE;
+  border-color: #B4E2B4;
+}
+/* line 23, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments).added .highlight {
+  background-color: #AAFFAA;
+  color: #000;
+}
+/* line 28, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments).removed {
+  background: #FFDDDD;
+}
+/* line 30, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments).removed td {
+  background-color: #F7C8C8;
+  border-color: #E9AEAE;
+}
+/* line 34, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments).removed .highlight {
+  background-color: #FFAAAA;
+  color: #000;
+}
+/* line 39, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments) td {
+  border: none;
+  line-height: 20px;
+  min-height: 20px;
+  padding: 1px 5px;
+  background: transparent;
+}
+/* line 45, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments) td.line-number {
+  width: 8px;
+  text-align: right;
+  color: rgba(0, 0, 0, 0.3);
+  border-right-style: solid;
+  border-right-width: 1px;
+}
+/* line 53, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments) td.line-number > span {
+  display: none;
+}
+/* line 56, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments) td.line-number:before {
+  content: attr(data-line-number);
+}
+/* line 60, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments) td.code {
+  vertical-align: baseline;
+}
+/* line 62, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments) td.code .btn-comment {
+  position: absolute;
+  left: 0;
+  padding: 1px;
+  cursor: pointer;
+  display: none;
+}
+/* line 71, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments):hover {
+  background: #f8eec7 !important;
+}
+/* line 73, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments):hover td {
+  background: transparent !important;
+}
+/* line 75, ../../../sass/widgets/_diff.scss */
+table.diff tbody tr:not(.diff-comments):hover td.code .btn-comment {
+  display: inline-block;
+}
+
 /* line 4, ../../../core-admin/stylesheets/base.scss */
 * {
   margin: 0px;
@@ -4498,31 +4594,31 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   left: 3px;
 }
 
-/* line 11, ../../../sass/main.scss */
+/* line 12, ../../../sass/main.scss */
 body {
   background-color: #f0f0f0;
   font-size: 13px;
 }
-/* line 14, ../../../sass/main.scss */
+/* line 15, ../../../sass/main.scss */
 body > header {
   margin-bottom: 0;
 }
-/* line 18, ../../../sass/main.scss */
+/* line 19, ../../../sass/main.scss */
 body > header .navbar-inner {
   padding: 0 20px !important;
 }
-/* line 22, ../../../sass/main.scss */
+/* line 23, ../../../sass/main.scss */
 body > header .user_avatar .caret {
   vertical-align: middle;
   margin-top: -3px !important;
 }
 
-/* line 31, ../../../sass/main.scss */
+/* line 32, ../../../sass/main.scss */
 #main {
   padding-top: 47px;
 }
 
-/* line 36, ../../../sass/main.scss */
+/* line 37, ../../../sass/main.scss */
 #main > .row-fluid {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -4530,13 +4626,13 @@ body > header .user_avatar .caret {
   padding: 0 22px;
 }
 
-/* line 41, ../../../sass/main.scss */
+/* line 42, ../../../sass/main.scss */
 #main > .row-fluid.row-header {
   padding: 0;
   margin-bottom: 15px;
 }
 
-/* line 48, ../../../sass/main.scss */
+/* line 49, ../../../sass/main.scss */
 #messages {
   position: fixed;
   top: 67px;
@@ -4544,7 +4640,7 @@ body > header .user_avatar .caret {
   z-index: 50;
 }
 
-/* line 56, ../../../sass/main.scss */
+/* line 57, ../../../sass/main.scss */
 .empty-area {
   color: #bbbbbb;
   font-size: 300%;
@@ -4558,27 +4654,27 @@ body > header .user_avatar .caret {
   margin-top: -1em;
 }
 
-/* line 69, ../../../sass/main.scss */
+/* line 70, ../../../sass/main.scss */
 .box-content .empty-area {
   position: static;
   font-size: 150%;
   margin: 0;
 }
 
-/* line 78, ../../../sass/main.scss */
+/* line 79, ../../../sass/main.scss */
 .content {
   color: #505050;
 }
-/* line 80, ../../../sass/main.scss */
+/* line 81, ../../../sass/main.scss */
 .content br {
   margin: 3px 0;
 }
-/* line 83, ../../../sass/main.scss */
+/* line 84, ../../../sass/main.scss */
 .content p:last-child {
   margin-bottom: 0;
 }
 
-/* line 90, ../../../sass/main.scss */
+/* line 91, ../../../sass/main.scss */
 ol.errorlist, ul.errorlist {
   list-style: none;
   margin: 0;
@@ -4586,34 +4682,34 @@ ol.errorlist, ul.errorlist {
   font-style: italic;
 }
 
-/* line 102, ../../../sass/main.scss */
+/* line 103, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"] {
   text-align: center;
 }
-/* line 104, ../../../sass/main.scss */
+/* line 105, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:first-child {
   text-align: left;
 }
-/* line 107, ../../../sass/main.scss */
+/* line 108, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:last-child {
   text-align: right;
 }
 
-/* line 115, ../../../sass/main.scss */
+/* line 116, ../../../sass/main.scss */
 .btn-loading i.icon-spinner, .btn-loading i.icon-spin {
   display: none !important;
 }
-/* line 119, ../../../sass/main.scss */
+/* line 120, ../../../sass/main.scss */
 .btn-loading.loading i.icon-spinner, .btn-loading.loading i.icon-spin {
   display: inline-block !important;
 }
 
-/* line 126, ../../../sass/main.scss */
+/* line 127, ../../../sass/main.scss */
 .active-panel {
   border-top: solid 5px #7BC8D7 !important;
 }
 
-/* line 131, ../../../sass/main.scss */
+/* line 132, ../../../sass/main.scss */
 .sparkline-graph {
   line-height: 1px !important;
 }

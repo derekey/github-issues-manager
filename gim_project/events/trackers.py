@@ -1,5 +1,6 @@
 # inspired by http://justcramer.com/2010/12/06/tracking-changes-to-fields-in-django/
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_init, post_save
 
 from core.models import GithubUser,  Milestone, Issue, Label
@@ -164,14 +165,17 @@ class IssueTracker(ChangeTracker):
     def add_changed_event(cls, instance, changed_fields):
         from .models import Event
 
-        return Event.objects.create(
+        event, created = Event.objects.get_or_create(
             repository=instance.repository,
             issue=instance,
             created_at=instance.updated_at,
             is_update=True,
-            related_object=instance,
+            related_content_type=ContentType.objects.get_for_model(instance),
+            related_object_id=instance.pk,
             title="%s #%s was changed" % (instance.type.capitalize(), instance.number),
         )
+
+        return event
 
     @staticmethod
     def event_part_for_title(instance, new, old):

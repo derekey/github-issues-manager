@@ -244,3 +244,9 @@ def parse_diff(diff, reduce=False):
 @register.filter
 def short_sha(sha, length=8):
     return sha[:length]
+
+
+@register.simple_tag(takes_context=True)
+def import_debug(context):
+    import debug
+    return ""

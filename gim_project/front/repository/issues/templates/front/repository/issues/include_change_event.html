@@ -1,0 +1,14 @@
+{% load frontutils %}
+<div class="box change-event">
+    <div class="box-header">
+        <div class="title">The {{ current_issue.type }} was updated</div>
+        <ul class="box-toolbar">
+            <li class="time"><span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ comment.created_at|ago }}</span></li>
+        </ul>
+    </div>
+    {% for part in event.get_parts %}
+        <div class="box-content">
+            {{ part.render_as_html|safe }}
+        </div>
+    {% endfor  %}
+</div>

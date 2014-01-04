@@ -239,7 +239,7 @@ $files-min-stuck-height: 49px;
         .issue-activity {
             margin-left: $file-list-width;
         }
-        table.table.table-normal.diff-lines tr:not(.diff-comments) td.code span {
+        table.diff tr:not(.diff-comments) td.code span {
             left: $file-list-width;
         }
     }
@@ -386,6 +386,42 @@ $files-min-stuck-height: 49px;
     .comment-create-placeholder {
         margin-left: 50px;
         margin-bottom: 15px;
+    }
+
+    .change-event .box-content {
+        margin: 5px 10px;
+        &:last-of-type {
+            .part-body, .part-title {
+                margin-bottom: -6px;
+            }
+        }
+    }
+
+    .part-labels, .part-label_type {
+        ul {
+            display: inline-block;
+        }
+        & > span {
+            float: left;
+            margin-right: 5px;
+        }
+    }
+    .part-body, .part-title {
+        & > span {
+            display: block;
+            margin: 5px 10px;
+        }
+        margin: 0 -10px;
+        table.diff {
+            font-size: 12px;
+            border-top: solid 1px #D8D8D8;
+            border-bottom: solid 1px #D8D8D8;
+            table-layout: fixed;
+            tbody tr {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+        }
     }
 
 }
@@ -580,80 +616,6 @@ table.commits-list {
     }
 } // table.commits-list
 
-table.table.table-normal.diff-lines {
-    tr:not(.diff-comments) {
-        white-space: pre;
-        background: white;
-        font-family: $monoFontFamily;
-        color: #333;
-        border: none;
-        &.comment{
-            background: #F8F8FF;
-            color: #999;
-            td.line-number {
-                background-color: #F3F3FF;
-                border-color: #E4E4FF;
-                text-align: center;
-            }
-        }
-        &.added {
-            background: #DDFFDD;
-            td.line-number {
-                background-color: #CEFFCE;
-                border-color: #B4E2B4;
-            }
-        }
-        &.removed {
-            background: #FFDDDD;
-            td {
-                background-color: #F7C8C8;
-                border-color: #E9AEAE;
-            }
-        }
-        td {
-            border: none;
-            line-height: 20px;
-            min-height: 20px;
-            padding: 1px 5px;
-            background: transparent;
-            &.line-number {
-                width: 8px;  // size of the "..." cells
-                text-align: right;
-                color: rgba(0, 0, 0, 0.3);
-                border-right: {
-                    style: solid;
-                    width: 1px;
-                }
-                > span {
-                    display: none;
-                }
-                &:before {
-                    content: attr(data-line-number);
-                }
-            }
-            &.code {
-                span {
-                    position: absolute;
-                    left: 0;
-                    padding: 1px;
-                    cursor: pointer;
-                    display: none;
-                }
-                vertical-align: baseline;
-            }
-        } // td
-        &:hover {
-            background: $table-row-hover-background-color !important;
-            td {
-                background: transparent !important;
-                &.code span {
-                    display: inline-block;
-                }
-            }
-        }
-    } // tr
-}
-
 .files-navigator {
     width: 20em;
     li a {
@@ -669,7 +631,7 @@ table.table.table-normal.diff-lines {
     overflow: auto;
     padding: 0;
     border-top: 0;
-    table.diff-lines {
+    table.diff {
         margin-bottom: 0;
     }
 }

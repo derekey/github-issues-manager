@@ -14,6 +14,8 @@ from limpyd import model as lmodel, fields as lfields
 from core import models as core_models, main_limpyd_database
 from core.utils import contribute_to_model
 
+from events.models import EventPart
+
 from subscriptions import models as subscriptions_models
 
 
@@ -193,6 +195,8 @@ class _Issue(models.Model):
     class Meta:
         abstract = True
 
+    RENDERER_IGNORE_FIELDS = set(['state', 'merged', 'mergeable', 'assignee'])
+
     def get_reverse_kwargs(self):
         """
         Return the kwargs to use for "reverse"
@@ -320,10 +324,24 @@ class _Issue(models.Model):
         Return the activity of the issue, including comments, events and
         pr_comments if it's a pull request
         """
+        change_events = list(self.event_set.filter(id__in=set(
+                            EventPart.objects.filter(
+                                            event__is_update=True,
+                                            event__issue_id=self.id,
+                                        )
+                                        .exclude(
+                                            field__in=self.RENDERER_IGNORE_FIELDS
+                                        )
+                                        .values_list('event_id', flat=True)
+                            )).prefetch_related('parts'))
+
+        for event in change_events:
+            event.renderer_ignore_fields = self.RENDERER_IGNORE_FIELDS
         types = [
             list(self.comments.select_related('user', 'repository__owner')),
             list(self.events.exclude(event='referenced', commit_sha__isnull=True)
                             .select_related('user', 'repository__owner')),
+            change_events,
         ]
         if self.is_pull_request:
             types.append(self.all_entry_points)

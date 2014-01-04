@@ -25,6 +25,8 @@ class Event(models.Model):
         'issue': IssueRenderer,
     }
 
+    renderer_ignore_fields = []
+
     class Meta:
         ordering = ('created_at', )
 
@@ -37,11 +39,20 @@ class Event(models.Model):
             self._renderer = self.RENDERERS[self.related_content_type.model](self)
         return self._renderer
 
-    def render_as_text(self):
+    def get_parts(self, ignore_fields=None):
+        parts = list(self.parts.all())
+        if ignore_fields is None:
+            ignore_fields = self.renderer_ignore_fields
+        if ignore_fields:
+            ignore_fields = set(ignore_fields)
+            parts = [p for p in parts if p.field not in ignore_fields]
+        return parts
+
+    def render_as_text(self, ignore_fields=None):
         try:
             return self.renderer.render_as_text()
         except AttributeError:
-            parts = list(self.parts.all())
+            parts = list(self.get_parts(ignore_fields))
             params = {
                 'title': self.renderer.render_event_title('text'),
             }
@@ -53,11 +64,11 @@ class Event(models.Model):
 
             return result % params
 
-    def render_as_html(self):
+    def render_as_html(self, ignore_fields=None):
         try:
             return self.renderer.render_as_html()
         except AttributeError:
-            parts = list(self.parts.all())
+            parts = list(self.get_parts(ignore_fields))
             params = {
                 'title': self.renderer.render_event_title('html'),
             }
@@ -97,9 +108,10 @@ class EventPart(models.Model):
 
     def render_as_html(self):
         try:
-            return getattr(self.renderer, 'render_part_%s' % self.field)(self, 'html')
+            html_part = getattr(self.renderer, 'render_part_%s' % self.field)(self, 'html')
         except Exception:
-            return '%s has changed' % self.field
+            html_part = '%s has changed' % self.field
+        return '<div class="part-%s">%s</div>' % (self.field, html_part)
 
 
 from .trackers import *

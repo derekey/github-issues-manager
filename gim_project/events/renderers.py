@@ -1,8 +1,11 @@
+
+from front.diff import HtmlDiff, HtmlDiffWithoutControl
+
 from django.utils.html import escape
 
 
 class Renderer(object):
-    USER_HTML_TEMPLATE = '<strong><img class="avatar-small img-circle" src="%(avatar_url)s">%(username)s</strong>'
+    USER_HTML_TEMPLATE = '<strong><img class="avatar-tiny img-circle" src="%(avatar_url)s"> %(username)s</strong>'
     STRONG = '<strong>%s</strong>'
 
     def __init__(self, event):
@@ -34,10 +37,23 @@ class IssueRenderer(Renderer):
     def render_part_title(self, part, mode):
         new, old = part.new_value, part.old_value
 
+        if mode == 'html':
+            diff = HtmlDiffWithoutControl.diff(old['title'], new['title'], n=0, css=False)
+            return '<span>Title has changed:</span>' + diff
+
         # part must not be created if no old title
         title = 'Old title was "%(title)s"'
         params = {'title': self.helper_strong(old['title'], mode, quote_if_text=False)}
         return title % params
+
+    def render_part_body(self, part, mode):
+        new, old = part.new_value, part.old_value
+
+        if mode == 'html':
+            diff = HtmlDiff.diff(old['body'], new['body'], n=2, css=False)
+            return '<span>Body has changed:</span>' + diff
+
+        raise NotImplementedError()
 
     def render_part_state(self, part, mode):
         new, old = part.new_value, part.old_value
@@ -118,7 +134,7 @@ class IssueRenderer(Renderer):
         if mode == 'text':
             return ', '.join(['"%s"' % l['name'] for l in labels])
         else:
-            return '<ul class="unstyled labels">%s</ul>' % (''.join([
+            return '<ul class="unstyled issue-labels">%s</ul>' % (''.join([
                 '<li style="border-bottom-color: #%(color)s;">%(name)s</li>' % {
                     'name': escape(l['name']),
                     'color': l['color']
@@ -127,11 +143,11 @@ class IssueRenderer(Renderer):
 
     def render_part_labels(self, part, mode):
         new, old = part.new_value, part.old_value
-        if new['labels']:
-            title = 'Added label%(plural)s: %(labels)s'
+        if new and new.get('labels'):
+            title = '<span>Added label%(plural)s:</span> %(labels)s'
             labels = new['labels']
         else:
-            title = 'Removed label%(plural)s: %(labels)s'
+            title = '<span>Removed label%(plural)s:</span> %(labels)s'
             labels = old['labels']
 
         params = {

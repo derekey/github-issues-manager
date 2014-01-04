@@ -4,6 +4,8 @@ python-dateutil
 django-extensions
 ipython
 markdown
+chardet
+git+git://github.com/twidi/ghdiff.git#egg=ghdiff
 django-jsonfield
 git+ssh://git@github.com/twidi/pytimeago.git#egg=pytimeago
 django-debug-toolbar

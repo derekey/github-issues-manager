@@ -181,6 +181,8 @@
                             {% with group=event %}
                                 {% include "front/repository/issues/include_commits_groups.html" with groups=group|tolist id_prefix="pr-disc-" with_ago=True %}
                             {% endwith %}
+                        {% elif event.get_parts %}{# Event #}
+                            {% include "front/repository/issues/include_change_event.html" with comment=event %}
                         {% else %}
                             {% include "front/repository/issues/include_comment.html" with comment=event %}
                         {% endif %}
