@@ -837,7 +837,7 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
 
         update_fields = []
 
-        if created_at and not obj.created_at or created_at < obj.created_at:
+        if created_at and (not obj.created_at or created_at < obj.created_at):
             obj.created_at = created_at
             update_fields.append('created_at')
             if user:
@@ -845,7 +845,7 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
                                             user, saved_objects=saved_objects)
                 update_fields.append('user')
 
-        if updated_at and not obj.updated_at or updated_at > obj.updated_at:
+        if updated_at and (not obj.updated_at or updated_at > obj.updated_at):
             obj.updated_at = updated_at
             update_fields.append('updated_at')
 
