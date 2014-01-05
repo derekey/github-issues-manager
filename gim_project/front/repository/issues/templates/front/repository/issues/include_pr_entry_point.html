@@ -1,0 +1,34 @@
+{% load frontutils %}
+<li>
+    <div class="box pr-entry-point">
+        <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
+            <div class="title">
+                {% if entry_point.position %}
+                    <strong>{{ entry_point.user.username }}</strong> started a discussion in a diff
+                {% else %}
+                    <strong>{{ entry_point.user.username }}</strong> discussed an <strong>outdated</strong> diff
+                {% endif %}
+                <span>{{ entry_point.path }}</span>
+            </div>
+            <ul class="box-toolbar">
+                {% with entry_point_comments_count=entry_point.comments.all|length %}
+                    <li class="comments-count" title="{{ entry_point.nb_comments }} comment{{ entry_point.nb_comments|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point.nb_comments }}</li>
+                {% endwith %}
+                <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ entry_point.created_at|ago }}</li>
+                {% with github_file_url=entry_point.github_url %}
+                    {% if github_file_url %}
+                        <li class="link">
+                            <a href="{{ github_file_url }}" target='_blank' class="btn btn-mini btn-default" title="View file @{{ entry_point.commit_sha|short_sha }}">@{{ entry_point.commit_sha|short_sha }}</a>
+                        </li>
+                    {% endif %}
+                {% endwith %}
+            </ul>
+        </div>
+        <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
+            <div class="box-section code-diff">
+                {% include "front/repository/issues/include_diff.html" with parsed_diff=entry_point.diff_hunk|parse_diff:True entry_points=None path=entry_point.path sha=entry_point.original_commit_sha %}
+            </div>
+            {% include "front/repository/issues/include_pr_comments.html" with pr_comments=entry_point.comments.all classes="" %}
+        </div>
+    </div>
+</li>
