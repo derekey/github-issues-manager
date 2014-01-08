@@ -62,7 +62,8 @@ class GithubObjectManager(models.Manager):
     def get_from_github(self, gh, identifiers, modes=MODE_ALL, defaults=None,
                         parameters=None, request_headers=None,
                         response_headers=None, min_date=None,
-                        fetched_at_field='fetched_at'):
+                        fetched_at_field='fetched_at',
+                        force_update=False):
         """
         Trying to get data for the model related to this manager, by using
         identifiers to generate the API call. gh is the connection to use.
@@ -81,11 +82,12 @@ class GithubObjectManager(models.Manager):
         if isinstance(data, list):
             result = self.create_or_update_from_list(data, modes, defaults,
                         min_date=min_date, fetched_at_field=fetched_at_field,
-                        saved_objects=SavedObjects())
+                        saved_objects=SavedObjects(), force_update=force_update)
         else:
             result = self.create_or_update_from_dict(data, modes, defaults,
                                             fetched_at_field=fetched_at_field,
-                                            saved_objects=SavedObjects())
+                                            saved_objects=SavedObjects(),
+                                            force_update=force_update,)
             if not result:
                 raise Exception(
                     "Unable to create/update an object of the %s kind (modes=%s)" % (
@@ -126,7 +128,7 @@ class GithubObjectManager(models.Manager):
 
     def create_or_update_from_list(self, data, modes=MODE_ALL, defaults=None,
                                 min_date=None, fetched_at_field='fetched_at',
-                                saved_objects=None):
+                                saved_objects=None, force_update=False):
         """
         Take a list of json objects, call create_or_update for each one, and
         return the list of touched objects. Objects that cannot be created are
@@ -138,7 +140,7 @@ class GithubObjectManager(models.Manager):
         objs = []
         for entry in data:
             obj = self.create_or_update_from_dict(entry, modes, defaults,
-                                            fetched_at_field, saved_objects)
+                                fetched_at_field, saved_objects, force_update)
             if obj:
                 objs.append(obj)
                 if min_date and obj.github_date_field:
@@ -193,7 +195,8 @@ class GithubObjectManager(models.Manager):
             return None, False
 
     def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None,
-                            fetched_at_field='fetched_at', saved_objects=None):
+                            fetched_at_field='fetched_at', saved_objects=None,
+                            force_update=False):
         """
         Taking a dict (passed in the data argument), try to update an existing
         object that match some fields, or create a new one.
@@ -220,13 +223,14 @@ class GithubObjectManager(models.Manager):
                 if 'update' not in modes:
                     return None, False
                 # don't update object with old data
-                updated_at = getattr(obj, 'updated_at', None)
-                if updated_at:
-                    new_updated_at = fields['simple'].get('updated_at')
-                    if new_updated_at and new_updated_at < updated_at:
-                        if not already_saved:
-                            saved_objects.set_object(self.model, self.get_filters_from_identifiers(fields), obj)
-                        return obj, True
+                if not force_update:
+                    updated_at = getattr(obj, 'updated_at', None)
+                    if updated_at:
+                        new_updated_at = fields['simple'].get('updated_at')
+                        if new_updated_at and new_updated_at < updated_at:
+                            if not already_saved:
+                                saved_objects.set_object(self.model, self.get_filters_from_identifiers(fields), obj)
+                            return obj, True
                 if already_saved:
                     return obj, True
 
@@ -814,7 +818,8 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
     """
 
     def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None,
-                            fetched_at_field='fetched_at', saved_objects=None):
+                            fetched_at_field='fetched_at', saved_objects=None,
+                                                            force_update=False):
         from .models import GithubUser
 
         try:
@@ -830,7 +835,7 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
 
         obj = super(PullRequestCommentEntryPointManager, self)\
             .create_or_update_from_dict(data, modes, defaults, fetched_at_field,
-                                                                saved_objects)
+                                                    saved_objects, force_update)
 
         if not obj:
             return None

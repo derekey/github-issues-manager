@@ -112,6 +112,7 @@ class GithubObject(models.Model):
                 request_headers=request_headers,
                 response_headers=response_headers,
                 fetched_at_field=fetched_at_field,
+                force_update=force_fetch,
             )
 
         except ApiError, e:
@@ -234,6 +235,7 @@ class GithubObject(models.Model):
                     request_headers=request_headers,
                     response_headers=response_headers,
                     min_date=min_date,
+                    force_update=force_fetch,
                 )
 
             except ApiNotFoundError:
@@ -1801,7 +1803,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(Issue, self).fetch_all(gh, force_fetch=force_fetch)
         #self.fetch_labels(gh, force_fetch=force_fetch)  # already retrieved via self.fetch
-        self.fetch_events(gh, force_fetch=force_fetch)
+        self.fetch_events(gh, force_fetch=True)
         self.fetch_comments(gh, force_fetch=force_fetch)
         if self.is_pull_request:
             self.fetch_pr(gh, force_fetch=force_fetch)
