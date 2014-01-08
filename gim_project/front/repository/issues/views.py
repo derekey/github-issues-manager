@@ -586,19 +586,6 @@ class IssueView(UserIssuesView):
             entry_points_dict.setdefault(entry_point.path, {})[entry_point.position] = entry_point
         return entry_points_dict
 
-    def get_all_comments(self, issue):
-        """
-        Return the comments of the given issue.
-        If it's a pull request, add the pull-request comments entry points in
-        the list
-        """
-        all_comments = list(issue.comments.ready().select_related('user'))
-        if issue.is_pull_request:
-            all_comments.extend(issue.pr_comments_entry_points.all()
-                                     .select_related('user', 'pr_comments'))
-            all_comments.sort(key=attrgetter('created_at'))
-        return all_comments
-
     def get_template_names(self):
         """
         Use a specific template if the request is an ajax one

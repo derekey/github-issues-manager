@@ -11,7 +11,7 @@
             <span class="label label-info" title="{{ view.request.user.username }} is a collaborator on this project">collaborator</span>
         {% endif %}
         {% if view.request.user.id == current_issue.user.id %}
-            <span class="label" title="{{ view.request.user.username }} submitted this issue">submitter</span>
+            <span class="label" title="{{ view.request.user.username }} submitted this {{ current_issue.type }}">submitter</span>
         {% endif %}
     </span>
 {% endblock comment_info %}

@@ -146,7 +146,7 @@
                         {% elif event.is_commits_group %}{# GroupedPullRequestCommits #}
                             {% include "front/repository/issues/include_commits_groups.html" with groups=event|tolist id_prefix="pr-disc-" with_ago=True %}
                         {% elif event.get_parts %}{# Event #}
-                            {% include "front/repository/issues/include_change_event.html" with comment=event %}
+                            {% include "front/repository/issues/include_change_event.html" %}
                         {% else %}{# IssueComment #}
                             {% include "front/repository/issues/include_comment.html" with comment=event %}
                         {% endif %}

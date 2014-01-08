@@ -6,11 +6,8 @@
 {% block comment_info %}
     <span class="label label-red">CLOSED</span>
     <strong>{{ comment.user.username }}</strong>
-    closed this
-    {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
-    {% if comment.commit_sha and comment.related_object_id %}
-    from a commit
-    {% endif %}
+    closed this {{ comment.issue.type }}
+    {% if comment.commit_sha and comment.related_object_id %}from a commit{% endif %}
 {% endblock %}
 
 {% block comment_body %}

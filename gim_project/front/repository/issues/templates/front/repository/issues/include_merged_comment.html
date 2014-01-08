@@ -6,8 +6,7 @@
 {% block comment_info %}
     <span class="label label-green">MERGED</span>
     <strong>{{ comment.user.username }}</strong>
-    merged this
-    {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
+    merged this pull request
 {% endblock %}
 
 {% block comment_inner_body %}

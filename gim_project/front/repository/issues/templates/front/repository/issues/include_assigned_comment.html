@@ -5,8 +5,7 @@
 {% block comment_info %}
     <span class="label label-dark">ASSIGNED</span>
     <strong>{{ comment.user.username }}</strong>
-    was assigned to this
-    {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
+    was assigned to this {{ comment.issue.type }}
 {% endblock %}
 
 {% block comment_body %}{% endblock%}
