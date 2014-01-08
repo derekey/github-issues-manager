@@ -53,7 +53,7 @@ class CheckRepositoryEvents(RepositoryJob):
 
         updated_issues_count, delay = result
 
-        self.clone(delayed_for=updated_issues_count + randint(0, 10))
+        self.clone(delayed_for=delay + randint(0, 10))
 
     def success_message_addon(self, queue, result):
         """
