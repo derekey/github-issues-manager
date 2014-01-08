@@ -1037,13 +1037,6 @@ class Repository(GithubObjectWithId):
 
             todo = qs.count()
 
-            if todo:
-                from .tasks.repository import FetchClosedIssuesWithNoClosedBy
-                FetchClosedIssuesWithNoClosedBy.add_job(self.id,
-                                        delayed_for=timedelta(seconds=60),
-                                        limit=limit,
-                                        gh=gh)
-
         return count, deleted, errors, todo
 
     def fetch_updated_prs(self, gh, limit=20):
@@ -1082,13 +1075,6 @@ class Repository(GithubObjectWithId):
 
             todo = qs.count()
 
-            if todo:
-                from .tasks.repository import FetchUpdatedPullRequests
-                FetchUpdatedPullRequests.add_job(self.id,
-                                        delayed_for=timedelta(seconds=60),
-                                        limit=limit,
-                                        gh=gh)
-
         return count, deleted, errors, todo
 
     def fetch_unfetched_commits(self, gh, limit=20):
@@ -1119,13 +1105,6 @@ class Repository(GithubObjectWithId):
                     count += 1
 
             todo = qs.count()
-
-            if todo:
-                from .tasks.repository import FetchUnfetchedCommits
-                FetchUnfetchedCommits.add_job(self.id,
-                                            delayed_for=timedelta(seconds=60),
-                                            limit=limit,
-                                            gh=gh)
 
         return count, deleted, errors, todo
 

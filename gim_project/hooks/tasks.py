@@ -90,12 +90,15 @@ class CheckRepositoryHook(RepositoryJob):
         if gh:
             repository.check_hook(gh)
 
-        if not repository.hook_set:
-            # no hook, we need to go on the "check-events" mode
-            CheckRepositoryEvents.add_job(repository.pk)
+        return repository.hook_set
 
     def on_success(self, queue, result):
         """
-        Go check hook again in 15 +- 2mn
+        If the repository hook is not set, add a job to fetch events, and check
+        the hook again in 15 +- 2mn
         """
+        if not result:
+            # no hook, we need to go on the "check-events" mode
+            CheckRepositoryEvents.add_job(self.identifier.hget())
+
         self.clone(delayed_for=60 * 13 + randint(0, 60 * 4))

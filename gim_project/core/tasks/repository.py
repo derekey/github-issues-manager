@@ -38,6 +38,8 @@ class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
     count = fields.InstanceHashField()
     errors = fields.InstanceHashField()
 
+    clonable_fields = ('gh', 'limit', )
+
     def run(self, queue):
         """
         Get the repository and update some closed issues, and save the count
@@ -52,6 +54,14 @@ class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
         self.hmset(count=count, errors=errors)
 
         return count, deleted, errors, todo
+
+    def on_success(self, queue, result):
+        """
+        If there is still issues to fetch, add a new job
+        """
+        todo = result[3]
+        if todo:
+            self.clone(delayed_for=60)
 
     def success_message_addon(self, queue, result):
         """
@@ -71,6 +81,8 @@ class FetchUpdatedPullRequests(RepositoryJob):
     count = fields.InstanceHashField()
     errors = fields.InstanceHashField()
 
+    clonable_fields = ('gh', 'limit', )
+
     def run(self, queue):
         """
         Get the repository and update some pull requests, and save the count
@@ -85,6 +97,14 @@ class FetchUpdatedPullRequests(RepositoryJob):
         self.hmset(count=count, errors=errors)
 
         return count, deleted, errors, todo
+
+    def on_success(self, queue, result):
+        """
+        If there is still PRs to fetch, add a new job
+        """
+        todo = result[3]
+        if todo:
+            self.clone(delayed_for=60)
 
     def success_message_addon(self, queue, result):
         """
@@ -241,6 +261,12 @@ class FirstFetchStep2(RepositoryJob):
         return counts
 
     def on_success(self, queue, result):
+        """
+        When done, if something was fetched, add a new job to continue the fetch
+        of following pages one minute later.
+        If nothing was fetched, we are done and add a job to do a new full
+        fetch to check updates.
+        """
 
         if result:
             self.counts.hmset(**result)
@@ -290,6 +316,8 @@ class FetchUnfetchedCommits(RepositoryJob):
     errors = fields.InstanceHashField()
     deleted = fields.InstanceHashField()
 
+    clonable_fields = ('gh', 'limit', )
+
     def run(self, queue):
         """
         Get the repository and fetch unfetched commits, and save the count
@@ -304,6 +332,14 @@ class FetchUnfetchedCommits(RepositoryJob):
         self.hmset(count=count, errors=errors, deleted=deleted)
 
         return count, deleted, errors, todo
+
+    def on_success(self, queue, result):
+        """
+        If there is still commits to fetch, add a new job
+        """
+        todo = result[3]
+        if todo:
+            self.clone(delayed_for=60)
 
     def success_message_addon(self, queue, result):
         """
