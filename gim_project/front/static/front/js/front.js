@@ -1901,7 +1901,11 @@ $().ready(function() {
     var $repos_switcher_input = $('#repository-switcher-filter').find('input');
     if ($repos_switcher_input.length) {
         $repos_switcher_input.closest('li').on('click', function(ev) { ev.stopPropagation(); })
-        $('#repository-switcher').on('focus', Ev.set_focus($repos_switcher_input, 200));
+        $('#repository-switcher').on('focus', Ev.set_focus($repos_switcher_input, 200))
+            .on('focus', function() {
+                var $link = $(this);
+                $link.next().css('max-height', $document.height() - $link.offset().top - $link.outerHeight() - 10);
+            });
     }
 
 });

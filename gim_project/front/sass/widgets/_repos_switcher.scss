@@ -4,6 +4,7 @@
 #repository-switcher-content {
     padding-top: 0;
     min-width: 500px;
+    overflow: auto;
     > li {
         overflow: auto;
         > strong {

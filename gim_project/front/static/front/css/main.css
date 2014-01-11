@@ -358,12 +358,13 @@ blockquote p:last-child {
 #repository-switcher-content {
   padding-top: 0;
   min-width: 500px;
+  overflow: auto;
 }
-/* line 7, ../../../sass/widgets/_repos_switcher.scss */
+/* line 8, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li {
   overflow: auto;
 }
-/* line 9, ../../../sass/widgets/_repos_switcher.scss */
+/* line 10, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > strong {
   float: left;
   margin-right: 10px;
@@ -371,36 +372,36 @@ blockquote p:last-child {
   min-width: 120px;
   text-align: right;
 }
-/* line 16, ../../../sass/widgets/_repos_switcher.scss */
+/* line 17, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul {
   text-align: left;
   margin-right: 5px;
   margin-left: 130px;
 }
-/* line 20, ../../../sass/widgets/_repos_switcher.scss */
+/* line 21, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li {
   display: inline-block;
   margin: 0;
   margin-right: 2px;
 }
-/* line 24, ../../../sass/widgets/_repos_switcher.scss */
+/* line 25, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li a {
   padding: 0 2px;
 }
-/* line 26, ../../../sass/widgets/_repos_switcher.scss */
+/* line 27, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li a > span {
   display: none;
 }
-/* line 30, ../../../sass/widgets/_repos_switcher.scss */
+/* line 31, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li:after {
   content: "•";
   padding-left: 4px;
 }
-/* line 35, ../../../sass/widgets/_repos_switcher.scss */
+/* line 36, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li.active:after {
   padding-left: 6px;
 }
-/* line 38, ../../../sass/widgets/_repos_switcher.scss */
+/* line 39, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li.active a {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -408,48 +409,48 @@ blockquote p:last-child {
   -o-border-radius: 4px;
   border-radius: 4px;
 }
-/* line 42, ../../../sass/widgets/_repos_switcher.scss */
+/* line 43, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li:last-of-type:after {
   display: none;
 }
-/* line 47, ../../../sass/widgets/_repos_switcher.scss */
+/* line 48, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li:last-of-type {
   text-align: center;
 }
-/* line 51, ../../../sass/widgets/_repos_switcher.scss */
+/* line 52, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content .divider {
   height: 2px;
   margin: 4px 1px;
 }
 
-/* line 57, ../../../sass/widgets/_repos_switcher.scss */
+/* line 58, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter {
   margin-bottom: 7px;
   margin-top: -1px;
 }
-/* line 60, ../../../sass/widgets/_repos_switcher.scss */
+/* line 61, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter label {
   display: block;
   overflow: hidden;
   text-align: center;
 }
-/* line 65, ../../../sass/widgets/_repos_switcher.scss */
+/* line 66, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter span.add-on, #repository-switcher-filter a {
   width: 18px;
 }
-/* line 68, ../../../sass/widgets/_repos_switcher.scss */
+/* line 69, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter span.add-on {
   -moz-border-radius-topleft: 6px;
   -webkit-border-top-left-radius: 6px;
   border-top-left-radius: 6px;
 }
-/* line 71, ../../../sass/widgets/_repos_switcher.scss */
+/* line 72, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter a {
   -moz-border-radius-topright: 6px;
   -webkit-border-top-right-radius: 6px;
   border-top-right-radius: 6px;
 }
-/* line 74, ../../../sass/widgets/_repos_switcher.scss */
+/* line 75, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter input {
   width: -moz-calc(100% - 72px - 12px) ;
   width: -o-calc(100% - 72px - 12px) ;
