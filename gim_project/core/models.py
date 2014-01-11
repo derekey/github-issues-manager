@@ -1507,6 +1507,9 @@ class Commit(WithRepositoryMixin, GithubObject):
 
     class Meta:
         ordering = ('committed_at', )
+        unique_together = (
+            ('repository', 'sha'),
+        )
 
     github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'sha': 'sha'}
 
