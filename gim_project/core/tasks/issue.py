@@ -86,8 +86,14 @@ class UpdateIssueCacheTemplate(IssueJob):
 
         start_time = time.time()
 
-        self.object.update_saved_hash()
-        self.object.update_cached_template(
+        try:
+            issue = self.object
+        except Issue.DoesNotExit:
+            # the issue doesn't exist anymore, stop here
+            return False
+
+        issue.update_saved_hash()
+        issue.update_cached_template(
                                 force_regenerate=self.force_regenerate.hget())
 
         duration = '%.2f' % ((time.time() - start_time) * 1000)
@@ -100,11 +106,15 @@ class UpdateIssueCacheTemplate(IssueJob):
         """
         Display the duration of the cached template update
         """
-        duration = self.update_duration.hget()
-        if self.force_regenerate.hget():
-            return ' [forced=True, duration=%sms]' % duration
+        if result is False:
+            msg = 'issue does not exist anymore'
         else:
-            return ' [duration=%sms]' % duration
+            msg = 'duration=%sms' % self.update_duration.hget()
+
+        if self.force_regenerate.hget():
+            return ' [forced=True, %s]' % msg
+        else:
+            return ' [%s]' % msg
 
 
 class IssueEditStateJob(IssueJob):
