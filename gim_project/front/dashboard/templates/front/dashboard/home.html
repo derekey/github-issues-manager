@@ -98,11 +98,19 @@
     <script type="text/javascript">
         var graph_data_urls = graph_data_urls || {};
         graph_data_urls.issues_by_day = "{% url 'graphs:issues_by_day_for_repo' repository_id=99999 %}";
-        $().ready(function() {
-            $('#subscribed_repositories .box-section[data-repo-id]').each(function() {
-                var $repo_node = $(this);
-                IssuesByDayGraph.fetch_and_make_graph($repo_node.data('repo-id'), 40, $repo_node.children('.news-content'));
+        var get_graph = function () {
+            var $repo_node = $('#subscribed_repositories .box-section[data-repo-id]:not(.has-graph):not(.hidden)').first();
+            if (!$repo_node.length) {
+                $repo_node = $('#subscribed_repositories .box-section[data-repo-id]:not(.has-graph)').first();
+            }
+            console.log('ASK FOR ', $repo_node, $repo_node.data('repo-id'));
+            IssuesByDayGraph.fetch_and_make_graph($repo_node.data('repo-id'), 40, $repo_node.children('.news-content'), function() {
+                $repo_node.addClass('has-graph');
+                get_graph();
             });
+        };
+        $().ready(function() {
+            get_graph();
         });
     </script>
 {% endblock js_footer %}

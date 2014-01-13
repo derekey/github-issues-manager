@@ -30,12 +30,13 @@ var IssuesByDayGraph = {
         }));
     }), // make_graph
 
-    fetch_and_make_graph: (function IssuesByDayGraph_fetch_and_make_graph(repo_id, height, $parent_node) {
+    fetch_and_make_graph: (function IssuesByDayGraph_fetch_and_make_graph(repo_id, height, $parent_node, callback) {
         var url = graph_data_urls.issues_by_day.replace('99999', repo_id) + '?height=' + height,
             $graph_node = IssuesByDayGraph.create_node();
         $parent_node.append($graph_node);
         $.get(url, function(data) {
             IssuesByDayGraph.make_graph($graph_node, data);
+            if (callback) { callback(); }
         });
     }) // fetch_and_make_graph
 
