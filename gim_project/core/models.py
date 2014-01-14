@@ -1969,6 +1969,9 @@ class PullRequestCommentEntryPoint(GithubObject):
 
     class Meta:
         ordering = ('created_at', )
+        unique_together = (
+            ('issue', 'original_commit_sha', 'path', 'original_position')
+        )
 
     def __unicode__(self):
         return u'Entry point on PR #%d' % self.issue.number
@@ -2145,6 +2148,9 @@ class PullRequestFile(WithIssueMixin, GithubObject):
 
     class Meta:
         ordering = ('path', )
+        unique_together = (
+            ('tree', 'sha', 'path',)
+        )
 
     def __unicode__(self):
         return u'"%s" on Issue #%d' % (self.path, self.issue.number if self.issue else '?')
