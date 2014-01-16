@@ -1011,7 +1011,7 @@ class Repository(GithubObjectWithId):
         # if we never did it because some times there is noone who closed an
         # issue on the github api :( ))
         if not self.has_issues:
-            return 0, 0, 0
+            return 0, 0, 0, 0
 
         qs = self.issues.filter(state='closed',
                                 closed_by__isnull=True,
