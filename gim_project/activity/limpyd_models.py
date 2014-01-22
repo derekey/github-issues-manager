@@ -3,13 +3,16 @@ from collections import OrderedDict, defaultdict
 from limpyd import model as lmodel, fields as lfields
 from limpyd.utils import unique_key
 
+from limpyd_extensions.dynamic.model import ModelWithDynamicFieldMixin
+from limpyd_extensions.dynamic.fields import DynamicSortedSetField
+
 from core import main_limpyd_database
 from core.models import Repository, Issue
 
 from .managers import ActivityManager
 
 
-class BaseActivity(lmodel.RedisModel):
+class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
     """
     The base abstract model to store actvity, with all main methods.
     Must be subclassed for model specificities (Issue, Repository)
@@ -70,7 +73,7 @@ class BaseActivity(lmodel.RedisModel):
         ending at the "end" one.
         The returned activity is a list of identifiers as stored in the sorted
         set, but if withscores is set to True, it will return a list of tuples
-        (score, identifier).
+        (identifier, score).
         "codes" is a list of codes to use, but can be None to use the whole
         activity.
         If force_updates is False, it will use an possibly stored value, else it
@@ -97,7 +100,7 @@ class BaseActivity(lmodel.RedisModel):
             store_key = unique_key(self.connection)
 
         # no way to directly return the result, there is no simple "zunion"
-        self.connection.zunionstore(store_key, keys)
+        self.connection.zunionstore(store_key, keys, aggregate='MAX')
 
         result = self.connection.zrevrange(store_key, start, stop, withscores)
 
@@ -112,6 +115,7 @@ class RepositoryActivity(BaseActivity):
     Model to store the whole activity of a repository
     """
     model = Repository
+    last_history = DynamicSortedSetField()
 
     def lock(self):
         """
@@ -149,16 +153,22 @@ class RepositoryActivity(BaseActivity):
         field.zadd(**data)
 
     @classmethod
-    def get_for_repositories(cls, pks, start=0, stop=-1, withscores=False, force_update=False):
+    def get_for_repositories(cls, pks, start=0, stop=-1, withscores=False, force_update=False, ttl=120):
         """
         Return the activity for the repositories represented by their pks
         starting at the "start" item, ending at the "end" one.
         The returned activity is a list of identifiers as stored in the sorted
-        set, but if withscores is set to True, it will return a list of tuples
-        (score, identifier).
+        sets, but if withscores is set to True, it will return a list of tuples
+        (identifier, score).
         The computation (zunion of all zsets) may be long so the result is
-        cached for two minutes, unless force_update is set to True, which will
-        force the computation (but the cache will still be set for two minutes)
+        cached for 120 seconds ("ttl" argument), unless force_update is set to
+        True, which will force the computation (but the cache will still be set
+        for two minutes)
+        Note: instead of doing a union of the "all_activity" fields for all the
+        repository, we start by getting their latest values (assured to fit in
+        the final start/stop range) into a final sorted set, used to do
+        the real revrange
+        TODO: may be rewritten in LUA
         """
         if not pks:
             return []
@@ -167,18 +177,36 @@ class RepositoryActivity(BaseActivity):
                 cls._name,
                 'merge',
                 'repositories',
-                ','.join(map(str, sorted(pks)))
+                ','.join(map(str, sorted(pks))),
+                stop,
+                withscores,
             )
 
         if force_update or not main_limpyd_database.connection.exists(store_key):
 
-            keys = [
-                cls.get_or_connect(object_id=pk)[0].all_activity.key
-                for pk in pks
-            ]
+            keys = []
 
-            main_limpyd_database.connection.zunionstore(store_key, keys)
-            main_limpyd_database.connection.expire(store_key, 120)  # keep for 2 minutes
+            for pk in pks:
+                activity, created = cls.get_or_connect(object_id=pk)
+                if created:
+                    continue
+                last_field = activity.last_history(stop)
+                keys.append(last_field.key)
+                if not activity.last_history(stop).exists():
+                    data = dict(activity.all_activity.zrevrange(0, stop, withscores=True))
+                    if not data:
+                        keys.remove(last_field.key)
+                        continue
+                    with main_limpyd_database.pipeline(transaction=False) as pipeline:
+                        last_field.delete()
+                        last_field.zadd(**data)
+                        main_limpyd_database.connection.expire(last_field.key, ttl)
+                        pipeline.execute()
+
+            with main_limpyd_database.pipeline(transaction=False) as pipeline:
+                main_limpyd_database.connection.zunionstore(store_key, keys, aggregate='MAX')
+                main_limpyd_database.connection.expire(store_key, ttl)
+                pipeline.execute()
 
         return main_limpyd_database.connection.zrevrange(store_key, start, stop, withscores)
 
