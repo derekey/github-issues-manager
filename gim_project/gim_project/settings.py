@@ -162,9 +162,10 @@ INSTALLED_APPS = (
     'core',
     'subscriptions',
 
-    'hooks',
-    'events',
-    'graphs',
+    'hooks',  # github hooks (push from github to isshub)
+    'events',  # change events of issues (updated body, labels...)
+    'graphs',  # graph of repositories...
+    'activity',  # activity (timeline, updates...)
 
     'front',
     'front.auth',
