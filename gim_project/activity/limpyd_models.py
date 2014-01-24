@@ -237,7 +237,7 @@ class IssueActivity(BaseActivity):
         """
         manager = ActivityManager.get_for_model_instance(obj)
         # prepare the data to be inserted
-        dat = getattr(obj, manager.date_field)
+        dat = manager.get_object_date(obj)
         data = manager.prepare_data([(obj.pk, dat), ])
         # insert in issue lists
         field = self.get_field(manager.limpyd_field)

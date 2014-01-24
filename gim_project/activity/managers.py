@@ -8,6 +8,8 @@ from limpyd_jobs.utils import import_class
 
 from events.models import EventPart
 
+from core.models import Issue
+
 
 class ActivityManager(object):
     """
@@ -62,13 +64,6 @@ class ActivityManager(object):
         get_load_queryset
         """
         return cls.get_load_queryset().filter(pk__in=pks)
-
-    @classmethod
-    def get_for_model_uri(cls, model_uri):
-        """
-        Return the correct ActivityManager class for the given model_uri
-        """
-        return [c for c in ActivityManager.MAPPING.values() if c.model_uri == model_uri][0]
 
     @classmethod
     def get_for_model(cls, model):
@@ -130,6 +125,14 @@ class ActivityManager(object):
                 )
             for pk, dat in values
         )
+
+    @classmethod
+    def get_object_date(cls, obj):
+        """
+        Return the date we want to use for the given object. May be overriden
+        for more complex stuff than just getting the "date_field" field
+        """
+        return getattr(obj, cls.date_field)
 
 
 class ActivityManagerICE(ActivityManager):
@@ -242,21 +245,47 @@ class ActivityManagerPCO(ActivityManager):
 
 
 class ActivityManagerPCI(ActivityManager):
+    """
+    Specific case: we want to store the relation between issue and commit
+    """
     code = 'pci'
     limpyd_field = 'pr_commits'
-    related_name = 'commits'
-    model_uri = 'core.models.Commit'
     pr_only = True
-    date_field = 'authored_at'
+    # automatic through table
+    related_name = None
+    model_uri = None
+    model = Issue.commits.through
+    date_field = 'commit__authored_at'
+
+    @classmethod
+    def is_obj_valid(cls, *args, **kwargs):
+        """
+        Assum its always valid, as it's a through and we don't have constraints
+        """
+        return True
+
+    @classmethod
+    def get_data_queryset(cls, issue):
+        """
+        Use our through table, we don't have related_name here
+        """
+        return cls.model.objects.filter(issue=issue)
 
     @classmethod
     def get_load_queryset(cls):
         """
-        Prefetch issues, repository, and author+commiter of the commit
+        Prefetch issue, commit, repository, and author+commiter of the commit
         """
         qs = super(ActivityManagerPCI, cls).get_load_queryset()
-        return qs.prefetch_related('issues__owner'
-                    ).select_related('repository__owner', 'author', 'commiter')
+        return qs.select_related('issue__user', 'issue__repository__owner',
+                                        'commit__author', 'commit__commiter')
+
+    @classmethod
+    def get_object_date(cls, obj):
+        """
+        Return the date stored on the commit object, not the "through" one
+        """
+        return obj.commit.authored_at
 
 
 # automatically register all ActivityManager classes

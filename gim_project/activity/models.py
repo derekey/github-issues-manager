@@ -3,10 +3,10 @@ __all__ = []
 from datetime import timedelta
 
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 
 from core.models import (Repository, Issue, IssueComment, IssueEvent,
-                         PullRequestComment, Commit)
+                         PullRequestComment)
 from core.utils import contribute_to_model
 
 from events.models import Event, EventPart
@@ -44,19 +44,6 @@ class _Issue(models.Model):
 contribute_to_model(_Issue, Issue)
 
 
-def update_activity_for_m2m_link(sender, instance, created, **kwargs):
-    # only if the object can be saved in the activity stream
-    manager = ActivityManager.get_for_model_instance(instance)
-    for issue in instance.issues.all():
-        if not manager.is_obj_valid(issue, instance):
-            return
-        issue.activity.add_entry(instance)
-        issue.ask_for_activity_update()
-
-post_save.connect(update_activity_for_m2m_link, sender=Commit, weak=False,
-                  dispatch_uid='update_activity_for_m2m_link_Commit')
-
-
 def update_activity_for_fk_link(sender, instance, created, **kwargs):
     if not instance.issue_id:
         return
@@ -75,6 +62,48 @@ post_save.connect(update_activity_for_fk_link, sender=PullRequestComment, weak=F
                   dispatch_uid='update_activity_for_fk_link_PullRequestComment')
 post_save.connect(update_activity_for_fk_link, sender=Event, weak=False,
                   dispatch_uid='update_activity_for_fk_link_Event')
+
+
+def update_activity_for_commits(sender, instance, action, reverse, model, pk_set, **kwargs):
+    # if reverse: instance is commit, pk_set are issues
+    # if not: instance is issue, pk_set are commits
+
+    manager = ActivityManager.get_for_model(sender)
+
+    if action in ('post_add', 'pre_remove'):
+        if not pk_set:
+            return
+
+        if reverse:
+            objs = sender.objects.filter(commit=instance, issue__in=pk_set)
+        else:
+            objs = sender.objects.filter(issue=instance, commit__in=pk_set)
+
+    elif action == 'pre_clear':
+        if reverse:
+            objs = sender.objects.filter(commit=instance)
+        else:
+            objs = sender.objects.filter(issue=instance)
+
+    else:
+        return
+
+    objs = objs.select_related('issue', 'commit')
+
+    for obj in objs:
+        if action == 'post_add':
+            # only if the object can be saved in the activity stream
+            if not manager.is_obj_valid(obj, instance):
+                return
+            obj.issue.activity.add_entry(obj)
+        else:
+            obj.issue.activity.remove_entry(obj)
+
+    for issue in set([obj.issue for obj in objs]):
+        issue.ask_for_activity_update()
+
+m2m_changed.connect(update_activity_for_commits, sender=Issue.commits.through, weak=False,
+                  dispatch_uid='update_activity_for_commits')
 
 
 def update_activity_for_event_part(sender, instance, created, **kwargs):
