@@ -187,6 +187,16 @@ class ActivityManagerICE(ActivityManager):
         return qs.select_related('issue__user', 'repository__owner'
                                                     ).prefetch_related('parts')
 
+    @classmethod
+    def load_objects(cls, pks):
+        """
+        Prepare display of updated parts
+        """
+        objs = list(super(ActivityManagerICE, cls).load_objects(pks))
+        for obj in objs:
+            obj.updated_parts = [p.field for p in obj.parts.all() if p not in Issue.RENDERER_IGNORE_FIELDS]
+        return objs
+
 
 class ActivityManagerICO(ActivityManager):
     code = 'ico'
