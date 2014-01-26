@@ -26,7 +26,7 @@ class ActivityManager(object):
     related_name = None  # name of the related queryset from the issue point of vue
     model_uri = None  # path of the model storing data (event, comment, commit...)
     model = None  # the model described by model_uri
-    date_field = 'updated_at'  # the field on the object serving as a date for the score
+    date_field = 'created_at'  # the field on the object serving as a date for the score
     pr_only = False  # is this code limited to pull requests
 
     MAPPING = {}
@@ -140,7 +140,6 @@ class ActivityManagerICE(ActivityManager):
     limpyd_field = 'change_events'
     related_name = 'event_set'
     model_uri = 'events.models.Event'
-    date_field = 'created_at'
 
     @classmethod
     def _get_event_parts_queryset(cls, issue):
@@ -209,7 +208,6 @@ class ActivityManagerIEV(ActivityManager):
     limpyd_field = 'issue_events'
     related_name = 'events'
     model_uri = 'core.models.IssueEvent'
-    date_field = 'created_at'
 
     @classmethod
     def get_data_queryset(cls, issue):
