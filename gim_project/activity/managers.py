@@ -222,10 +222,11 @@ class ActivityManagerIEV(ActivityManager):
     @classmethod
     def get_data_queryset(cls, issue):
         """
-        Exclude the event about referenced commits without sha
+        Exclude the event about referenced commits without sha, and ones about
+        mentionning/subscribing
         """
         qs = super(ActivityManagerIEV, cls).get_data_queryset(issue)
-        return qs.exclude(event='referenced', commit_sha__isnull=True)
+        return qs.exclude(Q(event='referenced', commit_sha__isnull=True) | Q(event__in=('mentioned', 'subscribed')))
 
     @classmethod
     def get_load_queryset(cls):
