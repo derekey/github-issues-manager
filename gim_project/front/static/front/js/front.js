@@ -1904,7 +1904,7 @@ $().ready(function() {
         $('#repository-switcher').on('focus', Ev.set_focus($repos_switcher_input, 200))
             .on('focus', function() {
                 var $link = $(this);
-                $link.next().css('max-height', $document.height() - $link.offset().top - $link.outerHeight() - 10);
+                $link.next().css('max-height', $(window).height() - $link.offset().top - $link.outerHeight() - 10);
             });
     }
 
