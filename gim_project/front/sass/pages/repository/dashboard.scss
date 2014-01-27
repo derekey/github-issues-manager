@@ -54,17 +54,17 @@
                 }
                 font-size: 16px;
                 line-height: normal;
+            }
 
-                &:not(.collapsed) {
-                    & ~ .date,
-                    & ~ .all-issues-link {
+            &:not(.collapsed) {
+                & ~ .date,
+                & ~ .all-issues-link {
+                    opacity: 1;
+                }
+                & ~ div.progress {
+                    height: 20px;
+                    span {
                         opacity: 1;
-                    }
-                    & ~ div.progress {
-                        height: 20px;
-                        span {
-                            opacity: 1;
-                        }
                     }
                 }
             }

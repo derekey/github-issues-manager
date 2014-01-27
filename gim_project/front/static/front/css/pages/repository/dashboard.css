@@ -105,16 +105,16 @@
   font-size: 16px;
   line-height: normal;
 }
-/* line 60, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a > h3:not(.collapsed) ~ .date, #milestones .box-section > a > h3:not(.collapsed) ~ .all-issues-link {
+/* line 61, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > a:not(.collapsed) ~ .date, #milestones .box-section > a:not(.collapsed) ~ .all-issues-link {
   opacity: 1;
 }
-/* line 63, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a > h3:not(.collapsed) ~ div.progress {
+/* line 64, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > a:not(.collapsed) ~ div.progress {
   height: 20px;
 }
-/* line 65, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a > h3:not(.collapsed) ~ div.progress span {
+/* line 66, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > a:not(.collapsed) ~ div.progress span {
   opacity: 1;
 }
 
