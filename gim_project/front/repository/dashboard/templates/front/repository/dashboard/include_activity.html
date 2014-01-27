@@ -4,7 +4,7 @@
     </div>
     <div class="box-content">
         {% if activity|length %}
-            {% include "front/activity/include_same_repository.html" %}
+            {% include "front/activity/include_activity.html" with display_repositories=False display_issues=True %}
         {% else %}
             <div class="empty-area">No activity for this repository</div>
         {% endif %}

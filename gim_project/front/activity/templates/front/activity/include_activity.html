@@ -5,11 +5,25 @@
     {% if user == issue.user %}<span class="label" title="{{ user.username }} submitted this {{ issue.type }}">submitter</span>{% endif %}
 {% endmacro %}
 {% for entry in activity %}
-    {% if not only_items %}
+    {% if display_issues %}
         {% ifchanged entry.issue_id %}
             {% if not forloop.first %}
                     </ul>
                 </div>
+            {% endif %}
+            {% if display_repositories %}
+                {% ifchanged entry.issue.repository_id %}
+                    {% if not forloop.first %}
+                        </div>
+                    {% endif %}
+                    <div class="box-header repository">
+                        <span class="title">
+                            <div class="avatar"><img class="avatar-micro" src="{{ entry.issue.repository.owner.avatar_url|default:default_avatar }}" /></div>
+                            {{ entry.issue.repository }}
+                        </span>
+                    </div>
+                    <div class="box-content">
+                {% endifchanged %}
             {% endif %}
             <div class="box-section">
                 <h3>

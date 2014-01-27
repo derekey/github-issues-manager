@@ -88,6 +88,21 @@
                 </div>{# .box-content #}
             </div>{# #subscribed_repositories.box #}
         </div>{# .span6 #}
+
+        <div class="span6">
+            <div class="box activity" id="main_activity">
+                <div class="box-header">
+                    <span class="title">Last activity</span>
+                </div>
+                <div class="box-content">
+                    {% if activity|length %}
+                        {% include "front/activity/include_activity.html" with display_repositories=True display_issues=True %}
+                    {% else %}
+                        <div class="empty-area">It seems that there is no activity at all!</div>
+                    {% endif %}
+                </div>{# .box-content #}
+            </div>{# #main_activity.box #}
+        </div>{# .span6 #}
     </div>{# .row-fluid #}
 {% endblock dashboard-main %}d
 

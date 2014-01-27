@@ -1,6 +1,7 @@
 from django.views.generic import ListView
 
 
+from activity.limpyd_models import RepositoryActivity
 from ..views import SubscribedRepositoriesMixin
 from subscriptions.models import SUBSCRIPTION_STATES
 
@@ -59,5 +60,13 @@ class DashboardHome(SubscribedRepositoriesMixin, ListView):
         context['total_counts'] = total_counts
 
         context['subscription_by_repo_id'] = subscription_by_repo_id
+
+        # add activity
+        activity = RepositoryActivity.get_for_repositories(
+                            pks=subscription_by_repo_id.keys(),
+                            start=0,
+                            stop=49
+                        )
+        context['activity'] = RepositoryActivity.load_objects(activity)
 
         return context

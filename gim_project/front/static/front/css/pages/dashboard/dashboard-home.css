@@ -1,33 +1,76 @@
-/* line 4, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 5, ../../../../../sass/widgets/_activity.scss */
+.activity .box-header.repository .title {
+  font-size: 14px;
+}
+/* line 8, ../../../../../sass/widgets/_activity.scss */
+.activity .box-header.repository .avatar {
+  margin-right: 1ex;
+}
+/* line 12, ../../../../../sass/widgets/_activity.scss */
+.activity .box-section {
+  padding: 5px;
+}
+/* line 14, ../../../../../sass/widgets/_activity.scss */
+.activity .box-section h3 {
+  line-height: 18px;
+  font-size: 16px;
+}
+/* line 17, ../../../../../sass/widgets/_activity.scss */
+.activity .box-section h3 span:first-child {
+  float: left;
+}
+/* line 19, ../../../../../sass/widgets/_activity.scss */
+.activity .box-section h3 span:first-child.open {
+  color: #8cc079;
+}
+/* line 22, ../../../../../sass/widgets/_activity.scss */
+.activity .box-section h3 span:first-child.closed {
+  color: #b35d5d;
+}
+/* line 26, ../../../../../sass/widgets/_activity.scss */
+.activity .box-section h3 span:last-child {
+  display: block;
+}
+/* line 31, ../../../../../sass/widgets/_activity.scss */
+.activity .box-section .chat-box > li {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+/* line 34, ../../../../../sass/widgets/_activity.scss */
+.activity .box-section .chat-box > li > p {
+  margin: 0;
+}
+
+/* line 5, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 .area-top .btn {
   margin-top: 6px;
 }
 
-/* line 10, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 11, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .box-footer {
   text-align: center;
 }
 
-/* line 16, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 17, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .news-content {
   position: relative;
   overflow: hidden;
   height: 63px;
   margin-bottom: -10px;
 }
-/* line 22, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 23, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .news-title {
   position: relative;
   z-index: 2;
 }
-/* line 26, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 27, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .issues-by-day {
   position: absolute;
   right: 0;
   bottom: 0;
   z-index: 1;
 }
-/* line 32, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 33, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters {
   float: right;
   margin-top: -13px;
@@ -35,31 +78,31 @@
   text-align: right;
   font-weight: bold;
 }
-/* line 38, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 39, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters li {
   padding: 0 5px;
 }
-/* line 41, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 42, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .high a {
   color: #C75D5D;
 }
-/* line 44, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 45, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .medium a {
   color: #6E97AA;
 }
-/* line 47, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 48, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .low a {
   color: #808080;
 }
-/* line 50, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 51, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .none a {
   color: #8FAE53;
 }
-/* line 53, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 54, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .not-collab {
   font-weight: normal;
 }
-/* line 56, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 57, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .all-prs {
   border-top: dashed #ccc 1px;
 }

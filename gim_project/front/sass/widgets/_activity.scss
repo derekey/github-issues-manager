@@ -1,6 +1,14 @@
 @import "variables";
 
 .activity {
+    .box-header.repository {
+        .title {
+            font-size: 14px;
+        }
+        .avatar {
+            margin-right: 1ex;
+        }
+    }
     .box-section {
         padding: 5px;
         h3 {
