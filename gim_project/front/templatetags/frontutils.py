@@ -250,3 +250,8 @@ def short_sha(sha, length=8):
 def import_debug(context):
     import debug
     return ""
+
+
+@register.filter
+def model(obj):
+    return obj._meta.object_name

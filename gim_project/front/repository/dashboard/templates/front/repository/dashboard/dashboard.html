@@ -5,12 +5,15 @@
     {{ parts.counters|safe }}
 
     <div class="row-fluid">
-        <div class="span6">
+        <div class="span4">
             {{ parts.labels|safe }}
-        </div>{# .span6 #}
-        <div class="span6">
+        </div>{# .span4 #}
+        <div class="span4">
             {{ parts.milestones|safe }}
-        </div>{# .span6 #}
+        </div>{# .span4 #}
+        <div class="span4">
+            {{ parts.activity|safe }}
+        </div>{# .span4 #}
     </div>{# .row-fluid #}
 
 {% endblock dashboard-content %}

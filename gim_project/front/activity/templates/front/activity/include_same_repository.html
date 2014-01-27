@@ -1,0 +1,116 @@
+{% load frontutils staticfiles macros %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
+{% macro tags issue user %}
+    {% if user == issue.repository.owner %}<span class="label label-success" title="{{ user.username }} is the project's owner">owner</span>{% endif %}
+    {% if user == issue.user %}<span class="label" title="{{ user.username }} submitted this {{ issue.type }}">submitter</span>{% endif %}
+{% endmacro %}
+{% for entry in activity %}
+    {% if not only_items %}
+        {% ifchanged entry.issue_id %}
+            {% if not forloop.first %}
+                    </ul>
+                </div>
+            {% endif %}
+            <div class="box-section">
+                <h3>
+                    <span class="{{ entry.issue.state }}" title="{{ entry.issue.state }}">#{{ entry.issue.number }}</span>
+                    <span style="margin-left:{{ entry.issue.number|slugify|length|add:2 }}ex">{{ entry.issue.title }}</span>
+                </h3>
+                <ul class="chat-box">
+        {% endifchanged %}
+    {% endif %}
+    {% with model=entry|model %}
+        <li class="arrow-box-left">
+        {% if model == 'Event' %}
+            <div class="info">
+                {% if entry.is_update %}
+                    <div class="avatar"><img class="avatar-small" src="{{ default_avatar }}" /></div>
+                    <span class="name"><strong>The {{ entry.issue.type }} was updated</strong></span>
+                {% else %}
+                    <div class="avatar"><img class="avatar-small" src="{{ entry.issue.user.avatar_url|default:default_avatar }}" /></div>
+                    <span class="name">
+                        <strong>{{ entry.issue.user }}</strong>
+                        {% usemacro tags entry.issue entry.issue.user %}
+                    </span>
+                {% endif %}
+                <span class="time" title="{{ entry.created_at|date:"DATETIME_FORMAT" }}">{{ entry.created_at|ago }}</span>
+            </div>
+            {% if entry.is_update %}
+                <p>Updated: {{ entry.updated_parts|join:', ' }}</p>
+            {% else %}
+                <p>Created this {{ entry.issue.type }}</p>
+            {% endif %}
+        {% elif model == 'PullRequestComment' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.user }}</strong>
+                    {% usemacro tags entry.issue entry.user %}
+                </span>
+                <span class="time" title="{{ entry.created_at|date:"DATETIME_FORMAT" }}">{{ entry.created_at|ago }}</span>
+            </div>
+            <p>Commented code on this pull request</p>
+        {% elif model == 'Issue_commits' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.commit.author.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.commit.author }}</strong>
+                    {% usemacro tags entry.issue entry.commit.author %}
+                </span>
+                <span class="time" title="{{ entry.commit.authored_at|date:"DATETIME_FORMAT" }}">{{ entry.commit.authored_at|ago }}</span>
+            </div>
+            <p>Has a commit added to this pull request</p>
+        {% elif model == 'IssueEvent' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.user }}</strong>
+                    {% usemacro tags entry.issue entry.user %}
+                </span>
+                <span class="time" title="{{ entry.created_at|date:"DATETIME_FORMAT" }}">{{ entry.created_at|ago }}</span>
+            </div>
+            <p>
+                {% if entry.event == 'closed' %}
+                    Closed this {{ entry.issue.type }}
+                {% elif entry.event == 'merged' %}
+                    Merged this pull request
+                {% elif entry.event == 'reopened' %}
+                    Reopened this {{ entry.issue.type }}
+                {% elif entry.event == 'assigned' %}
+                    Was assigned to this {{ entry.issue.type }}
+                {% elif entry.event == 'head_ref_deleted' %}
+                    Deleted the branch "{{ entry.issue.head_label }}"
+                {% elif entry.event == 'head_ref_restored' %}
+                    Restored the branch "{{ entry.issue.head_label }}"
+                {% elif entry.event == 'referenced' and entry.commit_sha %}
+                    Referenced this issue from a commit
+                {% elif entry.event == 'referenced_by_issue' %}
+                    Referenced this issue from an issue
+                {% elif entry.event == 'referenced_by_issuecomment' %}
+                    Referenced this issue from a comment
+                {% elif entry.event == 'referenced_by_pullrequestcomment' %}
+                    Referenced this issue from a code comment
+                {% elif entry.event == 'referenced_by_milestone' %}
+                    Referenced this issue from a milestone
+                {% else %}
+                    {{ entry }}
+                {% endif %}
+            </p>
+        {% elif model == 'IssueComment' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.user }}</strong>
+                    {% usemacro tags entry.issue entry.user %}
+                </span>
+                <span class="time" title="{{ entry.created_at|date:"DATETIME_FORMAT" }}">{{ entry.created_at|ago }}</span>
+            </div>
+            <p>Commented on this {{ entry.issue.type }}</p>
+        {% endif %}
+        </li>
+    {% endwith %}
+{% endfor %}
+{% if not only_items %}
+    </ul>
+</div>
+{% endif %}

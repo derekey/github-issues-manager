@@ -205,6 +205,18 @@ class LabelsPart(RepositoryDashboardPartView):
         return context
 
 
+class ActivityPart(RepositoryDashboardPartView):
+    template_name = 'front/repository/dashboard/include_activity.html'
+    url_name = 'dashboard.timeline'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(ActivityPart, self).get_context_data(**kwargs)
+        activity_obj = self.repository.activity
+        activity = activity_obj.get_activity(start=0, stop=39)
+        context['activity'] = activity_obj.load_objects(activity)
+        return context
+
+
 class DashboardView(BaseRepositoryView):
     name = 'Dashboard'
     url_name = 'dashboard'
@@ -217,6 +229,7 @@ class DashboardView(BaseRepositoryView):
             'milestones': MilestonesPart().get_as_part(self),
             'counters': CountersPart().get_as_part(self),
             'labels': LabelsPart().get_as_part(self),
+            'activity': ActivityPart().get_as_part(self),
         }
 
         return context

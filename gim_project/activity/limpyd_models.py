@@ -55,7 +55,7 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
         for code, pks in by_code.iteritems():
             for obj in ActivityManager.MAPPING[code].load_objects(pks):
                 loaded['%s:%s' % (code, obj.pk)] = obj
-        return (obj for obj in loaded.values() if obj)
+        return [obj for obj in loaded.values() if obj]
 
     @property
     def object(self):

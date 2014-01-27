@@ -1,0 +1,32 @@
+@import "variables";
+
+.activity {
+    .box-section {
+        padding: 5px;
+        h3 {
+            line-height: 18px;
+            font-size: 16px;
+            span:first-child {
+                float: left;
+                &.open {
+                    color: $state-open-color;
+                }
+                &.closed {
+                    color: $state-closed-color;
+                }
+            }
+            span:last-child {
+                display: block;
+            }
+        }
+        .chat-box {
+            & > li {
+                margin-top: 5px;
+                margin-bottom: 5px;
+                & > p {
+                    margin: 0;
+                }
+            }
+        }
+    }
+}

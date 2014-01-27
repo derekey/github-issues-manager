@@ -158,6 +158,7 @@ INSTALLED_APPS = (
 
     'jsonfield',
     'adv_cache_tag',
+    'macros',
 
     'core',
     'subscriptions',
@@ -169,6 +170,8 @@ INSTALLED_APPS = (
 
     'front',
     'front.auth',
+
+    'front.activity',
 
     'front.dashboard',
     'front.dashboard.repositories',

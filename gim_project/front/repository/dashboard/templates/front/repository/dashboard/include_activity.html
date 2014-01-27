@@ -1,0 +1,12 @@
+<div class="box deferrable activity" id="repository-activity" data-url="{{ defer_url }}">
+    <div class="box-header">
+        <span class="title">Last activity</span>
+    </div>
+    <div class="box-content">
+        {% if activity|length %}
+            {% include "front/activity/include_same_repository.html" %}
+        {% else %}
+            <div class="empty-area">No activity for this repository</div>
+        {% endif %}
+    </div>{# .box-content #}
+</div>{# .box#activity #}
