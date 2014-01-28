@@ -27,8 +27,11 @@
             {% endif %}
             <div class="box-section" data-issue-number="{{ entry.issue.number }}">
                 <h3>
-                    <a href="{{ entry.issue.get_absolute_url }}" class="{{ entry.issue.state }}" title="{{ entry.issue.state }}">#{{ entry.issue.number }}</a>
-                    <a href="{{ entry.issue.get_absolute_url }}" style="margin-left:{{ entry.issue.number|slugify|length|add:2 }}ex">{{ entry.issue.title }}</a>
+                    <a href="{{ entry.issue.get_absolute_url }}">
+                        {% if entry.issue.is_pull_request %}<i class="icon-upload-alt" title="It's a pull request"> </i> {% endif %}
+                        <span class="{{ entry.issue.state }}" title="{{ entry.issue.state }}">#{{ entry.issue.number }}</span>
+                        <span style="margin-left:{{ entry.issue.number|slugify|length|add:2 }}ex">{{ entry.issue.title }}</span>
+                    </a>
                 </h3>
                 <ul class="chat-box">
         {% endifchanged %}

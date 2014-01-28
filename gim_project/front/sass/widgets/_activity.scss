@@ -12,19 +12,26 @@
     .box-section {
         padding: 5px;
         h3 {
+            position: relative;
             line-height: 18px;
             font-size: 16px;
-            a:first-child {
-                float: left;
-                &.open {
-                    color: $state-open-color;
-                }
-                &.closed {
-                    color: $state-closed-color;
+            span {
+                display: block;
+                &:first-of-type {
+                    float: left;
+                    &.open {
+                        color: $state-open-color;
+                    }
+                    &.closed {
+                        color: $state-closed-color;
+                    }
                 }
             }
-            a:last-child {
-                display: block;
+            i.icon-upload-alt {
+                float: right;
+                margin-right: 15px;
+                margin-left: 10px;
+                font-size: inherit;
             }
         }
         .chat-box {
