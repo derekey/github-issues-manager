@@ -10,7 +10,7 @@ $header-stuck-height: 47px;
 $tabs-stuck-height: 37px;
 $files-min-stuck-height: 49px;
 
-.issue {
+.issue-container {
     .stuck {
         position: fixed;
         @include calc(width, $stuck-width);
@@ -193,10 +193,10 @@ $files-min-stuck-height: 49px;
         }
     }
 
-} // .issue
+} // .issue-container
 
 @media (min-width: 1023px) {
-    .issue.big-issue .issue-files {
+    .issue-container.big-issue .issue-files {
         $file-list-width: 400px;
         position: relative;
         .files-list-sticky-wrapper {
@@ -649,10 +649,10 @@ table.commits-list {
             right: auto;
             top: 10%; // top of the modal
         }
-        > .issue.big-issue {
+        > .issue-container.big-issue {
             top: 0 !important;
         }
-        > .issue > article > .area-top header.stuck {
+        > .issue-container > article > .area-top header.stuck {
             margin-left: -15px;  // left padding of parent area-top
             @include border-radius(6px 6px 0 0);
         }

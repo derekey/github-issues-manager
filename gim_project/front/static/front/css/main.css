@@ -264,6 +264,16 @@ blockquote p:last-child {
   cursor: pointer;
 }
 
+/* line 101, ../../../sass/_bootstrap-correct.scss */
+.modal-backdrop ~ .modal-backdrop {
+  z-index: 1060;
+}
+
+/* line 104, ../../../sass/_bootstrap-correct.scss */
+.modal.in ~ .modal.in {
+  z-index: 1070;
+}
+
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar img {
   display: inline-block;

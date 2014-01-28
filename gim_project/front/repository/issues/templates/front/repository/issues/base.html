@@ -12,8 +12,6 @@
     {{ block.super }}
     <script src="{% static "front/js/ago.js" %}" type="text/javascript"></script>
     <script type="text/javascript">replace_time_ago(document.getElementById('issues-list'));</script>
-    <script src="{% static "front/js/waypoints.min.js" %}" type="text/javascript"></script>
-    <script src="{% static "front/js/waypoints-sticky.min.js" %}" type="text/javascript"></script>
 {% endblock js_footer %}
 
 {% block main %}
@@ -537,7 +535,7 @@
         {% endif %}
     </section>
 
-    <section id='main-issue-container' class="span7 issue"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %}>
+    <section id='main-issue-container' class="span7 issue-container"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %}>
         {% include "front/repository/issues/issue.html" %}
     </section>
 
@@ -545,6 +543,7 @@
 {% endblock main %}
 
 {% block modal-windows %}
+    {{ block.super }}
     <div id="shortcuts-window" class="modal hide fade" tabindex="-1">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
@@ -623,26 +622,6 @@
                     </table>
                 </div>
             </div>
-        </div>
-    </div>
-    <div id="go-to-issue-window" class="modal hide" tabindex="-1">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
-            <h3>Go to issue</h3>
-        </div>
-        <div class="modal-body">
-            <form class="form-inline">
-                <div class="input-prepend input-append">
-                    <span class="add-on">#</span>
-                    <input data-base-url="{{ root_issues_url }}" type="text" name='issue-number' placeholder="Type an issue number" />
-                    <button class="btn btn-blue" type="button">Go!</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="modal-issue-view" class="modal hide fade"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %} tabindex="-1">
-        <div class="modal-body">
-            <div class="issue"></div>
         </div>
     </div>
 {% endblock modal-windows %}

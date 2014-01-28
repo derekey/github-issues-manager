@@ -1,5 +1,5 @@
 {% extends "front/base.html" %}
-{% load staticfiles %}
+{% load staticfiles repository_tags %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
 
 {% block body_classes %}repository{% endblock %}
@@ -54,3 +54,27 @@
         {% endfor %}
     </ul>
 {% endblock header_nav %}
+
+{% block modal-windows %}
+    {{ block.super }}
+    <div id="modal-issue-view" class="modal hide fade"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %} tabindex="-1">
+        <div class="modal-body">
+            <div class="issue-container"></div>
+        </div>
+    </div>
+    <div id="go-to-issue-window" class="modal hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
+            <h3>Go to issue</h3>
+        </div>
+        <div class="modal-body">
+            <form class="form-inline">
+                <div class="input-prepend input-append">
+                    <span class="add-on">#</span>
+                    <input data-base-url="{{ current_repository|repository_view_url:'issues' }}" type="text" name='issue-number' placeholder="Type an issue number" />
+                    <button class="btn btn-blue" type="submit">Go!</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

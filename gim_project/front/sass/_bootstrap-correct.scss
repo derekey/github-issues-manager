@@ -96,3 +96,11 @@ $arrows: top, right, left, bottom;
 [data-toggle="collapse"] {
     cursor: pointer;
 }
+
+// manage zindex if two modals opened
+.modal-backdrop ~ .modal-backdrop {
+    z-index: 1060;
+}
+.modal.in ~ .modal.in {
+    z-index: 1070;
+}
