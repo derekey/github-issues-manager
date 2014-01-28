@@ -102,12 +102,6 @@ $().ready(function() {
     IssuesListIssue.init_events = (function IssuesListIssue_init_events () {
         $document.on('click', IssuesListIssue.selector + ' ' + IssuesListIssue.link_selector, IssuesListIssue.on_issue_node_event('on_click', true));
     });
-    IssuesListIssue.set_urls = (function IssuesListIssue_set_urls () {
-        $(IssuesListIssue.selector + ' ' + IssuesListIssue.link_selector).each(function() {
-            var parts = this.href.split('#');
-            this.href = parts[0] + location.search + '#' + parts[1];
-        });
-    }); // IssuesListIssue_set_urls
 
     IssuesListIssue.prototype.on_click = (function IssuesListIssue__on_click (e) {
         this.set_current(true);
@@ -453,7 +447,6 @@ $().ready(function() {
                             function(node) { return new IssuesList(node); });
         if (!IssuesList.all.length) { return; }
         IssuesList.all[0].set_current();
-        IssuesListIssue.set_urls();
         IssuesListIssue.init_events();
         IssuesListGroup.init_events();
         IssuesList.init_events();
@@ -1396,21 +1389,15 @@ $().ready(function() {
         var issue_to_select = null;
         if (location.hash && /^#issue\-\d+$/.test(location.hash)) {
             issue_to_select = $(location.hash);
-            if (issue_to_select.length && issue_to_select[0].IssuesListIssue) {
-                issue_to_select[0].IssuesListIssue.set_current(true);
-            } else {
-                issue_to_select = null;
-            }
+        } else if ((issue_to_select=/\/issues\/(\d+)\/$/.exec(location.pathname)) && issue_to_select.length == 2) {
+            issue_to_select = $('#issue-' + issue_to_select[1]);
         } else {
             issue_to_select = $(IssuesListIssue.selector + '.active');
-            if (issue_to_select.length) {
-                issue_to_select.removeClass('active');
-                issue_to_select[0].IssuesListIssue.set_current(true);
-            } else {
-                issue_to_select = null;
-            }
         }
-        if (!issue_to_select) {
+        if (issue_to_select && issue_to_select.length && issue_to_select[0].IssuesListIssue) {
+           issue_to_select.removeClass('active');
+           issue_to_select[0].IssuesListIssue.set_current(true);
+        } else {
             IssuesList.current.go_to_next_item();
         }
     }
