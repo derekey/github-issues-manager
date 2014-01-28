@@ -1895,4 +1895,29 @@ $().ready(function() {
             });
     }
 
+    Activity = {
+        feeds: null,
+        selector: '.activity-feed',
+        issue_link_selector: '.box-section > h3 > a',
+
+        on_issue_link_click: (function Activity__on_issue_link_click () {
+            var $link = $(this),
+                issue = new IssuesListIssue({}, null);
+            issue.number = $link.data('issue-number');
+            issue.get_html_and_display($link.attr('href'), true);
+            return false;
+        }), // on_issue_link_click
+
+        init_events: (function Activity__init_events () {
+            $document.on('click', Activity.selector + ' ' + Activity.issue_link_selector, Ev.stop_event_decorate(Activity.on_issue_link_click));
+        }), // init_events
+
+        init: (function Activity__init () {
+            Activity.feeds = $(Activity.selector);
+            Activity.init_events();
+        }) // init
+    }; // Activity
+    Activity.init();
+
 });
+

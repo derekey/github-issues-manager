@@ -25,7 +25,7 @@
                     <div class="box-content">
                 {% endifchanged %}
             {% endif %}
-            <div class="box-section">
+            <div class="box-section" data-issue-number="{{ entry.issue.number }}">
                 <h3>
                     <a href="{{ entry.issue.get_absolute_url }}" class="{{ entry.issue.state }}" title="{{ entry.issue.state }}">#{{ entry.issue.number }}</a>
                     <a href="{{ entry.issue.get_absolute_url }}" style="margin-left:{{ entry.issue.number|slugify|length|add:2 }}ex">{{ entry.issue.title }}</a>

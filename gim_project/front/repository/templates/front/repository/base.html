@@ -57,11 +57,7 @@
 
 {% block modal-windows %}
     {{ block.super }}
-    <div id="modal-issue-view" class="modal hide fade"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %} tabindex="-1">
-        <div class="modal-body">
-            <div class="issue-container"></div>
-        </div>
-    </div>
+    {% include "front/modal_issue_view.html" %}
     <div id="go-to-issue-window" class="modal hide" tabindex="-1">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>

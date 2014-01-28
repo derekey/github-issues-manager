@@ -1,4 +1,16 @@
+@import "bootstrap/variables";
 @import "variables";
+
+@import "compass/css3/transition";
+@import "compass/css3/border-radius";
+@import "compass/css3/box-shadow";
+@import "compass/css3/text-shadow";
+
+@import "widgets/avatar";
+
+@import "components/issues_mixins";
+@import "components/issue";
+
 @import "widgets/activity";
 
 .area-top {

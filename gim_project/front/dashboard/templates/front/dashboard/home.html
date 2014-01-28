@@ -128,3 +128,8 @@
         });
     </script>
 {% endblock js_footer %}
+
+{% block modal-windows %}
+    {{ block.super }}
+    {% include "front/modal_issue_view.html" %}
+{% endblock modal-windows %}
