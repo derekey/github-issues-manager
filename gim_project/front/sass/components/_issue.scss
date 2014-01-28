@@ -9,6 +9,7 @@ $top-border: 5px;
 $header-stuck-height: 47px;
 $tabs-stuck-height: 37px;
 $files-min-stuck-height: 49px;
+$file-list-width: 400px;
 
 .issue-container {
     .stuck {
@@ -198,7 +199,6 @@ $files-min-stuck-height: 49px;
 
 @media (min-width: 1023px) {
     .issue-container.big-issue .issue-files {
-        $file-list-width: 400px;
         position: relative;
         .files-list-sticky-wrapper {
             height: auto !important;
@@ -687,6 +687,21 @@ table.commits-list {
             .stuck {
                 width: 90% !important;
                 top: 5% !important;
+            }
+            @media (min-width: 1023px) {
+                .issue-files .pr-files-list-container {
+                    position: absolute;
+                    width: $file-list-width !important;
+                    top: 0 !important;
+                    &.stuck {
+                        position: fixed;
+                        top: 5% !important;
+                        left: 5% !important;
+                        @include calc(left, "5% + 1px", !important);
+                        bottom: 5% !important;
+                        @include calc(bottom, "5% - 1px", !important);
+                    }
+                }
             }
         }
     }
