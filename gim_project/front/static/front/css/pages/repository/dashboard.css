@@ -930,45 +930,45 @@ table.commits-list td.cell-sha {
 }
 
 /* line 5, ../../../../../sass/widgets/_activity.scss */
-.activity .box-header.repository .title {
+.activity-feed .box-header.repository .title {
   font-size: 14px;
 }
 /* line 8, ../../../../../sass/widgets/_activity.scss */
-.activity .box-header.repository .avatar {
+.activity-feed .box-header.repository .avatar {
   margin-right: 1ex;
 }
 /* line 12, ../../../../../sass/widgets/_activity.scss */
-.activity .box-section {
+.activity-feed .box-section {
   padding: 5px;
 }
 /* line 14, ../../../../../sass/widgets/_activity.scss */
-.activity .box-section h3 {
+.activity-feed .box-section h3 {
   line-height: 18px;
   font-size: 16px;
 }
 /* line 17, ../../../../../sass/widgets/_activity.scss */
-.activity .box-section h3 span:first-child {
+.activity-feed .box-section h3 a:first-child {
   float: left;
 }
 /* line 19, ../../../../../sass/widgets/_activity.scss */
-.activity .box-section h3 span:first-child.open {
+.activity-feed .box-section h3 a:first-child.open {
   color: #8cc079;
 }
 /* line 22, ../../../../../sass/widgets/_activity.scss */
-.activity .box-section h3 span:first-child.closed {
+.activity-feed .box-section h3 a:first-child.closed {
   color: #b35d5d;
 }
 /* line 26, ../../../../../sass/widgets/_activity.scss */
-.activity .box-section h3 span:last-child {
+.activity-feed .box-section h3 a:last-child {
   display: block;
 }
 /* line 31, ../../../../../sass/widgets/_activity.scss */
-.activity .box-section .chat-box > li {
+.activity-feed .box-section .chat-box > li {
   margin-top: 5px;
   margin-bottom: 5px;
 }
 /* line 34, ../../../../../sass/widgets/_activity.scss */
-.activity .box-section .chat-box > li > p {
+.activity-feed .box-section .chat-box > li > p {
   margin: 0;
 }
 

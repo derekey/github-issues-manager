@@ -19,7 +19,7 @@
                     <div class="box-header repository">
                         <span class="title">
                             <div class="avatar"><img class="avatar-micro" src="{{ entry.issue.repository.owner.avatar_url|default:default_avatar }}" /></div>
-                            {{ entry.issue.repository }}
+                            <a href="{{ entry.issue.repository.get_absolute_url }}">{{ entry.issue.repository }}</a>
                         </span>
                     </div>
                     <div class="box-content">
@@ -27,8 +27,8 @@
             {% endif %}
             <div class="box-section">
                 <h3>
-                    <span class="{{ entry.issue.state }}" title="{{ entry.issue.state }}">#{{ entry.issue.number }}</span>
-                    <span style="margin-left:{{ entry.issue.number|slugify|length|add:2 }}ex">{{ entry.issue.title }}</span>
+                    <a href="{{ entry.issue.get_absolute_url }}" class="{{ entry.issue.state }}" title="{{ entry.issue.state }}">#{{ entry.issue.number }}</a>
+                    <a href="{{ entry.issue.get_absolute_url }}" style="margin-left:{{ entry.issue.number|slugify|length|add:2 }}ex">{{ entry.issue.title }}</a>
                 </h3>
                 <ul class="chat-box">
         {% endifchanged %}

@@ -1,6 +1,6 @@
 @import "variables";
 
-.activity {
+.activity-feed {
     .box-header.repository {
         .title {
             font-size: 14px;
@@ -14,7 +14,7 @@
         h3 {
             line-height: 18px;
             font-size: 16px;
-            span:first-child {
+            a:first-child {
                 float: left;
                 &.open {
                     color: $state-open-color;
@@ -23,7 +23,7 @@
                     color: $state-closed-color;
                 }
             }
-            span:last-child {
+            a:last-child {
                 display: block;
             }
         }
