@@ -42,6 +42,7 @@ $files-min-stuck-height: 49px;
                 h3 {
                     overflow: hidden;
                     @include ellipsis();
+                    margin-right: 25px;
                 }
                 &:hover {
                     max-height: none;
@@ -247,10 +248,10 @@ $files-min-stuck-height: 49px;
 
 // the toolbar of an issue is placed on the top right corner
 .issue-nav {
-    position: absolute;
-    right: 9px;
-    top: 2px;
-    z-index: 20;
+    position: fixed;
+    right: 23px;
+    top: 52px;
+    z-index: 120;
     i {
         cursor: pointer;
         color: $body-text-color;
@@ -641,13 +642,20 @@ table.commits-list {
         padding: 0;
         @include border-radius(6px);
         background: $body-background-color;
-        .issue-nav .close {
-            margin-left: 10px;
+        .issue-nav {
+            @include calc(right, "50% - 260px");
+            @include calc(top, "10% + 10px");
+            .close {
+                margin-left: 10px;
+            }
         }
         .stuck, {
             width: 560px - $scrollbar-width; // width of the modal
             right: auto;
             top: 10%; // top of the modal
+        }
+        article > .area-top header h3 {
+            margin-right: 40px;
         }
         > .issue-container.big-issue {
             top: 0 !important;
@@ -672,6 +680,10 @@ table.commits-list {
     &.full-screen {
         .modal-body {
             height: 100%;
+            .issue-nav {
+                @include calc(right, "5% + 20px");
+                @include calc(top, "5% + 10px");
+            }
             .stuck {
                 width: 90% !important;
                 top: 5% !important;
