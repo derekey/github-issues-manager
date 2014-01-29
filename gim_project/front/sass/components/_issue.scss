@@ -549,8 +549,6 @@ $file-list-width: 400px;
 .issue-files {
     .pr-files-list-container {
         @include box-sizing(border-box);
-        .pr-files-list {
-        }
         &.stuck {
             min-height: $files-min-stuck-height;
             top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height;

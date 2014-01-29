@@ -906,26 +906,27 @@ $().ready(function() {
             var $link = $(this),
                 $target = $($link.attr('href')),
                 $node = $link.closest('.issue-container');
-            IssueDetail.scroll_in_files_list($node, $target.offset().top);
+            IssueDetail.scroll_in_files_list($node, $target);
             IssueDetail.set_active_file($node, $link.closest('tr').data('pos'), true);
             return false;
         }), // on_files_list_click
 
-        scroll_in_files_list: (function IssueDetail__scroll_in_files_list ($node, position, delta) {
+        scroll_in_files_list: (function IssueDetail__scroll_in_files_list ($node, $target, delta) {
             var is_modal = IssueDetail.is_modal($node),
                 $context = IssueDetail.get_scroll_context($node, is_modal),
-                is_list_on_top = (parseInt($node.find('.pr-files-list-container').css('bottom'), 10) != 0),
-                is_full_screen = ($context.css('position') == 'absolute'),
+                is_list_on_top = !parseInt($node.find('.pr-files-list-container').css('border-right-width'), 10),
+                // is_full_screen = ($node.hasClass('big-issue')),
                 stuck_height = $node.find('.sticky-wrapper' + (is_list_on_top ? '' : ':not(.files-list-sticky-wrapper)'))
                                .toArray()
                                .reduce(function(height, wrapper) {
                                     var $wrapper = $(wrapper),
                                         $stickable = $wrapper.children().first();
                                     return height + ($stickable.hasClass('stuck') ? $stickable : $wrapper).outerHeight();
-                                }, 0);
-                position += (is_modal ? 0 : $context.scrollTop())
+                                }, 0),
+                position = (is_modal ? $target.position().top : $target.offset().top)
+                         + (is_modal ? 0 : $context.scrollTop())
                           - stuck_height
-                          - 52 // diff between position.top and offset.top when list on top, don't know what it is
+                          + (is_modal ? (is_list_on_top ? 5 : 303) : -52) // manual finding... :(
                           - 15 // adjust (margin ?)
                           - (delta || 0);
 
@@ -1109,7 +1110,7 @@ $().ready(function() {
             $file_node = $comment.closest('.pr-file');
             $files_list_container.data('active-comment', comment);
             IssueDetail.set_active_file($node, $file_node.data('pos'), false);
-            IssueDetail.scroll_in_files_list($node, $comment.offset().top, 30);  // 30 = 2 previous diff lines
+            IssueDetail.scroll_in_files_list($node, $comment, 30);  // 30 = 2 previous diff lines
             $node.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
             $node.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
         }), // go_to_file_comment
