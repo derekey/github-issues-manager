@@ -14,46 +14,26 @@ from subscriptions.models import Subscription, SUBSCRIPTION_STATES
 from core.models import LabelType, LABELTYPE_EDITMODE, Label, GITHUB_STATUS_CHOICES
 from core.tasks.label import LabelEditJob
 
+from front.views import DeferrableViewPart
 from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
 from .forms import LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm
 
 
-class RepositoryDashboardPartView(RepositoryMixin):
-
-    def get_object(self, queryset=None):
-        if getattr(self, 'object', None):
-            return self.object
-        return super(RepositoryDashboardPartView, self).get_object(queryset)
-
-    def inherit_from_view(self, view):
-        self.object = self.repository = view.repository
-        self.subscription = view.subscription
-        self.args = view.args
-        self.kwargs = view.kwargs
-        self.request = view.request
-
-    def get_as_part(self, main_view):
-        self.inherit_from_view(main_view)
-        response = self.get(self.request)
-        response.render()
-        return response.content
-
-    def get_as_deferred(self):
-        return {
-            'defer_url': self.part_url
-        }
-
+class RepositoryDashboardPartView(DeferrableViewPart, RepositoryMixin):
     @property
     def part_url(self):
         reverse_kwargs = self.repository.get_reverse_kwargs()
         return reverse_lazy('front:repository:%s' % self.url_name, kwargs=reverse_kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super(RepositoryDashboardPartView, self).get_context_data(**kwargs)
-        context.update({
-            'defer_url': self.part_url,
-        })
-        return context
+    def inherit_from_view(self, view):
+        super(RepositoryDashboardPartView, self).inherit_from_view(view)
+        self.object = self.repository = view.repository
+        self.subscription = view.subscription
+
+    def get_object(self, queryset=None):
+        if getattr(self, 'object', None):
+            return self.object
+        return super(RepositoryDashboardPartView, self).get_object(queryset)
 
 
 class MilestonesPart(RepositoryDashboardPartView):

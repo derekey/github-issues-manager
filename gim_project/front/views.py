@@ -91,3 +91,51 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
             ).select_related('owner').order_by('lower_owner', 'lower_name')
 
         return context
+
+
+class DeferrableViewPart(object):
+    deferred_template_name = 'front/base_deferred_block.html'
+
+    @property
+    def part_url(self):
+        # must be defined in the final class
+        raise NotImplementedError()
+
+    def inherit_from_view(self, view):
+        self.args = view.args
+        self.kwargs = view.kwargs
+        self.request = view.request
+
+    def get_context_data(self, **kwargs):
+        context = super(DeferrableViewPart, self).get_context_data(**kwargs)
+        context.update({
+            'defer_url': self.part_url,
+        })
+        return context
+
+    def get_as_part(self, main_view, **kwargs):
+        self.inherit_from_view(main_view)
+        response = self.get(self.request, **kwargs)
+        response.render()
+        return response.content
+
+    def get_deferred_context_data(self, **kwargs):
+        kwargs.update({
+            'view': self,
+            'defer_url': self.part_url,
+        })
+        return kwargs
+
+    def get_deferred_template_names(self):
+        return [self.deferred_template_name]
+
+    def get_as_deferred(self, main_view, **kwargs):
+        self.inherit_from_view(main_view)
+        response = self.response_class(
+            request = self.request,
+            template = self.get_deferred_template_names(),
+            context = self.get_deferred_context_data(**kwargs),
+            content_type = self.content_type,
+        )
+        response.render()
+        return response.content

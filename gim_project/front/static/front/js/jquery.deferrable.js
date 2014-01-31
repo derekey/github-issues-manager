@@ -20,6 +20,9 @@
             this.url = this.$element.data('url');
             this.params = this.$element.data('params') || [];
             this.listen();
+            if (this.$element.hasClass('deferred')) {
+                this.$element.trigger('reload');
+            }
         },
         listen: function() {
             var that = this;

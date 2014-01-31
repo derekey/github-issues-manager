@@ -4664,28 +4664,32 @@ body > header .user_avatar .caret {
   line-height: 2em;
   margin-top: -1em;
 }
+/* line 68, ../../../sass/main.scss */
+.empty-area i {
+  font-size: inherit;
+}
 
-/* line 70, ../../../sass/main.scss */
+/* line 73, ../../../sass/main.scss */
 .box-content .empty-area {
   position: static;
   font-size: 150%;
   margin: 0;
 }
 
-/* line 79, ../../../sass/main.scss */
+/* line 82, ../../../sass/main.scss */
 .content {
   color: #505050;
 }
-/* line 81, ../../../sass/main.scss */
+/* line 84, ../../../sass/main.scss */
 .content br {
   margin: 3px 0;
 }
-/* line 84, ../../../sass/main.scss */
+/* line 87, ../../../sass/main.scss */
 .content p:last-child {
   margin-bottom: 0;
 }
 
-/* line 91, ../../../sass/main.scss */
+/* line 94, ../../../sass/main.scss */
 ol.errorlist, ul.errorlist {
   list-style: none;
   margin: 0;
@@ -4693,34 +4697,34 @@ ol.errorlist, ul.errorlist {
   font-style: italic;
 }
 
-/* line 103, ../../../sass/main.scss */
+/* line 106, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"] {
   text-align: center;
 }
-/* line 105, ../../../sass/main.scss */
+/* line 108, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:first-child {
   text-align: left;
 }
-/* line 108, ../../../sass/main.scss */
+/* line 111, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:last-child {
   text-align: right;
 }
 
-/* line 116, ../../../sass/main.scss */
+/* line 119, ../../../sass/main.scss */
 .btn-loading i.icon-spinner, .btn-loading i.icon-spin {
   display: none !important;
 }
-/* line 120, ../../../sass/main.scss */
+/* line 123, ../../../sass/main.scss */
 .btn-loading.loading i.icon-spinner, .btn-loading.loading i.icon-spin {
   display: inline-block !important;
 }
 
-/* line 127, ../../../sass/main.scss */
+/* line 130, ../../../sass/main.scss */
 .active-panel {
   border-top: solid 5px #7BC8D7 !important;
 }
 
-/* line 132, ../../../sass/main.scss */
+/* line 135, ../../../sass/main.scss */
 .sparkline-graph {
   line-height: 1px !important;
 }
