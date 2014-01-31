@@ -1,9 +1,36 @@
-from django.views.generic import ListView
-
+from django.views.generic import ListView, TemplateView
+from django.core.urlresolvers import reverse_lazy
 
 from activity.limpyd_models import RepositoryActivity
-from ..views import SubscribedRepositoriesMixin
+from ..views import SubscribedRepositoriesMixin, DeferrableViewPart
 from subscriptions.models import SUBSCRIPTION_STATES
+
+
+class DashboardActivityPart(DeferrableViewPart, SubscribedRepositoriesMixin, TemplateView):
+    part_url = reverse_lazy('front:dashboard:activity')
+    template_name = 'front//dashboard/include_activity.html'
+    deferred_template_name = 'front/dashboard/include_activity_deferred.html'
+
+    repository_pks = None
+
+    def inherit_from_view(self, view):
+        super(DashboardActivityPart, self).inherit_from_view(view)
+        self.repository_pks = view.repository_pks
+
+    def get_pks(self):
+        return [s.repository_id for s in self.subscriptions]
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(DashboardActivityPart, self).get_context_data(**kwargs)
+
+        activity = RepositoryActivity.get_for_repositories(
+                            pks=self.repository_pks or self.get_pks(),
+                            start=0,
+                            stop=49
+                        )
+        context['activity'] = RepositoryActivity.load_objects(activity)
+
+        return context
 
 
 class DashboardHome(SubscribedRepositoriesMixin, ListView):
@@ -61,12 +88,9 @@ class DashboardHome(SubscribedRepositoriesMixin, ListView):
 
         context['subscription_by_repo_id'] = subscription_by_repo_id
 
-        # add activity
-        activity = RepositoryActivity.get_for_repositories(
-                            pks=subscription_by_repo_id.keys(),
-                            start=0,
-                            stop=49
-                        )
-        context['activity'] = RepositoryActivity.load_objects(activity)
+        self.repository_pks = subscription_by_repo_id.keys()
+        context['parts'] = {
+            'activity': DashboardActivityPart().get_as_deferred(self),
+        }
 
         return context

@@ -187,6 +187,7 @@ class LabelsPart(RepositoryDashboardPartView):
 
 class ActivityPart(RepositoryDashboardPartView):
     template_name = 'front/repository/dashboard/include_activity.html'
+    deferred_template_name = 'front/repository/dashboard/include_activity_deferred.html'
     url_name = 'dashboard.timeline'
 
     def get_context_data(self, *args, **kwargs):
@@ -209,7 +210,7 @@ class DashboardView(BaseRepositoryView):
             'milestones': MilestonesPart().get_as_part(self),
             'counters': CountersPart().get_as_part(self),
             'labels': LabelsPart().get_as_part(self),
-            'activity': ActivityPart().get_as_part(self),
+            'activity': ActivityPart().get_as_deferred(self),
         }
 
         return context

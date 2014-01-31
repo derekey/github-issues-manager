@@ -1,0 +1,13 @@
+{% extends "front/base_deferred_block.html" %}
+
+{% block deferred-classes %}box activity-feed{% endblock %}
+{% block deferred-id %}repository-main_activity{% endblock %}
+
+{% block deferred-placeholder %}
+    <div class="box-header">
+        <span class="title">Last activity</span>
+    </div>
+    <div class="box-content">
+        {{ block.super }}
+    </div>
+{% endblock %}

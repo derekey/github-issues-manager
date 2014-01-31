@@ -31,7 +31,7 @@
                 <div class="box-content">
                     {% if subscribed_repositories|length %}
                         {% for repository in subscribed_repositories %}
-                        {% with assigned_url=repository|base_url_issues_filtered_by_assigned:user createdy_url=repository|base_url_issues_filtered_by_created_by:user issues_url=repository|repository_view_url:'issues' %}{#subscription=subscription_by_repo_id|dict_item:repository.id %}#}
+                        {% with assigned_url=repository|base_url_issues_filtered_by_assigned:user createdy_url=repository|base_url_issues_filtered_by_created_by:user issues_url=repository|repository_view_url:'issues' %}
 
                             <div class="box-section news" data-repo-id="{{ repository.id }}">
                                 <div class="avatar"><img class="avatar-small img-circle" src="{{ repository.owner.avatar_url|default:default_avatar }}" /></div>
@@ -90,18 +90,7 @@
         </div>{# .span6 #}
 
         <div class="span6">
-            <div class="box activity-feed" id="main_activity">
-                <div class="box-header">
-                    <span class="title">Last activity</span>
-                </div>
-                <div class="box-content">
-                    {% if activity|length %}
-                        {% include "front/activity/include_activity.html" with display_repositories=True display_issues=True %}
-                    {% else %}
-                        <div class="empty-area">It seems that there is no activity at all!</div>
-                    {% endif %}
-                </div>{# .box-content #}
-            </div>{# #main_activity.box #}
+            {{ parts.activity|safe }}
         </div>{# .span6 #}
     </div>{# .row-fluid #}
 {% endblock dashboard-main %}d
