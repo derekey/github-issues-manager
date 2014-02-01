@@ -4,13 +4,13 @@ from dateutil.parser import parse
 
 from limpyd import model as lmodel, fields as lfields
 
-from core import main_limpyd_database
+from core import get_main_limpyd_database
 from core.models import Repository
 
 
 class GraphData(lmodel.RedisModel):
 
-    database = main_limpyd_database
+    database = get_main_limpyd_database()
 
     repository_id = lfields.InstanceHashField(indexable=True)
 

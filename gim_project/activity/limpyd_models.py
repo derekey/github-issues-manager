@@ -6,7 +6,7 @@ from limpyd.utils import unique_key
 from limpyd_extensions.dynamic.model import ModelWithDynamicFieldMixin
 from limpyd_extensions.dynamic.fields import DynamicSortedSetField
 
-from core import main_limpyd_database
+from core import get_main_limpyd_database
 from core.models import Repository, Issue
 
 from .managers import ActivityManager
@@ -17,7 +17,7 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
     The base abstract model to store actvity, with all main methods.
     Must be subclassed for model specificities (Issue, Repository)
     """
-    database = main_limpyd_database
+    database = get_main_limpyd_database()
     abstract = True
 
     model = None
@@ -182,7 +182,7 @@ class RepositoryActivity(BaseActivity):
                 withscores,
             )
 
-        if force_update or not main_limpyd_database.connection.exists(store_key):
+        if force_update or not cls.database.connection.exists(store_key):
 
             keys = []
 
@@ -197,18 +197,18 @@ class RepositoryActivity(BaseActivity):
                     if not data:
                         keys.remove(last_field.key)
                         continue
-                    with main_limpyd_database.pipeline(transaction=False) as pipeline:
+                    with cls.database.pipeline(transaction=False) as pipeline:
                         last_field.delete()
                         last_field.zadd(**data)
-                        main_limpyd_database.connection.expire(last_field.key, ttl)
+                        cls.database.connection.expire(last_field.key, ttl)
                         pipeline.execute()
 
-            with main_limpyd_database.pipeline(transaction=False) as pipeline:
-                main_limpyd_database.connection.zunionstore(store_key, keys, aggregate='MAX')
-                main_limpyd_database.connection.expire(store_key, ttl)
+            with cls.database.pipeline(transaction=False) as pipeline:
+                cls.database.connection.zunionstore(store_key, keys, aggregate='MAX')
+                cls.database.connection.expire(store_key, ttl)
                 pipeline.execute()
 
-        return main_limpyd_database.connection.zrevrange(store_key, start, stop, withscores)
+        return cls.database.connection.zrevrange(store_key, start, stop, withscores)
 
 
 class IssueActivity(BaseActivity):
@@ -284,7 +284,7 @@ class IssueActivity(BaseActivity):
                 data[manager.code] = manager.prepare_data(manager.get_data(issue))
 
             # ready to replace our data
-            with main_limpyd_database.pipeline(transaction=False) as pipeline:
+            with self.database.pipeline(transaction=False) as pipeline:
 
                 # remove old from repository "all_activity"
                 if old_identifiers:

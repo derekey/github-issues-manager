@@ -13,7 +13,8 @@ from limpyd_jobs.models import (
                             )
 from limpyd_jobs.workers import Worker as LimpydWorker, logger
 
-from core import main_limpyd_database
+from core import get_main_limpyd_database
+
 from core.ghpool import Connection, ApiError
 from core.models import GithubUser
 
@@ -21,7 +22,7 @@ from . import JobRegistry
 
 logger.addHandler(settings.WORKERS_LOGGER_CONFIG['handler'])
 
-BaseJobsModel.use_database(main_limpyd_database)
+BaseJobsModel.use_database(get_main_limpyd_database())
 
 NAMESPACE = 'gim'
 

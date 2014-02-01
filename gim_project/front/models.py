@@ -11,7 +11,7 @@ from markdown import markdown
 
 from limpyd import model as lmodel, fields as lfields
 
-from core import models as core_models, main_limpyd_database
+from core import models as core_models, get_main_limpyd_database
 from core.utils import contribute_to_model
 
 from events.models import EventPart
@@ -488,7 +488,7 @@ contribute_to_model(_PullRequestComment, core_models.PullRequestComment)
 
 class Hash(lmodel.RedisModel):
 
-    database = main_limpyd_database
+    database = get_main_limpyd_database()
 
     type = lfields.InstanceHashField(indexable=True)
     obj_id = lfields.InstanceHashField(indexable=True)
