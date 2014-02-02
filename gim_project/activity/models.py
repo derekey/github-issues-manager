@@ -33,9 +33,10 @@ class _Issue(models.Model):
 
     @property
     def activity(self):
-        from .limpyd_models import IssueActivity
-        a, created = IssueActivity.get_or_connect(object_id=self.id)
-        return a
+        if not hasattr(self, '_activity_limpyd_object'):
+            from .limpyd_models import IssueActivity
+            self._activity_limpyd_object, created = IssueActivity.get_or_connect(object_id=self.id)
+        return self._activity_limpyd_object
 
     def ask_for_activity_update(self):
         from .tasks import ResetIssueActivity

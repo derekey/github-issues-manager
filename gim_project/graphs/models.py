@@ -14,9 +14,10 @@ class _Repository(models.Model):
 
     @property
     def graphs(self):
-        from .limpyd_models import GraphData
-        r, created = GraphData.get_or_connect(repository_id=self.id)
-        return r
+        if not hasattr(self, '_graphs_limpyd_object'):
+            from .limpyd_models import GraphData
+            self._graphs_limpyd_object, created = GraphData.get_or_connect(repository_id=self.id)
+        return self._graphs_limpyd_object
 
 contribute_to_model(_Repository, Repository)
 
