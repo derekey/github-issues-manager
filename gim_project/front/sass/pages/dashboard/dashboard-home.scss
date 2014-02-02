@@ -20,12 +20,10 @@
 }
 
 #subscribed_repositories {
-    .box-footer {
-        text-align: center;
+    .box-toolbar {
+        position: absolute;
+        right: 0;
     }
-}
-
-#subscribed_repositories {
     .news-content {
         position: relative;
         overflow: hidden;
@@ -68,6 +66,61 @@
         }
         .all-prs {
             border-top: dashed #ccc 1px;
+        }
+    }
+}
+
+#dashboard_home {
+    .row-fluid:not(.row-header) {
+        > .span6 {
+            position: absolute;
+            top: 130px;
+            bottom: 25px;
+            width: 50%;
+            margin: 0;
+            > .box {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                margin: 0;
+                > .box-content {
+                    overflow-y: auto;
+                    @include box-sizing(border-box);
+                    height: calc(100% - 38px);
+                    @include calc(height, '100% - 37px');  // box-header height
+                    > div.section, > div.content {
+                        background: #FBFBFB;
+                    }
+                    .empty-area {
+                        position: absolute;
+                        margin-top: -1em;
+                    }
+                }
+            }
+            &:nth-child(1) {
+                left: 0;
+                > .box {
+                    left: 22px;
+                    right: 11px;
+                }
+            }
+            &:nth-child(2) {
+                left: 50%;
+                > .box {
+                    left: 11px;
+                    right: 22px;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 800px) {
+    #subscribed_repositories {
+        input.quicksearch {
+            width: 20px;
+            &:focus {
+                width: 103px;
+            }
         }
     }
 }

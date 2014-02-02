@@ -19,7 +19,7 @@
         <div class="span6">
             <div class="box" id="subscribed_repositories">
                 <div class="box-header">
-                    <span class="title">Your subscribed repositories</span>
+                    <span class="title">Subscribed repositories</span>
                     {% if subscribed_repositories|length %}
                         <ul class="unstyled box-toolbar">
                             <li>
@@ -82,9 +82,6 @@
                     {% else %}
                         <div class="empty-area">You didn't subscribe to any repositories !</div>
                     {% endif %}
-                    <div class="box-footer flat padded">
-                        <a class="btn btn-blue" href="{% url "front:dashboard:repositories:choose" %}">Manage your subscriptions</a>
-                    </div>
                 </div>{# .box-content #}
             </div>{# #subscribed_repositories.box #}
         </div>{# .span6 #}
