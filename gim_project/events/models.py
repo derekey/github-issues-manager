@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
@@ -5,6 +7,7 @@ from django.db import models
 from jsonfield import JSONField
 
 from core.models import Repository, Issue
+from core.utils import contribute_to_model
 
 from .renderers import IssueRenderer
 
@@ -115,3 +118,27 @@ class EventPart(models.Model):
 
 
 from .trackers import *
+
+
+class _Repository(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def counters(self):
+        if not hasattr(self, '_counters_limpyd_object'):
+            from .limpyd_models import RepositoryCounters
+            self._counters_limpyd_object, created = RepositoryCounters.get_or_connect(repository_id=self.id)
+            if created:
+                self._counters_limpyd_object.update_global()
+                self._counters_limpyd_object.update_users()
+        return self._counters_limpyd_object
+
+    def ask_for_counters_update(self):
+        from .tasks import ResetRepositoryCounters
+        ResetRepositoryCounters.add_job(self.pk, priority=-5, delayed_for=timedelta(minutes=15))
+
+contribute_to_model(_Repository, Repository)
+
+
+from .tasks import *

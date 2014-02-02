@@ -159,6 +159,8 @@ class IssueTracker(ChangeTracker):
         if parts:
             event.add_bulk_parts(parts)
 
+        instance.repository.counters.update_from_created_issue(instance)
+
         return event
 
     @classmethod
@@ -174,6 +176,8 @@ class IssueTracker(ChangeTracker):
             related_object_id=instance.pk,
             title="%s #%s was changed" % (instance.type.capitalize(), instance.number),
         )
+
+        instance.repository.counters.update_from_updated_issue(instance, changed_fields)
 
         return event
 
