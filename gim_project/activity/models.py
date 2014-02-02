@@ -121,3 +121,6 @@ def update_activity_for_event_part(sender, instance, created, **kwargs):
 
 post_save.connect(update_activity_for_fk_link, sender=EventPart, weak=False,
                   dispatch_uid='update_activity_for_event_part')
+
+
+from .tasks import *

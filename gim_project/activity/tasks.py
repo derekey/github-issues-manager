@@ -1,3 +1,7 @@
+__all__ = [
+    'ResetIssueActivity',
+]
+
 from core.tasks.issue import IssueJob
 
 
