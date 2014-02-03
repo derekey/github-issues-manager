@@ -3,7 +3,6 @@ from django.core.urlresolvers import reverse_lazy
 
 from activity.limpyd_models import RepositoryActivity
 from ..views import SubscribedRepositoriesMixin, DeferrableViewPart
-from subscriptions.models import SUBSCRIPTION_STATES
 
 
 class DashboardActivityPart(DeferrableViewPart, SubscribedRepositoriesMixin, TemplateView):
@@ -25,8 +24,6 @@ class DashboardActivityPart(DeferrableViewPart, SubscribedRepositoriesMixin, Tem
 
         activity = RepositoryActivity.get_for_repositories(
                             pks=self.repository_pks or self.get_pks(),
-                            start=0,
-                            stop=49
                         )
         context['activity'] = RepositoryActivity.load_objects(activity)
 

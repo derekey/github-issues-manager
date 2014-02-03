@@ -67,47 +67,68 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
             self._object = self.model.objects.get(pk=self.object_id.hget())
         return self._object
 
-    def get_activity(self, codes=None, start=0, stop=-1, withscores=False, force_update=False):
+    def get_activity(self, codes=None, max=None, min=None, num=50, withscores=False, force_update=False, ttl=20):
         """
-        Return activity for the given codes, starting at the "start" item,
-        ending at the "end" one.
+        Return activity for the given codes, in the reverse order (most recent
+        first) with `num` elements starting from `max` score (or the highest
+        available if not set), down to `min` if set.
+        Note that `min` may not be reached if there is more than `num` entries
+        between `min` and `max`
         The returned activity is a list of identifiers as stored in the sorted
         set, but if withscores is set to True, it will return a list of tuples
         (identifier, score).
-        "codes" is a list of codes to use, but can be None to use the whole
-        activity.
-        If force_updates is False, it will use an possibly stored value, else it
-        will compute it (it can be heavy). Actually, only the whole activity is
-        precomputed.
+        `codes` is a list of codes to use, but can be None to use the whole
+        activity (in which case the result is faster as the full list is already
+        stored)
+        If `force_update` is False, it will use a previously computed value,
+        stored for `ttl` seconds, else it will compute it (but the cache will
+        still be set for two minutes).
         """
         # by default, all codes
         if codes is None:
             codes = ActivityManager.all_codes
         else:
-            codes = sorted(codes)
+            codes = sorted(set(codes))
 
         is_full_list = codes == ActivityManager.all_codes
 
-        if is_full_list and not force_update:
-            return self.all_activity.zrevrange(start, stop, withscores)
-
-        # get the keys to union
-        keys = [self.get_field(ActivityManager.MAPPING[code].limpyd_field).key for code in codes]
+        min = str(min) if min else '-inf'
+        max = str(max) if max else '+inf'
 
         if is_full_list:
+            # full list, we already have the full list stored
             store_key = self.all_activity.key
         else:
-            store_key = unique_key(self.connection)
+            # not the full list, we will create a temp zset we wanted lists
+            store_key = self.make_key(
+                self._name,
+                'merge',
+                'codes',
+                ','.join(codes),
+                num,
+                min,
+                max,
+            )
 
-        # no way to directly return the result, there is no simple "zunion"
-        self.connection.zunionstore(store_key, keys, aggregate='MAX')
+            if force_update or not self.connection.exists(store_key):
 
-        result = self.connection.zrevrange(store_key, start, stop, withscores)
+                # get the keys to union
+                keys = [self.get_field(ActivityManager.MAPPING[code].limpyd_field).key for code in codes]
 
-        if not is_full_list:
-            self.connection.delete(store_key)
+                # no way to directly return the result, there is no simple "zunion"
+                with self.pipeline(transaction=False) as pipeline:
+                    self.connection.zunionstore(store_key, keys, aggregate='MAX')
+                    self.connection.connection.expire(store_key, ttl)
+                    pipeline.execute()
 
-        return result
+        return self.connection.zrevrangebyscore(
+            store_key,
+            min=min,
+            max=max,
+            start=0,
+            num=num,
+            withscores=withscores
+        )
 
 
 class RepositoryActivity(BaseActivity):
@@ -153,34 +174,54 @@ class RepositoryActivity(BaseActivity):
         field.zadd(**data)
 
     @classmethod
-    def get_for_repositories(cls, pks, start=0, stop=-1, withscores=False, force_update=False, ttl=120):
+    def get_for_repositories(cls, pks, max=None, min=None, num=50, withscores=False, force_update=False, ttl=120):
         """
-        Return the activity for the repositories represented by their pks
-        starting at the "start" item, ending at the "end" one.
+        Return the activity for the repositories represented by their pks, in
+        the reverse order (most recent first) with `num` elements starting from
+        `max` score (or the highest available if not set), down to `min` if set.
+        Note that `min` may not be reached if there is more than `num` entries
+        between `min` and `max`
         The returned activity is a list of identifiers as stored in the sorted
         sets, but if withscores is set to True, it will return a list of tuples
         (identifier, score).
         The computation (zunion of all zsets) may be long so the result is
-        cached for 120 seconds ("ttl" argument), unless force_update is set to
+        cached for 120 seconds (`ttl` argument), unless `force_update` is set to
         True, which will force the computation (but the cache will still be set
         for two minutes)
         Note: instead of doing a union of the "all_activity" fields for all the
         repository, we start by getting their latest values (assured to fit in
-        the final start/stop range) into a final sorted set, used to do
-        the real revrange
-        TODO: may be rewritten in LUA
+        the final min/max range) into a final sorted set, used to do the real
+        revrange
+        TODO: may be rewritten in LUA ?
         """
+
         if not pks:
             return []
+        pks = sorted(set(pks))
+
+        if len(pks) == 1:
+            return Repository.objects.get(pk=pks[0]).activity.get_activity(
+                codes=None,
+                max=max,
+                min=min,
+                num=num,
+                withscores=withscores,
+                force_update=force_update,
+                ttl=ttl
+            )
+
+        min = str(min) if min else '-inf'
+        max = str(max) if max else '+inf'
 
         store_key = cls.make_key(
-                cls._name,
-                'merge',
-                'repositories',
-                ','.join(map(str, sorted(pks))),
-                stop,
-                withscores,
-            )
+            cls._name,
+            'merge',
+            'repositories',
+            ','.join(map(str, pks)),
+            num,
+            min,
+            max,
+        )
 
         if force_update or not cls.database.connection.exists(store_key):
 
@@ -190,10 +231,16 @@ class RepositoryActivity(BaseActivity):
                 activity, created = cls.get_or_connect(object_id=pk)
                 if created:
                     continue
-                last_field = activity.last_history(stop)
+                last_field = activity.last_history('%s|%s|%s' % (min, max, num))
                 keys.append(last_field.key)
-                if not activity.last_history(stop).exists():
-                    data = dict(activity.all_activity.zrevrange(0, stop, withscores=True))
+                if not last_field.exists():
+                    data = dict(activity.all_activity.zrevrangebyscore(
+                        min=min,
+                        max=max,
+                        start=0,
+                        num=num,
+                        withscores=True,
+                    ))
                     if not data:
                         keys.remove(last_field.key)
                         continue
@@ -208,7 +255,14 @@ class RepositoryActivity(BaseActivity):
                 cls.database.connection.expire(store_key, ttl)
                 pipeline.execute()
 
-        return cls.database.connection.zrevrange(store_key, start, stop, withscores)
+        return cls.database.connection.zrevrangebyscore(
+            store_key,
+            min=min,
+            max=max,
+            start=0,
+            num=num,
+            withscores=withscores,
+        )
 
 
 class IssueActivity(BaseActivity):

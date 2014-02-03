@@ -193,7 +193,7 @@ class ActivityPart(RepositoryDashboardPartView):
     def get_context_data(self, *args, **kwargs):
         context = super(ActivityPart, self).get_context_data(**kwargs)
         activity_obj = self.repository.activity
-        activity = activity_obj.get_activity(start=0, stop=39)
+        activity = activity_obj.get_activity()
         context['activity'] = activity_obj.load_objects(activity)
         return context
 
