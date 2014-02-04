@@ -1030,36 +1030,43 @@ table.commits-list td.cell-sha {
   margin: 0;
 }
 
-/* line 17, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-.area-top .btn {
+@media (max-height: 800px) {
+  /* line 16, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+  #dashboard_home .area-top {
+    padding: 0px 15px;
+    margin-bottom: 15px;
+  }
+}
+/* line 21, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+#dashboard_home .area-top .btn {
   margin-top: 6px;
 }
 
-/* line 23, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 27, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .box-toolbar {
   position: absolute;
   right: 0;
 }
-/* line 27, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 31, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .news-content {
   position: relative;
   overflow: hidden;
   height: 63px;
   margin-bottom: -10px;
 }
-/* line 33, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 37, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .news-title {
   position: relative;
   z-index: 2;
 }
-/* line 37, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 41, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .issues-by-day {
   position: absolute;
   right: 0;
   bottom: 0;
   z-index: 1;
 }
-/* line 43, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 47, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters {
   float: right;
   margin-top: -13px;
@@ -1067,36 +1074,36 @@ table.commits-list td.cell-sha {
   text-align: right;
   font-weight: bold;
 }
-/* line 49, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 53, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters li {
   padding: 0 5px;
 }
-/* line 52, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 56, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .high a {
   color: #C75D5D;
 }
-/* line 55, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 59, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .medium a {
   color: #6E97AA;
 }
-/* line 58, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 62, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .low a {
   color: #808080;
 }
-/* line 61, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 65, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .none a {
   color: #8FAE53;
 }
-/* line 64, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 68, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .not-collab {
   font-weight: normal;
 }
-/* line 67, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 71, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .all-prs {
   border-top: dashed #ccc 1px;
 }
 
-/* line 75, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 79, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6 {
   position: absolute;
   top: 130px;
@@ -1104,14 +1111,21 @@ table.commits-list td.cell-sha {
   width: 50%;
   margin: 0;
 }
-/* line 81, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+@media (max-height: 800px) {
+  /* line 79, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+  #dashboard_home .row-fluid:not(.row-header) > .span6 {
+    top: 88px;
+    bottom: 5px;
+  }
+}
+/* line 89, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6 > .box {
   position: absolute;
   top: 0;
   bottom: 0;
   margin: 0;
 }
-/* line 86, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 94, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6 > .box > .box-content {
   overflow-y: auto;
   -webkit-box-sizing: border-box;
@@ -1123,40 +1137,54 @@ table.commits-list td.cell-sha {
   height: -webkit-calc(100% - 37px) ;
   height: calc(100% - 37px) ;
 }
-/* line 91, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 99, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6 > .box > .box-content > div.section, #dashboard_home .row-fluid:not(.row-header) > .span6 > .box > .box-content > div.content {
   background: #FBFBFB;
 }
-/* line 94, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 102, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6 > .box > .box-content .empty-area {
   position: absolute;
   margin-top: -1em;
 }
-/* line 100, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 108, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(1) {
   left: 0;
 }
-/* line 102, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 110, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(1) > .box {
   left: 22px;
   right: 11px;
 }
-/* line 107, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+@media (max-height: 800px) {
+  /* line 110, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+  #dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(1) > .box {
+    left: 5px;
+    right: 2px;
+  }
+}
+/* line 119, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(2) {
   left: 50%;
 }
-/* line 109, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 121, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(2) > .box {
   left: 11px;
   right: 22px;
 }
+@media (max-height: 800px) {
+  /* line 121, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+  #dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(2) > .box {
+    left: 3px;
+    right: 5px;
+  }
+}
 
 @media (max-width: 800px) {
-  /* line 119, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+  /* line 135, ../../../../../sass/pages/dashboard/dashboard-home.scss */
   #subscribed_repositories input.quicksearch {
     width: 20px;
   }
-  /* line 121, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+  /* line 137, ../../../../../sass/pages/dashboard/dashboard-home.scss */
   #subscribed_repositories input.quicksearch:focus {
     width: 103px;
   }

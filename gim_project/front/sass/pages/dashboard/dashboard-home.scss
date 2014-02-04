@@ -13,7 +13,11 @@
 
 @import "widgets/activity";
 
-.area-top {
+#dashboard_home .area-top {
+    @media (max-height: 800px) {
+        padding: 0px 15px;
+        margin-bottom: 15px;
+    }
     .btn {
         margin-top: 6px;
     }
@@ -78,6 +82,10 @@
             bottom: 25px;
             width: 50%;
             margin: 0;
+            @media (max-height: 800px) {
+                top: 88px;
+                bottom: 5px;
+            }
             > .box {
                 position: absolute;
                 top: 0;
@@ -102,6 +110,10 @@
                 > .box {
                     left: 22px;
                     right: 11px;
+                    @media (max-height: 800px) {
+                        left: 5px;
+                        right: 2px;
+                    }
                 }
             }
             &:nth-child(2) {
@@ -109,6 +121,10 @@
                 > .box {
                     left: 11px;
                     right: 22px;
+                    @media (max-height: 800px) {
+                        left: 3px;
+                        right: 5px;
+                    }
                 }
             }
         }
