@@ -980,54 +980,134 @@ table.commits-list td.cell-sha {
 }
 
 /* line 5, ../../../../../sass/widgets/_activity.scss */
-.activity-feed .box-header.repository .title {
+.activity-feed .activity-repository:not(:first-child) {
+  border-top: 1px solid #CDCDCD;
+}
+/* line 9, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .activity-repository .box-header .title {
   font-size: 14px;
 }
-/* line 8, ../../../../../sass/widgets/_activity.scss */
-.activity-feed .box-header.repository .avatar {
+/* line 12, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .activity-repository .box-header .avatar {
   margin-right: 1ex;
 }
-/* line 12, ../../../../../sass/widgets/_activity.scss */
+/* line 17, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section {
   padding: 5px;
+  padding-left: 2px;
 }
-/* line 14, ../../../../../sass/widgets/_activity.scss */
+/* line 20, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 {
   position: relative;
   line-height: 18px;
   font-size: 16px;
 }
-/* line 18, ../../../../../sass/widgets/_activity.scss */
+/* line 24, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 span {
   display: block;
 }
-/* line 20, ../../../../../sass/widgets/_activity.scss */
+/* line 26, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 span:first-of-type {
   float: left;
 }
-/* line 22, ../../../../../sass/widgets/_activity.scss */
+/* line 28, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 span:first-of-type.open {
   color: #8cc079;
 }
-/* line 25, ../../../../../sass/widgets/_activity.scss */
+/* line 31, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 span:first-of-type.closed {
   color: #b35d5d;
 }
-/* line 30, ../../../../../sass/widgets/_activity.scss */
+/* line 36, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 i.icon-upload-alt {
   float: right;
   margin-right: 15px;
   margin-left: 10px;
   font-size: inherit;
 }
-/* line 38, ../../../../../sass/widgets/_activity.scss */
+/* line 44, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .chat-box > li {
   margin-top: 5px;
   margin-bottom: 5px;
 }
-/* line 41, ../../../../../sass/widgets/_activity.scss */
+/* line 47, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .chat-box > li > p {
   margin: 0;
+}
+/* line 53, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .loading {
+  text-align: center;
+  line-height: 30px;
+  height: 1px;
+  color: #bbbbbb;
+  overflow: hidden;
+  -webkit-transition: height 0.35s;
+  -moz-transition: height 0.35s;
+  -o-transition: height 0.35s;
+  transition: height 0.35s;
+}
+/* line 59, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .loading i {
+  font-size: inherit;
+}
+/* line 61, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .loading i.icon-spinner {
+  position: relative;
+  top: 2px;
+}
+/* line 67, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .loading.nothing {
+  color: #505050;
+}
+/* line 70, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .loading.error {
+  color: #b35d5d;
+}
+/* line 73, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .loading.visible {
+  height: 30px;
+}
+/* line 78, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-repositories .activity-repository {
+  position: relative;
+}
+/* line 80, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-repositories .activity-repository .box-section {
+  padding-left: 8px;
+}
+/* line 83, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-repositories .activity-repository::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background-color: transparent;
+  -webkit-transition: background-color 0.7s;
+  -moz-transition: background-color 0.7s;
+  -o-transition: background-color 0.7s;
+  transition: background-color 0.7s;
+}
+/* line 94, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-repositories .activity-repository.recent::before {
+  background-color: #7bc8d7;
+}
+/* line 101, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-issues .loading {
+  border-bottom: 1px solid #CDCDCD;
+}
+/* line 104, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-issues .box-section {
+  -webkit-transition: border-color 0.7s;
+  -moz-transition: border-color 0.7s;
+  -o-transition: border-color 0.7s;
+  transition: border-color 0.7s;
+  border-left: solid 4px transparent;
+}
+/* line 107, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-issues .box-section.recent {
+  border-left-color: #7bc8d7;
 }
 
 /* line 18, ../../../../../sass/pages/repository/dashboard.scss */

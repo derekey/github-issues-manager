@@ -1,16 +1,22 @@
 @import "variables";
 
 .activity-feed {
-    .box-header.repository {
-        .title {
-            font-size: 14px;
+    .activity-repository {
+        &:not(:first-child) {
+            border-top: 1px solid #CDCDCD;
         }
-        .avatar {
-            margin-right: 1ex;
+        .box-header {
+            .title {
+                font-size: 14px;
+            }
+            .avatar {
+                margin-right: 1ex;
+            }
         }
     }
     .box-section {
         padding: 5px;
+        padding-left: 2px;
         h3 {
             position: relative;
             line-height: 18px;
@@ -41,6 +47,65 @@
                 & > p {
                     margin: 0;
                 }
+            }
+        }
+    }
+    .loading {
+        text-align: center;
+        line-height: 30px;
+        height: 1px;
+        color: $light-text-color;
+        overflow: hidden;
+        i {
+            font-size: inherit;
+            &.icon-spinner {
+                position: relative;
+                top: 2px;
+            }
+        }
+        @include transition(height 0.35s);
+        &.nothing {
+            color: $content-text-color;
+        }
+        &.error {
+            color: $state-closed-color;
+        }
+        &.visible {
+            height: 30px;
+        }
+    }
+    &.for-repositories {
+        .activity-repository {
+            position: relative;
+            .box-section {
+                padding-left: 8px;
+            }
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: 4px;
+                background-color: transparent;
+                @include transition(background-color 0.70s);
+            }
+            &.recent {
+                &::before {
+                    background-color: $active-color;
+                }
+            }
+        }
+    }
+    &.for-issues {
+        .loading {
+             border-bottom: 1px solid #CDCDCD;
+       }
+        .box-section {
+            @include transition(border-color 0.70s);
+            border-left: solid 4px transparent;
+            &.recent {
+                border-left-color: $active-color;
             }
         }
     }

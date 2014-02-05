@@ -128,7 +128,7 @@ ol, ul {
 
 // show which panel is the current one with a top blue border
 .active-panel {
-    border-top: solid 5px #7BC8D7 !important;
+    border-top: solid 5px $active-color !important;
 }
 
 // allow minimal size for sparkline graphs

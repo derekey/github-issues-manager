@@ -274,6 +274,11 @@ blockquote p:last-child {
   z-index: 1070;
 }
 
+/* line 111, ../../../sass/_bootstrap-correct.scss */
+.box .box-header .box-toolbar > li.toolbar-link > a.disabled, .box .box-footer .box-toolbar > li.toolbar-link > a.disabled {
+  color: #bbbbbb;
+}
+
 /* line 3, ../../../sass/widgets/_avatar.scss */
 .avatar img {
   display: inline-block;
@@ -4721,7 +4726,7 @@ ol.errorlist, ul.errorlist {
 
 /* line 130, ../../../sass/main.scss */
 .active-panel {
-  border-top: solid 5px #7BC8D7 !important;
+  border-top: solid 5px #7bc8d7 !important;
 }
 
 /* line 135, ../../../sass/main.scss */

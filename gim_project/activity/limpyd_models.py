@@ -32,29 +32,61 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
     pr_commits = lfields.SortedSetField()
 
     @staticmethod
-    def load_object(identifier):
+    def load_object(data):
         """
-        Return the object for the given identifier
+        Return the object for the given data, which may be an identifier, or a
+        tuple (identifier, score). If the score is given, it's attached to the
+        object as "activity_score"
         """
+        if isinstance(data, (list, tuple)):
+            identifier, score = data
+        else:
+            identifier, score = data, None
         code, pk = identifier.split(':')
-        return ActivityManager.MAPPING[code].load_object(pk)
+        obj = ActivityManager.MAPPING[code].load_object(pk)
+        if score is not None:
+            obj.activity_score = score
+        return obj
 
     @staticmethod
-    def load_objects(identifiers):
+    def load_objects(data):
         """
-        Return objects for the given identifiers, in the same order, using as
-        fiew sql queries as possible
+        Return objects for the given data, in the same order, using as
+        fiew sql queries as possible.
+        Data may be a list of identifiers, or a list of tuples :
+        (identifier, score)
         """
+        if not data:
+            return []
+
+        has_score = isinstance(data[0], (list, tuple))
+        if has_score:
+            scores_by_code = dict(data)
+        else:
+            scores_by_code = None
+
         # group by code
         by_code = defaultdict(list)
         loaded = OrderedDict()
-        for identifier in identifiers:
+
+        for one_data in data:
+            if has_score:
+                identifier, score = one_data
+            else:
+                identifier, score = one_data, None
             loaded[identifier] = None
             code, pk = identifier.split(':')
             by_code[code].append(pk)
+
         for code, pks in by_code.iteritems():
             for obj in ActivityManager.MAPPING[code].load_objects(pks):
                 loaded['%s:%s' % (code, obj.pk)] = obj
+
+        if has_score:
+            for code, obj in loaded.iteritems():
+                if obj:
+                    obj.activity_score = '%.1f' % scores_by_code[code]
+
         return [obj for obj in loaded.values() if obj]
 
     @property

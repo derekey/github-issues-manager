@@ -5,24 +5,26 @@
     {% if user == issue.user %}<span class="label" title="{{ user.username }} submitted this {{ issue.type }}">submitter</span>{% endif %}
 {% endmacro %}
 {% for entry in activity %}
-    {% if display_issues %}
+    {% if activity_mode == 'repositories' or activity_mode == 'issues' %}
         {% ifchanged entry.issue_id %}
             {% if not forloop.first %}
                     </ul>
                 </div>
             {% endif %}
-            {% if display_repositories %}
+            {% if activity_mode == 'repositories' %}
                 {% ifchanged entry.issue.repository_id %}
                     {% if not forloop.first %}
+                            </div>
                         </div>
                     {% endif %}
-                    <div class="box-header repository">
-                        <span class="title">
-                            <div class="avatar"><img class="avatar-micro" src="{{ entry.issue.repository.owner.avatar_url|default:default_avatar }}" /></div>
-                            <a href="{{ entry.issue.repository.get_absolute_url }}">{{ entry.issue.repository }}</a>
-                        </span>
-                    </div>
-                    <div class="box-content">
+                    <div class="activity-repository">
+                        <div class="box-header">
+                            <span class="title">
+                                <div class="avatar"><img class="avatar-micro" src="{{ entry.issue.repository.owner.avatar_url|default:default_avatar }}" /></div>
+                                <a href="{{ entry.issue.repository.get_absolute_url }}">{{ entry.issue.repository }}</a>
+                            </span>
+                        </div>
+                        <div class="box-content">
                 {% endifchanged %}
             {% endif %}
             <div class="box-section" data-issue-number="{{ entry.issue.number }}">
@@ -37,7 +39,7 @@
         {% endifchanged %}
     {% endif %}
     {% with model=entry|model %}
-        <li class="arrow-box-left">
+        <li class="arrow-box-left"{% if entry.activity_score %} data-score="{{ entry.activity_score }}"{% endif %}>
         {% if model == 'Event' %}
             <div class="info">
                 {% if entry.is_update %}

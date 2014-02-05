@@ -1896,10 +1896,23 @@ $().ready(function() {
             });
     }
 
-    Activity = {
+    var Activity = {
         feeds: null,
-        selector: '.activity-feed',
-        issue_link_selector: '.box-section > h3 > a',
+        selectors: {
+            main: '.activity-feed',
+            issue_link: '.box-section > h3 > a',
+            refresh_button: '.timeline-refresh',
+            entries: {
+                all: '.chat-box > li',
+                first: '.chat-box:first > li',
+                last: '.chat-box:last > li'
+            },
+            containers: {
+                issues: '.box-section',
+                repositories: '.activity-repository'
+            },
+            find_empty: ':not(:has(.chat-box > li))'
+        },
 
         on_issue_link_click: (function Activity__on_issue_link_click () {
             var $link = $(this),
@@ -1909,12 +1922,153 @@ $().ready(function() {
             return false;
         }), // on_issue_link_click
 
+        get_main_node: (function Activity__get_main_node ($node) {
+            return $node.closest(Activity.selectors.main);
+        }), // get_main_node
+
+        get_url: (function Activity__get_url ($main_node) {
+            return $main_node.data('url');
+        }), // get_url
+
+        get_mode: (function Activity__get_mode ($main_node) {
+            return $main_node.data('mode');
+        }), // get_mode
+
+        get_first_entry: (function Activity__get_first_entry ($main_node) {
+            return $main_node.find(Activity.selectors.entries.first);
+        }), // get_first_entry
+
+        get_last_entry: (function Activity__get_last_entry ($main_node) {
+            return $main_node.find(Activity.selectors.entries.last);
+        }), // get_last_entry
+
+        get_entry_score: (function Activity__get_entry_score ($entry) {
+            return $entry.data('score');
+        }), // get_entry_score
+
+        get_pivot_node: (function Activity__get_pivot_node ($main_node, $entry) {
+            var mode = Activity.get_mode($main_node);
+            return $entry.closest(Activity.selectors.containers[mode]);
+        }), // get_pivot_node
+
+        add_loaded_entries: (function Activity__add_loaded_entries($main_node, $entry, data, limits, $loading, callback) {
+            var $container = $('<div />'),
+                mode = Activity.get_mode($main_node),
+                $entries, $entry, score;
+
+            // put data in a temporary container to manage them
+            $container.append(data);
+            $entries = $container.find(Activity.selectors.entries.all);
+
+            // we need numbers
+            if (limits.min) { limits.min = parseFloat(limits.min, 10)};
+            if (limits.max) { limits.max = parseFloat(limits.max, 10)};
+
+            // remove entries with score out of range
+            for (var i = 0; i < $entries.length; i++) {
+                $entry = $($entries[i]);
+                score = parseFloat($($entry).data('score'), 10);
+                if (limits.min && score <= limits.min || limits.max && score >= limits.max) {
+                    $entry.remove();
+                }
+            }
+
+            // clean empty nodes
+            if (mode == 'issues' || mode == 'repositories') {
+                $container.find(Activity.selectors.containers.issues + Activity.selectors.find_empty).remove();
+                if (mode == 'repositories') {
+                    $container.find(Activity.selectors.containers.repositories + Activity.selectors.find_empty).remove();
+                }
+            }
+
+            // remove old "recent" marks
+            $main_node.find(Activity.selectors.containers[mode] + '.recent').removeClass('recent');
+
+            // insert data if there is still
+            if ($container.find(Activity.selectors.entries.all).length) {
+                $entries = $container.children().replaceAll($loading);
+                setTimeout(function() { $entries.addClass('recent'); }, 10);
+                if (callback) { callback('ok'); }
+            } else {
+                Activity.end_loading($loading, callback, 'nothing');
+            }
+        }), // add_loaded_entries
+
+        end_loading: (function Activity__end_loading($loading, callback, type, delay, message, icon) {
+            if (type == 'nothing') {
+                message = message || 'Nothing new';
+                icon = icon || 'icon-eye-close';
+                delay = delay || 1000;
+            } else if (type == 'error') {
+                message = message || 'Error while loading';
+                icon = icon || 'icon-remove-sign';
+                delay = delay || 3000;
+            }
+            $loading.addClass(type).html('<i class="' + icon + '"> </i> ' + message);
+            setTimeout(function() {
+                $loading.removeClass('visible');
+                setTimeout(function() {
+                    $loading.remove();
+                    if (callback) { callback(type); }
+                }, 320);
+            }, delay);
+        }), // end_loading
+
+        load_data: (function Activity__load_data($main_node, $entry, limits, where, callback) {
+            var data = { partial: 1},
+                $loading = Activity.get_loading_zone(),
+                $pivot = Activity.get_pivot_node($main_node, $entry);
+
+            $pivot[where]($loading);
+            setTimeout(function() { $loading.addClass('visible'); }, 10);
+
+            if (limits.min) { data.min = limits.min; }
+            if (limits.max) { data.max = limits.max; }
+
+            $.ajax({
+                url: Activity.get_url($main_node),
+                data: data,
+                dataType: 'html',
+                success: function(data) {
+                    Activity.add_loaded_entries($main_node, $entry, data, limits, $loading, callback);
+                },
+                error: function() {
+                    Activity.end_loading($loading, callback, 'error');
+                }
+            });
+
+        }), // load_data
+
+        get_loading_zone: (function Activity__get_loading_zone () {
+            return $('<div class="loading"><i class="icon-spinner icon-spin"> </i> Loading</</div>');
+        }), // get_loading_zone
+
+        on_refresh_button_click: (function Activity__on_refresh_button_click () {
+            var $this = $(this), $main_node, $first_entry, score;
+
+            if ($this.hasClass('disabled')) { return false; }
+            $this.addClass('disabled');
+
+            $main_node = Activity.get_main_node($this);
+            $main_node.children('.box-content').scrollTop(1).scrollTop(0);
+
+            $first_entry = Activity.get_first_entry($main_node);
+            score = Activity.get_entry_score($first_entry);
+
+            Activity.load_data($main_node, $first_entry, {min: score}, 'before', function(is_success) {
+                $this.removeClass('disabled');
+            });
+
+            return false;
+        }), // on_refresh_button_click
+
         init_events: (function Activity__init_events () {
-            $document.on('click', Activity.selector + ' ' + Activity.issue_link_selector, Ev.stop_event_decorate(Activity.on_issue_link_click));
+            $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.issue_link, Ev.stop_event_decorate(Activity.on_issue_link_click));
+            $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.refresh_button, Ev.stop_event_decorate(Activity.on_refresh_button_click));
         }), // init_events
 
         init: (function Activity__init () {
-            Activity.feeds = $(Activity.selector);
+            Activity.feeds = $(Activity.selectors.main);
             Activity.init_events();
         }) // init
     }; // Activity

@@ -14,6 +14,7 @@ from subscriptions.models import Subscription, SUBSCRIPTION_STATES
 from core.models import LabelType, LABELTYPE_EDITMODE, Label, GITHUB_STATUS_CHOICES
 from core.tasks.label import LabelEditJob
 
+from front.activity.views import ActivityMixin
 from front.views import DeferrableViewPart
 from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
 from .forms import LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm
@@ -185,7 +186,7 @@ class LabelsPart(RepositoryDashboardPartView):
         return context
 
 
-class ActivityPart(RepositoryDashboardPartView):
+class ActivityPart(ActivityMixin, RepositoryDashboardPartView):
     template_name = 'front/repository/dashboard/include_activity.html'
     deferred_template_name = 'front/repository/dashboard/include_activity_deferred.html'
     url_name = 'dashboard.timeline'
@@ -193,8 +194,11 @@ class ActivityPart(RepositoryDashboardPartView):
     def get_context_data(self, *args, **kwargs):
         context = super(ActivityPart, self).get_context_data(**kwargs)
         activity_obj = self.repository.activity
-        activity = activity_obj.get_activity()
-        context['activity'] = activity_obj.load_objects(activity)
+        activity = activity_obj.get_activity(**self.activity_arguments)
+        context.update({
+            'activity': activity_obj.load_objects(activity),
+            'activity_mode': 'issues',
+        })
         return context
 
 

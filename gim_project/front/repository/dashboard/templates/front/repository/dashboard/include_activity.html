@@ -1,10 +1,15 @@
-<div class="box deferrable activity-feed" id="repository-activity" data-url="{{ defer_url }}">
+<div class="box deferrable activity-feed for-{{ activity_mode }}" id="repository-activity" data-url="{{ defer_url }}" data-mode='{{ activity_mode }}'>
     <div class="box-header">
         <span class="title">Last activity</span>
+        <ul class="box-toolbar">
+            <li class="toolbar-link">
+                <a href="#" class="timeline-refresh"><i class="icon-refresh"></i> Refresh</a>
+            </li>
+        </ul>
     </div>
     <div class="box-content">
         {% if activity|length %}
-            {% include "front/activity/include_activity.html" with display_repositories=False display_issues=True %}
+            {% include "front/activity/include_activity.html" %}
         {% else %}
             <div class="empty-area">No activity for this repository</div>
         {% endif %}

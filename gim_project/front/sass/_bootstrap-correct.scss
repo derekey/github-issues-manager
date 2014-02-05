@@ -104,3 +104,12 @@ $arrows: top, right, left, bottom;
 .modal.in ~ .modal.in {
     z-index: 1070;
 }
+
+// add a disabled state on box toolbars
+.box {
+    .box-header, .box-footer {
+        .box-toolbar > li.toolbar-link > a.disabled {
+            color: $light-text-color;
+        }
+    }
+}
