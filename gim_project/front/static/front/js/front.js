@@ -1901,11 +1901,14 @@ $().ready(function() {
         selectors: {
             main: '.activity-feed',
             issue_link: '.box-section > h3 > a',
-            refresh_button: '.timeline-refresh',
+            buttons: {
+                refresh: '.timeline-refresh',
+                more: '.placeholder.more a'
+            },
             entries: {
                 all: '.chat-box > li',
-                first: '.chat-box:first > li',
-                last: '.chat-box:last > li'
+                first: '.chat-box:first > li:first',
+                last: '.chat-box:last > li:last'
             },
             containers: {
                 issues: '.box-section',
@@ -1951,7 +1954,7 @@ $().ready(function() {
             return $entry.closest(Activity.selectors.containers[mode]);
         }), // get_pivot_node
 
-        add_loaded_entries: (function Activity__add_loaded_entries($main_node, $entry, data, limits, $loading, callback) {
+        add_loaded_entries: (function Activity__add_loaded_entries($main_node, $entry, data, limits, $placeholder, callback) {
             var $container = $('<div />'),
                 mode = Activity.get_mode($main_node),
                 $entries, $entry, score;
@@ -1986,41 +1989,74 @@ $().ready(function() {
 
             // insert data if there is still
             if ($container.find(Activity.selectors.entries.all).length) {
-                $entries = $container.children().replaceAll($loading);
+                $entries = $container.children().replaceAll($placeholder);
                 setTimeout(function() { $entries.addClass('recent'); }, 10);
                 if (callback) { callback('ok'); }
             } else {
-                Activity.end_loading($loading, callback, 'nothing');
+                Activity.update_placeholder($placeholder, 'nothing', callback);
             }
         }), // add_loaded_entries
 
-        end_loading: (function Activity__end_loading($loading, callback, type, delay, message, icon) {
-            if (type == 'nothing') {
-                message = message || 'Nothing new';
-                icon = icon || 'icon-eye-close';
-                delay = delay || 1000;
-            } else if (type == 'error') {
-                message = message || 'Error while loading';
-                icon = icon || 'icon-remove-sign';
-                delay = delay || 3000;
+        default_placeholders: {
+            nothing: {
+                message: 'Nothing new',
+                icon: 'icon-eye-close',
+                delay: 1000
+            },
+            error: {
+                message: 'Error while loading',
+                icon: 'icon-remove-sign',
+                delay: 3000
+            },
+            loading: {
+                message: 'Loading',
+                icon: 'icon-spinner icon-spin',
+                delay: -1
+            },
+            more: {
+                message: 'Load more',
+                icon: 'icon-plus',
+                delay: -1,
+                classes: 'box-footer',
+                link: '#'
             }
-            $loading.addClass(type).html('<i class="' + icon + '"> </i> ' + message);
-            setTimeout(function() {
-                $loading.removeClass('visible');
-                setTimeout(function() {
-                    $loading.remove();
-                    if (callback) { callback(type); }
-                }, 320);
-            }, delay);
-        }), // end_loading
+        }, // default_placeholders
 
-        load_data: (function Activity__load_data($main_node, $entry, limits, where, callback) {
+        update_placeholder: (function Activity__update_placeholder($placeholder, type, callback, replace_type) {
+            var params = Activity.default_placeholders[type];
+            $placeholder[0].className = 'placeholder visible ' + type + (params.classes ? ' ' + params.classes : '');  // use className to remove all previous
+            var html = '<i class="' + params.icon + '"> </i> ' + params.message;
+            if (params.link) {
+                html = '<a href="' + params.link + '">' + html + '</a>';
+            }
+            $placeholder.html(html);
+            if (params.delay != -1) {
+                setTimeout(function() {
+                    if (replace_type) {
+                        Activity.update_placeholder($placeholder, replace_type);
+                        if (callback) { callback(type); }
+                    } else {
+                        $placeholder.removeClass('visible');
+                        setTimeout(function() {
+                            $placeholder.remove();
+                            if (callback) { callback(type); }
+                        }, 320);
+                    }
+                }, params.delay);
+            }
+        }), // update_placeholder
+
+        load_data: (function Activity__load_data($main_node, $entry, limits, where, callback, $placeholder, retry_placeholder) {
             var data = { partial: 1},
-                $loading = Activity.get_loading_zone(),
                 $pivot = Activity.get_pivot_node($main_node, $entry);
 
-            $pivot[where]($loading);
-            setTimeout(function() { $loading.addClass('visible'); }, 10);
+            if ($placeholder) {
+                Activity.update_placeholder($placeholder, 'loading');
+            } else {
+                $placeholder = Activity.get_placeholder()
+                $pivot[where]($placeholder);
+                setTimeout(function() { $placeholder.addClass('visible'); }, 10);
+            }
 
             if (limits.min) { data.min = limits.min; }
             if (limits.max) { data.max = limits.max; }
@@ -2030,18 +2066,18 @@ $().ready(function() {
                 data: data,
                 dataType: 'html',
                 success: function(data) {
-                    Activity.add_loaded_entries($main_node, $entry, data, limits, $loading, callback);
+                    Activity.add_loaded_entries($main_node, $entry, data, limits, $placeholder, callback);
                 },
                 error: function() {
-                    Activity.end_loading($loading, callback, 'error');
+                    Activity.update_placeholder($placeholder, 'error', callback, retry_placeholder);
                 }
             });
 
         }), // load_data
 
-        get_loading_zone: (function Activity__get_loading_zone () {
-            return $('<div class="loading"><i class="icon-spinner icon-spin"> </i> Loading</</div>');
-        }), // get_loading_zone
+        get_placeholder: (function Activity__get_placeholder () {
+            return $('<div class="placeholder loading"><i class="icon-spinner icon-spin"> </i> Loading</</div>');
+        }), // get_placeholder
 
         on_refresh_button_click: (function Activity__on_refresh_button_click () {
             var $this = $(this), $main_node, $first_entry, score;
@@ -2050,6 +2086,7 @@ $().ready(function() {
             $this.addClass('disabled');
 
             $main_node = Activity.get_main_node($this);
+
             $main_node.children('.box-content').scrollTop(1).scrollTop(0);
 
             $first_entry = Activity.get_first_entry($main_node);
@@ -2062,9 +2099,27 @@ $().ready(function() {
             return false;
         }), // on_refresh_button_click
 
+        on_more_button_click: (function Activity__on_more_button_click () {
+            var $this = $(this), $main_node, $first_entry, score;
+
+            if ($this.hasClass('disabled')) { return false; }
+            $this.addClass('disabled');
+
+            $main_node = Activity.get_main_node($this);
+
+            $last_entry = Activity.get_last_entry($main_node);
+            score = Activity.get_entry_score($last_entry);
+
+
+            Activity.load_data($main_node, $last_entry, {max: score}, 'after', null, $this.parent(), 'more');
+
+            return false;
+        }), // on_more_button_click
+
         init_events: (function Activity__init_events () {
             $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.issue_link, Ev.stop_event_decorate(Activity.on_issue_link_click));
-            $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.refresh_button, Ev.stop_event_decorate(Activity.on_refresh_button_click));
+            $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.buttons.refresh, Ev.stop_event_decorate(Activity.on_refresh_button_click));
+            $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.buttons.more, Ev.stop_event_decorate(Activity.on_more_button_click));
         }), // init_events
 
         init: (function Activity__init () {

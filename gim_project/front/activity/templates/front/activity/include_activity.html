@@ -129,7 +129,14 @@
         </li>
     {% endwith %}
 {% endfor %}
-{% if not only_items %}
+{% if activity_mode == 'repositories' or activity_mode == 'issues' %}
     </ul>
 </div>
+    {% if activity_mode == 'repositories' %}
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% if more_activity %}
+    <div class="placeholder visible more box-footer"><a href='#'><i class="icon-plus"> </i> Load more</a></div>
 {% endif %}

@@ -103,7 +103,8 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
         """
         Return activity for the given codes, in the reverse order (most recent
         first) with `num` elements starting from `max` score (or the highest
-        available if not set), down to `min` if set.
+        available if not set), down to `min` if set. Also return a boolean
+        indicating if we had as much elements as asked.
         Note that `min` may not be reached if there is more than `num` entries
         between `min` and `max`
         The returned activity is a list of identifiers as stored in the sorted
@@ -153,7 +154,7 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
                     self.connection.connection.expire(store_key, ttl)
                     pipeline.execute()
 
-        return self.connection.zrevrangebyscore(
+        result = self.connection.zrevrangebyscore(
             store_key,
             min=min,
             max=max,
@@ -161,6 +162,8 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
             num=num,
             withscores=withscores
         )
+
+        return result, len(result) == num
 
 
 class RepositoryActivity(BaseActivity):
@@ -212,7 +215,8 @@ class RepositoryActivity(BaseActivity):
         the reverse order (most recent first) with `num` elements starting from
         `max` score (or the highest available if not set), down to `min` if set.
         Note that `min` may not be reached if there is more than `num` entries
-        between `min` and `max`
+        between `min` and `max`. Also return a boolean indicating if we had as
+        much elements as asked.
         The returned activity is a list of identifiers as stored in the sorted
         sets, but if withscores is set to True, it will return a list of tuples
         (identifier, score).
@@ -287,7 +291,7 @@ class RepositoryActivity(BaseActivity):
                 cls.database.connection.expire(store_key, ttl)
                 pipeline.execute()
 
-        return cls.database.connection.zrevrangebyscore(
+        result = cls.database.connection.zrevrangebyscore(
             store_key,
             min=min,
             max=max,
@@ -295,6 +299,8 @@ class RepositoryActivity(BaseActivity):
             num=num,
             withscores=withscores,
         )
+
+        return result, len(result) == num
 
 
 class IssueActivity(BaseActivity):

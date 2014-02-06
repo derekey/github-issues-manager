@@ -23,12 +23,13 @@ class DashboardActivityPart(ActivityMixin, DeferrableViewPart, SubscribedReposit
     def get_context_data(self, *args, **kwargs):
         context = super(DashboardActivityPart, self).get_context_data(**kwargs)
 
-        activity = RepositoryActivity.get_for_repositories(
-                            pks=self.repository_pks or self.get_pks(),
-                            **self.activity_arguments
-                        )
+        activity, has_more = RepositoryActivity.get_for_repositories(
+                                    pks=self.repository_pks or self.get_pks(),
+                                    **self.activity_arguments
+                                )
         context.update({
             'activity': RepositoryActivity.load_objects(activity),
+            'more_activity': has_more,
             'activity_mode': 'repositories',
         })
 

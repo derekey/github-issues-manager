@@ -50,12 +50,16 @@
             }
         }
     }
-    .loading {
+    .placeholder {
         text-align: center;
         line-height: 30px;
         height: 1px;
-        color: $light-text-color;
         overflow: hidden;
+        color: $content-text-color;
+        @include border-radius(0);
+        a {
+            color: inherit;
+        }
         i {
             font-size: inherit;
             &.icon-spinner {
@@ -64,11 +68,16 @@
             }
         }
         @include transition(height 0.35s);
-        &.nothing {
-            color: $content-text-color;
+        &.loading {
+            color: $light-text-color;
         }
         &.error {
             color: $state-closed-color;
+        }
+        &.box-footer {
+            a {
+                display: block;
+            }
         }
         &.visible {
             height: 30px;
@@ -96,10 +105,19 @@
                 }
             }
         }
+        .placeholder {
+            &:last-child {
+                border-bottom: 1px solid #CDCDCD;
+                border-top: 1px solid #CDCDCD;
+            }
+        }
     }
     &.for-issues {
-        .loading {
+        .placeholder {
              border-bottom: 1px solid #CDCDCD;
+             &:last-child {
+                border: none;
+             }
        }
         .box-section {
             @include transition(border-color 0.70s);

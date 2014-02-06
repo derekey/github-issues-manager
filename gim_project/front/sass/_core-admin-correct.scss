@@ -16,6 +16,12 @@
         border-top: solid 1px #ddd;
         @include border-top-radius(0);
     }
+    // add a disabled state on box toolbars
+    .box-header, .box-footer {
+        a.disabled {
+            color: $light-text-color !important;
+        }
+    }
  }
 
 .chat-box {
