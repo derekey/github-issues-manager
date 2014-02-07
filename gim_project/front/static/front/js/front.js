@@ -1933,25 +1933,55 @@ $().ready(function() {
             return $entry.data('score');
         }), // get_entry_score
 
+        get_existing_entries_for_score: (function Activity__get_existing_entries_for_score($pivot, where, score) {
+            var result = [], $check = $pivot, $same_score_entries;
+            if (!score) { return };
+            while (true) {
+                $check = $check[where]();
+                if (!$check.length) { break; }
+                $same_score_entries = $check.find(Activity.selectors.entries.all + '[data-score="' + score + '"]');
+                if (!$same_score_entries.length) { break; }
+                result = result.concat($same_score_entries.map(function() {return $(this).data('ident'); }).toArray());
+            }
+            return result;
+        }), // get_existing_entries_for_score
+
         add_loaded_entries: (function Activity__add_loaded_entries($main_node, data, limits, $placeholder, callback) {
             var $container = $('<div />'),
                 mode = $main_node.data('mode'),
-                $entries, $entry, score;
+                idents = {}, $check, $same_score_entries,
+                $entries, $entry, is_min, is_max;
 
             // put data in a temporary container to manage them
             $container.append(data);
             $entries = $container.find(Activity.selectors.entries.all);
 
-            // we need numbers
+            // get idents for existing entries with same min/max scores
+            if (limits.min) {
+                idents.min = Activity.get_existing_entries_for_score($placeholder, 'next', limits.min);
+            }
+            if (limits.max) {
+                idents.max = Activity.get_existing_entries_for_score($placeholder, 'prev', limits.max);
+            }
+
+            // we need numbers to compare
             if (limits.min) { limits.min = parseFloat(limits.min, 10)};
             if (limits.max) { limits.max = parseFloat(limits.max, 10)};
 
-            // remove entries with score out of range
+            // remove entries with boundaries already presents
             for (var i = 0; i < $entries.length; i++) {
                 $entry = $($entries[i]);
-                score = parseFloat($($entry).data('score'), 10);
-                if (limits.min && score <= limits.min || limits.max && score >= limits.max) {
-                    $entry.remove();
+                score = $entry.data('score');
+                is_min = (limits.min && score == limits.min);
+                is_max = (limits.max && score == limits.max);
+                if (is_min || is_max) {
+                    ident = $entry.data('ident');
+                    if (    is_min && idents.min && $.inArray(ident, idents.min) != -1
+                         ||
+                            is_max && idents.max && $.inArray(ident, idents.max) != -1
+                        ) {
+                        $entry.remove();
+                    }
                 }
             }
 
@@ -2060,7 +2090,7 @@ $().ready(function() {
             setTimeout(function() { $placeholder.addClass('visible'); }, 10);
 
             $first_entry = $main_node.find(Activity.selectors.entries.first);
-            score = Activity.get_entry_score($first_entry);
+            score = $first_entry.data('score');
 
             Activity.load_data($main_node, {min: score}, $placeholder, function(is_success) {
                 $this.removeClass('disabled');
@@ -2085,11 +2115,11 @@ $().ready(function() {
 
             $previous_entry = $placeholder.prev().find(Activity.selectors.entries.last);
             if ($previous_entry.length) {
-                limits.max = Activity.get_entry_score($previous_entry);
+                limits.max = $previous_entry.data('score');
             }
             $next_entry = $placeholder.next().find(Activity.selectors.entries.first);
             if ($next_entry.length) {
-                limits.min = Activity.get_entry_score($next_entry);
+                limits.min = $next_entry.data('score');
             }
 
             Activity.load_data($main_node, limits, $placeholder, null, 'more');

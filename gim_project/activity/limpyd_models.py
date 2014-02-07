@@ -46,6 +46,7 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
         obj = ActivityManager.MAPPING[code].load_object(pk)
         if score is not None:
             obj.activity_score = score
+        obj.activity_identifier = identifier
         return obj
 
     @staticmethod
@@ -80,7 +81,8 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
 
         for code, pks in by_code.iteritems():
             for obj in ActivityManager.MAPPING[code].load_objects(pks):
-                loaded['%s:%s' % (code, obj.pk)] = obj
+                obj.activity_identifier = '%s:%s' % (code, obj.pk)
+                loaded[obj.activity_identifier] = obj
 
         if has_score:
             for code, obj in loaded.iteritems():

@@ -39,7 +39,7 @@
         {% endifchanged %}
     {% endif %}
     {% with model=entry|model %}
-        <li class="arrow-box-left"{% if entry.activity_score %} data-score="{{ entry.activity_score }}"{% endif %}>
+        <li class="arrow-box-left" data-ident="{{ entry.activity_identifier }}"{% if entry.activity_score %} data-score="{{ entry.activity_score }}"{% endif %}>
         {% if model == 'Event' %}
             <div class="info">
                 {% if entry.is_update %}
