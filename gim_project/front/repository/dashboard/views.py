@@ -194,7 +194,7 @@ class ActivityPart(ActivityMixin, RepositoryDashboardPartView):
     def get_context_data(self, *args, **kwargs):
         context = super(ActivityPart, self).get_context_data(**kwargs)
         activity_obj = self.repository.activity
-        activity, has_more = activity_obj.get_activity(**self.activity_arguments)
+        activity, has_more = activity_obj.get_activity(**self.activity_args)
         context.update({
             'activity': activity_obj.load_objects(activity),
             'more_activity': has_more,

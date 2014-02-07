@@ -25,7 +25,7 @@ class DashboardActivityPart(ActivityMixin, DeferrableViewPart, SubscribedReposit
 
         activity, has_more = RepositoryActivity.get_for_repositories(
                                     pks=self.repository_pks or self.get_pks(),
-                                    **self.activity_arguments
+                                    **self.activity_args
                                 )
         context.update({
             'activity': RepositoryActivity.load_objects(activity),

@@ -138,5 +138,5 @@
     {% endif %}
 {% endif %}
 {% if more_activity %}
-    <div class="placeholder visible more box-footer"><a href='#'><i class="icon-plus"> </i> Load more</a></div>
+    <div class="placeholder visible more{% if partial_activity and activity_args.min %} missing{% endif %} box-footer"><a href='#'><i class="icon-plus"> </i> Load {% if partial_activity and activity_args.min %}missing{% else %}more{% endif %}</a></div>
 {% endif %}

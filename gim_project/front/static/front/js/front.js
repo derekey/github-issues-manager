@@ -2028,6 +2028,13 @@ $().ready(function() {
                 delay: -1,
                 classes: 'box-footer',
                 link: '#'
+            },
+            missing: {
+                message: 'Load missing',
+                icon: 'icon-plus',
+                delay: -1,
+                classes: 'more box-footer',
+                link: '#'
             }
         }, // placeholders
 
@@ -2105,6 +2112,7 @@ $().ready(function() {
                 $previous_entry, $next_entry,
                 previous_score, next_score,
                 limits = {}
+                is_missing_btn = $placeholder.hasClass('missing');
 
             if ($this.hasClass('disabled')) { return false; }
             $this.addClass('disabled');
@@ -2122,7 +2130,7 @@ $().ready(function() {
                 limits.min = $next_entry.data('score');
             }
 
-            Activity.load_data($main_node, limits, $placeholder, null, 'more');
+            Activity.load_data($main_node, limits, $placeholder, null, is_missing_btn ? 'missing' : 'more');
 
             return false;
         }), // on_more_button_click
