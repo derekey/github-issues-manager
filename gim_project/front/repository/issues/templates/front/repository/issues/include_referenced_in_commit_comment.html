@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block comment_inner_body %}
-    {% if not comment.related_object_id %}
+    {% if not comment.related_object %}
         Commit <a href="{{ comment.github_url }}" target='_blank'>{{ comment.commit_sha }}</a>
     {% else %}
         {% with commit=comment.related_object %}

@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block comment_body %}
-{% if comment.commit_sha and comment.related_object_id %}
+{% if comment.commit_sha and comment.related_object %}
     <div class="content">
         <div class="comment-commits">
             {% include "front/repository/issues/include_commits.html" with commits=comment.related_object|tolist id_prefix="ref-" %}
