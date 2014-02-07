@@ -4,6 +4,9 @@
     {% if user == issue.repository.owner %}<span class="label label-success" title="{{ user.username }} is the project's owner">owner</span>{% endif %}
     {% if user == issue.user %}<span class="label" title="{{ user.username }} submitted this {{ issue.type }}">submitter</span>{% endif %}
 {% endmacro %}
+{% macro datetime dateobj %}
+    <span class="time ago" title="{{ dateobj|date:"DATETIME_FORMAT" }}" data-datetime="{{ dateobj|date:'r' }}">{{ dateobj|ago }}</span>
+{% endmacro %}
 {% for entry in activity %}
     {% if activity_mode == 'repositories' or activity_mode == 'issues' %}
         {% ifchanged entry.issue_id %}
@@ -52,7 +55,7 @@
                         {% usemacro tags entry.issue entry.issue.user %}
                     </span>
                 {% endif %}
-                <span class="time" title="{{ entry.created_at|date:"DATETIME_FORMAT" }}">{{ entry.created_at|ago }}</span>
+                {% usemacro datetime entry.created_at %}
             </div>
             {% if entry.is_update %}
                 <p>Updated: {{ entry.updated_parts|join:', ' }}</p>
@@ -66,7 +69,7 @@
                     <strong>{{ entry.user }}</strong>
                     {% usemacro tags entry.issue entry.user %}
                 </span>
-                <span class="time" title="{{ entry.created_at|date:"DATETIME_FORMAT" }}">{{ entry.created_at|ago }}</span>
+                {% usemacro datetime entry.created_at %}
             </div>
             <p>Commented code on this pull request</p>
         {% elif model == 'Issue_commits' %}
@@ -76,7 +79,7 @@
                     <strong>{{ entry.commit.author }}</strong>
                     {% usemacro tags entry.issue entry.commit.author %}
                 </span>
-                <span class="time" title="{{ entry.commit.authored_at|date:"DATETIME_FORMAT" }}">{{ entry.commit.authored_at|ago }}</span>
+                {% usemacro datetime entry.commit.authored_at %}
             </div>
             <p>Has a commit added to this pull request</p>
         {% elif model == 'IssueEvent' %}
@@ -86,7 +89,7 @@
                     <strong>{{ entry.user }}</strong>
                     {% usemacro tags entry.issue entry.user %}
                 </span>
-                <span class="time" title="{{ entry.created_at|date:"DATETIME_FORMAT" }}">{{ entry.created_at|ago }}</span>
+                {% usemacro datetime entry.created_at %}
             </div>
             <p>
                 {% if entry.event == 'closed' %}
@@ -122,7 +125,7 @@
                     <strong>{{ entry.user }}</strong>
                     {% usemacro tags entry.issue entry.user %}
                 </span>
-                <span class="time" title="{{ entry.created_at|date:"DATETIME_FORMAT" }}">{{ entry.created_at|ago }}</span>
+                {% usemacro datetime entry.created_at %}
             </div>
             <p>Commented on this {{ entry.issue.type }}</p>
         {% endif %}

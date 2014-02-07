@@ -1897,7 +1897,6 @@ $().ready(function() {
     }
 
     var Activity = {
-        feeds: null,
         selectors: {
             main: '.activity-feed',
             issue_link: '.box-section > h3 > a',
@@ -2135,6 +2134,15 @@ $().ready(function() {
             return false;
         }), // on_more_button_click
 
+        init_feeds: (function Activity__init_feeds () {
+            setInterval(function() {
+                var $feeds = $(Activity.selectors.main);
+                for (var i = 0; i < $feeds.length; i++) {
+                    replace_time_ago($feeds[i]);
+                }
+            }, 60000);
+        }), // init_feeds
+
         init_events: (function Activity__init_events () {
             $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.issue_link, Ev.stop_event_decorate(Activity.on_issue_link_click));
             $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.buttons.refresh, Ev.stop_event_decorate(Activity.on_refresh_button_click));
@@ -2142,7 +2150,7 @@ $().ready(function() {
         }), // init_events
 
         init: (function Activity__init () {
-            Activity.feeds = $(Activity.selectors.main);
+            Activity.init_feeds();
             Activity.init_events();
         }) // init
     }; // Activity

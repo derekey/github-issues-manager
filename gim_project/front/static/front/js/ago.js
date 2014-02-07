@@ -1,6 +1,7 @@
 var replace_time_ago = (function () {
     "use strict";
     var origin = new Date(document.body.getAttribute('data-base-datetime')),
+        start = new Date(),
         content_method = ('textContent' in document.body) ? 'textContent' : 'innerHTML',
         halfstr = "½",
         dict = {
@@ -130,7 +131,7 @@ var replace_time_ago = (function () {
         if (!date_str) { return; }
 
         date = new Date(date_str);
-        delta = (origin - date) / 1000;
+        delta = (origin - date + (new Date() - start)) / 1000;
         if (isNaN(delta)) { return; }
 
         is_short = (node.className.indexOf('ago-short') >= 0);
