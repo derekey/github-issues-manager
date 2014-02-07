@@ -1050,6 +1050,7 @@ table.commits-list td.cell-sha {
   -moz-transition: height 0.35s;
   -o-transition: height 0.35s;
   transition: height 0.35s;
+  border-top: 1px solid #CDCDCD;
 }
 /* line 60, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder a {
@@ -1080,15 +1081,19 @@ table.commits-list td.cell-sha {
 .activity-feed .placeholder.visible {
   height: 30px;
 }
-/* line 87, ../../../../../sass/widgets/_activity.scss */
+/* line 86, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .placeholder:first-child {
+  border-top: none;
+}
+/* line 91, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .activity-repository {
   position: relative;
 }
-/* line 89, ../../../../../sass/widgets/_activity.scss */
+/* line 93, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .activity-repository .box-section {
   padding-left: 8px;
 }
-/* line 92, ../../../../../sass/widgets/_activity.scss */
+/* line 96, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .activity-repository::before {
   content: '';
   position: absolute;
@@ -1102,24 +1107,23 @@ table.commits-list td.cell-sha {
   -o-transition: background-color 0.7s;
   transition: background-color 0.7s;
 }
-/* line 103, ../../../../../sass/widgets/_activity.scss */
+/* line 107, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .activity-repository.recent::before {
   background-color: #7bc8d7;
 }
-/* line 109, ../../../../../sass/widgets/_activity.scss */
+/* line 113, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .placeholder:last-child {
   border-bottom: 1px solid #CDCDCD;
-  border-top: 1px solid #CDCDCD;
 }
-/* line 116, ../../../../../sass/widgets/_activity.scss */
+/* line 119, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-issues .placeholder {
   border-bottom: 1px solid #CDCDCD;
 }
-/* line 118, ../../../../../sass/widgets/_activity.scss */
+/* line 121, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-issues .placeholder:last-child {
   border: none;
 }
-/* line 122, ../../../../../sass/widgets/_activity.scss */
+/* line 125, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-issues .box-section {
   -webkit-transition: border-color 0.7s;
   -moz-transition: border-color 0.7s;
@@ -1127,7 +1131,7 @@ table.commits-list td.cell-sha {
   transition: border-color 0.7s;
   border-left: solid 4px transparent;
 }
-/* line 125, ../../../../../sass/widgets/_activity.scss */
+/* line 128, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-issues .box-section.recent {
   border-left-color: #7bc8d7;
 }

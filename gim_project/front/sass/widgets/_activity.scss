@@ -82,6 +82,10 @@
         &.visible {
             height: 30px;
         }
+        border-top: 1px solid #CDCDCD;
+        &:first-child {
+            border-top: none;
+        }
     }
     &.for-repositories {
         .activity-repository {
@@ -108,7 +112,6 @@
         .placeholder {
             &:last-child {
                 border-bottom: 1px solid #CDCDCD;
-                border-top: 1px solid #CDCDCD;
             }
         }
     }

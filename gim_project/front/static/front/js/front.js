@@ -1929,34 +1929,13 @@ $().ready(function() {
             return $node.closest(Activity.selectors.main);
         }), // get_main_node
 
-        get_url: (function Activity__get_url ($main_node) {
-            return $main_node.data('url');
-        }), // get_url
-
-        get_mode: (function Activity__get_mode ($main_node) {
-            return $main_node.data('mode');
-        }), // get_mode
-
-        get_first_entry: (function Activity__get_first_entry ($main_node) {
-            return $main_node.find(Activity.selectors.entries.first);
-        }), // get_first_entry
-
-        get_last_entry: (function Activity__get_last_entry ($main_node) {
-            return $main_node.find(Activity.selectors.entries.last);
-        }), // get_last_entry
-
         get_entry_score: (function Activity__get_entry_score ($entry) {
             return $entry.data('score');
         }), // get_entry_score
 
-        get_pivot_node: (function Activity__get_pivot_node ($main_node, $entry) {
-            var mode = Activity.get_mode($main_node);
-            return $entry.closest(Activity.selectors.containers[mode]);
-        }), // get_pivot_node
-
-        add_loaded_entries: (function Activity__add_loaded_entries($main_node, $entry, data, limits, $placeholder, callback) {
+        add_loaded_entries: (function Activity__add_loaded_entries($main_node, data, limits, $placeholder, callback) {
             var $container = $('<div />'),
-                mode = Activity.get_mode($main_node),
+                mode = $main_node.data('mode'),
                 $entries, $entry, score;
 
             // put data in a temporary container to manage them
@@ -1997,7 +1976,7 @@ $().ready(function() {
             }
         }), // add_loaded_entries
 
-        default_placeholders: {
+        placeholders: {
             nothing: {
                 message: 'Nothing new',
                 icon: 'icon-eye-close',
@@ -2020,10 +1999,10 @@ $().ready(function() {
                 classes: 'box-footer',
                 link: '#'
             }
-        }, // default_placeholders
+        }, // placeholders
 
         update_placeholder: (function Activity__update_placeholder($placeholder, type, callback, replace_type) {
-            var params = Activity.default_placeholders[type];
+            var params = Activity.placeholders[type];
             $placeholder[0].className = 'placeholder visible ' + type + (params.classes ? ' ' + params.classes : '');  // use className to remove all previous
             var html = '<i class="' + params.icon + '"> </i> ' + params.message;
             if (params.link) {
@@ -2046,27 +2025,18 @@ $().ready(function() {
             }
         }), // update_placeholder
 
-        load_data: (function Activity__load_data($main_node, $entry, limits, where, callback, $placeholder, retry_placeholder) {
-            var data = { partial: 1},
-                $pivot = Activity.get_pivot_node($main_node, $entry);
-
-            if ($placeholder) {
-                Activity.update_placeholder($placeholder, 'loading');
-            } else {
-                $placeholder = Activity.get_placeholder()
-                $pivot[where]($placeholder);
-                setTimeout(function() { $placeholder.addClass('visible'); }, 10);
-            }
+        load_data: (function Activity__load_data($main_node, limits, $placeholder, callback, retry_placeholder) {
+            var data = { partial: 1};
 
             if (limits.min) { data.min = limits.min; }
             if (limits.max) { data.max = limits.max; }
 
             $.ajax({
-                url: Activity.get_url($main_node),
+                url: $main_node.data('url'),
                 data: data,
                 dataType: 'html',
                 success: function(data) {
-                    Activity.add_loaded_entries($main_node, $entry, data, limits, $placeholder, callback);
+                    Activity.add_loaded_entries($main_node, data, limits, $placeholder, callback);
                 },
                 error: function() {
                     Activity.update_placeholder($placeholder, 'error', callback, retry_placeholder);
@@ -2075,24 +2045,24 @@ $().ready(function() {
 
         }), // load_data
 
-        get_placeholder: (function Activity__get_placeholder () {
-            return $('<div class="placeholder loading"><i class="icon-spinner icon-spin"> </i> Loading</</div>');
-        }), // get_placeholder
-
         on_refresh_button_click: (function Activity__on_refresh_button_click () {
-            var $this = $(this), $main_node, $first_entry, score;
+            var $this = $(this), $main_node, mode, $placeholder, $first_entry, score;
 
             if ($this.hasClass('disabled')) { return false; }
             $this.addClass('disabled');
 
             $main_node = Activity.get_main_node($this);
-
             $main_node.children('.box-content').scrollTop(1).scrollTop(0);
 
-            $first_entry = Activity.get_first_entry($main_node);
+            $placeholder = $('<div class="placeholder loading"><i class="' + Activity.placeholders.loading.icon + '"> </i> ' + Activity.placeholders.loading.message + '</div>');
+            mode = $main_node.data('mode');
+            $main_node.find(Activity.selectors.containers[mode]).first().before($placeholder);
+            setTimeout(function() { $placeholder.addClass('visible'); }, 10);
+
+            $first_entry = $main_node.find(Activity.selectors.entries.first);
             score = Activity.get_entry_score($first_entry);
 
-            Activity.load_data($main_node, $first_entry, {min: score}, 'before', function(is_success) {
+            Activity.load_data($main_node, {min: score}, $placeholder, function(is_success) {
                 $this.removeClass('disabled');
             });
 
@@ -2100,18 +2070,29 @@ $().ready(function() {
         }), // on_refresh_button_click
 
         on_more_button_click: (function Activity__on_more_button_click () {
-            var $this = $(this), $main_node, $first_entry, score;
+            var $this = $(this), $main_node,
+                $placeholder = $this.parent(),
+                $previous_entry, $next_entry,
+                previous_score, next_score,
+                limits = {}
 
             if ($this.hasClass('disabled')) { return false; }
             $this.addClass('disabled');
 
-            $main_node = Activity.get_main_node($this);
+            Activity.update_placeholder($placeholder, 'loading');
 
-            $last_entry = Activity.get_last_entry($main_node);
-            score = Activity.get_entry_score($last_entry);
+            $main_node = Activity.get_main_node($placeholder);
 
+            $previous_entry = $placeholder.prev().find(Activity.selectors.entries.last);
+            if ($previous_entry.length) {
+                limits.max = Activity.get_entry_score($previous_entry);
+            }
+            $next_entry = $placeholder.next().find(Activity.selectors.entries.first);
+            if ($next_entry.length) {
+                limits.min = Activity.get_entry_score($next_entry);
+            }
 
-            Activity.load_data($main_node, $last_entry, {max: score}, 'after', null, $this.parent(), 'more');
+            Activity.load_data($main_node, limits, $placeholder, null, 'more');
 
             return false;
         }), // on_more_button_click
