@@ -9,4 +9,8 @@ class ResetIssueActivity(IssueJob):
     queue_name = 'reset-issue-activity'
 
     def run(self, queue):
-        self.object.activity.update()
+        try:
+            self.object.activity.update()
+        except self.model.DoesNotExist:
+            # self.status.hset(STATUSES.CANCELED)
+            return False
