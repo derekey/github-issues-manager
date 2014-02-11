@@ -1,7 +1,8 @@
 $().ready(function() {
 
     var $document = $(document),
-        $body = $('body');
+        $body = $('body'),
+        main_repository = $body.data('repository');
 
     var Ev = {
         stop_event_decorate: (function stop_event_decorate(callback) {
@@ -84,11 +85,20 @@ $().ready(function() {
         this.$node = $(node);
         this.$link = this.$node.find(IssuesListIssue.link_selector);
 
-        this.number = this.$node.data('issue-number');
+        this.set_issue_ident({
+            number: this.$node.data('number'),
+            repository: this.$node.data('repository')
+        });
     }); // IssuesListIssue__constructor
 
     IssuesListIssue.selector = '.issue-item';
     IssuesListIssue.link_selector = '.issue-link';
+
+    IssuesListIssue.prototype.set_issue_ident = (function IssuesListIssue__set_issue_ident (issue_ident) {
+        this.issue_ident = issue_ident;
+        this.number = issue_ident.number;
+        this.repository = issue_ident.repository;
+    }); // IssuesListIssue__set_issue_ident
 
     IssuesListIssue.on_issue_node_event = (function IssuesListIssue_on_issue_node_event (group_method, stop) {
         var decorator = function(e) {
@@ -136,7 +146,7 @@ $().ready(function() {
     }); // IssuesListIssue__set_current
 
     IssuesListIssue.prototype.get_html_and_display = (function IssuesListIssue__get_html_and_display (url, force_popup) {
-        var container = IssueDetail.get_container_waiting_for_issue(this.number, force_popup);
+        var container = IssueDetail.get_container_waiting_for_issue(this.issue_ident, force_popup);
         if (!container) {
             return;
         }
@@ -156,11 +166,11 @@ $().ready(function() {
     }); // IssuesListIssue__get_html_and_display
 
     IssuesListIssue.prototype.display_html = (function IssuesListIssue__display_html (html) {
-        IssueDetail.display_issue(html, this.number, false);
+        IssueDetail.display_issue(html, this.issue_ident, false);
     }); // IssuesListIssue__display_html
 
     IssuesListIssue.prototype.display_html_in_popup = (function IssuesListIssue__display_html_in_popup (html) {
-        IssueDetail.display_issue(html, this.number, true);
+        IssueDetail.display_issue(html, this.issue_ident, true);
     }); // IssuesListIssue__display_html_in_popup
 
     IssuesListIssue.prototype.error_getting_html = (function IssuesListIssue__error_getting_html (jqXHR) {
@@ -171,8 +181,8 @@ $().ready(function() {
         alert('error ' + jqXHR.status);
     }); // IssuesListIssue__error_getting_html_in_popup
 
-    IssuesListIssue.open_issue = (function IssuesListIssue_open_issue (number, force_popup) {
-        var issue = IssuesList.get_issue_by_number(number);
+    IssuesListIssue.open_issue = (function IssuesListIssue_open_issue (issue_ident, force_popup) {
+        var issue = IssuesList.get_issue_by_ident(issue_ident);
         if (issue) {
             if (force_popup) {
                 issue.get_html_and_display(null, true);
@@ -180,9 +190,9 @@ $().ready(function() {
                 issue.set_current(true);
             }
         } else {
-            var url = IssueByNumber.$input.data('base-url') + number + '/';
+            var url = IssueDetail.get_url_for_ident(issue_ident);
             issue = new IssuesListIssue({}, null);
-            issue.number = number;
+            issue.set_issue_ident(issue_ident);
             issue.get_html_and_display(url, force_popup);
         }
     }); // IssuesListIssue_open_issue
@@ -384,16 +394,17 @@ $().ready(function() {
         this.collapsed = true;
     }); // IssuesListGroup__on_hide
 
-    IssuesListGroup.prototype.get_issue_by_number = (function IssuesListGroup__get_issue_by_number(number) {
+    IssuesListGroup.prototype.get_issue_by_ident = (function IssuesListGroup__get_issue_by_ident(issue_ident) {
         var issue = null;
         for (var i = 0; i < this.issues.length; i++) {
-            if (this.issues[i].number == number) {
+            if (this.issues[i].number == issue_ident.number
+             && this.issues[i].repository == issue_ident.repository) {
                 issue = this.issues[i];
                 break;
             }
         }
         return issue;
-    }); // IssuesListGroup__get_issue_by_number
+    }); // IssuesListGroup__get_issue_by_ident
 
     IssuesListGroup.prototype.update_filtered_issues = (function IssuesListGroup__update_filtered_issues () {
         this.filtered_issues = [];
@@ -654,23 +665,23 @@ $().ready(function() {
         return false; // stop event propagation
     }); // IssuesList__open_all_groups
 
-    IssuesList.get_issue_by_number = (function IssuesList_get_issue_by_number(number) {
+    IssuesList.get_issue_by_ident = (function IssuesList_get_issue_by_ident(issue_ident) {
         var issue = null;
         for (var i = 0; i < IssuesList.all.length; i++) {
-            issue = IssuesList.all[i].get_issue_by_number(number);
+            issue = IssuesList.all[i].get_issue_by_ident(issue_ident);
             if (issue) { break; }
         }
         return issue;
-    }); // IssuesList_get_issue_by_number
+    }); // IssuesList_get_issue_by_ident
 
-    IssuesList.prototype.get_issue_by_number = (function IssuesList__get_issue_by_number(number) {
+    IssuesList.prototype.get_issue_by_ident = (function IssuesList__get_issue_by_ident(issue_ident) {
         var issue = null;
         for (var i = 0; i < this.groups.length; i++) {
-            issue = this.groups[i].get_issue_by_number(number);
+            issue = this.groups[i].get_issue_by_ident(issue_ident);
             if (issue) { break; }
         }
         return issue;
-    }); // IssuesList__get_issue_by_number
+    }); // IssuesList__get_issue_by_ident
 
     IssuesList.init_all();
 
@@ -722,15 +733,18 @@ $().ready(function() {
             if (!fail && !isNaN(number)) {
                 IssueByNumber.$window.modal('hide');
                 IssueByNumber.$input.prop('placeholder', "Type an issue number");
-                IssueByNumber.open_issue(number);
+                IssueByNumber.open_issue({
+                    number: number,
+                    repository: main_repository
+                });
             } else {
                 IssueByNumber.$input.prop('placeholder', "Type a correct issue number");
             IssueByNumber.$input.focus();
             }
             return false; // stop event propagation
         }), // IssueByNumber_on_submit
-        open_issue: (function IssueByNumber_open_issue (number) {
-            IssuesListIssue.open_issue(number);
+        open_issue: (function IssueByNumber_open_issue (issue_ident) {
+            IssuesListIssue.open_issue(issue_ident);
         }), // IssueByNumber_open_issue
         init_events: (function IssueByNumber_init_events () {
             if (!IssueByNumber.$window.length) { return; }
@@ -767,6 +781,10 @@ $().ready(function() {
         $modal_body: null,  // set in __init__
         $modal_container: null,  // set in __init__
 
+        get_url_for_ident: (function IssueDetail__get_url_for_ident (issue_ident) {
+            return '/' + issue_ident.repository + '/issues/' + issue_ident.number;
+        }), // get_url_for_ident
+
         on_issue_loaded: (function IssueDetail__on_issue_loaded ($node) {
             var is_modal = IssueDetail.is_modal($node);
             if (is_modal) {
@@ -785,9 +803,9 @@ $().ready(function() {
         }), // get_scroll_context
 
         set_issue_waypoints: (function IssueDetail__set_issue_waypoints ($node, is_modal) {
-            var issue_number = $node.data('issue-number');
+            var issue_ident = IssueDetail.get_issue_ident($node);
             setTimeout(function() {
-                if ($node.data('issue-number') != issue_number) { return; }
+                if (!IssueDetail.is_issue_ident_for_node($node, issue_ident)) { return; }
                 var $context = IssueDetail.get_scroll_context($node, is_modal);
                 $node.find(' > article > .area-top header').waypoint('sticky', {
                     context: $context,
@@ -847,13 +865,30 @@ $().ready(function() {
             return (force_popup || !IssueDetail.$main_container.length) ? popup : panel;
         }), // get_container
 
-        get_container_waiting_for_issue: (function IssueDetail__get_container_waiting_for_issue (issue_number, force_popup) {
+        is_issue_ident_for_node: (function IssueDetail__is_issue_ident_for_node($node, issue_ident) {
+            var existing_ident = IssueDetail.get_issue_ident($node);
+            return (existing_ident.number == issue_ident.number && existing_ident.repository == issue_ident.repository);
+        }), // is_issue_ident_for_node
+
+        get_issue_ident: (function IssueDetail__get_issue_ident($node) {
+            return {
+                number: $node.data('number'),
+                repository: $node.data('repository')
+            };
+        }), // get_issue_ident
+
+        set_issue_ident: (function IssueDetail__set_issue_ident($node, issue_ident) {
+            $node.data('number', issue_ident.number);
+            $node.data('repository', issue_ident.repository);
+        }), // set_issue_ident
+
+        get_container_waiting_for_issue: (function IssueDetail__get_container_waiting_for_issue (issue_ident, force_popup) {
             var container = IssueDetail.get_container(force_popup),
                 is_popup = (force_popup || container.$window);
-            if (!is_popup && container.$node.data('issue-number') == issue_number) {
+            if (!is_popup && IssueDetail.is_issue_ident_for_node(container.$node, issue_ident)) {
                 return false;
             }
-            container.$node.data('issue-number', issue_number);
+            IssueDetail.set_issue_ident(container.$node, issue_ident);
             return container;
         }), // get_container_waiting_for_issue
 
@@ -863,9 +898,9 @@ $().ready(function() {
             container.$scroll_node.scrollTop(0);
         }), // fill_container
 
-        display_issue: (function IssueDetail__display_issue (html, issue_number, force_popup) {
+        display_issue: (function IssueDetail__display_issue (html, issue_ident, force_popup) {
             var container = IssueDetail.get_container(force_popup);
-            if (container.$node.data('issue-number') != issue_number) { return; }
+            if (!this.is_issue_ident_for_node(container.$node, issue_ident)) { return; }
             IssueDetail.fill_container(container, html);
             IssueDetail.on_issue_loaded(container.$node);
             if (container.after) {
@@ -877,7 +912,7 @@ $().ready(function() {
         clear_container: (function IssueDetail__clear_container (error, force_popup) {
             var container = IssueDetail.get_container(force_popup);
             IssueDetail.unset_issue_waypoints(container.$node);
-            container.$node.data('issue-number', 0);
+            IssueDetail.set_issue_ident(container.$node, {number: 0, repository: ''});
             IssueDetail.fill_container(container, '<p class="empty-area">' + (error ? error + ' :(' : '...') + '</p>');
         }), // clear_container
 
@@ -1265,7 +1300,7 @@ $().ready(function() {
             }
 
             // waypoints for loaded issue
-            if (IssueDetail.$main_container.data('issue-number')) {
+            if (IssueDetail.$main_container.data('number')) {
                 IssueDetail.set_issue_waypoints(IssueDetail.$main_container);
             }
 
@@ -1587,7 +1622,7 @@ $().ready(function() {
     FilterManager.init();
 
     var MarkdownManager = {
-        re: null,
+        re: new RegExp('https?://github.com/([\\w\\-\\.]+/[\\w\\-\\.]+)/(?:issue|pull)s?/(\\d+)'),
         toggle_email_reply: function() {
             $(this).parent().next('.email-hidden-reply').toggle();
             return false;
@@ -1595,31 +1630,40 @@ $().ready(function() {
         activate_email_reply_toggle: function() {
             $document.on('click', '.email-hidden-toggle a', MarkdownManager.toggle_email_reply);
         }, // activate_email_reply_toggle
-        update_link: function() {
-            var $link = $(this);
+        update_link: function(link, repository) {
+            link.setAttribute('data-managed', 1);
+            var $link = $(link);
             $link.attr('target', '_blank');
-            if (!MarkdownManager.re) {
-                MarkdownManager.re = new RegExp('https?://github.com/' + $body.data('repository') + '/(?:issue|pull)s?/(\\d+)');
-            }
-            var matches = this.href.match(MarkdownManager.re);
-            if (matches) {
-                $link.data('issue-number', matches[1])
+            var matches = link.href.match(MarkdownManager.re);
+            // handle link only if current repository
+            if (matches && (matches[1] == repository || matches[1] == main_repository)) {
+                $link.data('repository', matches[1])
+                     .data('number', matches[2])
                      .addClass('issue-link');
             }
         }, // update_link
         update_links: function() {
-            $('.issue-container').find('.issue-body, .issue-comment .content').find('a')
-                .each(MarkdownManager.update_link);
+            $('.issue-container').each(function() {
+                var $container = $(this),
+                    repository = $container.data('repository');
+                $container.find('.issue-body, .issue-comment .content')
+                          .find('a:not([data-managed])')
+                          .each(function() {
+                                MarkdownManager.update_link(this, repository);
+                            });
+            });
         }, // update_links
         handle_issue_link: function(ev) {
             var $link = $(this),
-                issue_number = $link.data('issue-number');
-            if (issue_number) {
-                ev.stopPropagation();
-                ev.preventDefault();
-                IssuesListIssue.open_issue(issue_number, true);
-                return false;
-            }
+                issue_ident = {
+                    number: $link.data('number'),
+                    repository: $link.data('repository')
+                };
+            if (!issue_ident.repository || ! issue_ident.number) { return; }
+            ev.stopPropagation();
+            ev.preventDefault();
+            IssuesListIssue.open_issue(issue_ident, true);
+            return false;
         }, // handle_issue_link
         handle_issue_links: function() {
             $document.on('click', '.issue-container a.issue-link', MarkdownManager.handle_issue_link);
@@ -1720,12 +1764,15 @@ $().ready(function() {
 
         display_issue: (function IssueEditor__display_issue (html, context) {
             var is_popup = context.$container.parents('.modal').length > 0;
-            IssueDetail.display_issue(html, context.issue_number, is_popup);
+            IssueDetail.display_issue(html, context.issue_ident, is_popup);
         }), // display_issue
 
         get_form_context: (function IssueEditor__get_form_context ($form) {
             var context = {
-                issue_number: $form.data('issue-number'),
+                issue_ident: {
+                    number: $form.data('number'),
+                    repository: $form.data('repository')
+                },
                 $form: $form,
                 $container: $form.closest('.issue-container')
             };
@@ -1918,8 +1965,12 @@ $().ready(function() {
 
         on_issue_link_click: (function Activity__on_issue_link_click () {
             var $link = $(this),
+                $block = $link.closest('.box-section'),
                 issue = new IssuesListIssue({}, null);
-            issue.number = $link.data('issue-number');
+            issue.set_issue_ident({
+                number: $block.data('number'),
+                repository: $block.data('repository')
+            });
             issue.get_html_and_display($link.attr('href'), true);
             return false;
         }), // on_issue_link_click

@@ -30,7 +30,7 @@
                         <div class="box-content">
                 {% endifchanged %}
             {% endif %}
-            <div class="box-section" data-issue-number="{{ entry.issue.number }}">
+            <div class="box-section" data-number="{{ entry.issue.number }}" data-repository="{{ entry.issue.repository.full_name }}">
                 <h3>
                     <a href="{{ entry.issue.get_absolute_url }}">
                         {% if entry.issue.is_pull_request %}<i class="icon-upload-alt" title="It's a pull request"> </i> {% endif %}

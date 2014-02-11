@@ -1,6 +1,6 @@
 {% load staticfiles querystring frontutils issues_tags %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
-<li id="issue-{{ issue.number }}" class="box-section news issue-item state-{{ issue.state }}" data-issue-number="{{ issue.number }}">
+<li id="issue-{{ issue.number }}" class="box-section news issue-item state-{{ issue.state }}" data-number="{{ issue.number }}" data-repository="{{ issue.repository.full_name }}">
     <div class="issue-item-header">
         <div class="issue-item-times">
             <span title="Created on {{ issue.created_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.created_at|date:'r' }}">{{ issue.created_at|ago:True }}</span>
@@ -34,7 +34,7 @@
     <a href="" title="Created by {{ issue.user.username }}" class="avatar js-filter-trigger" data-filter='created_by:{{ issue.user.username }}'><img class="avatar-small img-circle" src="{{ issue.user.avatar_url|default:default_avatar }}" alt="{{ issue.user.username }}"></a>
     <div class="news-content">
         <div class="news-title">
-            <a href="{{ issue.get_absolute_url }}" class="issue-link" data-issue-number="{{ issue.number }}" title="{% if issue.is_pull_request %}Pull-request. {% endif %}State: {{ issue.state }}">
+            <a href="{{ issue.get_absolute_url }}" class="issue-link" data-number="{{ issue.number }}" title="{% if issue.is_pull_request %}Pull-request. {% endif %}State: {{ issue.state }}">
                 <strong>#{{ issue.number }}</strong> - {{ issue.title }}
             </a>
         </div>

@@ -534,7 +534,7 @@
         {% endif %}
     </section>
 
-    <section id='main-issue-container' class="span7 issue-container"{% if current_issue %} data-issue-number="{{ current_issue.number }}"{% endif %}>
+    <section id='main-issue-container' class="span7 issue-container"{% if current_issue %} data-number="{{ current_issue.number }}" data-repository="{{ current_issue.repository.full_name }}"{% endif %}>
         {% include "front/repository/issues/issue.html" %}
     </section>
 
