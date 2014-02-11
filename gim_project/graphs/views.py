@@ -12,6 +12,8 @@ class IssuesByDayForRepo(BaseDetailView):
     http_method_names = ['get', ]
     pk_url_kwarg = 'repository_id'
 
+    CACHE = 60 * 60 * 6  # 6 hours
+
     def get_context_data(self, **kwargs):
         context_data = super(IssuesByDayForRepo, self).get_context_data(**kwargs)
 
@@ -44,5 +46,5 @@ class IssuesByDayForRepo(BaseDetailView):
         )
 
         # http cache for 15mn
-        patch_response_headers(response, 15 * 60)
+        patch_response_headers(response, self.CACHE)
         return response
