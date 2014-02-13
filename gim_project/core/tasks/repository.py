@@ -288,7 +288,7 @@ class FirstFetchStep2(RepositoryJob):
         else:
             # got nothing, it's the end, add a job to do future fetches
             self.last_one.hset(1)
-            FetchForUpdate.add_job(self.object.id)
+            FetchForUpdate.add_job(self.object.id, gh=self.gh)
 
     def success_message_addon(self, queue, result):
         msg = ' [%s]' % (', '.join(['%s=%s' % (k, v) for k, v in result.iteritems()]))
@@ -355,6 +355,8 @@ class FetchForUpdate(RepositoryJob):
     When done, clone the job to be done again 15 min laters (+-2mn)
     """
     queue_name = 'update-repo'
+
+    clonable_fields = ('gh', )
 
     def run(self, queue):
         """
