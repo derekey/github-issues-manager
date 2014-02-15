@@ -15,3 +15,7 @@ local_conf.py
 *.sublime-project
 .sass-cache
 /static/
+eggs/
+eggs-upstream/
+develop-eggs/
+.installed.cfg
