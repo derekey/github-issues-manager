@@ -32,6 +32,16 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.CharField')(max_length=64, null=True, blank=True),
                       keep_default=False)
 
+        # Adding field 'Team.repositories_fetched_at'
+        db.add_column(u'core_team', 'repositories_fetched_at',
+                      self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Team.repositories_etag'
+        db.add_column(u'core_team', 'repositories_etag',
+                      self.gf('django.db.models.fields.CharField')(max_length=64, null=True, blank=True),
+                      keep_default=False)
+
 
     def backwards(self, orm):
         # Removing unique constraint on 'UserRepository', fields ['user', 'repository']
@@ -45,6 +55,12 @@ class Migration(SchemaMigration):
 
         # Deleting field 'GithubUser.user_repositories_etag'
         db.delete_column(u'core_githubuser', 'user_repositories_etag')
+
+        # Deleting field 'Team.repositories_fetched_at'
+        db.delete_column(u'core_team', 'repositories_fetched_at')
+
+        # Deleting field 'Team.repositories_etag'
+        db.delete_column(u'core_team', 'repositories_etag')
 
 
     models = {
@@ -332,6 +348,8 @@ class Migration(SchemaMigration):
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'org_teams'", 'to': u"orm['core.GithubUser']"}),
             'permission': ('django.db.models.fields.CharField', [], {'max_length': '5'}),
             'repositories': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'teams'", 'symmetrical': 'False', 'to': u"orm['core.Repository']"}),
+            'repositories_etag': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'repositories_fetched_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'slug': ('django.db.models.fields.TextField', [], {})
         },
         u'core.userrepository': {

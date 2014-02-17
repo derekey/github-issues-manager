@@ -558,11 +558,15 @@ class Team(GithubObjectWithId):
     slug = models.TextField()
     permission = models.CharField(max_length=5)
     repositories = models.ManyToManyField('Repository', related_name='teams')
+    repositories_fetched_at = models.DateTimeField(blank=True, null=True)
+    repositories_etag = models.CharField(max_length=64, blank=True, null=True)
 
     objects = GithubObjectManager()
 
     github_ignore = GithubObjectWithId.github_ignore + ('members_url',
                     'repositories_url', 'url', 'repos_count', 'members_count')
+
+    github_per_page = {'min': 100, 'max': 100}
 
     class Meta:
         ordering = ('name', )
@@ -596,6 +600,14 @@ class Team(GithubObjectWithId):
         ]
 
     def fetch_repositories(self, gh, force_fetch=False, parameters=None):
+
+        # force fetching 100 orgs by default, as we cannot set "github_per_page"
+        # for the whole Repository class
+        if not parameters:
+            parameters = {}
+        if 'per_page' not in parameters:
+            parameters['per_page'] = 100
+
         return self._fetch_many('repositories', gh,
                                 force_fetch=force_fetch,
                                 parameters=parameters)
@@ -616,6 +628,8 @@ class UserRepository(GithubObject):
         'repository__github_id': ('repository', 'github_id'),
         'user__username': ('user', 'username'),
     }
+
+    github_per_page = {'min': 100, 'max': 100}
 
     class Meta:
         unique_together = (
@@ -714,6 +728,14 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         if self.is_organization:
             # an organization cannot belong to an other organization
             return 0
+
+        # force fetching 100 orgs by default, as we cannot set "github_per_page"
+        # for the whole GithubUser class
+        if not parameters:
+            parameters = {}
+        if 'per_page' not in parameters:
+            parameters['per_page'] = 100
+
         return self._fetch_many('organizations', gh,
                                 defaults={'simple': {'is_organization': True}},
                                 force_fetch=force_fetch,
@@ -751,7 +773,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         else:
             for team in self.teams.all():
                 try:
-                    nb_teams_fetched += team.fetch_repositories(gh)
+                    nb_teams_fetched += team.fetch_repositories(gh, force_fetch=force_fetch)
                 except ApiNotFoundError:
                     # we may have no rights
                     pass
