@@ -741,12 +741,22 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
         self.fetch_organizations(gh, force_fetch=force_fetch)
-        self.fetch_user_repositories(gh, force_fetch=force_fetch)
+        nb_repositories_fetched = self.fetch_user_repositories(gh, force_fetch=force_fetch)
+        nb_teams_fetched = 0
         try:
             self.fetch_teams(gh, force_fetch=force_fetch)
         except ApiNotFoundError:
             # we may have no rights
             pass
+        else:
+            for team in self.teams.all():
+                try:
+                    nb_teams_fetched += team.fetch_repositories(gh)
+                except ApiNotFoundError:
+                    # we may have no rights
+                    pass
+
+        return nb_repositories_fetched, nb_teams_fetched
 
     def get_connection(self):
         return Connection.get(username=self.username, access_token=self.token)

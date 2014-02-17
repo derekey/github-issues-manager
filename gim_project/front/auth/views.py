@@ -118,7 +118,7 @@ class ConfirmView(BaseGithubAuthView):
         # add a job to fetch available repositories
         FetchAvailableRepositoriesJob.add_job(user.id)
 
-        return True, "Authentication successful"
+        return True, "Authentication successful, we are currently fetching repositories you can subscribe to (ones you own, collaborate to, or in your organizations)"
 
     def get_redirect_url(self):
         auth_valid, message = self.complete_auth()

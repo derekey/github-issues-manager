@@ -25,7 +25,7 @@ class FetchAvailableRepositoriesJob(UserJob):
     queue_name = 'fetch-available-repos'
 
     nb_repos = fields.InstanceHashField()
-    nb_orgs = fields.InstanceHashField()
+    nb_teams = fields.InstanceHashField()
 
     def run(self, queue):
         """
@@ -36,18 +36,22 @@ class FetchAvailableRepositoriesJob(UserJob):
 
         user = self.object
 
-        nb_repos, nb_orgs = user.fetch_available_repositories()
+        gh = user.get_connection()
+        nb_repos, nb_teams = user.fetch_all(gh)
 
-        message = u'The list of repositories you can subscribe to was just updated'
+        if nb_repos + nb_teams:
+            message = u'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organisations) was just updated'
+        else:
+            message = u'There is no new repositories you own, collaborate to, or in your organizations'
         messages.success(user, message)
 
-        self.hmset(nb_repos=nb_repos, nb_orgs=nb_orgs)
+        self.hmset(nb_repos=nb_repos, nb_teams=nb_teams)
 
-        return nb_repos, nb_orgs
+        return nb_repos, nb_teams
 
     def success_message_addon(self, queue, result):
         """
         Display infos got from the fetch_available_repositories call
         """
-        nb_repos, nb_orgs = result
-        return ' [nb_repos=%d, nb_orgs=%d]' % (nb_repos, nb_orgs)
+        nb_repos, nb_teams = result
+        return ' [nb_repos=%d, nb_teams=%d]' % (nb_repos, nb_teams)
