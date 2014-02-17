@@ -1,7 +1,7 @@
 
 from urlparse import urlsplit, parse_qs
 from itertools import product
-from datetime import datetime, timedelta
+from datetime import datetime
 import re
 from operator import itemgetter
 import json
@@ -27,7 +27,7 @@ from .managers import (MODE_ALL, MODE_UPDATE,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager, IssueEventManager,
                        PullRequestCommentEntryPointManager, CommitManager,
-                       PullRequestFileManager)
+                       PullRequestFileManager, UserRepositoryManager)
 
 import username_hack  # force the username length to be 255 chars
 
@@ -601,6 +601,32 @@ class Team(GithubObjectWithId):
                                 parameters=parameters)
 
 
+class UserRepository(GithubObject):
+    """
+    Will host repositories a user can access THAT IS NOT IN AN ORGANIZATION
+    (see Team for organizations)
+    """
+    user = models.ForeignKey('GithubUser', related_name='user_repositories')
+    repository = models.ForeignKey('Repository')
+    permission = models.CharField(max_length=5)
+
+    objects = UserRepositoryManager()
+
+    github_identifiers = {
+        'repository__github_id': ('repository', 'github_id'),
+        'user__username': ('user', 'username'),
+    }
+
+    class Meta:
+        unique_together = (
+            ('user', 'repository'),
+        )
+        ordering = ('repository',)
+
+    def __unicode__(self):
+        return '%s can "%s" %s' % (self.user, self.permission, self.repository)
+
+
 class GithubUser(GithubObjectWithId, AbstractUser):
     # username will hold the github "login"
     token = models.TextField(blank=True, null=True)
@@ -612,6 +638,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     teams = models.ManyToManyField(Team, related_name='members')
     teams_fetched_at = models.DateTimeField(blank=True, null=True)
     teams_etag = models.CharField(max_length=64, blank=True, null=True)
+    user_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
+    user_repositories_etag = models.CharField(max_length=64, blank=True, null=True)
     _available_repositories = models.TextField(blank=True, null=True)
     available_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
 
@@ -675,6 +703,13 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                 'teams',
             ]
 
+    @property
+    def github_callable_identifiers_for_user_repositories(self):
+        # won't work for organizations, but not called in this case
+        return self.github_callable_identifiers_for_self + [
+            'repos',
+        ]
+
     def fetch_organizations(self, gh, force_fetch=False, parameters=None):
         if self.is_organization:
             # an organization cannot belong to an other organization
@@ -693,9 +728,20 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 
+    def fetch_user_repositories(self, gh, force_fetch=False, parameters=None):
+        if self.is_organization:
+            # we don't want to put org repo here, as we use teams for that
+            return 0
+        user = GithubUser.objects.get(username=gh._connection_args['username'])
+        return self._fetch_many('user_repositories', gh,
+                                defaults={'fk': {'user': user}},
+                                force_fetch=force_fetch,
+                                parameters=parameters)
+
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
         self.fetch_organizations(gh, force_fetch=force_fetch)
+        self.fetch_user_repositories(gh, force_fetch=force_fetch)
         try:
             self.fetch_teams(gh, force_fetch=force_fetch)
         except ApiNotFoundError:
