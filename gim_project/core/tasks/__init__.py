@@ -12,3 +12,4 @@ from .githubuser import *
 from .issue import *
 from .label import *
 from .repository import *
+from .tokens import *
