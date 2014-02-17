@@ -26,6 +26,7 @@ class FetchAvailableRepositoriesJob(UserJob):
 
     nb_repos = fields.InstanceHashField()
     nb_teams = fields.InstanceHashField()
+    inform_user = fields.InstanceHashField()
 
     def run(self, queue):
         """
@@ -39,10 +40,11 @@ class FetchAvailableRepositoriesJob(UserJob):
         gh = user.get_connection()
         nb_repos, nb_teams = user.fetch_all(gh)
 
-        if nb_repos + nb_teams:
-            message = u'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organisations) was just updated'
-        else:
-            message = u'There is no new repositories you own, collaborate to, or in your organizations'
+        if self.inform_user.hget() == '1':
+            if nb_repos + nb_teams:
+                message = u'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organizations) was just updated'
+            else:
+                message = u'There is no new repositories you own, collaborate to, or in your organizations'
         messages.success(user, message)
 
         self.hmset(nb_repos=nb_repos, nb_teams=nb_teams)
@@ -55,3 +57,9 @@ class FetchAvailableRepositoriesJob(UserJob):
         """
         nb_repos, nb_teams = result
         return ' [nb_repos=%d, nb_teams=%d]' % (nb_repos, nb_teams)
+
+    def on_success(self, queue, result):
+        """
+        Make a new fetch later
+        """
+        self.clone(delayed_for=60*60*3)  # once per 3h

@@ -258,7 +258,7 @@ class AskFetchAvailableRepositories(BaseFrontViewMixin, RedirectView):
         try:
             self.request.user.fetch_available_repositories()
         except Exception:
-            messages.error(self.request, 'The list of repositories you can subscribe could not be updated :(')
+            messages.error(self.request, 'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organizations) could not be updated :(')
         else:
-            messages.success(self.request, 'The list of repositories you can subscribe to was just updated')
+            messages.success(self.request, 'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organizations) was just updated')
         return super(AskFetchAvailableRepositories, self).post(*args, **kwargs)
