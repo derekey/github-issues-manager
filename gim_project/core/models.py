@@ -552,6 +552,55 @@ class GithubObjectWithId(GithubObject):
         abstract = True
 
 
+class Team(GithubObjectWithId):
+    organization = models.ForeignKey('GithubUser', related_name='org_teams')
+    name = models.TextField()
+    slug = models.TextField()
+    permission = models.CharField(max_length=5)
+    repositories = models.ManyToManyField('Repository', related_name='teams')
+
+    objects = GithubObjectManager()
+
+    github_ignore = GithubObjectWithId.github_ignore + ('members_url',
+                    'repositories_url', 'url', 'repos_count', 'members_count')
+
+    class Meta:
+        ordering = ('name', )
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.organization.username, self.name)
+
+    @property
+    def github_url(self):
+        return self.organization.github_organization_url + '/teams/' + self.name
+
+    @property
+    def github_callable_identifiers(self):
+        return [
+            'teams',
+            self.github_id,
+        ]
+
+    def fetch_all(self, gh, force_fetch=False, **kwargs):
+        super(Team, self).fetch_all(gh, force_fetch, **kwargs)
+        try:
+            self.fetch_repositories(gh, force_fetch=force_fetch)
+        except ApiNotFoundError:
+            # we may have no rights
+            pass
+
+    @property
+    def github_callable_identifiers_for_repositories(self):
+        return self.github_callable_identifiers + [
+            'repos',
+        ]
+
+    def fetch_repositories(self, gh, force_fetch=False, parameters=None):
+        return self._fetch_many('repositories', gh,
+                                force_fetch=force_fetch,
+                                parameters=parameters)
+
+
 class GithubUser(GithubObjectWithId, AbstractUser):
     # username will hold the github "login"
     token = models.TextField(blank=True, null=True)
@@ -560,6 +609,9 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     organizations = models.ManyToManyField('self', related_name='members')
     organizations_fetched_at = models.DateTimeField(blank=True, null=True)
     organizations_etag = models.CharField(max_length=64, blank=True, null=True)
+    teams = models.ManyToManyField(Team, related_name='members')
+    teams_fetched_at = models.DateTimeField(blank=True, null=True)
+    teams_etag = models.CharField(max_length=64, blank=True, null=True)
     _available_repositories = models.TextField(blank=True, null=True)
     available_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
 
@@ -582,9 +634,27 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         return GITHUB_HOST + self.username
 
     @property
+    def github_organization_url(self):
+        return GITHUB_HOST + 'orgs/' + self.username
+
+    @property
     def github_callable_identifiers(self):
         return [
             'users',
+            self.username,
+        ]
+
+    @property
+    def github_callable_identifiers_for_self(self):
+        # api.github.com/user
+        return [
+            'user',
+        ]
+
+    @property
+    def github_callable_identifiers_for_organization(self):
+        return [
+            'orgs',
             self.username,
         ]
 
@@ -593,6 +663,17 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         return self.github_callable_identifiers + [
             'orgs',
         ]
+
+    @property
+    def github_callable_identifiers_for_teams(self):
+        if self.is_organization:
+            return self.github_callable_identifiers_for_organization + [
+                'teams',
+            ]
+        else:
+            return self.github_callable_identifiers_for_self + [
+                'teams',
+            ]
 
     def fetch_organizations(self, gh, force_fetch=False, parameters=None):
         if self.is_organization:
@@ -603,9 +684,23 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 
+    def fetch_teams(self, gh, force_fetch=False, parameters=None):
+        defaults = None
+        if self.is_organization:
+            defaults = {'fk': {'organization': self}}
+        return self._fetch_many('teams', gh,
+                                defaults=defaults,
+                                force_fetch=force_fetch,
+                                parameters=parameters)
+
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
         self.fetch_organizations(gh, force_fetch=force_fetch)
+        try:
+            self.fetch_teams(gh, force_fetch=force_fetch)
+        except ApiNotFoundError:
+            # we may have no rights
+            pass
 
     def get_connection(self):
         return Connection.get(username=self.username, access_token=self.token)
@@ -613,8 +708,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     def fetch_available_repositories(self):
         """
         Save the list of reositories that the current user can manage in
-        Github, and so here. For a repository to be available, it must have
-        issues activated, nd the user must at least have "push" access.
+        Github, and so here.
         The list is grouped by organizations, with "__self__" the first entry
         listing it's available repositories not in any organization.
         """
@@ -780,6 +874,15 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             return 'admin' if can_admin else 'push' if can_push else 'read'
 
         return False
+
+    def save(self, *args, **kwargs):
+        """
+        Save the user but override to set the mail not set to '' (None not
+        allowed from AbstractUser)
+        """
+        if self.email is None:
+            self.email = ''
+        super(GithubUser, self).save(*args, **kwargs)
 
 
 class Repository(GithubObjectWithId):
