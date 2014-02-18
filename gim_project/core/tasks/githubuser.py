@@ -49,14 +49,17 @@ class FetchAvailableRepositoriesJob(UserJob):
 
         self.hmset(nb_repos=nb_repos, nb_teams=nb_teams)
 
-        return nb_repos, nb_orgs, nb_teams
+        upgraded, downgraded = user.check_subscriptions()
+
+        return nb_repos, nb_orgs, nb_teams, len(upgraded), len(downgraded)
 
     def success_message_addon(self, queue, result):
         """
         Display infos got from the fetch_available_repositories call
         """
-        nb_repos, nb_orgs, nb_teams = result
-        return ' [nb_repos=%d, nb_orgs=%d, nb_teams=%d]' % (nb_repos, nb_orgs, nb_teams)
+        nb_repos, nb_orgs, nb_teams, nb_upgraded, nb_downgraded = result
+        return ' [nb_repos=%d, nb_orgs=%d, nb_teams=%d, nb_upgraded=%d, nb_downgraded=%d]' % (
+                                            nb_repos, nb_orgs, nb_teams, nb_upgraded, nb_downgraded)
 
     def on_success(self, queue, result):
         """
