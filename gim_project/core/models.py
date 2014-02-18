@@ -1759,7 +1759,8 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     merged_at = models.DateTimeField(blank=True, null=True)
     merged_by = models.ForeignKey(GithubUser, related_name='merged_prs', blank=True, null=True)
     github_pr_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
-    mergeable = models.BooleanField(default=False)
+    mergeable = models.NullBooleanField(default=False)
+    mergeable_state = models.CharField(max_length=20, null=True, blank=True)
     merged = models.BooleanField(default=False)
     nb_commits = models.PositiveIntegerField(blank=True, null=True)
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
@@ -1787,7 +1788,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         'github_pr_id', 'pr_comments_count', 'nb_commits', 'nb_additions', 'nb_deletions',
         'nb_changed_files', ) + ('head', 'commits_url', 'body_text', 'url', 'labels_url',
         'events_url', 'comments_url', 'html_url', 'merge_commit_sha', 'review_comments_url',
-        'review_comment_url', 'base', 'patch_url', 'mergeable_state', 'pull_request', 'diff_url',
+        'review_comment_url', 'base', 'patch_url', 'pull_request', 'diff_url',
         'statuses_url', 'issue_url', )
 
     github_format = '.full+json'
@@ -2042,6 +2043,17 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
                 or 'body_html' in kwargs['updated_field']\
                 or 'title' in kwargs['updated_field']:
             IssueEvent.objects.check_references(self, ['body_html', 'title'])
+
+    @property
+    def is_mergeable(self):
+        if not self.is_pull_request:
+            return False
+        if self.state == 'closed':
+            return False
+        if self.mergeable:
+            return True
+        return self.mergeable_state in ('unknown', 'clean', 'stable')
+        # other states: ('checking', 'dirty', 'unstable')
 
 
 class WithIssueMixin(WithRepositoryMixin):

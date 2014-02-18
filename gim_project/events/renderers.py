@@ -70,10 +70,24 @@ class IssueRenderer(Renderer):
     def render_part_mergeable(self, part, mode):
         new, old = part.new_value, part.old_value
 
+        mergeable_state = ''
+        if 'mergeable_state' in new:
+            mergeable_state = ' (%s)' % new['mergeable_state']
+
         if old and old['mergeable'] is False:
-            return 'Now mergeable' if new['mergeable'] else 'Not mergeable anymore'
+            return 'Now mergeable' if new['mergeable'] else 'Not mergeable anymore' + mergeable_state
         else:
-            return 'Mergeable' if new['mergeable'] else 'Not mergeable'
+            return 'Mergeable' if new['mergeable'] else 'Not mergeable' + mergeable_state
+
+    def render_part_mergeable_state(self, part, mode):
+        new, old = part.new_value, part.old_value
+
+        # let the mergeable part display all if it exists
+        if part.event.get_part('mergeable'):
+            return None
+
+        return 'New mergeable status: %s - %s (was %s)' % (
+                new['mergeable'], new['mergeable_state'], old['mergeable_state'])
 
     def render_part_merged(self, part, mode):
         new, old = part.new_value, part.old_value
