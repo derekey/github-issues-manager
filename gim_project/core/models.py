@@ -1232,13 +1232,15 @@ class Repository(GithubObjectWithId):
         """
         Fetch pull requests individually when it was never done or when the
         updated_at retrieved from the issues list is newer than the previous
-        'pr_fetched_at'
+        'pr_fetched_at'. Check also for unmerged
         """
         qs = self.issues.filter(Q(is_pull_request=True)
                                 &
                                 (Q(pr_fetched_at__isnull=True)
                                  |
                                  Q(pr_fetched_at__lt=F('updated_at'))
+                                 |
+                                 Q(mergeable_state__in=Issue.MERGEABLE_STATES['unknown'])
                                 )
                                )
 
@@ -1801,6 +1803,12 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'number': 'number'}
 
     github_date_field = ('updated_at', 'updated', 'desc')
+
+    MERGEABLE_STATES = {
+        'mergeable': ('unknown', 'clean', 'stable'),
+        'unmergeable': ('checking', 'dirty', 'unstable'),
+        'unknown': ('unknown', 'checking', None),
+    }
 
     class Meta:
         unique_together = (
