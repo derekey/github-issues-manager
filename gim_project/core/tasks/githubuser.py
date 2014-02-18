@@ -26,6 +26,8 @@ class FetchAvailableRepositoriesJob(UserJob):
 
     nb_repos = fields.InstanceHashField()
     nb_orgs = fields.InstanceHashField()
+    nb_teams = fields.InstanceHashField()
+    inform_user = fields.InstanceHashField()
 
     def run(self, queue):
         """
@@ -36,18 +38,31 @@ class FetchAvailableRepositoriesJob(UserJob):
 
         user = self.object
 
-        nb_repos, nb_orgs = user.fetch_available_repositories()
+        nb_repos, nb_orgs, nb_teams = user.fetch_all()
 
-        message = u'The list of repositories you can subscribe to was just updated'
+        if self.inform_user.hget() == '1':
+            if nb_repos + nb_teams:
+                message = u'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organizations) was just updated'
+            else:
+                message = u'There is no new repositories you own, collaborate to, or in your organizations'
         messages.success(user, message)
 
-        self.hmset(nb_repos=nb_repos, nb_orgs=nb_orgs)
+        self.hmset(nb_repos=nb_repos, nb_teams=nb_teams)
 
-        return nb_repos, nb_orgs
+        upgraded, downgraded = user.check_subscriptions()
+
+        return nb_repos, nb_orgs, nb_teams, len(upgraded), len(downgraded)
 
     def success_message_addon(self, queue, result):
         """
         Display infos got from the fetch_available_repositories call
         """
-        nb_repos, nb_orgs = result
-        return ' [nb_repos=%d, nb_orgs=%d]' % (nb_repos, nb_orgs)
+        nb_repos, nb_orgs, nb_teams, nb_upgraded, nb_downgraded = result
+        return ' [nb_repos=%d, nb_orgs=%d, nb_teams=%d, nb_upgraded=%d, nb_downgraded=%d]' % (
+                                            nb_repos, nb_orgs, nb_teams, nb_upgraded, nb_downgraded)
+
+    def on_success(self, queue, result):
+        """
+        Make a new fetch later
+        """
+        self.clone(delayed_for=60*60*3)  # once per 3h

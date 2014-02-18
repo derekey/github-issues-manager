@@ -1,11 +1,11 @@
-from itertools import chain
+from itertools import groupby
 
 from django.views.generic import FormView, TemplateView, RedirectView
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 
-from core.models import Repository, GithubUser
+from core.models import Repository, GithubUser, AvailableRepository
 from subscriptions.models import (WaitingSubscription,
                                   WAITING_SUBSCRIPTION_STATES,
                                   SUBSCRIPTION_STATES, )
@@ -118,6 +118,19 @@ class WithRepoDictMixin(object):
 
         return self._avatar_urls[username]
 
+    def available_repository_to_dict(self, available_repository):
+        return {
+            'owner': available_repository.repository.owner.username,
+            'avatar_url': available_repository.repository.owner.avatar_url,
+            'name': available_repository.repository.name,
+            'private': available_repository.repository.private,
+            'is_fork': available_repository.repository.is_fork,
+            'has_issues': available_repository.repository.has_issues,
+            'rights': 'admin' if available_repository.permission == 'admin'
+                              else 'push' if available_repository.permission == 'push'
+                              else 'read'
+        }
+
     def subscription_to_dict(self, subscription):
         return {
             'owner': subscription.repository.owner.username,
@@ -129,7 +142,6 @@ class WithRepoDictMixin(object):
             'rights': 'admin' if subscription.state == SUBSCRIPTION_STATES.ADMIN
                               else 'push' if subscription.state == SUBSCRIPTION_STATES.USER
                               else 'read'
-
         }
 
     def waiting_subscription_to_dict(self, subscription):
@@ -171,10 +183,11 @@ class ShowRepositoryAjaxView(WithRepoDictMixin, TemplateView):
 
         # in available repositories ?
         try:
-            repo = [r for r in list(chain(*[o['repos']
-                                        for o in user.available_repositories]))
-                   if r['owner'] == owner_name and r['name'] == repo_name][0]
-        except IndexError:
+            repo = self.available_repository_to_dict(
+                        user.available_repositories_set.get(repository__owner__username=owner_name,
+                                                               repository__name=repo_name)
+                    )
+        except AvailableRepository.DoesNotExist:
             # in waiting subscriptions ?
             if full_name in waiting_subscriptions:
                 repo = self.waiting_subscription_to_dict(waiting_subscriptions[full_name])
@@ -217,9 +230,16 @@ class ChooseRepositoryView(WithRepoDictMixin, TemplateView):
 
         organizations_by_name = dict((org.username, org) for org in self.request.user.organizations.all())
 
-        available_repos = set()
-        for org in self.request.user.available_repositories or []:
-            available_repos.update(['%s/%s' % (rep['owner'], rep['name']) for rep in org['repos']])
+        available_repositories = list(self.request.user.available_repositories_set.filter(permission__isnull=False))
+        available_repos_names = {ar.repository.full_name for ar in available_repositories}
+
+        available_repositories = [
+            {
+                'name': org_name,
+                'repos': [self.available_repository_to_dict(ar) for ar in ar_list]
+            } for org_name, ar_list in groupby(available_repositories,
+                                               lambda ar: ar.organization_username)
+        ]
 
         waiting_subscriptions = self.get_waiting_subscriptions()
         subscriptions = self.get_subscriptions()
@@ -230,14 +250,14 @@ class ChooseRepositoryView(WithRepoDictMixin, TemplateView):
             'repos': [],
         }
         for repo_name, subscription in waiting_subscriptions.iteritems():
-            if repo_name not in available_repos:
+            if repo_name not in available_repos_names:
                 others_repos['repos'].append(self.waiting_subscription_to_dict(subscription))
         for repo_name, subscription in subscriptions.iteritems():
-            if repo_name not in available_repos:
+            if repo_name not in available_repos_names:
                 others_repos['repos'].append(self.subscription_to_dict(subscription))
 
         context.update({
-            'available_repositories': self.request.user.available_repositories + [others_repos],
+            'available_repositories': available_repositories + [others_repos],
             'waiting_subscriptions': waiting_subscriptions,
             'subscriptions': subscriptions,
             'organizations_by_name': organizations_by_name,
@@ -256,9 +276,9 @@ class AskFetchAvailableRepositories(BaseFrontViewMixin, RedirectView):
 
     def post(self, *args, **kwargs):
         try:
-            self.request.user.fetch_available_repositories()
+            self.request.user.fetch_all()
         except Exception:
-            messages.error(self.request, 'The list of repositories you can subscribe could not be updated :(')
+            messages.error(self.request, 'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organizations) could not be updated :(')
         else:
-            messages.success(self.request, 'The list of repositories you can subscribe to was just updated')
+            messages.success(self.request, 'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organizations) was just updated')
         return super(AskFetchAvailableRepositories, self).post(*args, **kwargs)

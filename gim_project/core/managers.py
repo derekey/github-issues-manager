@@ -973,3 +973,23 @@ class PullRequestFileManager(WithIssueManager):
 
         return super(PullRequestFileManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)
+
+
+class AvailableRepositoryManager(WithRepositoryManager):
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
+        """
+        We have a dict which is repositories, with a "permissions" field, but we
+        want a dict with a repository dict and a "permission" field which is
+        normalized from the "permissions" one.
+        """
+        permission = None
+
+        if 'permissions' in data:
+            for perm in ('admin', 'push', 'pull'):  # order is important: higher permission first
+                if data['permissions'].get(perm):
+                    permission = perm
+                    break
+
+        return super(AvailableRepositoryManager, self).get_object_fields_from_dict(
+            {'permission': permission, 'repository': data},
+            defaults, saved_objects)
