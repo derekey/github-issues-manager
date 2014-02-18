@@ -56,7 +56,7 @@
                                     <thead>
                                         <tr>
                                             <td data-toggle="collapse" data-target="#tbody-{{ org.name }}" title="Click to collapse/expand">
-                                                {% if org.name == '__self__' %}
+                                                {% if org.name == None %}
                                                     <img class="avatar-tiny img-circle" src="{{ user.avatar_url|default:default_avatar }}" />
                                                     Repositories you own/participate
                                                 {% elif org.name == '__others__' %}
