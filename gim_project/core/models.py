@@ -637,7 +637,9 @@ class AvailableRepository(GithubObject):
     user = models.ForeignKey('GithubUser', related_name='available_repositories_set')
     repository = models.ForeignKey('Repository')
     permission = models.CharField(max_length=5)
+    # cannot use another FK to GithubUser as its a through table :(
     organization_id = models.PositiveIntegerField(blank=True, null=True)
+    organization_username = models.CharField(max_length=255, blank=True, null=True)
 
     objects = AvailableRepositoryManager()
 
@@ -650,10 +652,10 @@ class AvailableRepository(GithubObject):
         unique_together = (
             ('user', 'repository'),
         )
-        ordering = ('repository',)
+        ordering = ('organization_username', 'repository',)
 
     def __unicode__(self):
-        return '%s can "%s" %s (org: %s)' % (self.user, self.permission, self.repository, self.organization_id)
+        return '%s can "%s" %s (org: %s)' % (self.user, self.permission, self.repository, self.organization_username)
 
 
 class GithubUser(GithubObjectWithId, AbstractUser):
@@ -801,8 +803,15 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 parameters=parameters)
 
     def fetch_available_repositories(self, gh, force_fetch=False, org=None, parameters=None):
+        """
+        Fetch available repositories for the current user (the "gh" will be
+        forced").
+        It will fetch the repositories available within an organization if "org"
+        is filled, and if not, it will fecth the other repositories available to
+        the user: ones he owns, or ones where he is a collaborator.
+        """
         if self.is_organization:
-            # we don't want to put org repo here, as we use teams for that
+            # no available repositories for an organization as they can't login
             return 0
 
         # force fetching 100 orgs by default, as we cannot set "github_per_page"
@@ -823,10 +832,17 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         if org:
             filter_queryset = Q(organization_id=org.id)
             meta_base_name = 'org_repositories_' + org.username
-            defaults['simple'] = {'organization_id': org.id}
+            defaults['simple'] = {
+                'organization_id': org.id,
+                'organization_username': org.username,
+            }
         else:
             filter_queryset = Q(organization_id__isnull=True)
             meta_base_name = None
+            defaults['simple'] = {
+                'organization_id': None,
+                'organization_username': None,
+            }
 
         return self._fetch_many('available_repositories', gh,
                                 meta_base_name=meta_base_name,
