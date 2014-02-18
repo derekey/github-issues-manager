@@ -861,21 +861,21 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                 # we may have no rights
                 pass
 
-        # repositories on organizations teams the user are a collaborator
-        try:
-            nb_teams_fetched = self.fetch_teams(gh, force_fetch=force_fetch)
-        except ApiNotFoundError:
-            # we may have no rights
-            pass
-        else:
-            for team in self.teams.all():
-                try:
-                    team.fetch_repositories(gh, force_fetch=force_fetch)
-                except ApiNotFoundError:
-                    # we may have no rights
-                    pass
+        # # repositories on organizations teams the user are a collaborator
+        # try:
+        #     nb_teams_fetched = self.fetch_teams(gh, force_fetch=force_fetch)
+        # except ApiNotFoundError:
+        #     # we may have no rights
+        #     pass
+        # else:
+        #     for team in self.teams.all():
+        #         try:
+        #             team.fetch_repositories(gh, force_fetch=force_fetch)
+        #         except ApiNotFoundError:
+        #             # we may have no rights
+        #             pass
 
-        return nb_repositories_fetched, nb_orgs_fetched, nb_teams_fetched
+        return nb_repositories_fetched, nb_orgs_fetched, 0  # nb_teams_fetched
 
     def get_connection(self):
         return Connection.get(username=self.username, access_token=self.token)
