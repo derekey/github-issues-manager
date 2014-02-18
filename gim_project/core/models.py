@@ -28,7 +28,7 @@ from .managers import (MODE_ALL, MODE_UPDATE,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager, IssueEventManager,
                        PullRequestCommentEntryPointManager, CommitManager,
-                       PullRequestFileManager, UserRepositoryManager)
+                       PullRequestFileManager, AvailableRepositoryManager)
 
 import username_hack  # force the username length to be 255 chars
 
@@ -630,16 +630,16 @@ class Team(GithubObjectWithId):
                                 parameters=parameters)
 
 
-class UserRepository(GithubObject):
+class AvailableRepository(GithubObject):
     """
-    Will host repositories a user can access ("through" table for user.user_repositories)
+    Will host repositories a user can access ("through" table for user.available_repositories)
     """
-    user = models.ForeignKey('GithubUser', related_name='user_repositories_full')
+    user = models.ForeignKey('GithubUser', related_name='available_repositories_set')
     repository = models.ForeignKey('Repository')
     permission = models.CharField(max_length=5)
     organization_id = models.PositiveIntegerField(blank=True, null=True)
 
-    objects = UserRepositoryManager()
+    objects = AvailableRepositoryManager()
 
     github_identifiers = {
         'repository__github_id': ('repository', 'github_id'),
@@ -667,12 +667,10 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     teams = models.ManyToManyField(Team, related_name='members')
     teams_fetched_at = models.DateTimeField(blank=True, null=True)
     teams_etag = models.CharField(max_length=64, blank=True, null=True)
-    user_repositories = models.ManyToManyField('Repository', through=UserRepository)
-    user_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
-    user_repositories_etag = models.CharField(max_length=64, blank=True, null=True)
-    org_repositories_fetch_data = JSONField(blank=True, null=True)
-    _available_repositories = models.TextField(blank=True, null=True)
+    available_repositories = models.ManyToManyField('Repository', through=AvailableRepository)
     available_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
+    available_repositories_etag = models.CharField(max_length=64, blank=True, null=True)
+    org_repositories_fetch_data = JSONField(blank=True, null=True)
 
     objects = GithubUserManager()
 
@@ -735,7 +733,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             ]
 
     @property
-    def github_callable_identifiers_for_user_repositories(self):
+    def github_callable_identifiers_for_available_repositories(self):
         # won't work for organizations, but not called in this case
         return self.github_callable_identifiers_for_self + [
             'repos',
@@ -802,7 +800,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 
-    def fetch_user_repositories(self, gh, force_fetch=False, org=None, parameters=None):
+    def fetch_available_repositories(self, gh, force_fetch=False, org=None, parameters=None):
         if self.is_organization:
             # we don't want to put org repo here, as we use teams for that
             return 0
@@ -830,7 +828,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             filter_queryset = Q(organization_id__isnull=True)
             meta_base_name = None
 
-        return self._fetch_many('user_repositories', gh,
+        return self._fetch_many('available_repositories', gh,
                                 meta_base_name=meta_base_name,
                                 defaults=defaults,
                                 force_fetch=force_fetch,
@@ -850,13 +848,13 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         gh = self.get_connection()
 
         # repositories a user own or collaborate to, but not in organizations
-        nb_repositories_fetched = self.fetch_user_repositories(gh, force_fetch=force_fetch)
+        nb_repositories_fetched = self.fetch_available_repositories(gh, force_fetch=force_fetch)
 
         # repositories in the user's organizations
         nb_orgs_fetched = self.fetch_organizations(gh, force_fetch=force_fetch)
         for org in self.organizations.all():
             try:
-                nb_repositories_fetched += self.fetch_user_repositories(gh, org=org, force_fetch=force_fetch)
+                nb_repositories_fetched += self.fetch_available_repositories(gh, org=org, force_fetch=force_fetch)
             except ApiNotFoundError:
                 # we may have no rights
                 pass
@@ -879,122 +877,6 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
     def get_connection(self):
         return Connection.get(username=self.username, access_token=self.token)
-
-    def fetch_available_repositories(self):
-        """
-        Save the list of reositories that the current user can manage in
-        Github, and so here.
-        The list is grouped by organizations, with "__self__" the first entry
-        listing it's available repositories not in any organization.
-        """
-        if not self.token:
-            return
-
-        gh = self.get_connection()
-
-        def get_repos(identifiers, page, repos_list):
-            """
-            Function that fetch a page for the given identifiers, adding data to
-            the given list, and returning the next page to fetch if any (or None
-            if not)
-            """
-            response_headers = {}
-            parameters = {
-                'sort': 'pushed',
-                'direction': 'desc',
-                'page': page,
-                'per_page': 100,
-            }
-
-            data = Repository.objects.get_data_from_github(
-                        gh=gh,
-                        identifiers=identifiers,
-                        parameters=parameters,
-                        response_headers=response_headers)
-
-            # loop on each returned repository
-            for datum in data:
-                permissions = datum.get('permissions', {'admin': False, 'pull': True, 'push': False})
-                can_pull = permissions.get('pull', False)
-                can_admin = permissions.get('admin', False)
-                can_push = permissions.get('push', False)
-                has_issues = datum.get('has_issues', False)
-
-                if can_pull:
-                    repos_list.append({
-                        'name': datum['name'],
-                        'owner': datum['owner']['login'],
-                        'avatar_url': datum['owner']['avatar_url'],
-                        'private': datum.get('private', False),
-                        'pushed_at': datum['pushed_at'],
-                        'has_issues': has_issues,
-                        'rights': "admin" if can_admin else "push" if can_push else "read",
-                        'is_fork': datum.get('fork', False),
-                    })
-
-            # check if we have a next page
-            if 'link' in response_headers:
-                links = parse_header_links(response_headers['link'])
-                if 'next' in links and 'url' in links['next']:
-                    next_page = parse_qs(urlsplit(links['next']['url']).query).get('page', [])
-                    if len(next_page):
-                        return next_page[0]
-
-            # no next page !
-            return None
-
-        # final lit that will be returned
-        all_repos = []
-        nb_repos = 0
-
-        self.fetch_organizations(gh)
-
-        # get all lists, one for repos out of any organization ("__self__"), and
-        # one for each organization
-        repos_lists = [('__self__', ('user', 'repos'))] + [
-            (org_name, ('orgs', org_name, 'repos'))
-                for org_name in self.organizations.values_list('username', flat=True)
-        ]
-
-        for list_name, identifiers in repos_lists:
-            repos_list = {'name': list_name,  'repos': []}
-            next_page = 1
-            while True:
-                next_page = get_repos(identifiers, next_page, repos_list['repos'])
-                if not next_page:
-                    break
-
-            # add the list only if it contains available repositories
-            if repos_list['repos']:
-                repos_list['repos'].sort(key=itemgetter('pushed_at'), reverse=True)
-                all_repos.append(repos_list)
-                nb_repos += len(repos_list['repos'])
-
-        # save data and fetch date
-        self.available_repositories = all_repos
-        self.available_repositories_fetched_at = datetime.utcnow()
-
-        self.save(update_fields=['_available_repositories', 'available_repositories_fetched_at'])
-
-        return (nb_repos, self.organizations.count())
-
-    def _set_available_repositories(self, data):
-        """
-        Setter for the compressed _available_repositories field
-        """
-        if not data:
-            data = []
-        self._available_repositories = base64.encodestring(zlib.compress(json.dumps(data), 9))
-
-    def _get_available_repositories(self):
-        """
-        Getter for the compressed _available_repositories field
-        """
-        if not self._available_repositories:
-            return []
-        return json.loads(zlib.decompress(base64.decodestring(self._available_repositories)))
-
-    available_repositories = property(_get_available_repositories, _set_available_repositories)
 
     def can_use_repository(self, repository):
         """
@@ -1065,7 +947,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         saved in a json field we want to save
         """
         count = super(GithubUser, self).update_related_field(field_name, *args, **kwargs)
-        if field_name == 'user_repositories':
+        if field_name == 'available_repositories':
             self.save(update_fields=['org_repositories_fetch_data'])
         return count
 

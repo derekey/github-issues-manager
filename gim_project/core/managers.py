@@ -975,7 +975,7 @@ class PullRequestFileManager(WithIssueManager):
                                                 data, defaults, saved_objects)
 
 
-class UserRepositoryManager(WithRepositoryManager):
+class AvailableRepositoryManager(WithRepositoryManager):
     def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
         """
         We have a dict which is repositories, with a "permissions" field, but we
@@ -990,6 +990,6 @@ class UserRepositoryManager(WithRepositoryManager):
                     permission = perm
                     break
 
-        return super(UserRepositoryManager, self).get_object_fields_from_dict(
+        return super(AvailableRepositoryManager, self).get_object_fields_from_dict(
             {'permission': permission, 'repository': data},
             defaults, saved_objects)
