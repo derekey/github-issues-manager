@@ -25,6 +25,7 @@ class FetchAvailableRepositoriesJob(UserJob):
     queue_name = 'fetch-available-repos'
 
     nb_repos = fields.InstanceHashField()
+    nb_orgs = fields.InstanceHashField()
     nb_teams = fields.InstanceHashField()
     inform_user = fields.InstanceHashField()
 
@@ -38,7 +39,7 @@ class FetchAvailableRepositoriesJob(UserJob):
         user = self.object
 
         gh = user.get_connection()
-        nb_repos, nb_teams = user.fetch_all(gh)
+        nb_repos, nb_orgs, nb_teams = user.fetch_all(gh)
 
         if self.inform_user.hget() == '1':
             if nb_repos + nb_teams:
@@ -49,14 +50,14 @@ class FetchAvailableRepositoriesJob(UserJob):
 
         self.hmset(nb_repos=nb_repos, nb_teams=nb_teams)
 
-        return nb_repos, nb_teams
+        return nb_repos, nb_orgs, nb_teams
 
     def success_message_addon(self, queue, result):
         """
         Display infos got from the fetch_available_repositories call
         """
-        nb_repos, nb_teams = result
-        return ' [nb_repos=%d, nb_teams=%d]' % (nb_repos, nb_teams)
+        nb_repos, nb_orgs, nb_teams = result
+        return ' [nb_repos=%d, nb_orgs=%d, nb_teams=%d]' % (nb_repos, nb_orgs, nb_teams)
 
     def on_success(self, queue, result):
         """

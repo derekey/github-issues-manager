@@ -2,6 +2,7 @@
 from urlparse import urlsplit, parse_qs
 from itertools import product
 from datetime import datetime
+from dateutil.parser import parse
 import re
 from operator import itemgetter
 import json
@@ -137,7 +138,8 @@ class GithubObject(models.Model):
 
     def _fetch_many(self, field_name, gh, vary=None, defaults=None,
                     parameters=None, remove_missing=True, force_fetch=False,
-                    meta_base_name=None, modes=MODE_ALL, max_pages=None):
+                    meta_base_name=None, modes=MODE_ALL, max_pages=None,
+                    filter_queryset=None):
         """
         Fetch data from github for the given m2m or related field.
         If defined, "vary" is a dict of list of parameters to fetch. For each
@@ -153,8 +155,12 @@ class GithubObject(models.Model):
         Mode must be a tuple containing none, one or both of "create" and
         "update". If None is passed, the default is both values.
         """
-        field, _, direct, _ = self._meta.get_field_by_name(field_name)
-        if direct:
+        field, _, direct, m2m = self._meta.get_field_by_name(field_name)
+        through = False
+        if m2m and not field.rel.through._meta.auto_created:
+            # special case for THROUGH tables, we'll update them directly
+            model = through = field.rel.through
+        elif direct:
             # we are on a field of the current model, the objects to create or
             # update are on the model on the other side of the relation
             model = field.related.parent_model
@@ -384,10 +390,12 @@ class GithubObject(models.Model):
             save_etags_and_fetched_at = started_at_first_page
             self.update_related_field(field_name,
                                       [obj.id for obj in objs],
+                                      through=through,
                                       do_remove=do_remove,
                                       save_etags_and_fetched_at=save_etags_and_fetched_at,
                                       etags=etags,
-                                      fetched_at_field=fetched_at_field)
+                                      fetched_at_field=fetched_at_field,
+                                      filter_queryset=filter_queryset)
 
         # we return the number of fetched objects
         if not objs:
@@ -395,8 +403,9 @@ class GithubObject(models.Model):
         else:
             return len(objs)
 
-    def update_related_field(self, field_name, ids, do_remove=True,
-            save_etags_and_fetched_at=True, etags=None, fetched_at_field=None):
+    def update_related_field(self, field_name, ids, through=None,
+                     do_remove=True, save_etags_and_fetched_at=True,
+                     etags=None, fetched_at_field=None, filter_queryset=None):
         """
         For the given field name, with must be a m2m or the reverse side of
         a m2m or a fk, use the given list of ids as the lists of ids of all the
@@ -410,7 +419,10 @@ class GithubObject(models.Model):
         count = {'removed': 0, 'added': 0}
 
         # guess whitch relations to add and whicth to delete
-        existing_ids = set(instance_field.values_list('id', flat=True))
+        existing_queryset = instance_field
+        if filter_queryset:
+            existing_queryset = (through.objects if through else instance_field).filter(filter_queryset)
+        existing_ids = set(existing_queryset.values_list('id', flat=True))
         fetched_ids = set(ids or [])
 
         # if some relations are not here, remove them
@@ -419,44 +431,49 @@ class GithubObject(models.Model):
             count['removed'] = len(to_remove)
             # if FK, only objects with nullable FK have a clear method, so we
             # only clear if the model allows us to
-            if hasattr(instance_field, 'remove'):
+            if not through and hasattr(instance_field, 'remove'):
                 # The relation itself can be removed, we remove it but we keep
                 # the original object
                 # Example: a user is not anymore a collaborator, we keep the
                 # the user but remove the relation user <-> repository
                 instance_field.remove(*to_remove)
             else:
-                # The relation cannot be remove, because the current object is
+                # The relation cannot be removed, because the current object is
                 # a non-nullable fk of the other objects. In this case we are
                 # sure the object is fully deleted on the github side, or
                 # attached to another object, but we don't care here, so we
                 # delete the objects.
                 # Example: a milestone of a repository is not fetched via
-                # fetch_milestones, so we know it's deleted
-                instance_field.model.objects.filter(id__in=to_remove).delete()
+                # fetch_milestones? => we know it's deleted
+                to_delete_queryset = (through or instance_field.model).objects.filter(id__in=to_remove)
+                if filter_queryset:
+                    to_delete_queryset = to_delete_queryset.filter(filter_queryset)
+                to_delete_queryset.delete()
 
         # if we have new relations, add them
         to_add = fetched_ids - existing_ids
         if to_add:
-            count['added'] = len(to_remove)
-            instance_field.add(*to_add)
+            count['added'] = len(to_add)
+            if not through:
+                instance_field.add(*to_add)
 
         # check if we have something to save on the main object
         update_fields = []
 
         if save_etags_and_fetched_at:
+            all_field_names = self._meta.get_all_field_names()
             # can we save a fetch date ?
             if not fetched_at_field:
                 fetched_at_field = '%s_fetched_at' % field_name
-            if hasattr(self, fetched_at_field):
-                setattr(self, fetched_at_field, datetime.utcnow())
+            setattr(self, fetched_at_field, datetime.utcnow())
+            if fetched_at_field in all_field_names:
                 update_fields.append(fetched_at_field)
 
             # do we have etags to save ?
             if etags:
                 for etag_field, etag in etags.items():
-                    if hasattr(self, etag_field):
-                        setattr(self, etag_field, etag)
+                    setattr(self, etag_field, etag)
+                    if etag_field in all_field_names:
                         update_fields.append(etag_field)
 
         # save main object if needed
@@ -615,12 +632,12 @@ class Team(GithubObjectWithId):
 
 class UserRepository(GithubObject):
     """
-    Will host repositories a user can access THAT IS NOT IN AN ORGANIZATION
-    (see Team for organizations)
+    Will host repositories a user can access ("through" table for user.user_repositories)
     """
-    user = models.ForeignKey('GithubUser', related_name='user_repositories')
+    user = models.ForeignKey('GithubUser', related_name='user_repositories_full')
     repository = models.ForeignKey('Repository')
     permission = models.CharField(max_length=5)
+    organization_id = models.PositiveIntegerField(blank=True, null=True)
 
     objects = UserRepositoryManager()
 
@@ -629,8 +646,6 @@ class UserRepository(GithubObject):
         'user__username': ('user', 'username'),
     }
 
-    github_per_page = {'min': 100, 'max': 100}
-
     class Meta:
         unique_together = (
             ('user', 'repository'),
@@ -638,7 +653,7 @@ class UserRepository(GithubObject):
         ordering = ('repository',)
 
     def __unicode__(self):
-        return '%s can "%s" %s' % (self.user, self.permission, self.repository)
+        return '%s can "%s" %s (org: %s)' % (self.user, self.permission, self.repository, self.organization_id)
 
 
 class GithubUser(GithubObjectWithId, AbstractUser):
@@ -652,8 +667,10 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     teams = models.ManyToManyField(Team, related_name='members')
     teams_fetched_at = models.DateTimeField(blank=True, null=True)
     teams_etag = models.CharField(max_length=64, blank=True, null=True)
+    user_repositories = models.ManyToManyField('Repository', through=UserRepository)
     user_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
     user_repositories_etag = models.CharField(max_length=64, blank=True, null=True)
+    org_repositories_fetch_data = JSONField(blank=True, null=True)
     _available_repositories = models.TextField(blank=True, null=True)
     available_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
 
@@ -724,6 +741,41 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             'repos',
         ]
 
+    def __getattr__(self, name):
+        """
+        We create "github_identifiers_for" to fetch repositories of an
+        organization by calling it from the user, so we must create it on the
+        fly.
+        And for the fetched_at/etag for the same github queries: we use ones
+        set/saved in the json field "org_repositories_fetch_data"
+        """
+        if name.startswith('github_callable_identifiers_for_org_repositories_'):
+            org_name = name[49:]
+            return [
+                'orgs',
+                org_name,
+                'repos'
+            ]
+        elif name.startswith('org_repositories_'):
+            if name.endswith('_fetched_at'):
+                return parse(self.org_repositories_fetch_data.get(name))
+            if name.endswith('_etag'):
+                return self.org_repositories_fetch_data.get(name)
+
+        raise AttributeError("%r object has no attribute %r" % (self.__class__, name))
+
+    def __setattr__(self, name, value):
+        """
+        Will save fetched_at/etag for org repositories in the json field
+        "org_repositories_fetch_data"
+        """
+        if name.startswith('org_repositories_') and (name.endswith('_fetched_at') or name.endswith('_etag')):
+            if self.org_repositories_fetch_data is None:
+                self.org_repositories_fetch_data = {}
+            self.org_repositories_fetch_data[name] = str(value)
+        else:
+            super(GithubUser, self).__setattr__(name, value)
+
     def fetch_organizations(self, gh, force_fetch=False, parameters=None):
         if self.is_organization:
             # an organization cannot belong to an other organization
@@ -750,35 +802,80 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 
-    def fetch_user_repositories(self, gh, force_fetch=False, parameters=None):
+    def fetch_user_repositories(self, gh, force_fetch=False, org=None, parameters=None):
         if self.is_organization:
             # we don't want to put org repo here, as we use teams for that
             return 0
-        user = GithubUser.objects.get(username=gh._connection_args['username'])
+
+        # force fetching 100 orgs by default, as we cannot set "github_per_page"
+        # for the whole Repository class
+        if not parameters:
+            parameters = {}
+        if 'per_page' not in parameters:
+            parameters['per_page'] = 100
+
+        # force to work on current user
+        if gh._connection_args['username'] == self.username:
+            user = self
+        else:
+            user = GithubUser.objects.get(username=gh._connection_args['username'])
+
+        defaults = {'fk': {'user': user}}
+
+        if org:
+            filter_queryset = Q(organization_id=org.id)
+            meta_base_name = 'org_repositories_' + org.username
+            defaults['simple'] = {'organization_id': org.id}
+        else:
+            filter_queryset = Q(organization_id__isnull=True)
+            meta_base_name = None
+
         return self._fetch_many('user_repositories', gh,
-                                defaults={'fk': {'user': user}},
+                                meta_base_name=meta_base_name,
+                                defaults=defaults,
                                 force_fetch=force_fetch,
-                                parameters=parameters)
+                                parameters=parameters,
+                                filter_queryset=filter_queryset)
 
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
-        self.fetch_organizations(gh, force_fetch=force_fetch)
+
+        if self.is_organization:
+            return 0, 0
+
+        if not self.token:
+            return 0, 0
+
+        # FORCE GH
+        gh = self.get_connection()
+
+        # repositories a user own or collaborate to, but not in organizations
         nb_repositories_fetched = self.fetch_user_repositories(gh, force_fetch=force_fetch)
-        nb_teams_fetched = 0
+
+        # repositories in the user's organizations
+        nb_orgs_fetched = self.fetch_organizations(gh, force_fetch=force_fetch)
+        for org in self.organizations.all():
+            try:
+                nb_repositories_fetched += self.fetch_user_repositories(gh, org=org, force_fetch=force_fetch)
+            except ApiNotFoundError:
+                # we may have no rights
+                pass
+
+        # repositories on organizations teams the user are a collaborator
         try:
-            self.fetch_teams(gh, force_fetch=force_fetch)
+            nb_teams_fetched = self.fetch_teams(gh, force_fetch=force_fetch)
         except ApiNotFoundError:
             # we may have no rights
             pass
         else:
             for team in self.teams.all():
                 try:
-                    nb_teams_fetched += team.fetch_repositories(gh, force_fetch=force_fetch)
+                    team.fetch_repositories(gh, force_fetch=force_fetch)
                 except ApiNotFoundError:
                     # we may have no rights
                     pass
 
-        return nb_repositories_fetched, nb_teams_fetched
+        return nb_repositories_fetched, nb_orgs_fetched, nb_teams_fetched
 
     def get_connection(self):
         return Connection.get(username=self.username, access_token=self.token)
@@ -961,6 +1058,16 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         if self.email is None:
             self.email = ''
         super(GithubUser, self).save(*args, **kwargs)
+
+    def update_related_field(self, field_name, *args, **kwargs):
+        """
+        When updating repositories availables to a user, fetched_at/etags are
+        saved in a json field we want to save
+        """
+        count = super(GithubUser, self).update_related_field(field_name, *args, **kwargs)
+        if field_name == 'user_repositories':
+            self.save(update_fields=['org_repositories_fetch_data'])
+        return count
 
 
 class Repository(GithubObjectWithId):
