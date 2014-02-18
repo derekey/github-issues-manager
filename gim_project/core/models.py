@@ -977,6 +977,7 @@ class Repository(GithubObjectWithId):
     is_fork = models.BooleanField(default=False)
     has_issues = models.BooleanField(default=False)
 
+    first_fetch_done = models.BooleanField(default=False)
     collaborators_fetched_at = models.DateTimeField(blank=True, null=True)
     collaborators_etag = models.CharField(max_length=64, blank=True, null=True)
     milestones_fetched_at = models.DateTimeField(blank=True, null=True)
@@ -1392,6 +1393,10 @@ class Repository(GithubObjectWithId):
             FirstFetchStep2.add_job(self.id, gh=gh)
         else:
             self.fetch_all_step2(gh, force_fetch)
+
+        if not self.first_fetch_done:
+            self.first_fetch_done = True
+            self.save(update_fields=['first_fetch_done'])
 
     def fetch_all_step2(self, gh, force_fetch=False, start_page=None,
                         max_pages=None, to_ignore=None, issues_state=None):

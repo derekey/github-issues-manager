@@ -123,10 +123,6 @@ class FirstFetch(Job):
 
     converted_subscriptions = fields.InstanceHashField()
 
-    # will be set to True to be able to reset the "fetched_at" field of the
-    # repository in case of failure during the "fetch_all" call
-    reset_repository_if_error = False
-
     def run(self, queue):
         """
         Fetch the repository and once done, convert waiting subscriptions into
@@ -177,10 +173,8 @@ class FirstFetch(Job):
             repository = Repository(name=repo_name_part, owner=owner)
 
         # fetch the repository if never fetched
-        if not repository.fetched_at:
-            self.reset_repository_if_error = True
+        if not repository.first_fetch_done:
             repository.fetch_all(gh=self.gh, force_fetch=True, two_steps=True)
-            self.reset_repository_if_error = False
 
         # and convert waiting subscriptions to real ones
         count = 0
@@ -214,22 +208,6 @@ class FirstFetch(Job):
         Display the count of converted subscriptions
         """
         return ' [converted=%d]' % result
-
-    def on_error(self, *args, **kwargs):
-        """
-        Mark the repository as not fetched if it was not before the job started
-        """
-        super(FirstFetch, self).on_error(*args, **kwargs)
-
-        if self.reset_repository_if_error:
-            try:
-                user_part, repo_name_part = self.identifier.hget().split('/')
-                repository = Repository.objects.get(owner__username=user_part, name=repo_name_part)
-            except Repository.DoesNotExist:
-                pass
-            else:
-                repository.fetched_at = None
-                repository.save(update_fields=('fetched_at', ))
 
 
 class FirstFetchStep2(RepositoryJob):
