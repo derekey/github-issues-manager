@@ -38,8 +38,7 @@ class FetchAvailableRepositoriesJob(UserJob):
 
         user = self.object
 
-        gh = user.get_connection()
-        nb_repos, nb_orgs, nb_teams = user.fetch_all(gh)
+        nb_repos, nb_orgs, nb_teams = user.fetch_all()
 
         if self.inform_user.hget() == '1':
             if nb_repos + nb_teams:

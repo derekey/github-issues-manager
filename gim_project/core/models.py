@@ -851,7 +851,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 parameters=parameters,
                                 filter_queryset=filter_queryset)
 
-    def fetch_all(self, gh, force_fetch=False, **kwargs):
+    def fetch_all(self, gh=None, force_fetch=False, **kwargs):
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
 
         if self.is_organization:
