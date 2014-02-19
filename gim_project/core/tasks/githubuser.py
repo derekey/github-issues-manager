@@ -45,7 +45,7 @@ class FetchAvailableRepositoriesJob(UserJob):
                 message = u'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organizations) was just updated'
             else:
                 message = u'There is no new repositories you own, collaborate to, or in your organizations'
-        messages.success(user, message)
+            messages.success(user, message)
 
         self.hmset(nb_repos=nb_repos, nb_teams=nb_teams)
 
