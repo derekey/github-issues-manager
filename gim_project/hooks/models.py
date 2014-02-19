@@ -302,7 +302,7 @@ class EventManager(object):
         }
 
     def fetch_issue(self, number):
-        FetchIssueByNumber.add_job('%s#%s' % (self.repository.pk, number))
+        FetchIssueByNumber.add_job('%s#%s' % (self.repository.pk, number), force_fetch=1)
 
     def event_issues(self, payload, fetch_issue=True):
         try:

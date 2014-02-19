@@ -51,6 +51,12 @@ class Event(models.Model):
             parts = [p for p in parts if p.field not in ignore_fields]
         return parts
 
+    def get_part(self, field):
+        try:
+            return [p for p in self.parts.all() if p.field == field][0]
+        except IndexError:
+            return None
+
     def render_as_text(self, ignore_fields=None):
         try:
             return self.renderer.render_as_text()
@@ -61,8 +67,10 @@ class Event(models.Model):
             }
             if len(parts):
                 result = "%(title)s:\n%(parts)s"
-                params['parts'] = '\n'.join('  - %s' % p.render_as_text() for p in parts)
-            else:
+                parts_as_text = [p.render_as_text() for p in parts]
+                params['parts'] = '\n'.join('  - %s' % txt for txt in parts_as_text if txt)
+
+            if not params.get('parts'):
                 result = "%(title)s"
 
             return result % params
@@ -77,8 +85,10 @@ class Event(models.Model):
             }
             if len(parts):
                 result = "<div><strong>%(title)s</strong>:\n<ul class='unstyled'>%(parts)s</ul></div>"
-                params['parts'] = '\n'.join('  <li>%s</li>' % p.render_as_text() for p in parts)
-            else:
+                parts_as_html = [p.render_as_html() for p in parts]
+                params['parts'] = '\n'.join('  <li>%s</li>' % html for html in parts_as_html if html)
+
+            if not params.get('parts'):
                 result = "<div><strong>%(title)s</strong></div>"
 
             return result % params
@@ -114,6 +124,8 @@ class EventPart(models.Model):
             html_part = getattr(self.renderer, 'render_part_%s' % self.field)(self, 'html')
         except Exception:
             html_part = '%s has changed' % self.field
+        if html_part is None:
+            return ''
         return '<div class="part-%s">%s</div>' % (self.field, html_part)
 
 

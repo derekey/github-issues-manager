@@ -9,6 +9,13 @@
 @import "widgets/diff";
 @import "core-admin-widgets";
 
+.text-open {
+    color: $state-open-color;
+}
+.text-closed {
+    color: $state-closed-color;
+}
+
 body {
     background-color: $body-background-color;
     font-size: 13px;

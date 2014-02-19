@@ -21,6 +21,7 @@ class FetchIssueByNumber(Job):
     """
     queue_name = 'fetch-issue-by-number'
     deleted = fields.InstanceHashField()
+    force_fetch = fields.InstanceHashField()  # will only force the issue/pr api call
 
     def run(self, queue):
         """
@@ -42,9 +43,18 @@ class FetchIssueByNumber(Job):
         except Issue.DoesNotExist:
             issue = Issue(repository=repository, number=issue_number)
 
+        force_fetch = self.force_fetch.hget() == '1'
         try:
+            # prefetch full data if wanted
+            if force_fetch:
+                if repository.has_issues:
+                    issue.fetch(gh, force_fetch=True)
+                if issue.is_pull_request:
+                    issue.fetch_pr(gh, force_fetch=True)
+
+            # now the normal fetch, if we previously force fetched they'll result in 304
             issue.fetch_all(gh)
-        except ApiNotFoundError:
+        except ApiNotFoundError, e:
             # we have a 404, but... check if it's the issue itself
             try:
                 issue.fetch(gh)
@@ -53,6 +63,8 @@ class FetchIssueByNumber(Job):
                 issue.delete()
                 self.deleted.hset(1)
                 return False
+            else:
+                raise e
 
         return True
 

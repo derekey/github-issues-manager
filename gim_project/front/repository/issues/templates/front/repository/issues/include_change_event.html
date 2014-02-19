@@ -7,8 +7,12 @@
         </ul>
     </div>
     {% for part in event.get_parts %}
-        <div class="box-content">
-            {{ part.render_as_html|safe }}
-        </div>
+        {% with rendered_content=part.render_as_html|safe %}
+            {% if rendered_content %}
+                <div class="box-content">
+                    {{ rendered_content }}
+                </div>
+            {% endif %}
+        {% endwith %}
     {% endfor  %}
 </div>

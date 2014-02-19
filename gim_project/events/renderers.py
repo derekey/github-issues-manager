@@ -70,10 +70,42 @@ class IssueRenderer(Renderer):
     def render_part_mergeable(self, part, mode):
         new, old = part.new_value, part.old_value
 
+        mergeable_state = ''
+        if 'mergeable_state' in new:
+            mergeable_state = (' (reason: %s)' if mode == 'text' else ' (reason: <strong>%s</strong>)') % new['mergeable_state']
+
         if old and old['mergeable'] is False:
-            return 'Now mergeable' if new['mergeable'] else 'Not mergeable anymore'
+            title = 'Now mergeable' if new['mergeable'] else 'Not mergeable anymore'
         else:
-            return 'Mergeable' if new['mergeable'] else 'Not mergeable'
+            title = 'Mergeable' if new['mergeable'] else 'Not mergeable'
+
+        if mode == 'html':
+            klass = 'open' if new['mergeable'] else 'closed'
+            title = '<strong class="text-%s">%s</strong>' % (klass, title)
+        if not new['mergeable']:
+            title += mergeable_state
+
+        return title
+
+    def render_part_mergeable_state(self, part, mode):
+        new, old = part.new_value, part.old_value
+
+        # let the mergeable part display all if it exists
+        if part.event.get_part('mergeable'):
+            return None
+
+        klass = 'open' if new['mergeable'] else 'closed'
+        title = ('New mergeable status: %s, reason: %s'
+                 if mode == 'text'
+                else 'New mergeable status: <strong class="text-%s">%s</strong>, reason: <strong>%s</strong>') % (
+                        klass,
+                        'Mergeable' if new['mergeable'] else 'Not mergeable',
+                        new['mergeable_state'])
+
+        if old.get('mergeable_state'):
+            title += (' (was %s)' if mode == 'text' else ' (was: <strong>%s</strong>)') % old['mergeable_state']
+
+        return title
 
     def render_part_merged(self, part, mode):
         new, old = part.new_value, part.old_value

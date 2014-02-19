@@ -118,7 +118,7 @@ class ChangeTracker(object):
 
 class IssueTracker(ChangeTracker):
     fields = ('title', 'body', 'labels__ids', 'assignee_id', 'milestone_id',
-              'state', 'merged', 'mergeable', )
+              'state', 'merged', 'mergeable', 'mergeable_state')
     model = Issue
 
     @classmethod
@@ -304,7 +304,20 @@ class IssueTracker(ChangeTracker):
         return [{
             'field': 'mergeable',
             'old_value': {'mergeable': old},
-            'new_value': {'mergeable': new},
+            'new_value': {'mergeable': new, 'mergeable_state': instance.mergeable_state},
+        }]
+
+    @staticmethod
+    def event_part_for_mergeable_state(instance, new, old):
+        if old is None and not new:
+            return []
+        if instance.state == 'closed':
+            return []
+
+        return [{
+            'field': 'mergeable_state',
+            'old_value': {'mergeable_state': old},
+            'new_value': {'mergeable_state': new, 'mergeable': instance.mergeable},
         }]
 
     @staticmethod

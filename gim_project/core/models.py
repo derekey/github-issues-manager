@@ -1,7 +1,7 @@
 
 from urlparse import urlsplit, parse_qs
 from itertools import product
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.parser import parse
 import re
 from operator import itemgetter
@@ -1173,6 +1173,7 @@ class Repository(GithubObjectWithId):
                             'fk': {'repository': self},
                             'related': {'*': {'fk': {'repository': self}}},
                             'simple': {'is_pull_request': True},
+                            'mergeable_state': 'checking',
                         },
                         parameters=final_prs_parameters,
                         remove_missing=False,
@@ -1232,17 +1233,97 @@ class Repository(GithubObjectWithId):
         """
         Fetch pull requests individually when it was never done or when the
         updated_at retrieved from the issues list is newer than the previous
-        'pr_fetched_at'
+        'pr_fetched_at'.
         """
-        qs = self.issues.filter(Q(is_pull_request=True)
-                                &
-                                (Q(pr_fetched_at__isnull=True)
-                                 |
-                                 Q(pr_fetched_at__lt=F('updated_at'))
-                                )
-                               )
+        filter = self.issues.filter(
+            # only pull requests
+            Q(is_pull_request=True)
+            &
+            (
+                # that where never fetched
+                Q(pr_fetched_at__isnull=True)
+                |
+                # or last fetched long time ago
+                Q(pr_fetched_at__lt=F('updated_at'))
+                |
+                (
+                    # or open ones...
+                    Q(state='open')
+                    &
+                    (
+                        # that are not merged or with unknown merged status
+                        Q(merged=False)
+                        |
+                        Q(merged__isnull=True)
+                    )
+                    &
+                    (
+                        # with unknown mergeable status
+                        Q(mergeable_state__in=Issue.MERGEABLE_STATES['unknown'])
+                        |
+                        Q(mergeable_state__isnull=True)
+                        |
+                        Q(mergeable__isnull=True)
+                    )
+                )
+                |
+                # or closed ones without merged status
+                Q(merged__isnull=True, state='closed')
+            )
+        )
 
-        prs = list(qs.order_by('-updated_at')[:limit])
+        def action(gh, pr):
+            pr.fetch_pr(gh, force_fetch=True)
+            pr.fetch_commits(gh)
+            pr.fetch_files(gh)
+
+        return self._fetch_some_prs(filter, action, gh=gh, limit=limit)
+
+    def fetch_unmerged_prs(self, gh, limit=20, start_date=None):
+        """
+        Fetch pull requests individually to updated their "mergeable" status.
+        If a PR was not updated, it may not cause a real Github call (but a 304)
+        """
+
+        def get_filter(start_date):
+            filter = self.issues.filter(
+                # only open pull requests
+                Q(is_pull_request=True, state='open')
+                &
+                (
+                    # that are not merged or with unknown merged status
+                    Q(merged=False)
+                    |
+                    Q(merged__isnull=True)
+                )
+            )
+            if start_date:
+                filter = filter.filter(updated_at__lt=start_date)
+            return filter
+
+        def action(gh, pr):
+            mergeable = pr.mergeable
+            mergeable_state = pr.mergeable_state
+            pr.fetch_pr(gh, force_fetch=False)
+            if pr.mergeable != mergeable or pr.mergeable_state != mergeable_state:
+                action.updated += 1
+            if not action.last_date or pr.updated_at < action.last_date:
+                action.last_date = pr.updated_at
+        action.updated = 0
+        action.last_date = None
+
+        count, deleted, errors, todo = self._fetch_some_prs(get_filter(start_date),
+                                                        action, gh=gh, limit=limit)
+
+        todo = get_filter(action.last_date-timedelta(seconds=1)).count()
+
+        return count, action.updated, deleted, errors, todo, action.last_date
+
+    def _fetch_some_prs(self, filter, action, gh, limit=20):
+        """
+        Update some PRs, with filter and things to merge depending on the mode.
+        """
+        prs = list(filter.order_by('-updated_at')[:limit])
 
         count = errors = deleted = todo = 0
 
@@ -1250,9 +1331,7 @@ class Repository(GithubObjectWithId):
 
             for pr in prs:
                 try:
-                    pr.fetch_pr(gh, force_fetch=True)
-                    pr.fetch_commits(gh)
-                    pr.fetch_files(gh)
+                    action(gh, pr)
                 except ApiNotFoundError:
                     # the PR doen't exist anymore !
                     pr.delete()
@@ -1262,7 +1341,7 @@ class Repository(GithubObjectWithId):
                 else:
                     count += 1
 
-            todo = qs.count()
+            todo = filter.count()
 
         return count, deleted, errors, todo
 
@@ -1393,6 +1472,8 @@ class Repository(GithubObjectWithId):
             FirstFetchStep2.add_job(self.id, gh=gh)
         else:
             self.fetch_all_step2(gh, force_fetch)
+            from .tasks.repository import FetchUnmergedPullRequests
+            FetchUnmergedPullRequests.add_job(self.id, gh=gh, delayed_for=60*60*3)  # 3 hours
 
         if not self.first_fetch_done:
             self.first_fetch_done = True
@@ -1759,8 +1840,9 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     merged_at = models.DateTimeField(blank=True, null=True)
     merged_by = models.ForeignKey(GithubUser, related_name='merged_prs', blank=True, null=True)
     github_pr_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
-    mergeable = models.BooleanField(default=False)
-    merged = models.BooleanField(default=False)
+    mergeable = models.NullBooleanField()
+    mergeable_state = models.CharField(max_length=20, null=True, blank=True)
+    merged = models.NullBooleanField()
     nb_commits = models.PositiveIntegerField(blank=True, null=True)
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
     nb_deletions = models.PositiveIntegerField(blank=True, null=True)
@@ -1787,7 +1869,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         'github_pr_id', 'pr_comments_count', 'nb_commits', 'nb_additions', 'nb_deletions',
         'nb_changed_files', ) + ('head', 'commits_url', 'body_text', 'url', 'labels_url',
         'events_url', 'comments_url', 'html_url', 'merge_commit_sha', 'review_comments_url',
-        'review_comment_url', 'base', 'patch_url', 'mergeable_state', 'pull_request', 'diff_url',
+        'review_comment_url', 'base', 'patch_url', 'pull_request', 'diff_url',
         'statuses_url', 'issue_url', )
 
     github_format = '.full+json'
@@ -1800,6 +1882,12 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     github_identifiers = {'repository__github_id': ('repository', 'github_id'), 'number': 'number'}
 
     github_date_field = ('updated_at', 'updated', 'desc')
+
+    MERGEABLE_STATES = {
+        'mergeable': ('clean', 'stable'),
+        'unmergeable': ('unknown', 'checking', 'dirty', 'unstable'),
+        'unknown': ('unknown', 'checking'),
+    }
 
     class Meta:
         unique_together = (
@@ -1857,7 +1945,12 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     def fetch_pr(self, gh, defaults=None, force_fetch=False, parameters=None):
         if defaults is None:
             defaults = {}
-        defaults.setdefault('simple', {})['is_pull_request'] = True
+        if 'simple' not in defaults:
+            defaults['simple'] = {}
+        defaults['simple'].update({
+            'is_pull_request': True,
+            'mergeable_state': 'checking',
+        })
         return self.fetch(gh=gh, defaults=defaults, force_fetch=force_fetch,
                                     parameters=parameters, meta_base_name='pr')
 
@@ -2042,6 +2135,16 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
                 or 'body_html' in kwargs['updated_field']\
                 or 'title' in kwargs['updated_field']:
             IssueEvent.objects.check_references(self, ['body_html', 'title'])
+
+    @property
+    def is_mergeable(self):
+        if not self.is_pull_request:
+            return False
+        if self.state == 'closed':
+            return False
+        if self.mergeable:
+            return True
+        return self.mergeable_state in self.MERGEABLE_STATES['mergeable']
 
 
 class WithIssueMixin(WithRepositoryMixin):
