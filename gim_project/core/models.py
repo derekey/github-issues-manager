@@ -852,6 +852,9 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 filter_queryset=filter_queryset)
 
     def fetch_all(self, gh=None, force_fetch=False, **kwargs):
+        # FORCE GH
+        gh = self.get_connection()
+
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
 
         if self.is_organization:
@@ -859,9 +862,6 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
         if not self.token:
             return 0, 0
-
-        # FORCE GH
-        gh = self.get_connection()
 
         # repositories a user own or collaborate to, but not in organizations
         nb_repositories_fetched = self.fetch_available_repositories(gh, force_fetch=force_fetch)
