@@ -1315,7 +1315,7 @@ class Repository(GithubObjectWithId):
         count, deleted, errors, todo = self._fetch_some_prs(get_filter(start_date),
                                                         action, gh=gh, limit=limit)
 
-        todo = get_filter(action.last_date-timedelta(seconds=1)).count()
+        todo = get_filter((action.last_date-timedelta(seconds=1)) if action.last_date else None).count()
 
         return count, action.updated, deleted, errors, todo, action.last_date
 
