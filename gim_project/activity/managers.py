@@ -200,7 +200,7 @@ class ActivityManagerICE(ActivityManager):
         for obj in objs:
             obj.updated_parts = [cls.NAMES.get(p.field, p.field)
                                     for p in obj.parts.all()
-                                    if p not in Issue.RENDERER_IGNORE_FIELDS]
+                                    if p.field not in Issue.RENDERER_IGNORE_FIELDS]
         return objs
 
 
