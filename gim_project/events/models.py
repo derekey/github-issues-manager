@@ -124,6 +124,8 @@ class EventPart(models.Model):
             html_part = getattr(self.renderer, 'render_part_%s' % self.field)(self, 'html')
         except Exception:
             html_part = '%s has changed' % self.field
+        if html_part is None:
+            return ''
         return '<div class="part-%s">%s</div>' % (self.field, html_part)
 
 

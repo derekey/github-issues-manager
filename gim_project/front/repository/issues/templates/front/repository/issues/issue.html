@@ -81,9 +81,9 @@
                         {% include "front/repository/issues/include_state_form.html" %}
                         {% if current_issue.state == 'open' %}
                             {% if current_issue.is_mergeable %}
-                                <div class="alert alert-success">Can be merged</div>
+                                <div class="alert alert-success"><strong>Can be merged</strong></div>
                             {% else %}
-                                <div class="alert alert-error">Cannot be merged{% if current_issue.mergeable_state %} ({{ current_issue.mergeable_state }}){% endif %}</div>
+                                <div class="alert alert-error"><strong>Cannot be merged</strong>{% if current_issue.mergeable_state %} (reason: {{ current_issue.mergeable_state }}){% endif %}</div>
                             {% endif %}
                         {% else %}
                             {% if current_issue.merged %}

@@ -141,7 +141,7 @@ class ActivityManagerICE(ActivityManager):
     related_name = 'event_set'
     model_uri = 'events.models.Event'
 
-    MATCHING = {
+    NAMES = {
         'mergeable_state': 'mergeable status',
     }
 
@@ -198,7 +198,7 @@ class ActivityManagerICE(ActivityManager):
         """
         objs = list(super(ActivityManagerICE, cls).load_objects(pks))
         for obj in objs:
-            obj.updated_parts = [cls.MAPPING.get(p.field, p.field)
+            obj.updated_parts = [cls.NAMES.get(p.field, p.field)
                                     for p in obj.parts.all()
                                     if p not in Issue.RENDERER_IGNORE_FIELDS]
         return objs
