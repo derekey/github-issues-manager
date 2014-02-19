@@ -151,11 +151,18 @@ class Job(LimpydJob):
         self.clonable_fields, possibly overriden by ones passed in force_fields.
         The job is then queued/delayed depending on delayed_for and delayed_until
         """
+        clone_gh = 'gh' in self.clonable_fields
+        if clone_gh:
+            self.clonable_fields = list(self.clonable_fields)
+            self.clonable_fields.remove('gh')
+
         instancehash_fields = [f for f in self.clonable_fields
                     if isinstance(getattr(self, f), fields.InstanceHashField)]
         if instancehash_fields:
             instancehash_values = self.hmget(*instancehash_fields)
-            new_job_args = dict(zip(instancehash_fields, instancehash_values))
+            new_job_args = {k: v for k, v
+                                in zip(instancehash_fields, instancehash_values)
+                                if v is not None}
         else:
             new_job_args = {}
 
@@ -164,11 +171,11 @@ class Job(LimpydJob):
             if value is not None:
                 new_job_args[field] = value
 
-            if 'gh' not in force_fields and 'gh_args' not in force_fields:
-                try:
-                    new_job_args['gh'] = self.gh
-                except:
-                    pass
+        if clone_gh and 'gh' not in force_fields:
+            try:
+                new_job_args['gh'] = self.gh
+            except:
+                pass
 
         new_job_args.update(force_fields)
 
