@@ -1173,6 +1173,7 @@ class Repository(GithubObjectWithId):
                             'fk': {'repository': self},
                             'related': {'*': {'fk': {'repository': self}}},
                             'simple': {'is_pull_request': True},
+                            'mergeable_state': 'checking',
                         },
                         parameters=final_prs_parameters,
                         remove_missing=False,
@@ -1234,15 +1235,42 @@ class Repository(GithubObjectWithId):
         updated_at retrieved from the issues list is newer than the previous
         'pr_fetched_at'.
         """
-        filter = self.issues.filter(Q(is_pull_request=True)
-                                    &
-                                    (Q(pr_fetched_at__isnull=True)
-                                     |
-                                     Q(pr_fetched_at__lt=F('updated_at'))
-                                     |
-                                     Q(mergeable_state__in=Issue.MERGEABLE_STATES['unknown'])
-                                    )
-                                   )
+        filter = self.issues.filter(
+            # only pull requests
+            Q(is_pull_request=True)
+            &
+            (
+                # that where never fetched
+                Q(pr_fetched_at__isnull=True)
+                |
+                # or last fetched long time ago
+                Q(pr_fetched_at__lt=F('updated_at'))
+                |
+                (
+                    # or open ones...
+                    Q(state='open')
+                    &
+                    (
+                        # that are not merged or with unknown merged status
+                        Q(merged=False)
+                        |
+                        Q(merged__isnull=True)
+                    )
+                    &
+                    (
+                        # with unknown mergeable status
+                        Q(mergeable_state__in=Issue.MERGEABLE_STATES['unknown'])
+                        |
+                        Q(mergeable_state__isnull=True)
+                        |
+                        Q(mergeable__isnull=True)
+                    )
+                )
+                |
+                # or closed ones without merged status
+                Q(merged__isnull=True, state='closed')
+            )
+        )
 
         def action(gh, pr):
             pr.fetch_pr(gh, force_fetch=True)
@@ -1258,10 +1286,20 @@ class Repository(GithubObjectWithId):
         """
 
         def get_filter(start_date):
-            filters = dict(is_pull_request=True, merged=False, state='open')
+            filter = self.issues.filter(
+                # only open pull requests
+                Q(is_pull_request=True, state='open')
+                &
+                (
+                    # that are not merged or with unknown merged status
+                    Q(merged=False)
+                    |
+                    Q(merged__isnull=True)
+                )
+            )
             if start_date:
-                filters['updated_at__lt'] = start_date
-            return self.issues.filter(**filters)
+                filter = filter.filter(updated_at__lt=start_date)
+            return filter
 
         def action(gh, pr):
             mergeable = pr.mergeable
@@ -1802,9 +1840,9 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     merged_at = models.DateTimeField(blank=True, null=True)
     merged_by = models.ForeignKey(GithubUser, related_name='merged_prs', blank=True, null=True)
     github_pr_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
-    mergeable = models.NullBooleanField(default=False)
+    mergeable = models.NullBooleanField()
     mergeable_state = models.CharField(max_length=20, null=True, blank=True)
-    merged = models.BooleanField(default=False)
+    merged = models.NullBooleanField()
     nb_commits = models.PositiveIntegerField(blank=True, null=True)
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
     nb_deletions = models.PositiveIntegerField(blank=True, null=True)
@@ -1846,9 +1884,9 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     github_date_field = ('updated_at', 'updated', 'desc')
 
     MERGEABLE_STATES = {
-        'mergeable': ('unknown', 'clean', 'stable'),
-        'unmergeable': ('checking', 'dirty', 'unstable'),
-        'unknown': ('unknown', 'checking', None),
+        'mergeable': ('clean', 'stable'),
+        'unmergeable': ('unknown', 'checking', 'dirty', 'unstable'),
+        'unknown': ('unknown', 'checking'),
     }
 
     class Meta:
@@ -1907,7 +1945,12 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     def fetch_pr(self, gh, defaults=None, force_fetch=False, parameters=None):
         if defaults is None:
             defaults = {}
-        defaults.setdefault('simple', {})['is_pull_request'] = True
+        if 'simple' not in defaults:
+            defaults['simple'] = {}
+        defaults['simple'].update({
+            'is_pull_request': True,
+            'mergeable_state': 'checking',
+        })
         return self.fetch(gh=gh, defaults=defaults, force_fetch=force_fetch,
                                     parameters=parameters, meta_base_name='pr')
 
@@ -2101,8 +2144,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
             return False
         if self.mergeable:
             return True
-        return self.mergeable_state in ('unknown', 'clean', 'stable')
-        # other states: ('checking', 'dirty', 'unstable')
+        return self.mergeable_state in self.MERGEABLE_STATES['mergeable']
 
 
 class WithIssueMixin(WithRepositoryMixin):
