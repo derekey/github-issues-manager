@@ -1,12 +1,15 @@
 __all__ = [
     'FetchClosedIssuesWithNoClosedBy',
     'FetchUpdatedPullRequests',
+    'FetchUnmergedPullRequests',
     'FirstFetch',
     'FirstFetchStep2',
     'FetchUnfetchedCommits',
     'FetchForUpdate',
 ]
 
+from datetime import timedelta
+from dateutil.parser import parse
 from random import randint
 
 from limpyd import fields
@@ -91,8 +94,7 @@ class FetchUpdatedPullRequests(RepositoryJob):
         super(FetchUpdatedPullRequests, self).run(queue)
 
         count, deleted, errors, todo = self.object.fetch_updated_prs(
-                                            limit=int(self.limit.hget() or 20),
-                                            gh=self.gh)
+                                limit=int(self.limit.hget() or 20), gh=self.gh)
 
         self.hmset(count=count, errors=errors)
 
@@ -108,9 +110,59 @@ class FetchUpdatedPullRequests(RepositoryJob):
 
     def success_message_addon(self, queue, result):
         """
-        Display the count of pull requests updated
+        Display the count of updated pull requests
         """
         return ' [fetched=%d, deleted=%s, errors=%s, todo=%s]' % result
+
+
+class FetchUnmergedPullRequests(RepositoryJob):
+    """
+    Job that fetches open pull requests from a repository, to update their
+    mergeable status
+    """
+    queue_name = 'update-mergable-status'
+
+    start_date = fields.InstanceHashField()
+    limit = fields.InstanceHashField()
+    count = fields.InstanceHashField()
+    errors = fields.InstanceHashField()
+
+    clonable_fields = ('gh', 'limit', )
+
+    def run(self, queue):
+        """
+        Get the repository and update some pull requests, and save the count
+        of updated pull requests in the job
+        """
+        super(FetchUnmergedPullRequests, self).run(queue)
+
+        start_date = self.start_date.hget()
+        if start_date:
+            start_date = parse(start_date)
+        else:
+            start_date = None
+
+        count, updated, deleted, errors, todo, last_date = self.object.fetch_unmerged_prs(
+                        limit=int(self.limit.hget() or 20), gh=self.gh, start_date=start_date)
+
+        self.hmset(count=updated, errors=errors)
+
+        return count, updated, deleted, errors, todo, last_date
+
+    def on_success(self, queue, result):
+        """
+        If there is still PRs to fetch, add a new job
+        """
+        todo = result[4]
+        if todo:
+            last_date = result[5]
+            self.clone(delayed_for=60, start_date=str(last_date-timedelta(seconds=1)))
+
+    def success_message_addon(self, queue, result):
+        """
+        Display the count of updated pull requests
+        """
+        return ' [fetched=%d, updated=%s, deleted=%s, errors=%s, todo=%s]' % result[:-1]
 
 
 class FirstFetch(Job):

@@ -1,7 +1,7 @@
 
 from urlparse import urlsplit, parse_qs
 from itertools import product
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.parser import parse
 import re
 from operator import itemgetter
@@ -1232,19 +1232,60 @@ class Repository(GithubObjectWithId):
         """
         Fetch pull requests individually when it was never done or when the
         updated_at retrieved from the issues list is newer than the previous
-        'pr_fetched_at'. Check also for unmerged
+        'pr_fetched_at'.
         """
-        qs = self.issues.filter(Q(is_pull_request=True)
-                                &
-                                (Q(pr_fetched_at__isnull=True)
-                                 |
-                                 Q(pr_fetched_at__lt=F('updated_at'))
-                                 |
-                                 Q(mergeable_state__in=Issue.MERGEABLE_STATES['unknown'])
-                                )
-                               )
+        filter = self.issues.filter(Q(is_pull_request=True)
+                                    &
+                                    (Q(pr_fetched_at__isnull=True)
+                                     |
+                                     Q(pr_fetched_at__lt=F('updated_at'))
+                                     |
+                                     Q(mergeable_state__in=Issue.MERGEABLE_STATES['unknown'])
+                                    )
+                                   )
 
-        prs = list(qs.order_by('-updated_at')[:limit])
+        def action(gh, pr):
+            pr.fetch_pr(gh, force_fetch=True)
+            pr.fetch_commits(gh)
+            pr.fetch_files(gh)
+
+        return self._fetch_some_prs(filter, action, gh=gh, limit=limit)
+
+    def fetch_unmerged_prs(self, gh, limit=20, start_date=None):
+        """
+        Fetch pull requests individually to updated their "mergeable" status.
+        If a PR was not updated, it may not cause a real Github call (but a 304)
+        """
+
+        def get_filter(start_date):
+            filters = dict(is_pull_request=True, merged=False, state='open')
+            if start_date:
+                filters['updated_at__lt'] = start_date
+            return self.issues.filter(**filters)
+
+        def action(gh, pr):
+            mergeable = pr.mergeable
+            mergeable_state = pr.mergeable_state
+            pr.fetch_pr(gh, force_fetch=False)
+            if pr.mergeable != mergeable or pr.mergeable_state != mergeable_state:
+                action.updated += 1
+            if not action.last_date or pr.updated_at < action.last_date:
+                action.last_date = pr.updated_at
+        action.updated = 0
+        action.last_date = None
+
+        count, deleted, errors, todo = self._fetch_some_prs(get_filter(start_date),
+                                                        action, gh=gh, limit=limit)
+
+        todo = get_filter(action.last_date-timedelta(seconds=1)).count()
+
+        return count, action.updated, deleted, errors, todo, action.last_date
+
+    def _fetch_some_prs(self, filter, action, gh, limit=20):
+        """
+        Update some PRs, with filter and things to merge depending on the mode.
+        """
+        prs = list(filter.order_by('-updated_at')[:limit])
 
         count = errors = deleted = todo = 0
 
@@ -1252,9 +1293,7 @@ class Repository(GithubObjectWithId):
 
             for pr in prs:
                 try:
-                    pr.fetch_pr(gh, force_fetch=True)
-                    pr.fetch_commits(gh)
-                    pr.fetch_files(gh)
+                    action(gh, pr)
                 except ApiNotFoundError:
                     # the PR doen't exist anymore !
                     pr.delete()
@@ -1264,7 +1303,7 @@ class Repository(GithubObjectWithId):
                 else:
                     count += 1
 
-            todo = qs.count()
+            todo = filter.count()
 
         return count, deleted, errors, todo
 
@@ -1395,6 +1434,8 @@ class Repository(GithubObjectWithId):
             FirstFetchStep2.add_job(self.id, gh=gh)
         else:
             self.fetch_all_step2(gh, force_fetch)
+            from .tasks.repository import FetchUnmergedPullRequests
+            FetchUnmergedPullRequests.add_job(self.id, gh=gh, delayed_for=60*60*3)  # 3 hours
 
         if not self.first_fetch_done:
             self.first_fetch_done = True
