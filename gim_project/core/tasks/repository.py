@@ -156,7 +156,7 @@ class FetchUnmergedPullRequests(RepositoryJob):
         todo = result[4]
         if todo:
             last_date = result[5]
-            self.clone(delayed_for=60, start_date=str(last_date-timedelta(seconds=1)))
+            self.clone(priority=-15, delayed_for=60, start_date=str(last_date-timedelta(seconds=1)))
 
     def success_message_addon(self, queue, result):
         """

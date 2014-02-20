@@ -1467,7 +1467,7 @@ class Repository(GithubObjectWithId):
         else:
             self.fetch_all_step2(gh, force_fetch)
             from .tasks.repository import FetchUnmergedPullRequests
-            FetchUnmergedPullRequests.add_job(self.id, gh=gh, delayed_for=60*60*3)  # 3 hours
+            FetchUnmergedPullRequests.add_job(self.id, priority=-15, gh=gh, delayed_for=60*60*3)  # 3 hours
 
         if not self.first_fetch_done:
             self.first_fetch_done = True
