@@ -1,7 +1,9 @@
 from datetime import datetime
 import json
+from random import choice
 
 from limpyd import model as lmodel, fields as lfields
+from limpyd.contrib.collection import ExtendedCollectionManager
 from limpyd_jobs.utils import datetime_to_score
 
 from core import get_main_limpyd_database
@@ -11,6 +13,7 @@ from core.models import GithubUser
 class Token(lmodel.RedisModel):
 
     database = get_main_limpyd_database()
+    collection_manager = ExtendedCollectionManager
 
     username = lfields.InstanceHashField(indexable=True)
     token = lfields.InstanceHashField(unique=True)
@@ -24,6 +27,9 @@ class Token(lmodel.RedisModel):
     last_call_ok = lfields.InstanceHashField()  # last github call that was not an error
     last_call_ko = lfields.InstanceHashField()  # last github call that was an error
     errors = lfields.SortedSetField()  # will store all errors
+
+    repos_admin = lfields.SetField(indexable=True)
+    repos_push = lfields.SetField(indexable=True)
 
     LIMIT = 500
 
@@ -119,3 +125,39 @@ class Token(lmodel.RedisModel):
         else:
             from core.tasks.tokens import ResetTokenFlags
             ResetTokenFlags.add_job(self.token.hget(), delayed_for=ttl+2)
+
+    def get_repos_pks_with_permissions(self, *permissions):
+        """
+        Return a list of repositories pks for which the user as given permissions
+        """
+        return self.user.available_repositories_set.filter(permission__in=permissions
+                                        ).values_list('repository_id', flat=True)
+
+    def update_repos(self):
+        """
+        Update the repos_admin and repo_push fields with pks of repositories
+        the user can admin/push
+        """
+        self.repos_admin.delete()
+        self.repos_admin.sadd(*self.get_repos_pks_with_permissions('admin'))
+
+        self.repos_push.delete()
+        self.repos_push.sadd(*self.get_repos_pks_with_permissions('admin', 'push'))
+
+    @classmethod
+    def get_gh_for_repo(cls, repository_pk, permission):
+        collection = cls.collection(available=1)
+        if permission == 'admin':
+            collection.filter(repos_admin=repository_pk)
+        elif permission == 'push':
+            collection.filter(repos_push=repository_pk)
+        try:
+            return choice(collection.instances()).gh
+        except IndexError:
+            return None
+
+    @property
+    def gh(self):
+        from .ghpool import Connection
+        username, token = self.hmget('username', 'token')
+        return Connection.get(username=username, access_token=token)
