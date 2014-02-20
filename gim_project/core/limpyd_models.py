@@ -145,16 +145,21 @@ class Token(lmodel.RedisModel):
         self.repos_push.sadd(*self.get_repos_pks_with_permissions('admin', 'push'))
 
     @classmethod
-    def get_gh_for_repo(cls, repository_pk, permission):
+    def get_gh_for_repo(cls, repository_pk, permission, sort_by='-rate_limit_remaining'):
         collection = cls.collection(available=1)
         if permission == 'admin':
             collection.filter(repos_admin=repository_pk)
         elif permission == 'push':
             collection.filter(repos_push=repository_pk)
         try:
-            return choice(collection.instances()).gh
+            if sort_by is None:
+                token = choice(collection.instances())
+            else:
+                token = collection.sort(by=sort_by).instances()[0]
         except IndexError:
             return None
+        else:
+            return token.gh
 
     @property
     def gh(self):
