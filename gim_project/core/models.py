@@ -156,11 +156,7 @@ class GithubObject(models.Model):
         "update". If None is passed, the default is both values.
         """
         field, _, direct, m2m = self._meta.get_field_by_name(field_name)
-        through = False
-        if m2m and not field.rel.through._meta.auto_created:
-            # special case for THROUGH tables, we'll update them directly
-            model = through = field.rel.through
-        elif direct:
+        if direct:
             # we are on a field of the current model, the objects to create or
             # update are on the model on the other side of the relation
             model = field.related.parent_model
@@ -390,7 +386,6 @@ class GithubObject(models.Model):
             save_etags_and_fetched_at = started_at_first_page
             self.update_related_field(field_name,
                                       [obj.id for obj in objs],
-                                      through=through,
                                       do_remove=do_remove,
                                       save_etags_and_fetched_at=save_etags_and_fetched_at,
                                       etags=etags,
@@ -403,9 +398,9 @@ class GithubObject(models.Model):
         else:
             return len(objs)
 
-    def update_related_field(self, field_name, ids, through=None,
-                     do_remove=True, save_etags_and_fetched_at=True,
-                     etags=None, fetched_at_field=None, filter_queryset=None):
+    def update_related_field(self, field_name, ids, do_remove=True,
+                                save_etags_and_fetched_at=True, etags=None,
+                                fetched_at_field=None, filter_queryset=None):
         """
         For the given field name, with must be a m2m or the reverse side of
         a m2m or a fk, use the given list of ids as the lists of ids of all the
@@ -421,7 +416,7 @@ class GithubObject(models.Model):
         # guess whitch relations to add and whicth to delete
         existing_queryset = instance_field
         if filter_queryset:
-            existing_queryset = (through.objects if through else instance_field).filter(filter_queryset)
+            existing_queryset = instance_field.filter(filter_queryset)
         existing_ids = set(existing_queryset.values_list('id', flat=True))
         fetched_ids = set(ids or [])
 
@@ -431,7 +426,7 @@ class GithubObject(models.Model):
             count['removed'] = len(to_remove)
             # if FK, only objects with nullable FK have a clear method, so we
             # only clear if the model allows us to
-            if not through and hasattr(instance_field, 'remove'):
+            if hasattr(instance_field, 'remove'):
                 # The relation itself can be removed, we remove it but we keep
                 # the original object
                 # Example: a user is not anymore a collaborator, we keep the
@@ -445,7 +440,7 @@ class GithubObject(models.Model):
                 # delete the objects.
                 # Example: a milestone of a repository is not fetched via
                 # fetch_milestones? => we know it's deleted
-                to_delete_queryset = (through or instance_field.model).objects.filter(id__in=to_remove)
+                to_delete_queryset = instance_field.model.objects.filter(id__in=to_remove)
                 if filter_queryset:
                     to_delete_queryset = to_delete_queryset.filter(filter_queryset)
                 to_delete_queryset.delete()
@@ -454,8 +449,7 @@ class GithubObject(models.Model):
         to_add = fetched_ids - existing_ids
         if to_add:
             count['added'] = len(to_add)
-            if not through:
-                instance_field.add(*to_add)
+            instance_field.add(*to_add)
 
         # check if we have something to save on the main object
         update_fields = []
@@ -670,8 +664,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     teams_fetched_at = models.DateTimeField(blank=True, null=True)
     teams_etag = models.CharField(max_length=64, blank=True, null=True)
     available_repositories = models.ManyToManyField('Repository', through=AvailableRepository)
-    available_repositories_fetched_at = models.DateTimeField(blank=True, null=True)
-    available_repositories_etag = models.CharField(max_length=64, blank=True, null=True)
+    available_repositories_set_fetched_at = models.DateTimeField(blank=True, null=True)
+    available_repositories_set_etag = models.CharField(max_length=64, blank=True, null=True)
     org_repositories_fetch_data = JSONField(blank=True, null=True)
 
     objects = GithubUserManager()
@@ -735,7 +729,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             ]
 
     @property
-    def github_callable_identifiers_for_available_repositories(self):
+    def github_callable_identifiers_for_available_repositories_set(self):
         # won't work for organizations, but not called in this case
         return self.github_callable_identifiers_for_self + [
             'repos',
@@ -844,7 +838,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                 'organization_username': None,
             }
 
-        return self._fetch_many('available_repositories', gh,
+        return self._fetch_many('available_repositories_set', gh,
                                 meta_base_name=meta_base_name,
                                 defaults=defaults,
                                 force_fetch=force_fetch,
@@ -963,7 +957,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         saved in a json field we want to save
         """
         count = super(GithubUser, self).update_related_field(field_name, *args, **kwargs)
-        if field_name == 'available_repositories':
+        if field_name == 'available_repositories_set':
             self.save(update_fields=['org_repositories_fetch_data'])
         return count
 
