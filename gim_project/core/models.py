@@ -3,13 +3,14 @@ from urlparse import urlsplit, parse_qs
 from itertools import product
 from datetime import datetime, timedelta
 from dateutil.parser import parse
+from math import ceil
 import re
 from operator import itemgetter
 import json
 import zlib
 import base64
 
-from django.db import models
+from django.db import models, DatabaseError
 from django.db.models import F, Q
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
@@ -431,7 +432,18 @@ class GithubObject(models.Model):
                 # the original object
                 # Example: a user is not anymore a collaborator, we keep the
                 # the user but remove the relation user <-> repository
-                instance_field.remove(*to_remove)
+                try:
+                    instance_field.remove(*to_remove)
+                except DatabaseError, e:
+                    # sqlite limits the vars passed in a request to 999
+                    # In this case, we loop on the data by slice of 950 obj to remove
+                    if u'%s' % e != 'too many SQL variables':
+                        raise
+                    per_iteration = 950  # do not use 999 has we may have other vars for internal django filter
+                    to_remove = list(to_remove)
+                    iterations = int(ceil(len(to_remove) / float(per_iteration)))
+                    for iteration in range(0, iterations):
+                        instance_field.remove(*to_remove[iteration * per_iteration:(iteration + 1) * per_iteration])
             else:
                 # The relation cannot be removed, because the current object is
                 # a non-nullable fk of the other objects. In this case we are
@@ -449,7 +461,18 @@ class GithubObject(models.Model):
         to_add = fetched_ids - existing_ids
         if to_add:
             count['added'] = len(to_add)
-            instance_field.add(*to_add)
+            try:
+                instance_field.add(*to_add)
+            except DatabaseError, e:
+                # sqlite limits the vars passed in a request to 999
+                # In this case, we loop on the data by slice of 950 obj to add
+                if u'%s' % e != 'too many SQL variables':
+                    raise
+                per_iteration = 950  # do not use 999 has we may have other vars for internal django filter
+                to_add = list(to_add)
+                iterations = int(ceil(count['added'] / float(per_iteration)))
+                for iteration in range(0, iterations):
+                    instance_field.add(*to_add[iteration * per_iteration:(iteration + 1) * per_iteration])
 
         # check if we have something to save on the main object
         update_fields = []
