@@ -140,25 +140,36 @@ class Job(LimpydJob):
         type of permission, to get one from the Token model
         """
         from core.limpyd_models import Token
+
         args = self.gh_args.hgetall()
+        if 'access_token' not in args:
+            args = None
+
+        permission = getattr(self, 'permission', 'read')
+
         token = None
+
         # we have connection args: get the token if available
         if args:
             try:
-                token = Token.get(token=args['access_token'], available=1)
+                token_kwargs = {'token': args['access_token']}
+                # ignore the available flag for "self"
+                if permission != 'self':
+                    token_kwargs['available'] = 1
+                token = Token.get(**token_kwargs)
             except (Token.DoesNotExist, KeyError):
                 pass
             else:
-                return token.gh
+                # final check on remaining api calls
+                if int(token.rate_limit_remaining.get() or 0):
+                    return token.gh
 
         # no token, try to get one...
-        permission = getattr(self, 'permission', 'read')
         repository = None
 
         if permission == 'self':
             # forced to use the current one, but not available...
             pass
-
         else:
 
             # if we have a repository, get one following permission
