@@ -263,7 +263,7 @@ class ChooseRepositoryView(WithRepoDictMixin, TemplateView):
                 others_repos['repos'].append(self.subscription_to_dict(subscription))
 
         context.update({
-            'available_repositories': available_repositories + [others_repos],
+            'available_repositories': sorted(available_repositories) + [others_repos],
             'waiting_subscriptions': waiting_subscriptions,
             'subscriptions': subscriptions,
             'organizations_by_name': organizations_by_name,
