@@ -63,7 +63,15 @@ class Token(lmodel.RedisModel):
         now = datetime.utcnow()
         str_now = str(now)
         self.last_call.hset(str_now)
-        if not api_error:
+
+        is_error = False
+        if api_error:
+            is_error = True
+            if hasattr(api_error, 'code'):
+                if api_error.code == 304 or (200 <= api_error.code < 300):
+                    is_error = False
+
+        if not is_error:
             self.last_call_ok.hset(str_now)
         else:
             self.last_call_ko.hset(str_now)
