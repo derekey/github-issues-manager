@@ -196,8 +196,15 @@ class Job(LimpydJob):
                     remaining = token.get_remaining_seconds()
                     if remaining is not None and remaining >= 0:
                         self.delayed_until.hset(compute_delayed_until(remaining))
+                    else:
+                        self.delayed_until.delete()
 
                     self.gh = token.gh
+
+                else:
+                    # no token at all ? we may have no one for this permission !
+                    # so retry in 15mn
+                    self.delayed_until.hset(compute_delayed_until(delayed_for=60 * 15))
 
             return None
 
