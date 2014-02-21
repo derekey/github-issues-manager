@@ -184,9 +184,12 @@ class Job(LimpydJob):
 
             else:
                 # check the first available gh
-                if repository:
+                if permission == 'self':
+                    if args:
+                        token = Token.get(token=args['access_token'])
+                elif repository:
                     token = Token.get_one_for_repository(repository.pk, permission, available=False, sort_by='rate_limit_reset')
-                elif permission != 'self':
+                else:
                     token = Token.get_one(available=False, sort_by='rate_limit_reset')
 
                 # if we have a token, get it's delay before availability, and
