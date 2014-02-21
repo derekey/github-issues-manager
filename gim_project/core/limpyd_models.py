@@ -87,6 +87,8 @@ class Token(lmodel.RedisModel):
             self.valid_scopes.hset(int(bool(gh.x_oauth_scopes)))
             if not gh.x_oauth_scopes or 'repo' not in gh.x_oauth_scopes:
                 self.available.hset(0)
+                self.ask_for_reset_flags(3600)  # check again in an hour
+                # TODO: log it !
 
         if gh.x_ratelimit_remaining != -1:
             # add rate limit remaining, clear it after reset time
@@ -132,18 +134,21 @@ class Token(lmodel.RedisModel):
         """
         return self.connection.ttl(self.rate_limit_remaining.key)
 
-    def ask_for_reset_flags(self):
+    def ask_for_reset_flags(self, delayed_for=None):
         """
         Create a task to reset the token's flags later. But if the token is in
         a good state, reset them now instead of creating a flag
         """
-        ttl = self.get_remaining_seconds()
-        if ttl <= 0:
-            self.rate_limit_remaining.delete()
-            self.reset_flags()
-        else:
-            from core.tasks.tokens import ResetTokenFlags
-            ResetTokenFlags.add_job(self.token.hget(), delayed_for=ttl+2)
+        if not delayed_for:
+            ttl = self.get_remaining_seconds()
+            if ttl <= 0:
+                self.rate_limit_remaining.delete()
+                self.reset_flags()
+                return
+            delayed_for = ttl + 2
+
+        from core.tasks.tokens import ResetTokenFlags
+        ResetTokenFlags.add_job(self.token.hget(), delayed_for=delayed_for)
 
     def get_repos_pks_with_permissions(self, *permissions):
         """
