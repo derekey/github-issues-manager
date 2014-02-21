@@ -92,7 +92,8 @@ class CheckRepositoryHook(RepositoryJob):
             CheckRepositoryEvents.add_job(self.identifier.hget())
         else:
             # we have a hook, stop checking events
-            for j in CheckRepositoryEvents.collection(queued=1).instances():
+            for j in CheckRepositoryEvents.collection(
+                        queued=1, identifier=self.identifier.hget()).instances():
                 j.status.hset(STATUSES.CANCELED)
 
         self.clone(delayed_for=60 * 13 + randint(0, 60 * 4))
