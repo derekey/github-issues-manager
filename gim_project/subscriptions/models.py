@@ -202,7 +202,7 @@ class _GithubUser(models.Model):
                 for name, state in dikt.items():
                     sub = subs[name]
                     sub.state = state
-                    # sub.save(update_fields=['state'])
+                    sub.save(update_fields=['state'])
                     by_state.setdefault(sub.get_state_display(), []).append(name)
 
                 # message for this kind: one li by change (change=[up|down]+new-state)
