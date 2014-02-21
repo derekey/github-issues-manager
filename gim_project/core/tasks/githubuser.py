@@ -29,6 +29,9 @@ class FetchAvailableRepositoriesJob(UserJob):
     nb_teams = fields.InstanceHashField()
     inform_user = fields.InstanceHashField()
 
+    clonable_fields = ('gh', )
+    permission = 'self'
+
     def run(self, queue):
         """
         Get the user and its available repositories from github, and save the
@@ -37,6 +40,17 @@ class FetchAvailableRepositoriesJob(UserJob):
         super(FetchAvailableRepositoriesJob, self).run(queue)
 
         user = self.object
+
+        # force gh if not set
+        if not self.gh_args.hgetall():
+            gh = user.get_connection()
+            if gh and 'access_token' in gh._connection_args:
+                self.gh = gh
+
+        # check availability
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
 
         nb_repos, nb_orgs, nb_teams = user.fetch_all()
 

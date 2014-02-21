@@ -20,6 +20,8 @@ class IssueCommentJob(DjangoModelJob):
     abstract = True
     model = IssueComment
 
+    permission = 'self'
+
 
 class CommentEditJob(IssueCommentJob):
     abstract = True
@@ -32,8 +34,11 @@ class CommentEditJob(IssueCommentJob):
         """
         super(CommentEditJob, self).run(queue)
 
-        mode = self.mode.hget()
         gh = self.gh
+        if not gh:
+            return  # it's delayed !
+
+        mode = self.mode.hget()
 
         try:
             comment = self.object

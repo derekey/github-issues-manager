@@ -153,7 +153,7 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
                 # no way to directly return the result, there is no simple "zunion"
                 with self.pipeline(transaction=False) as pipeline:
                     self.connection.zunionstore(store_key, keys, aggregate='MAX')
-                    self.connection.connection.expire(store_key, ttl)
+                    self.connection.expire(store_key, ttl)
                     pipeline.execute()
 
         result = self.connection.zrevrangebyscore(

@@ -6,8 +6,10 @@ __all__ = [
 
 import time
 
-from limpyd import fields
 from async_messages import messages
+
+from limpyd import fields
+from limpyd_jobs import STATUSES
 
 from core.models import Issue, Repository
 from core.ghpool import ApiError, ApiNotFoundError
@@ -23,20 +25,28 @@ class FetchIssueByNumber(Job):
     deleted = fields.InstanceHashField()
     force_fetch = fields.InstanceHashField()  # will only force the issue/pr api call
 
+    permission = 'read'
+
+    @property
+    def repository(self):
+        if not hasattr(self, '_repository'):
+            repository_id, issue_number = self.identifier.hget().split('#')
+            self._repository = Repository.objects.get(id=repository_id)
+        return self._repository
+
     def run(self, queue):
         """
         Fetch the issue with the given number for the current repository
         """
         super(FetchIssueByNumber, self).run(queue)
 
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
+
         repository_id, issue_number = self.identifier.hget().split('#')
 
-        repository = Repository.objects.get(id=repository_id)
-
-        try:
-            gh = self.gh
-        except Exception:
-            gh = repository.get_gh()
+        repository = self.repository
 
         try:
             issue = repository.issues.get(number=issue_number)
@@ -80,6 +90,18 @@ class IssueJob(DjangoModelJob):
     abstract = True
     model = Issue
 
+    @property
+    def issue(self):
+        if not hasattr(self, '_issue'):
+            self._issue = self.object
+        return self._issue
+
+    @property
+    def repository(self):
+        if not hasattr(self, '_repository'):
+            self._repository = self.issue.repository
+        return self._repository
+
 
 class UpdateIssueCacheTemplate(IssueJob):
     """
@@ -99,9 +121,10 @@ class UpdateIssueCacheTemplate(IssueJob):
         start_time = time.time()
 
         try:
-            issue = self.object
-        except Issue.DoesNotExit:
+            issue = self.issue
+        except Issue.DoesNotExist:
             # the issue doesn't exist anymore, stop here
+            self.status.hset(STATUSES.CANCELED)
             return False
 
         issue.update_saved_hash()
@@ -118,10 +141,7 @@ class UpdateIssueCacheTemplate(IssueJob):
         """
         Display the duration of the cached template update
         """
-        if result is False:
-            msg = 'issue does not exist anymore'
-        else:
-            msg = 'duration=%sms' % self.update_duration.hget()
+        msg = 'duration=%sms' % self.update_duration.hget()
 
         if self.force_regenerate.hget():
             return ' [forced=True, %s]' % msg
@@ -133,6 +153,8 @@ class IssueEditStateJob(IssueJob):
 
     queue_name = 'edit-issue-state'
 
+    permission = 'self'
+
     def run(self, queue):
         """
         Get the issue and update its state
@@ -140,8 +162,16 @@ class IssueEditStateJob(IssueJob):
         super(IssueEditStateJob, self).run(queue)
 
         gh = self.gh
+        if not gh:
+            return  # it's delayed !
 
-        issue = self.object
+        try:
+            issue = self.issue
+        except Issue.DoesNotExist:
+            # the issue doesn't exist anymore, stop here
+            self.status.hset(STATUSES.CANCELED)
+            messages.error(self.gh_user, 'The issue you wanted to open/close seems to have been deleted!')
+            return False
 
         try:
             issue.dist_edit(mode='update', gh=gh, fields=['state'])
@@ -162,6 +192,7 @@ class IssueEditStateJob(IssueJob):
             if message:
                 messages.error(self.gh_user, message)
                 try:
+                    # don't use "issue" cache
                     self.object.fetch(gh, force_fetch=True)
                 except Exception:
                     pass
@@ -177,6 +208,7 @@ class IssueEditStateJob(IssueJob):
                     'closed' if issue.state == 'closed' else 'reopened')
         messages.success(self.gh_user, message)
 
+        # don't use "issue" cache
         self.object.fetch_all(gh)
 
         return None

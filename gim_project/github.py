@@ -44,6 +44,7 @@ ApiNotFoundError: https://api.github.com/users/github-not-exist-user/followers
 '''
 
 import base64
+import re
 import urllib
 import urllib2
 
@@ -82,6 +83,7 @@ _METHOD_MAP = dict(
 
 DEFAULT_SCOPE = None
 RW_SCOPE = 'user,public_repo,repo,repo:status,gist'
+SCOPE_SPLITTER = re.compile('\,\s*')
 
 
 class GitHub(object):
@@ -91,8 +93,7 @@ class GitHub(object):
     '''
 
     def __init__(self, username=None, password=None, access_token=None, client_id=None, client_secret=None, redirect_uri=None, scope=None):
-        self.x_ratelimit_remaining = (-1)
-        self.x_ratelimit_limit = (-1)
+        self._reset_headers()
         self._authorization = None
         if username and password:
             self._authorization = 'Basic %s' % base64.b64encode('%s:%s' % (username, password))
@@ -102,6 +103,13 @@ class GitHub(object):
         self._client_secret = client_secret
         self._redirect_uri = redirect_uri
         self._scope = scope
+
+    def _reset_headers(self):
+        self.x_ratelimit_remaining = -1
+        self.x_ratelimit_limit = -1
+        self.x_ratelimit_reset = -1
+        self.x_oauth_scopes = None
+        self.x_accepted_oauth_scopes = None
 
     def authorize_url(self, state=None):
         '''
@@ -207,6 +215,7 @@ class GitHub(object):
 
     def _process_resp(self, headers):
         is_json = False
+        self._reset_headers()
         if headers:
             for k in headers:
                 h = k.lower()
@@ -214,6 +223,12 @@ class GitHub(object):
                     self.x_ratelimit_remaining = int(headers[k])
                 elif h == 'x-ratelimit-limit':
                     self.x_ratelimit_limit = int(headers[k])
+                elif h == 'x-ratelimit-reset':
+                    self.x_ratelimit_reset = int(headers[k])
+                elif h == 'x-oauth-scopes':
+                    self.x_oauth_scopes = SCOPE_SPLITTER.split(headers[k])
+                elif h == 'x-accepted-oauth-scopes':
+                    self.x_accepted_oauth_scopes = SCOPE_SPLITTER.split(headers[k])
                 elif h == 'content-type':
                     is_json = headers[k].startswith('application/json')
         return is_json

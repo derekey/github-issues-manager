@@ -72,6 +72,22 @@ class Connection(GitHub):
             self._connection_args['access_token'] = access_token
         super(Connection, self).__init__(username, password, access_token, client_id, client_secret, redirect_uri, scope)
 
+    def _http(self, *args, **kwargs):
+        api_error = None
+        try:
+            return super(Connection, self)._http(*args, **kwargs)
+        except ApiError, e:
+            api_error = e
+            raise
+        except:
+            raise
+        finally:
+            self.manage_token(api_error=api_error)
+
+    def manage_token(self, api_error):
+        from core.limpyd_models import Token
+        Token.update_token_from_gh(self, api_error)
+
 
 def parse_header_links(value):
     """

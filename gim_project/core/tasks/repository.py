@@ -28,6 +28,12 @@ class RepositoryJob(DjangoModelJob):
     abstract = True
     model = Repository
 
+    @property
+    def repository(self):
+        if not hasattr(self, '_repository'):
+            self._repository = self.object
+        return self._repository
+
 
 class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
     """
@@ -41,6 +47,7 @@ class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
     count = fields.InstanceHashField()
     errors = fields.InstanceHashField()
 
+    permission = 'read'
     clonable_fields = ('gh', 'limit', )
 
     def run(self, queue):
@@ -50,9 +57,12 @@ class FetchClosedIssuesWithNoClosedBy(RepositoryJob):
         """
         super(FetchClosedIssuesWithNoClosedBy, self).run(queue)
 
-        count, deleted, errors, todo = self.object.fetch_closed_issues_without_closed_by(
-                                            limit=int(self.limit.hget() or 20),
-                                            gh=self.gh)
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
+
+        count, deleted, errors, todo = self.repository.fetch_closed_issues_without_closed_by(
+                                                    limit=int(self.limit.hget() or 20), gh=gh)
 
         self.hmset(count=count, errors=errors)
 
@@ -84,6 +94,7 @@ class FetchUpdatedPullRequests(RepositoryJob):
     count = fields.InstanceHashField()
     errors = fields.InstanceHashField()
 
+    permission = 'read'
     clonable_fields = ('gh', 'limit', )
 
     def run(self, queue):
@@ -93,8 +104,12 @@ class FetchUpdatedPullRequests(RepositoryJob):
         """
         super(FetchUpdatedPullRequests, self).run(queue)
 
-        count, deleted, errors, todo = self.object.fetch_updated_prs(
-                                limit=int(self.limit.hget() or 20), gh=self.gh)
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
+
+        count, deleted, errors, todo = self.repository.fetch_updated_prs(
+                                    limit=int(self.limit.hget() or 20), gh=gh)
 
         self.hmset(count=count, errors=errors)
 
@@ -127,6 +142,7 @@ class FetchUnmergedPullRequests(RepositoryJob):
     count = fields.InstanceHashField()
     errors = fields.InstanceHashField()
 
+    permission = 'read'
     clonable_fields = ('gh', 'limit', )
 
     def run(self, queue):
@@ -136,14 +152,18 @@ class FetchUnmergedPullRequests(RepositoryJob):
         """
         super(FetchUnmergedPullRequests, self).run(queue)
 
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
+
         start_date = self.start_date.hget()
         if start_date:
             start_date = parse(start_date)
         else:
             start_date = None
 
-        count, updated, deleted, errors, todo, last_date = self.object.fetch_unmerged_prs(
-                        limit=int(self.limit.hget() or 20), gh=self.gh, start_date=start_date)
+        count, updated, deleted, errors, todo, last_date = self.repository.fetch_unmerged_prs(
+                                limit=int(self.limit.hget() or 20), gh=gh, start_date=start_date)
 
         self.hmset(count=updated, errors=errors)
 
@@ -175,12 +195,18 @@ class FirstFetch(Job):
 
     converted_subscriptions = fields.InstanceHashField()
 
+    permission = 'self'
+
     def run(self, queue):
         """
         Fetch the repository and once done, convert waiting subscriptions into
         real ones, and save the cout of converted subscriptions in the job.
         """
         super(FirstFetch, self).run(queue)
+
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
 
         # the identifier of this job is not the repository's id, but its full name
         repository_name = self.identifier.hget()
@@ -247,10 +273,11 @@ class FirstFetch(Job):
         # save count in the job
         self.converted_subscriptions.hset(count)
 
-        # check the hook (add check-hook/events jobs)
-        # should not be in core but for now...
-        from hooks.tasks import CheckRepositoryHook
-        CheckRepositoryHook.add_job(repository.id)
+        # add check-hook/events jobs
+        # TODO: should not be in core but for now...
+        from hooks.tasks import CheckRepositoryHook, CheckRepositoryEvents
+        CheckRepositoryEvents.add_job(repository.id)
+        CheckRepositoryHook.add_job(repository.id, delay=30)
 
         # return the number of converted subscriptions
         return count
@@ -277,12 +304,18 @@ class FirstFetchStep2(RepositoryJob):
     counts = fields.HashField()
     last_one = fields.InstanceHashField()
 
+    permission = 'read'
+
     def run(self, queue):
         """
         Call the fetch_all_step2 method of the linked repository, using the
         value of the start_page and max_pages job's attributes
         """
         super(FirstFetchStep2, self).run(queue)
+
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
 
         self._start_page, self._max_pages = self.hmget('start_page', 'max_pages')
 
@@ -303,10 +336,7 @@ class FirstFetchStep2(RepositoryJob):
         except:
             self._to_ignore = None
 
-        repository = self.object
-
-        counts = repository.fetch_all_step2(
-                        gh=self.gh, force_fetch=True,
+        counts = self.repository.fetch_all_step2(gh=gh, force_fetch=True,
                         start_page=self._start_page, max_pages=self._max_pages,
                         to_ignore=self._to_ignore, issues_state='closed')
 
@@ -368,6 +398,7 @@ class FetchUnfetchedCommits(RepositoryJob):
     errors = fields.InstanceHashField()
     deleted = fields.InstanceHashField()
 
+    permission = 'read'
     clonable_fields = ('gh', 'limit', )
 
     def run(self, queue):
@@ -377,9 +408,12 @@ class FetchUnfetchedCommits(RepositoryJob):
         """
         super(FetchUnfetchedCommits, self).run(queue)
 
-        count, deleted, errors, todo = self.object.fetch_unfetched_commits(
-                                            limit=int(self.limit.hget() or 20),
-                                            gh=self.gh)
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
+
+        count, deleted, errors, todo = self.repository.fetch_unfetched_commits(
+                                    limit=int(self.limit.hget() or 20), gh=gh)
 
         self.hmset(count=count, errors=errors, deleted=deleted)
 
@@ -408,6 +442,7 @@ class FetchForUpdate(RepositoryJob):
     """
     queue_name = 'update-repo'
 
+    permission = 'read'
     clonable_fields = ('gh', )
 
     def run(self, queue):
@@ -416,18 +451,11 @@ class FetchForUpdate(RepositoryJob):
         """
         super(FetchForUpdate, self).run(queue)
 
-        repository = self.object
-
-        try:
-            gh = self.gh
-        except Exception:
-            gh = repository.get_gh()
-
+        gh = self.gh
         if not gh:
-            # no subscription, don't fetch for now
-            return
+            return  # it's delayed !
 
-        repository.fetch_all(gh)
+        self.repository.fetch_all(gh)
 
     def on_success(self, queue, result):
         """

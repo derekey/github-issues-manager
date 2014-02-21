@@ -5,17 +5,20 @@ from django.db import DatabaseError
 
 from limpyd import fields
 from limpyd.model import MetaRedisModel
+
+from limpyd_jobs import STATUSES
 from limpyd_jobs.models import (
                                 BaseJobsModel,
                                 Job as LimpydJob,
                                 Queue as LimpydQueue,
                                 Error as LimpydError,
                             )
+from limpyd_jobs.utils import compute_delayed_until
 from limpyd_jobs.workers import Worker as LimpydWorker, logger
 
 from core import get_main_limpyd_database
 
-from core.ghpool import Connection, ApiError
+from core.ghpool import ApiError
 from core.models import GithubUser
 
 from . import JobRegistry
@@ -131,12 +134,100 @@ class Job(LimpydJob):
 
         return super(Job, cls).add_job(*args, **kwargs)
 
-    @property
-    def gh(self):
+    def _get_gh(self):
         """
-        Return a Connection object based on arguments saved in the job
+        Return a Connection object based on arguments saved in the job, or by
+        type of permission, to get one from the Token model
         """
-        return Connection.get(**self.gh_args.hgetall())
+        from core.limpyd_models import Token
+        args = self.gh_args.hgetall()
+        token = None
+        # we have connection args: get the token if available
+        if args:
+            try:
+                token = Token.get(token=args['access_token'], available=1)
+            except (Token.DoesNotExist, KeyError):
+                pass
+            else:
+                return token.gh
+
+        # no token, try to get one...
+        permission = getattr(self, 'permission', 'read')
+        repository = None
+
+        if permission == 'self':
+            # forced to use the current one, but not available...
+            pass
+
+        else:
+
+            # if we have a repository, get one following permission
+            repository = getattr(self, 'repository')
+            if repository:
+                if repository.private and permission not in ('admin', 'push'):
+                    # force correct permission if repository is private
+                    permission = 'push'
+                token = Token.get_one_for_repository(repository.pk, permission)
+
+            # no repository, not "self", but want one ? don't know why but ok...
+            else:
+                token = Token.get_one()
+
+        # if we don't have token it's that there is no one available: we delay
+        # the job
+        if not token:
+            self.status.hset(STATUSES.DELAYED)
+
+            if hasattr(self, 'delay_for_gh'):
+                # use the "delay_for_gh" attribute if any to delay the job for X seconds
+                self.delayed_until.hset(compute_delayed_until(delayed_for=self.delay_for_gh))
+
+            else:
+                # check the first available gh
+                if permission == 'self':
+                    if args:
+                        token = Token.get(token=args['access_token'])
+                elif repository:
+                    token = Token.get_one_for_repository(repository.pk, permission, available=False, sort_by='rate_limit_reset')
+                else:
+                    token = Token.get_one(available=False, sort_by='rate_limit_reset')
+
+                # if we have a token, get it's delay before availability, and
+                # set it on the job for future use
+                if token:
+
+                    remaining = token.get_remaining_seconds()
+                    if remaining is not None and remaining >= 0:
+                        self.delayed_until.hset(compute_delayed_until(remaining))
+                    else:
+                        self.delayed_until.delete()
+
+                    self.gh = token.gh
+
+                else:
+                    # no token at all ? we may have no one for this permission !
+                    # so retry in 15mn
+                    self.delayed_until.hset(compute_delayed_until(delayed_for=60 * 15))
+
+            return None
+
+        # save it in the job, useful when cloning to avoid searching for a new
+        # gh (will only happen if it is not available anymore)
+        self.gh = token.gh
+
+        # and ok, return it
+        return token.gh
+
+    def _set_gh(self, gh):
+        """
+        Set the arguments for the Connection object of the job from the given one
+        """
+        username = gh._connection_args['username']
+        access_token = gh._connection_args['access_token']
+        self.gh_args.hmset(username=username, access_token=access_token)
+
+    # property to get/set "self.gh"
+    gh = property(_get_gh, _set_gh)
 
     @property
     def gh_user(self):

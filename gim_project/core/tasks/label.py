@@ -2,8 +2,10 @@ __all__ = [
     'LabelEditJob',
 ]
 
-from limpyd import fields
 from async_messages import messages
+
+from limpyd import fields
+from limpyd_jobs import STATUSES
 
 from core.models import Label
 from core.ghpool import ApiError
@@ -18,6 +20,18 @@ class LabelJob(DjangoModelJob):
     abstract = True
     model = Label
 
+    @property
+    def label(self):
+        if not hasattr(self, '_label'):
+            self._label = self.object
+        return self._label
+
+    @property
+    def repository(self):
+        if not hasattr(self, '_repository'):
+            self._repository = self.label.repository
+        return self._repository
+
 
 class LabelEditJob(LabelJob):
 
@@ -25,19 +39,26 @@ class LabelEditJob(LabelJob):
 
     mode = fields.InstanceHashField()
 
+    permission = 'self'
+
     def run(self, queue):
         """
         Get the label and create/update/delete it
         """
         super(LabelEditJob, self).run(queue)
 
-        mode = self.mode.hget()
-        gh = self.gh
-
         try:
-            label = self.object
+            label = self.label
         except Label.DoesNotExist:
+            # the label doesn't exist anymore, stop here
+            self.status.hset(STATUSES.CANCELED)
             return None
+
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
+
+        mode = self.mode.hget()
 
         try:
             if mode == 'delete':
@@ -83,4 +104,3 @@ class LabelEditJob(LabelJob):
         Display the action done (created/updated/deleted)
         """
         return ' [%sd]' % self.mode.hget()
-

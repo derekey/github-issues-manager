@@ -883,10 +883,29 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         #             # we may have no rights
         #             pass
 
+        # update permissions in token object
+        t = self.token_object
+        if t:
+            t.update_repos()
+
         return nb_repositories_fetched, nb_orgs_fetched, 0  # nb_teams_fetched
 
     def get_connection(self):
         return Connection.get(username=self.username, access_token=self.token)
+
+    @property
+    def token_object(self):
+        """
+        Return the "Token" object for the current user, creating it if needed
+        """
+        if not hasattr(self, '_token_object'):
+            if not self.token:
+                return None
+            from .limpyd_models import Token
+            self._token_object, created = Token.get_or_connect(token=self.token)
+            if created:
+                self._token_object.username.hset(self.username)
+        return self._token_object
 
     def can_use_repository(self, repository):
         """

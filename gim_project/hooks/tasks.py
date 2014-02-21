@@ -5,9 +5,9 @@ __all__ = [
 
 from random import randint
 
-from core.tasks.repository import RepositoryJob
+from limpyd_jobs import STATUSES
 
-from subscriptions.models import SUBSCRIPTION_STATES
+from core.tasks.repository import RepositoryJob
 
 
 class CheckRepositoryEvents(RepositoryJob):
@@ -16,6 +16,8 @@ class CheckRepositoryEvents(RepositoryJob):
     """
     queue_name = 'check-repo-events'
 
+    permission = 'read'
+
     def run(self, queue):
         """
         Get the last events of the repository to update data and fetch updated
@@ -23,19 +25,16 @@ class CheckRepositoryEvents(RepositoryJob):
         """
         repository = self.object
 
-        if repository.hook_set:
+        if repository.hook_set or not repository.has_subscriptions():
             # now the hook seems set, stop going on the "check-events" mode,
             # we'll run on the "hook" mode
+            # also, do not fetch events if no sbuscriptions for a repository
+            self.status.hset(STATUSES.CANCELED)
             return
 
-        try:
-            gh = self.gh
-        except Exception:
-            gh = repository.get_gh()
-
+        gh = self.gh
         if not gh:
-            # no subscription, stop updating this repository
-            return
+            return  # it's delayed !
 
         updated_issues_count, delay = repository.check_events(gh)
 
@@ -43,27 +42,18 @@ class CheckRepositoryEvents(RepositoryJob):
 
     def on_success(self, queue, result):
         """
-        Go check events again in the minimal delay given by gtthub
+        Go check events again in the minimal delay given by gtthub, but only if
+        the hook is not set on this repository
         This delay is passed as the result argument.
-        Do not delay a new job if we have no delay: it's because the run
-        method told us that there is no need to, because the hook is now set.
         """
-        if result is None:
-            return
-
         updated_issues_count, delay = result
-
         self.clone(delayed_for=delay + randint(0, 10))
 
     def success_message_addon(self, queue, result):
         """
         Display the count of updated issues
         """
-        if result is None:
-            return
-
         updated_issues_count, delay = result
-
         return ' [updated=%d]' % updated_issues_count
 
 
@@ -74,6 +64,8 @@ class CheckRepositoryHook(RepositoryJob):
     """
     queue_name = 'check-repo-hook'
 
+    permission = 'admin'
+
     def run(self, queue):
         """
         Check if the hook exist for this modele. If not, try to add a job to
@@ -82,13 +74,11 @@ class CheckRepositoryHook(RepositoryJob):
         """
         repository = self.object
 
-        try:
-            gh = self.gh
-        except Exception:
-            gh = repository.get_gh(rights=[SUBSCRIPTION_STATES.ADMIN])
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
 
-        if gh:
-            repository.check_hook(gh)
+        repository.check_hook(gh)
 
         return repository.hook_set
 
@@ -100,5 +90,9 @@ class CheckRepositoryHook(RepositoryJob):
         if not result:
             # no hook, we need to go on the "check-events" mode
             CheckRepositoryEvents.add_job(self.identifier.hget())
+        else:
+            # we have a hook, stop checking events
+            for j in CheckRepositoryEvents.collection(queued=1).instances():
+                j.status.hset(STATUSES.CANCELED)
 
         self.clone(delayed_for=60 * 13 + randint(0, 60 * 4))
