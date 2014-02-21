@@ -10,7 +10,8 @@ from subscriptions.models import (WaitingSubscription,
                                   WAITING_SUBSCRIPTION_STATES,
                                   SUBSCRIPTION_STATES, )
 
-from core.tasks.repository import FirstFetch
+from core.tasks.repository import FirstFetch, FirstFetchStep2
+from hooks.tasks import CheckRepositoryEvents
 
 from ...views import BaseFrontViewMixin
 from .forms import AddRepositoryForm, RemoveRepositoryForm
@@ -78,13 +79,18 @@ class AddRepositoryView(ToggleRepositoryBaseView):
         # if the repository exists (and fetched), convert into a real subscription
         try:
             repository = subscription.repository
+            if not repository.first_fetch_done:
+                raise Repository.DoesNotExist()
         except Repository.DoesNotExist:
             # add a job to fetch the repository
             FirstFetch.add_job(name, gh=self.request.user.get_connection())
         else:
-            if repository.fetched_at:
+            # If a FirstFetch is still running, do nothing more, but else...
+            if repository.first_fetch_done:
                 message = 'Your subscription to <strong>%s</strong> was just added'
                 subscription.convert(form.can_use)
+                # start fetching events (it'll be ignored if there is already a queued job)
+                CheckRepositoryEvents.add_job(repository.id)
 
         messages.success(self.request, message % name)
 

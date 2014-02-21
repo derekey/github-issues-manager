@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from random import choice
 
@@ -20,6 +20,7 @@ class Token(lmodel.RedisModel):
 
     rate_limit_remaining = lfields.StringField()  # expirable field
     rate_limit_limit = lfields.InstanceHashField()  # hom much by hour
+    rate_limit_reset = lfields.InstanceHashField()  # same as ttl(rate_limit_remaining)
     scopes = lfields.SetField(indexable=True)  # list of scopes for this token
     valid_scopes = lfields.InstanceHashField(indexable=True)  # if scopes are valid
     available = lfields.InstanceHashField(indexable=True)  # if the token is publicly available
@@ -84,8 +85,10 @@ class Token(lmodel.RedisModel):
             self.rate_limit_remaining.set(gh.x_ratelimit_remaining)
             if gh.x_ratelimit_reset != -1:
                 self.connection.expireat(self.rate_limit_remaining.key, gh.x_ratelimit_reset)
+                self.rate_limit_reset.hset(gh.x_ratelimit_reset)
             else:
                 self.connection.expire(self.rate_limit_remaining.key, 3600)
+                self.rate_limit_reset.hset(datetime_to_score(datetime.utcnow()+timedelta(seconds=3600)))
 
             # if to few requests remaining, consider it as not available for public queries
             limit = 5000 if gh.x_ratelimit_limit == -1 else gh.x_ratelimit_limit
@@ -107,18 +110,26 @@ class Token(lmodel.RedisModel):
         if self.connection.exists(self.rate_limit_remaining.key):
             return False
 
+        self.rate_limit_reset.hset(0)
+
         # set the token available again only if it has valid scopes
         if self.valid_scopes.hget() == '1':
             self.available.hset(1)
 
         return True
 
+    def get_remaining_seconds(self):
+        """
+        Return the time before the reset of the rate limiting
+        """
+        return self.connection.ttl(self.rate_limit_remaining.key)
+
     def ask_for_reset_flags(self):
         """
         Create a task to reset the token's flags later. But if the token is in
         a good state, reset them now instead of creating a flag
         """
-        ttl = self.connection.ttl(self.rate_limit_remaining.key)
+        ttl = self.get_remaining_seconds()
         if ttl <= 0:
             self.rate_limit_remaining.delete()
             self.reset_flags()
@@ -145,7 +156,10 @@ class Token(lmodel.RedisModel):
         self.repos_push.sadd(*self.get_repos_pks_with_permissions('admin', 'push'))
 
     @classmethod
-    def get_gh_for_repo(cls, repository_pk, permission, sort_by='-rate_limit_remaining'):
+    def get_one_for_repository(cls, repository_pk, permission, available=True, sort_by='-rate_limit_remaining'):
+        collection = cls.collection()
+        if available:
+            collection = collection.filter(available=1)
         collection = cls.collection(available=1)
         if permission == 'admin':
             collection.filter(repos_admin=repository_pk)
@@ -159,7 +173,22 @@ class Token(lmodel.RedisModel):
         except IndexError:
             return None
         else:
-            return token.gh
+            return token
+
+    @classmethod
+    def get_one(cls, available=True, sort_by='-rate_limit_remaining'):
+        collection = cls.collection()
+        if available:
+            collection = collection.filter(available=1)
+        try:
+            if sort_by is None:
+                token = choice(collection.instances())
+            else:
+                token = collection.sort(by=sort_by).instances()[0]
+        except IndexError:
+            return None
+        else:
+            return token
 
     @property
     def gh(self):
