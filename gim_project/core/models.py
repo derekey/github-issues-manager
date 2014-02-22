@@ -687,9 +687,6 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     teams_fetched_at = models.DateTimeField(blank=True, null=True)
     teams_etag = models.CharField(max_length=64, blank=True, null=True)
     available_repositories = models.ManyToManyField('Repository', through=AvailableRepository)
-    available_repositories_set_fetched_at = models.DateTimeField(blank=True, null=True)
-    available_repositories_set_etag = models.CharField(max_length=64, blank=True, null=True)
-    org_repositories_fetch_data = JSONField(blank=True, null=True)
     watched_repositories = models.ManyToManyField('Repository', related_name='watched')
     starred_repositories = models.ManyToManyField('Repository', related_name='starred')
 
@@ -779,8 +776,6 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         We create "github_identifiers_for" to fetch repositories of an
         organization by calling it from the user, so we must create it on the
         fly.
-        And for the fetched_at/etag for the same github queries: we use ones
-        set/saved in the json field "org_repositories_fetch_data"
         """
         if name.startswith('github_callable_identifiers_for_org_repositories_'):
             org_name = name[49:]
@@ -789,25 +784,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                 org_name,
                 'repos'
             ]
-        elif name.startswith('org_repositories_'):
-            if name.endswith('_fetched_at'):
-                return parse(self.org_repositories_fetch_data.get(name))
-            if name.endswith('_etag'):
-                return self.org_repositories_fetch_data.get(name)
 
         raise AttributeError("%r object has no attribute %r" % (self.__class__, name))
-
-    def __setattr__(self, name, value):
-        """
-        Will save fetched_at/etag for org repositories in the json field
-        "org_repositories_fetch_data"
-        """
-        if name.startswith('org_repositories_') and (name.endswith('_fetched_at') or name.endswith('_etag')):
-            if self.org_repositories_fetch_data is None:
-                self.org_repositories_fetch_data = {}
-            self.org_repositories_fetch_data[name] = str(value)
-        else:
-            super(GithubUser, self).__setattr__(name, value)
 
     def fetch_organizations(self, gh, force_fetch=False, parameters=None):
         if self.is_organization:
@@ -1045,16 +1023,6 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         if self.email is None:
             self.email = ''
         super(GithubUser, self).save(*args, **kwargs)
-
-    def update_related_field(self, field_name, *args, **kwargs):
-        """
-        When updating repositories availables to a user, fetched_at/etags are
-        saved in a json field we want to save
-        """
-        count = super(GithubUser, self).update_related_field(field_name, *args, **kwargs)
-        if field_name == 'available_repositories_set':
-            self.save(update_fields=['org_repositories_fetch_data'])
-        return count
 
 
 class Repository(GithubObjectWithId):
