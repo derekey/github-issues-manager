@@ -183,12 +183,12 @@ class _GithubUser(models.Model):
                 if sub.state != SUBSCRIPTION_STATES.ADMIN:
                     upgraded[name] = SUBSCRIPTION_STATES.ADMIN
 
-            # private repo from another owner: it's not in availables, so no rights anymore
+            # private repo from another owner: it's not in available ones, so no rights anymore
             elif repo.private:
                 if sub.state != SUBSCRIPTION_STATES.NORIGHTS:
                     downgraded[name] = SUBSCRIPTION_STATES.NORIGHTS
 
-            # public repo from another: it's not in availables, so read rights only
+            # public repo from another: it's not in available ones, so read rights only
             elif sub.state not in (SUBSCRIPTION_STATES.READ, SUBSCRIPTION_STATES.NORIGHTS):
                 downgraded[name] = SUBSCRIPTION_STATES.READ
 

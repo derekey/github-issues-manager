@@ -906,10 +906,10 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
 
         if self.is_organization:
-            return 0, 0
+            return 0, 0, 0, 0, 0
 
         if not self.token:
-            return 0, 0
+            return 0, 0, 0, 0, 0
 
         # repositories a user own or collaborate to, but not in organizations
         nb_repositories_fetched = self.fetch_available_repositories(gh, force_fetch=force_fetch)
@@ -922,6 +922,13 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             except ApiNotFoundError:
                 # we may have no rights
                 pass
+
+        if not kwargs.get('available_only'):
+            nb_watched = self.fetch_watched_repositories(gh, force_fetch=force_fetch)
+            nb_starred = self.fetch_starred_repositories(gh, force_fetch=force_fetch)
+        else:
+            nb_watched = 0
+            nb_starred = 0
 
         # # repositories on organizations teams the user are a collaborator
         # try:
@@ -942,7 +949,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         if t:
             t.update_repos()
 
-        return nb_repositories_fetched, nb_orgs_fetched, 0  # nb_teams_fetched
+        return nb_repositories_fetched, nb_orgs_fetched, nb_watched, nb_starred, 0  # nb_teams_fetched
 
     def get_connection(self):
         return Connection.get(username=self.username, access_token=self.token)

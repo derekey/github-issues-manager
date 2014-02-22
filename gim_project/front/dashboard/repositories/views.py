@@ -282,7 +282,7 @@ class AskFetchAvailableRepositories(BaseFrontViewMixin, RedirectView):
 
     def post(self, *args, **kwargs):
         try:
-            self.request.user.fetch_all()
+            self.request.user.fetch_all(available_only=True)
         except Exception:
             messages.error(self.request, 'The list of repositories you can subscribe to (ones you own, collaborate to, or in your organizations) could not be updated :(')
         else:
