@@ -690,6 +690,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     available_repositories_set_fetched_at = models.DateTimeField(blank=True, null=True)
     available_repositories_set_etag = models.CharField(max_length=64, blank=True, null=True)
     org_repositories_fetch_data = JSONField(blank=True, null=True)
+    watched_repositories = models.ManyToManyField('Repository', related_name='watched')
+    starred_repositories = models.ManyToManyField('Repository', related_name='starred')
 
     objects = GithubUserManager()
 
@@ -758,6 +760,20 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             'repos',
         ]
 
+    @property
+    def github_callable_identifiers_for_starred_repositories(self):
+        # won't work for organizations, but not called in this case
+        return self.github_callable_identifiers_for_self + [
+            'starred',
+        ]
+
+    @property
+    def github_callable_identifiers_for_watched_repositories(self):
+        # won't work for organizations, but not called in this case
+        return self.github_callable_identifiers_for_self + [
+            'subscriptions',
+        ]
+
     def __getattr__(self, name):
         """
         We create "github_identifiers_for" to fetch repositories of an
@@ -819,7 +835,39 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 
-    def fetch_available_repositories(self, gh, force_fetch=False, org=None, parameters=None):
+    def fetch_starred_repositories(self, gh=None, force_fetch=False, parameters=None):
+        # FORCE GH
+        if not gh or gh._connection_args.get('username') != self.username:
+            gh = self.get_connection()
+
+        # force fetching 100 orgs by default, as we cannot set "github_per_page"
+        # for the whole Repository class
+        if not parameters:
+            parameters = {}
+        if 'per_page' not in parameters:
+            parameters['per_page'] = 100
+
+        return self._fetch_many('starred_repositories', gh,
+                                force_fetch=force_fetch,
+                                parameters=parameters)
+
+    def fetch_watched_repositories(self, gh=None, force_fetch=False, parameters=None):
+        # FORCE GH
+        if not gh or gh._connection_args.get('username') != self.username:
+            gh = self.get_connection()
+
+        # force fetching 100 orgs by default, as we cannot set "github_per_page"
+        # for the whole Repository class
+        if not parameters:
+            parameters = {}
+        if 'per_page' not in parameters:
+            parameters['per_page'] = 100
+
+        return self._fetch_many('watched_repositories', gh,
+                                force_fetch=force_fetch,
+                                parameters=parameters)
+
+    def fetch_available_repositories(self, gh=None, force_fetch=False, org=None, parameters=None):
         """
         Fetch available repositories for the current user (the "gh" will be
         forced").
@@ -837,6 +885,10 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             parameters = {}
         if 'per_page' not in parameters:
             parameters['per_page'] = 100
+
+        # FORCE GH
+        if not gh or gh._connection_args.get('username') != self.username:
+            gh = self.get_connection()
 
         # force to work on current user
         if gh._connection_args['username'] == self.username:
@@ -870,7 +922,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
     def fetch_all(self, gh=None, force_fetch=False, **kwargs):
         # FORCE GH
-        gh = self.get_connection()
+        if not gh or gh._connection_args.get('username') != self.username:
+            gh = self.get_connection()
 
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
 
