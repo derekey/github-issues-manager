@@ -376,7 +376,7 @@ class ChooseRepositoryTab(DeferrableViewPart, WithRepoMixin, TemplateView):
         if self.organizations_ids:
             # used to order ones NOT in orgs the belongs to first
             extra['select']['in_orgs'] = ' or '.join(
-                    ['%s.id==%s' % (table, org_id) for org_id in self.organizations_ids])
+                    ['%s.id=%s' % (table, org_id) for org_id in self.organizations_ids])
 
     def get_for_start(self, main_view, **kwargs):
         """
