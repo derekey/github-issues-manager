@@ -15,6 +15,12 @@
 
 .area-top {
     .header {
+        h3 a i {
+            float: none;
+            color: #ccc;
+            position: relative;
+            top: 1px;
+        }
         h5 {
             margin-left: 32px;
         }
