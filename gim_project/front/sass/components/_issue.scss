@@ -401,6 +401,7 @@ $file-list-width: 400px;
     .part-labels, .part-label_type {
         ul {
             display: inline-block;
+            margin-top: 0;
         }
         & > span {
             float: left;
