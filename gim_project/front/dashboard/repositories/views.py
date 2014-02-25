@@ -591,10 +591,15 @@ class ChooseRepositoryTabStarred(ChooseRepositoryTab):
         """
         context = super(ChooseRepositoryTabStarred, self).get_context_data(**kwargs)
 
-        context['groups'] = [{
-            'name': '__starred__',
-            'repositories': self.order_repositories(self.request.user.starred_repositories.all())
-        }]
+        starred = self.order_repositories(self.request.user.starred_repositories.all())
+
+        if len(starred):
+            context['groups'] = [{
+                'name': '__starred__',
+                'repositories': starred,
+            }]
+        else:
+            context['groups'] = []
 
         return context
 
