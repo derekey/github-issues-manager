@@ -943,6 +943,7 @@ $().ready(function() {
                 $node = $link.closest('.issue-container');
             IssueDetail.scroll_in_files_list($node, $target);
             IssueDetail.set_active_file($node, $link.closest('tr').data('pos'), true);
+            $target.find('.box-header a.path').focus();
             return false;
         }), // on_files_list_click
 
