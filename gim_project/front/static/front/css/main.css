@@ -4662,7 +4662,7 @@ body > header .user_avatar .caret {
   position: fixed;
   top: 67px;
   right: 16px;
-  z-index: 50;
+  z-index: 2000;
 }
 
 /* line 64, ../../../sass/main.scss */
