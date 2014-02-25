@@ -156,7 +156,17 @@ class Job(LimpydJob):
                 # ignore the available flag for "self"
                 if permission != 'self':
                     token_kwargs['available'] = 1
-                token = Token.get(**token_kwargs)
+                try:
+                    token = Token.get(**token_kwargs)
+                except IndexError:
+                    # changed during the "get"... retry once
+                    # explanation: the get first check the length of the result
+                    # and if it's 1, then it retrieves the first, but in the
+                    # meantime, the data may have changed and there is result
+                    # anymore...
+                    token = Token.get(**token_kwargs)
+                except:
+                    raise
             except (Token.DoesNotExist, KeyError):
                 pass
             else:

@@ -28,6 +28,7 @@ class Token(lmodel.RedisModel):
     last_call_ok = lfields.InstanceHashField()  # last github call that was not an error
     last_call_ko = lfields.InstanceHashField()  # last github call that was an error
     errors = lfields.SortedSetField()  # will store all errors
+    unavailabilities = lfields.SortedSetField()  # will store all queries that set the token as unavailable
 
     repos_admin = lfields.SetField(indexable=True)
     repos_push = lfields.SetField(indexable=True)
@@ -41,11 +42,11 @@ class Token(lmodel.RedisModel):
         return self._user
 
     @classmethod
-    def update_token_from_gh(cls, gh, api_error):
+    def update_token_from_gh(cls, gh, *args, **kwargs):
         token, _ = Token.get_or_connect(token=gh._connection_args['access_token'])
-        token.update_from_gh(gh, api_error)
+        token.update_from_gh(gh, *args, **kwargs)
 
-    def update_from_gh(self, gh, api_error):
+    def update_from_gh(self, gh, api_error, method, path, request_headers, response_headers, kw):
         """
         Will update the current token object with information from the gh object
         and the error, if not None:
@@ -64,6 +65,8 @@ class Token(lmodel.RedisModel):
         str_now = str(now)
         self.last_call.hset(str_now)
 
+        log_unavailability = False
+
         is_error = False
         if api_error:
             is_error = True
@@ -75,9 +78,6 @@ class Token(lmodel.RedisModel):
             self.last_call_ok.hset(str_now)
         else:
             self.last_call_ko.hset(str_now)
-            # save the errors
-            api_error_json = json.dumps({k: getattr(api_error, k, None) for k in ('request', 'response')})
-            self.errors.zadd(datetime_to_score(now), api_error_json)
 
         # reset scopes
         if gh.x_oauth_scopes is not None:
@@ -87,8 +87,8 @@ class Token(lmodel.RedisModel):
             self.valid_scopes.hset(int(bool(gh.x_oauth_scopes)))
             if not gh.x_oauth_scopes or 'repo' not in gh.x_oauth_scopes:
                 self.available.hset(0)
+                log_unavailability = True
                 self.ask_for_reset_flags(3600)  # check again in an hour
-                # TODO: log it !
 
         if gh.x_ratelimit_remaining != -1:
             # add rate limit remaining, clear it after reset time
@@ -105,9 +105,36 @@ class Token(lmodel.RedisModel):
             self.rate_limit_limit.hset(limit)
             if not gh.x_ratelimit_remaining or gh.x_ratelimit_remaining < self.LIMIT:
                 self.available.hset(0)
+                log_unavailability = True
                 self.ask_for_reset_flags()
             else:
                 self.available.hset(1)
+
+        if is_error or log_unavailability:
+            json_data = {
+                'request': {
+                    'path': path,
+                    'method': method,
+                    'headers': request_headers,
+                    'args': kw,
+                },
+                'response': {
+                    'headers': response_headers,
+                },
+            }
+            if api_error:
+                if hasattr(api_error, 'code'):
+                    json_data['response']['code'] = api_error.code
+                if api_error.response and api_error.response.json:
+                    json_data['response']['content'] = api_error.response.json
+
+            json_data = json.dumps(json_data)
+            when = datetime_to_score(now)
+
+            if is_error:
+                self.errors.zadd(when, json_data)
+            if log_unavailability:
+                self.unavailabilities.zadd(when, json_data)
 
     def reset_flags(self):
         """
