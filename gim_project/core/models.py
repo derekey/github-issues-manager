@@ -2342,6 +2342,25 @@ class PullRequestCommentEntryPoint(GithubObject):
             url += '#L%s' % self.position
         return url
 
+    def update_starting_point(self, save=True):
+        try:
+            first_comment = self.comments.all()[0]
+        except IndexError:
+            pass
+        else:
+            if self.created_at != first_comment.created_at or self.user != first_comment.user:
+                self.created_at = first_comment.created_at
+                self.user = first_comment.user
+                if save:
+                    self.save(update_fields=['created_at', 'user'])
+                return True
+        return False
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            self.update_starting_point(save=False)
+        super(PullRequestCommentEntryPoint, self).save(*args, **kwargs)
+
 
 class PullRequestComment(WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='pr_comments')
@@ -2401,6 +2420,7 @@ class PullRequestComment(WithIssueMixin, GithubObjectWithId):
         If the user, which is mandatory, is not defined, use (and create if
         needed) a special user named 'user.deleted'
         If it's a creation, update the pr_comments_count of the issue
+        If it's an update, update the starting point of the entry-point
         """
         if self.user_id is None:
             self.user = GithubUser.objects.get_deleted_user()
@@ -2410,6 +2430,8 @@ class PullRequestComment(WithIssueMixin, GithubObjectWithId):
         super(PullRequestComment, self).save(*args, **kwargs)
         if is_new:
             self.issue.update_pr_comments_count()
+        else:
+            self.entry_point.update_starting_point(save=True)
 
         if not kwargs.get('updated_field') or 'body_html' in kwargs['updated_field']:
             IssueEvent.objects.check_references(self, ['body_html'])
