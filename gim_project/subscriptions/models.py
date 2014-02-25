@@ -71,9 +71,9 @@ class WaitingSubscription(models.Model):
 
 
 SUBSCRIPTION_STATES = Choices(
-    ('READ', 1, 'Simple user'),  # can read
-    ('USER', 2, 'Collaborator'),  # can push, create issues
-    ('ADMIN', 3, 'Admin'),  # can admin, push, create issues
+    ('READ', 1, 'Simple user'),  # can read, create issues
+    ('USER', 2, 'Collaborator'),  # can push, manage issues
+    ('ADMIN', 3, 'Admin'),  # can admin, push, manage issues
     ('NORIGHTS', 4, 'No rights'),  # no access
 )
 SUBSCRIPTION_STATES.ALL_RIGHTS = [s[0] for s in SUBSCRIPTION_STATES]
@@ -183,12 +183,12 @@ class _GithubUser(models.Model):
                 if sub.state != SUBSCRIPTION_STATES.ADMIN:
                     upgraded[name] = SUBSCRIPTION_STATES.ADMIN
 
-            # private repo from another owner: it's not in availables, so no rights anymore
+            # private repo from another owner: it's not in available ones, so no rights anymore
             elif repo.private:
                 if sub.state != SUBSCRIPTION_STATES.NORIGHTS:
                     downgraded[name] = SUBSCRIPTION_STATES.NORIGHTS
 
-            # public repo from another: it's not in availables, so read rights only
+            # public repo from another: it's not in available ones, so read rights only
             elif sub.state not in (SUBSCRIPTION_STATES.READ, SUBSCRIPTION_STATES.NORIGHTS):
                 downgraded[name] = SUBSCRIPTION_STATES.READ
 

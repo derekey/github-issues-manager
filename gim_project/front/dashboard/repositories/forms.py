@@ -40,6 +40,8 @@ class ToggleRepositoryBaseForm(forms.Form):
         name = self.cleaned_data.get('name')
         if name:
             name = '/'.join(self.RE_REPO.match(name).groups())
+        if '..' in name:
+            raise forms.ValidationError('What are you trying to do ? ;)')
         self.repo_full_name = name
         return name
 

@@ -319,7 +319,7 @@ class IssuesView(BaseRepositoryView):
             # prefetch_related use a in(...), and with more than 999 issues
             # sqlite raises an error.
             # In this case, we loop on the data by slice of 999 issues
-            if e.message != 'too many SQL variables':
+            if u'%s' % e != 'too many SQL variables':
                 raise
             queryset = issues
             issues = []

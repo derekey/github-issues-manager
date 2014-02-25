@@ -95,6 +95,7 @@ class SubscribedRepositoriesMixin(BaseFrontViewMixin):
 
 class DeferrableViewPart(object):
     deferred_template_name = 'front/base_deferred_block.html'
+    auto_load = True
 
     @property
     def part_url(self):
@@ -123,6 +124,7 @@ class DeferrableViewPart(object):
         kwargs.update({
             'view': self,
             'defer_url': self.part_url,
+            'auto_load': self.auto_load,
         })
         return kwargs
 

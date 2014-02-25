@@ -1,0 +1,23 @@
+{% load staticfiles frontutils %}
+{% url "front:dashboard:repositories:add" as repository_add_url %}
+{% url "front:dashboard:repositories:remove" as repository_remove_url %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
+<div class="area-top">
+    {{ tab.class.description }}
+    {% include "front/include_quicksearch.html" with id="tab-"|add:tab.class.slug|add:"-search" target="#available-repositories .tab-pane.tab-"|add:tab.class.slug|add:" tbody tr" content="td:first-child" class="small pull-right" only %}
+    {% block top-addon %}{% endblock %}
+</div>
+{% if groups|length %}
+    <table class="table table-normal repos">
+    {% for group in groups %}
+        {% include "front/dashboard/repositories/include_repos.html" %}
+    {% endfor %}
+    </table>
+{% else %}
+    <p class="empty-area">No repositories to show here !</p>
+{% endif %}
+{% if view.request.is_ajax %}
+    <script type="text/javascript">
+        window.activate_quicksearches($('#tab-{{ tab.class.slug }}-search input.quicksearch'));
+    </script>
+{% endif %}

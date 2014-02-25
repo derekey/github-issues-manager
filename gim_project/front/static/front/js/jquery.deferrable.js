@@ -20,7 +20,7 @@
             this.url = this.$element.data('url');
             this.params = this.$element.data('params') || [];
             this.listen();
-            if (this.$element.hasClass('deferred')) {
+            if (this.$element.hasClass('deferred') && this.$element.hasClass('auto')) {
                 this.$element.trigger('reload');
             }
         },

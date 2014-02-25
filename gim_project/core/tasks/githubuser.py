@@ -24,9 +24,6 @@ class FetchAvailableRepositoriesJob(UserJob):
     """
     queue_name = 'fetch-available-repos'
 
-    nb_repos = fields.InstanceHashField()
-    nb_orgs = fields.InstanceHashField()
-    nb_teams = fields.InstanceHashField()
     inform_user = fields.InstanceHashField()
 
     clonable_fields = ('gh', )
@@ -52,7 +49,7 @@ class FetchAvailableRepositoriesJob(UserJob):
         if not gh:
             return  # it's delayed !
 
-        nb_repos, nb_orgs, nb_teams = user.fetch_all()
+        nb_repos, nb_orgs, nb_watched, nb_starred, nb_teams = user.fetch_all()
 
         if self.inform_user.hget() == '1':
             if nb_repos + nb_teams:
@@ -61,19 +58,17 @@ class FetchAvailableRepositoriesJob(UserJob):
                 message = u'There is no new repositories you own, collaborate to, or in your organizations'
             messages.success(user, message)
 
-        self.hmset(nb_repos=nb_repos, nb_teams=nb_teams)
-
         upgraded, downgraded = user.check_subscriptions()
 
-        return nb_repos, nb_orgs, nb_teams, len(upgraded), len(downgraded)
+        return nb_repos, nb_orgs, nb_watched, nb_starred, nb_teams, len(upgraded), len(downgraded)
 
     def success_message_addon(self, queue, result):
         """
         Display infos got from the fetch_available_repositories call
         """
-        nb_repos, nb_orgs, nb_teams, nb_upgraded, nb_downgraded = result
-        return ' [nb_repos=%d, nb_orgs=%d, nb_teams=%d, nb_upgraded=%d, nb_downgraded=%d]' % (
-                                            nb_repos, nb_orgs, nb_teams, nb_upgraded, nb_downgraded)
+        nb_repos, nb_orgs, nb_watched, nb_starred, nb_teams, nb_upgraded, nb_downgraded = result
+        return ' [nb_repos=%d, nb_orgs=%d, nb_watched=%d, nb_starred=%d, nb_teams=%d, nb_upgraded=%d, nb_downgraded=%d]' % (
+                nb_repos, nb_orgs, nb_watched, nb_starred, nb_teams, nb_upgraded, nb_downgraded)
 
     def on_success(self, queue, result):
         """

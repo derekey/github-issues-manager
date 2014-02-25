@@ -3,13 +3,14 @@ from urlparse import urlsplit, parse_qs
 from itertools import product
 from datetime import datetime, timedelta
 from dateutil.parser import parse
+from math import ceil
 import re
 from operator import itemgetter
 import json
 import zlib
 import base64
 
-from django.db import models
+from django.db import models, DatabaseError
 from django.db.models import F, Q
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
@@ -431,7 +432,18 @@ class GithubObject(models.Model):
                 # the original object
                 # Example: a user is not anymore a collaborator, we keep the
                 # the user but remove the relation user <-> repository
-                instance_field.remove(*to_remove)
+                try:
+                    instance_field.remove(*to_remove)
+                except DatabaseError, e:
+                    # sqlite limits the vars passed in a request to 999
+                    # In this case, we loop on the data by slice of 950 obj to remove
+                    if u'%s' % e != 'too many SQL variables':
+                        raise
+                    per_iteration = 950  # do not use 999 has we may have other vars for internal django filter
+                    to_remove = list(to_remove)
+                    iterations = int(ceil(len(to_remove) / float(per_iteration)))
+                    for iteration in range(0, iterations):
+                        instance_field.remove(*to_remove[iteration * per_iteration:(iteration + 1) * per_iteration])
             else:
                 # The relation cannot be removed, because the current object is
                 # a non-nullable fk of the other objects. In this case we are
@@ -449,7 +461,18 @@ class GithubObject(models.Model):
         to_add = fetched_ids - existing_ids
         if to_add:
             count['added'] = len(to_add)
-            instance_field.add(*to_add)
+            try:
+                instance_field.add(*to_add)
+            except DatabaseError, e:
+                # sqlite limits the vars passed in a request to 999
+                # In this case, we loop on the data by slice of 950 obj to add
+                if u'%s' % e != 'too many SQL variables':
+                    raise
+                per_iteration = 950  # do not use 999 has we may have other vars for internal django filter
+                to_add = list(to_add)
+                iterations = int(ceil(count['added'] / float(per_iteration)))
+                for iteration in range(0, iterations):
+                    instance_field.add(*to_add[iteration * per_iteration:(iteration + 1) * per_iteration])
 
         # check if we have something to save on the main object
         update_fields = []
@@ -624,13 +647,20 @@ class Team(GithubObjectWithId):
                                 parameters=parameters)
 
 
+AVAILABLE_PERMISSIONS = Choices(
+    ('pull', 'pull', 'Simple user'),  # can read, create issues
+    ('push', 'push', 'Collaborator'),  # can push, manage issues
+    ('admin', 'admin', 'Admin'),  # can admin, push, manage issues
+)
+
+
 class AvailableRepository(GithubObject):
     """
     Will host repositories a user can access ("through" table for user.available_repositories)
     """
     user = models.ForeignKey('GithubUser', related_name='available_repositories_set')
     repository = models.ForeignKey('Repository')
-    permission = models.CharField(max_length=5)
+    permission = models.CharField(max_length=5, choices=AVAILABLE_PERMISSIONS.CHOICES)
     # cannot use another FK to GithubUser as its a through table :(
     organization_id = models.PositiveIntegerField(blank=True, null=True)
     organization_username = models.CharField(max_length=255, blank=True, null=True)
@@ -664,9 +694,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
     teams_fetched_at = models.DateTimeField(blank=True, null=True)
     teams_etag = models.CharField(max_length=64, blank=True, null=True)
     available_repositories = models.ManyToManyField('Repository', through=AvailableRepository)
-    available_repositories_set_fetched_at = models.DateTimeField(blank=True, null=True)
-    available_repositories_set_etag = models.CharField(max_length=64, blank=True, null=True)
-    org_repositories_fetch_data = JSONField(blank=True, null=True)
+    watched_repositories = models.ManyToManyField('Repository', related_name='watched')
+    starred_repositories = models.ManyToManyField('Repository', related_name='starred')
 
     objects = GithubUserManager()
 
@@ -735,13 +764,25 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             'repos',
         ]
 
+    @property
+    def github_callable_identifiers_for_starred_repositories(self):
+        # won't work for organizations, but not called in this case
+        return self.github_callable_identifiers_for_self + [
+            'starred',
+        ]
+
+    @property
+    def github_callable_identifiers_for_watched_repositories(self):
+        # won't work for organizations, but not called in this case
+        return self.github_callable_identifiers_for_self + [
+            'subscriptions',
+        ]
+
     def __getattr__(self, name):
         """
         We create "github_identifiers_for" to fetch repositories of an
         organization by calling it from the user, so we must create it on the
         fly.
-        And for the fetched_at/etag for the same github queries: we use ones
-        set/saved in the json field "org_repositories_fetch_data"
         """
         if name.startswith('github_callable_identifiers_for_org_repositories_'):
             org_name = name[49:]
@@ -750,25 +791,8 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                 org_name,
                 'repos'
             ]
-        elif name.startswith('org_repositories_'):
-            if name.endswith('_fetched_at'):
-                return parse(self.org_repositories_fetch_data.get(name))
-            if name.endswith('_etag'):
-                return self.org_repositories_fetch_data.get(name)
 
         raise AttributeError("%r object has no attribute %r" % (self.__class__, name))
-
-    def __setattr__(self, name, value):
-        """
-        Will save fetched_at/etag for org repositories in the json field
-        "org_repositories_fetch_data"
-        """
-        if name.startswith('org_repositories_') and (name.endswith('_fetched_at') or name.endswith('_etag')):
-            if self.org_repositories_fetch_data is None:
-                self.org_repositories_fetch_data = {}
-            self.org_repositories_fetch_data[name] = str(value)
-        else:
-            super(GithubUser, self).__setattr__(name, value)
 
     def fetch_organizations(self, gh, force_fetch=False, parameters=None):
         if self.is_organization:
@@ -796,7 +820,39 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 
-    def fetch_available_repositories(self, gh, force_fetch=False, org=None, parameters=None):
+    def fetch_starred_repositories(self, gh=None, force_fetch=False, parameters=None):
+        # FORCE GH
+        if not gh or gh._connection_args.get('username') != self.username:
+            gh = self.get_connection()
+
+        # force fetching 100 orgs by default, as we cannot set "github_per_page"
+        # for the whole Repository class
+        if not parameters:
+            parameters = {}
+        if 'per_page' not in parameters:
+            parameters['per_page'] = 100
+
+        return self._fetch_many('starred_repositories', gh,
+                                force_fetch=force_fetch,
+                                parameters=parameters)
+
+    def fetch_watched_repositories(self, gh=None, force_fetch=False, parameters=None):
+        # FORCE GH
+        if not gh or gh._connection_args.get('username') != self.username:
+            gh = self.get_connection()
+
+        # force fetching 100 orgs by default, as we cannot set "github_per_page"
+        # for the whole Repository class
+        if not parameters:
+            parameters = {}
+        if 'per_page' not in parameters:
+            parameters['per_page'] = 100
+
+        return self._fetch_many('watched_repositories', gh,
+                                force_fetch=force_fetch,
+                                parameters=parameters)
+
+    def fetch_available_repositories(self, gh=None, force_fetch=False, org=None, parameters=None):
         """
         Fetch available repositories for the current user (the "gh" will be
         forced").
@@ -814,6 +870,10 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             parameters = {}
         if 'per_page' not in parameters:
             parameters['per_page'] = 100
+
+        # FORCE GH
+        if not gh or gh._connection_args.get('username') != self.username:
+            gh = self.get_connection()
 
         # force to work on current user
         if gh._connection_args['username'] == self.username:
@@ -847,15 +907,16 @@ class GithubUser(GithubObjectWithId, AbstractUser):
 
     def fetch_all(self, gh=None, force_fetch=False, **kwargs):
         # FORCE GH
-        gh = self.get_connection()
+        if not gh or gh._connection_args.get('username') != self.username:
+            gh = self.get_connection()
 
         super(GithubUser, self).fetch_all(gh, force_fetch=force_fetch)
 
         if self.is_organization:
-            return 0, 0
+            return 0, 0, 0, 0, 0
 
         if not self.token:
-            return 0, 0
+            return 0, 0, 0, 0, 0
 
         # repositories a user own or collaborate to, but not in organizations
         nb_repositories_fetched = self.fetch_available_repositories(gh, force_fetch=force_fetch)
@@ -868,6 +929,13 @@ class GithubUser(GithubObjectWithId, AbstractUser):
             except ApiNotFoundError:
                 # we may have no rights
                 pass
+
+        if not kwargs.get('available_only'):
+            nb_watched = self.fetch_watched_repositories(gh, force_fetch=force_fetch)
+            nb_starred = self.fetch_starred_repositories(gh, force_fetch=force_fetch)
+        else:
+            nb_watched = 0
+            nb_starred = 0
 
         # # repositories on organizations teams the user are a collaborator
         # try:
@@ -888,7 +956,7 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         if t:
             t.update_repos()
 
-        return nb_repositories_fetched, nb_orgs_fetched, 0  # nb_teams_fetched
+        return nb_repositories_fetched, nb_orgs_fetched, nb_watched, nb_starred, 0  # nb_teams_fetched
 
     def get_connection(self):
         return Connection.get(username=self.username, access_token=self.token)
@@ -969,16 +1037,6 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         if self.email is None:
             self.email = ''
         super(GithubUser, self).save(*args, **kwargs)
-
-    def update_related_field(self, field_name, *args, **kwargs):
-        """
-        When updating repositories availables to a user, fetched_at/etags are
-        saved in a json field we want to save
-        """
-        count = super(GithubUser, self).update_related_field(field_name, *args, **kwargs)
-        if field_name == 'available_repositories_set':
-            self.save(update_fields=['org_repositories_fetch_data'])
-        return count
 
 
 class Repository(GithubObjectWithId):
