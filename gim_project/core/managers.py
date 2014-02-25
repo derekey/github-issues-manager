@@ -293,7 +293,7 @@ class GithubObjectManager(models.Manager):
 
                 obj.save(**save_params)
 
-            except IntegrityError:
+            except IntegrityError, e:  # e is useful for debugging ;)
                 # We could have an integrity error if we tried to create an
                 # object that has been created elsewhere during the process
                 # So we check if we really have an object now, and retry the
