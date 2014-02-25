@@ -934,7 +934,7 @@ $().ready(function() {
             if ($target.data('files-list-loaded')) { return;}
             $target.data('files-list-loaded', true);
             IssueDetail.set_tab_files_issue_waypoints($node);
-            $target.find('a.path').first().click();
+            $target.find('.pr-files-list a.path').first().click();
         }), // on_files_list_loaded
 
         on_files_list_click: (function IssueDetail__on_files_list_click (ev) {
