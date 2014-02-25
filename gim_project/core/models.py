@@ -1733,9 +1733,6 @@ class Milestone(WithRepositoryMixin, GithubObjectWithId):
     github_per_page = {'min': 100, 'max': 100}
 
     class Meta:
-        unique_together = (
-            ('repository', 'number'),
-        )
         ordering = ('number', )
 
     @property
