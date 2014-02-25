@@ -2,13 +2,8 @@
 from urlparse import urlsplit, parse_qs
 from itertools import product
 from datetime import datetime, timedelta
-from dateutil.parser import parse
 from math import ceil
 import re
-from operator import itemgetter
-import json
-import zlib
-import base64
 
 from django.db import models, DatabaseError
 from django.db.models import F, Q
