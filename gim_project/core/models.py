@@ -647,13 +647,20 @@ class Team(GithubObjectWithId):
                                 parameters=parameters)
 
 
+AVAILABLE_PERMISSIONS = Choices(
+    ('pull', 'pull', 'Simple user'),  # can read, create issues
+    ('push', 'push', 'Collaborator'),  # can push, manage issues
+    ('admin', 'admin', 'Admin'),  # can admin, push, manage issues
+)
+
+
 class AvailableRepository(GithubObject):
     """
     Will host repositories a user can access ("through" table for user.available_repositories)
     """
     user = models.ForeignKey('GithubUser', related_name='available_repositories_set')
     repository = models.ForeignKey('Repository')
-    permission = models.CharField(max_length=5)
+    permission = models.CharField(max_length=5, choices=AVAILABLE_PERMISSIONS.CHOICES)
     # cannot use another FK to GithubUser as its a through table :(
     organization_id = models.PositiveIntegerField(blank=True, null=True)
     organization_username = models.CharField(max_length=255, blank=True, null=True)

@@ -71,9 +71,9 @@ class WaitingSubscription(models.Model):
 
 
 SUBSCRIPTION_STATES = Choices(
-    ('READ', 1, 'Simple user'),  # can read
-    ('USER', 2, 'Collaborator'),  # can push, create issues
-    ('ADMIN', 3, 'Admin'),  # can admin, push, create issues
+    ('READ', 1, 'Simple user'),  # can read, create issues
+    ('USER', 2, 'Collaborator'),  # can push, manage issues
+    ('ADMIN', 3, 'Admin'),  # can admin, push, manage issues
     ('NORIGHTS', 4, 'No rights'),  # no access
 )
 SUBSCRIPTION_STATES.ALL_RIGHTS = [s[0] for s in SUBSCRIPTION_STATES]

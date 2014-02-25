@@ -1,8 +1,40 @@
 @import "variables";
 @import "compass/css3/border-radius";
 @import "compass/css3/transition";
+@import "compass/css3/box-sizing";
 
 #available-repositories {
+    .tab-pane .area-top {
+        border-top: 0;
+        margin: 0;
+        padding: 10px 8px;
+    }
+    .quicksearch-widget {
+        position: relative;
+        top: -2px;
+    }
+    p.empty-area {
+        margin-top: 3em;
+        margin-bottom: 3em;
+    }
+    form.repository-input {
+        margin: 10px 0 0 0;
+        position: relative;
+        top: 2px;
+        input {
+            margin: 0;
+            padding-right: 40px;
+            width: 100%;
+            height: 30px;
+            @include box-sizing(border-box);
+        }
+        button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            @include border-radius(0 4px 4px 0);
+        }
+    }
     thead {
         td:first-child {
             text-align: left;
@@ -18,29 +50,18 @@
         span.smaller {
             font-size: smaller;
         }
-        &:not(.repository-input) form {
+        form {
             margin: 0;
             padding: 0;
             display: inline-block;
         }
-        &.repository-input {
-            padding: 15px 0;
-            form {
-                margin-bottom: 0;
-                .input-append {
-                    margin-left: -34px;
-                    margin-bottom: 0;
-                    display: block;
-                }
-            }
-        }
     }
     tbody {
-        td:not(.repository-input):first-child {
+        td:first-child {
             padding-left: 32px;
             img {
-                margin-left: -22px;
-                margin-right: 6px;
+                margin-left: -26px;
+                margin-right: 3px;
             }
         }
         &.collapse {
@@ -55,12 +76,18 @@
         }
     }
 
-    form.toggle-form button.btn-loading {
-        width: 26px;
-        height: 22px;
-        &.loading {
-            i.icon-remove, i.icon-plus {
-                display: none;
+    form {
+        &.toggle-form {
+            width: 26px;
+            height: 22px;
+        }
+        &.toggle-form, &.repository-input {
+            button.btn-loading {
+                &.loading {
+                    i.icon-remove, i.icon-plus {
+                        display: none;
+                    }
+                }
             }
         }
     }

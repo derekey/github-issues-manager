@@ -1,0 +1,7 @@
+{% extends "front/base_deferred_block.html" %}
+{% block deferred-placeholder %}
+    <div class="area-top">
+        {{ tab.class.deferred_description|default:tab.class.description }}
+    </div>
+    {{ block.super }}
+{% endblock deferred-placeholder %}
