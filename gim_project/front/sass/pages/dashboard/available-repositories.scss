@@ -46,6 +46,12 @@
         }
         a {
             color: inherit;
+            & .icon-external-link {
+                color: #ccc;
+                position: relative;
+                top: 1px;
+                margin-left: 1ex;
+            }
         }
         span.smaller {
             font-size: smaller;

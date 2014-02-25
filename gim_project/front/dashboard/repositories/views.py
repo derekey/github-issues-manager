@@ -11,6 +11,7 @@ from subscriptions.models import (WaitingSubscription,
                                   WAITING_SUBSCRIPTION_STATES,
                                   SUBSCRIPTION_STATES, )
 
+from core import GITHUB_HOST
 from core.tasks.repository import FirstFetch
 from hooks.tasks import CheckRepositoryEvents
 
@@ -19,7 +20,7 @@ from .forms import AddRepositoryForm, RemoveRepositoryForm
 
 
 FakeUser = namedtuple('FakeUser', ['username'])
-FakeRepository = namedtuple('FakeRepository', ['owner', 'name', 'full_name', 'no_infos'])
+FakeRepository = namedtuple('FakeRepository', ['owner', 'name', 'full_name', 'no_infos', 'github_url'])
 
 
 NO_REPOSITORY = '_/_'
@@ -201,7 +202,8 @@ class WithRepoMixin(object):
             name=repository_name,
             full_name=full_name,
             owner=owner,
-            no_infos=True
+            no_infos=True,
+            github_url=GITHUB_HOST + full_name
         )
 
     def get_organization_and_org_name_from_name(self, name):
