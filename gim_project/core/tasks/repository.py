@@ -277,7 +277,7 @@ class FirstFetch(Job):
         # TODO: should not be in core but for now...
         from hooks.tasks import CheckRepositoryHook, CheckRepositoryEvents
         CheckRepositoryEvents.add_job(repository.id)
-        CheckRepositoryHook.add_job(repository.id, delay=30)
+        CheckRepositoryHook.add_job(repository.id, delayed_for=30)
 
         # return the number of converted subscriptions
         return count
