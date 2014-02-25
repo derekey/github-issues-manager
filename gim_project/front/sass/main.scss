@@ -9,6 +9,10 @@
 @import "widgets/diff";
 @import "core-admin-widgets";
 
+del {
+    text-decoration: line-through;
+}
+
 .text-open {
     color: $state-open-color;
 }

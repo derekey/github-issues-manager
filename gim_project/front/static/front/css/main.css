@@ -4610,40 +4610,45 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
 }
 
 /* line 12, ../../../sass/main.scss */
+del {
+  text-decoration: line-through;
+}
+
+/* line 16, ../../../sass/main.scss */
 .text-open {
   color: #8cc079;
 }
 
-/* line 15, ../../../sass/main.scss */
+/* line 19, ../../../sass/main.scss */
 .text-closed {
   color: #b35d5d;
 }
 
-/* line 19, ../../../sass/main.scss */
+/* line 23, ../../../sass/main.scss */
 body {
   background-color: #f0f0f0;
   font-size: 13px;
 }
-/* line 22, ../../../sass/main.scss */
+/* line 26, ../../../sass/main.scss */
 body > header {
   margin-bottom: 0;
 }
-/* line 26, ../../../sass/main.scss */
+/* line 30, ../../../sass/main.scss */
 body > header .navbar-inner {
   padding: 0 20px !important;
 }
-/* line 30, ../../../sass/main.scss */
+/* line 34, ../../../sass/main.scss */
 body > header .user_avatar .caret {
   vertical-align: middle;
   margin-top: -3px !important;
 }
 
-/* line 39, ../../../sass/main.scss */
+/* line 43, ../../../sass/main.scss */
 #main {
   padding-top: 47px;
 }
 
-/* line 44, ../../../sass/main.scss */
+/* line 48, ../../../sass/main.scss */
 #main > .row-fluid {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -4651,13 +4656,13 @@ body > header .user_avatar .caret {
   padding: 0 22px;
 }
 
-/* line 49, ../../../sass/main.scss */
+/* line 53, ../../../sass/main.scss */
 #main > .row-fluid.row-header {
   padding: 0;
   margin-bottom: 15px;
 }
 
-/* line 56, ../../../sass/main.scss */
+/* line 60, ../../../sass/main.scss */
 #messages {
   position: fixed;
   top: 67px;
@@ -4665,7 +4670,7 @@ body > header .user_avatar .caret {
   z-index: 2000;
 }
 
-/* line 64, ../../../sass/main.scss */
+/* line 68, ../../../sass/main.scss */
 .empty-area {
   color: #bbbbbb;
   font-size: 300%;
@@ -4678,32 +4683,32 @@ body > header .user_avatar .caret {
   line-height: 2em;
   margin-top: -1em;
 }
-/* line 75, ../../../sass/main.scss */
+/* line 79, ../../../sass/main.scss */
 .empty-area i {
   font-size: inherit;
 }
 
-/* line 80, ../../../sass/main.scss */
+/* line 84, ../../../sass/main.scss */
 .box-content .empty-area {
   position: static;
   font-size: 150%;
   margin: 0;
 }
 
-/* line 89, ../../../sass/main.scss */
+/* line 93, ../../../sass/main.scss */
 .content {
   color: #505050;
 }
-/* line 91, ../../../sass/main.scss */
+/* line 95, ../../../sass/main.scss */
 .content br {
   margin: 3px 0;
 }
-/* line 94, ../../../sass/main.scss */
+/* line 98, ../../../sass/main.scss */
 .content p:last-child {
   margin-bottom: 0;
 }
 
-/* line 101, ../../../sass/main.scss */
+/* line 105, ../../../sass/main.scss */
 ol.errorlist, ul.errorlist {
   list-style: none;
   margin: 0;
@@ -4711,34 +4716,34 @@ ol.errorlist, ul.errorlist {
   font-style: italic;
 }
 
-/* line 113, ../../../sass/main.scss */
+/* line 117, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"] {
   text-align: center;
 }
-/* line 115, ../../../sass/main.scss */
+/* line 119, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:first-child {
   text-align: left;
 }
-/* line 118, ../../../sass/main.scss */
+/* line 122, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:last-child {
   text-align: right;
 }
 
-/* line 126, ../../../sass/main.scss */
+/* line 130, ../../../sass/main.scss */
 .btn-loading i.icon-spinner, .btn-loading i.icon-spin {
   display: none !important;
 }
-/* line 130, ../../../sass/main.scss */
+/* line 134, ../../../sass/main.scss */
 .btn-loading.loading i.icon-spinner, .btn-loading.loading i.icon-spin {
   display: inline-block !important;
 }
 
-/* line 137, ../../../sass/main.scss */
+/* line 141, ../../../sass/main.scss */
 .active-panel {
   border-top: solid 5px #7bc8d7 !important;
 }
 
-/* line 142, ../../../sass/main.scss */
+/* line 146, ../../../sass/main.scss */
 .sparkline-graph {
   line-height: 1px !important;
 }
