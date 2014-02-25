@@ -3,7 +3,6 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 
-
 from core import models as core_models
 from core.ghpool import prepare_fetch_headers, ApiError, Connection
 from core.managers import SavedObjects, MODE_ALL
@@ -390,5 +389,24 @@ class EventManager(object):
 
         except Exception:
             return None
+
+    def event_push(self, payload, fetch_issue=True):
+        """
+        When a PushEvent is received, check if we have pull requests on the
+        branch the push was done, and if yes, update them
+        """
+        if 'ref' not in payload:
+            return None
+
+        label = ':%s' % payload['ref'][11:]  # remove "refs/heads/"
+
+        numbers = set(self.repository.issues.filter(
+                     models.Q(head_label__endswith=label) | models.Q(base_label__endswith=label),
+                    is_pull_request=True
+                ).values_list('number', flat=True))
+
+        for number in numbers:
+            self.fetch_issue(number)
+
 
 from .tasks import *
