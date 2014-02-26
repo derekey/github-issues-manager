@@ -996,17 +996,17 @@ table.commits-list td.cell-sha {
   width: 50%;
   margin: 0;
 }
-@media (max-height: 800px) {
-  /* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
-  .dashboard-2cols .dashboard-col {
-    top: 90px;
-    bottom: 5px;
-  }
-}
 @media (max-width: 800px) {
   /* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
   .dashboard-2cols .dashboard-col {
     top: 110px;
+    bottom: 5px;
+  }
+}
+@media (max-height: 800px) {
+  /* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col {
+    top: 90px;
     bottom: 5px;
   }
 }

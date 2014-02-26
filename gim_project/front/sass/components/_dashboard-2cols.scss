@@ -14,12 +14,12 @@ $dashboard-small-width: 800px;
         bottom: 25px;
         width: 50%;
         margin: 0;
-        @media (max-height: $dashboard-small-height) {
-            top: 90px;
-            bottom: 5px;
-        }
         @media (max-width: $dashboard-small-width) {
             top: 110px;
+            bottom: 5px;
+        }
+        @media (max-height: $dashboard-small-height) {
+            top: 90px;
             bottom: 5px;
         }
         > .col-part {
