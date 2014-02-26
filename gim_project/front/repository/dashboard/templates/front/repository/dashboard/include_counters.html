@@ -1,4 +1,5 @@
-{% load repository_tags issues_tags %}
+{% load repository_tags issues_tags staticfiles %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
 <div class="deferrable action-nav-normal" id="counters" data-url="{{ defer_url }}">
     {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:user createdy_url=current_repository|base_url_issues_filtered_by_created_by:user issues_url=current_repository|repository_view_url:'issues' %}
 
@@ -14,7 +15,7 @@
                         {% with count=counters.assigned %}
                             <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
                         {% endwith %}
-                        <span class="label left"><i class="icon-user"></i></span>
+                        <span class="label left"><img class="avatar-tiny img-circle" src="{{ user.avatar_url|default:default_avatar }}" /></span>
                     </div>
                 </div>
             {% endif %}
@@ -28,7 +29,7 @@
                     {% with count=counters.created %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
                     {% endwith %}
-                    <span class="label left"><i class="icon-user"></i></span>
+                    <span class="label left"><img class="avatar-tiny img-circle" src="{{ user.avatar_url|default:default_avatar }}" /></span>
                 </div>
             </div>
 
@@ -41,7 +42,7 @@
                     {% with count=counters.prs %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
                     {% endwith %}
-                    <span class="label left"><i class="icon-user"></i></span>
+                    <span class="label left"><img class="avatar-tiny img-circle" src="{{ user.avatar_url|default:default_avatar }}" /></span>
                 </div>
             </div>
 
