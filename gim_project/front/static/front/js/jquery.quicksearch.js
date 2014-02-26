@@ -9,6 +9,7 @@
 			noResults: '',
 			matchedResultsCount: 0,
 			bind: 'keyup',
+			fuzzy: true,
 			onBefore: function () {
 				return;
 			},
@@ -21,8 +22,10 @@
 			hide: function () {
 				this.style.display = "none";
 			},
-			prepareQuery: function (val) {
-				return val.toLowerCase().split(' ');
+			prepareQuery: function (val, split) {
+				var result = val.toLowerCase();
+				if (split) { result = result.split(' '); }
+				return result;
 			},
 			testQuery: function (query, txt, _row) {
 				for (var i = 0; i < query.length; i += 1) {
@@ -31,6 +34,14 @@
 					}
 				}
 				return true;
+			},
+			testQueryFuzzy: function (query, txt, _row) {
+			    var last = -1;
+			    for (var i = 0; i < query.length; i++) {
+			        last = txt.indexOf(query[i], last+1);
+			        if (last == -1) { return false; }
+			    }
+			    return true;
 			}
 		}, opt);
 
@@ -39,11 +50,12 @@
 			var i = 0,
 				numMatchedRows = 0,
 				noresults = true,
-				query = options.prepareQuery(val),
-				val_empty = (val.replace(' ', '').length === 0);
+				query = options.prepareQuery(val, !options.fuzzy),
+				val_empty = (val.replace(' ', '').length === 0),
+				method = options.fuzzy ? options.testQueryFuzzy : options.testQuery;
 
 			for (var i = 0, len = rowcache.length; i < len; i++) {
-				if (val_empty || options.testQuery(query, cache[i], rowcache[i])) {
+				if (val_empty || method(query, cache[i], rowcache[i])) {
 					options.show.apply(rowcache[i]);
 					noresults = false;
 					numMatchedRows++;
