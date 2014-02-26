@@ -10,8 +10,12 @@
 
 @import "components/issues_mixins";
 @import "components/issue";
+@import "components/dashboard-2cols";
 
 @import "widgets/activity";
+
+$counters-height: 180px;
+$counters-small-height: 154px;
 
 .area-top {
     .header {
@@ -23,6 +27,12 @@
         }
         h5 {
             margin-left: 32px;
+        }
+    }
+    @media (max-height: $dashboard-small-height) {
+        .issues-by-day {
+            overflow: hidden;
+            height: 32px;
         }
     }
 }
@@ -93,11 +103,35 @@
 }
 
 #counters {
-    margin-bottom: 10px;
     .action-nav-button {
         width: 100%;
         a {
             white-space: normal;
+            position: relative;
+            height: 70px;
+            span {
+                position: absolute;
+                left: 5px;
+                right: 5px;
+                bottom: 5px;
+                line-height: 1.5ex;
+            }
+        }
+        @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+            margin-bottom: 7px;
+        }
+    }
+    @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+        $margin: 6px;
+        .span4 {
+            margin-left: $margin;
+            @include calc(width, '100% / 3 - #{$margin} * 2 / 3');
+            &:first-child {
+                margin-left: 0;
+            }
+            &.offset2 {
+                @include calc(margin-left, '100% / 6 + #{$margin}');
+            }
         }
     }
     .label.left {
@@ -105,16 +139,16 @@
         color: inherit;
         @include text-shadow(none);
     }
-}
-
-@media (max-width: 1040px) {
-    #counters .action-nav-button a {
-        height: 90px;
-    }
+    top: 0;
+    height: $counters-height;
 }
 
 #labels {
-    .box-content {
+    top: $counters-height;
+    @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+        top: $counters-small-height;
+    }
+    .box-section {
         padding: 5px {
             top: 20px;
         }
@@ -122,9 +156,17 @@
             padding-top: 5px;
         }
         &.empty {
-            padding: 0;
+            padding: 10px;
+            .empty-area {
+                font-size: 125%;
+            }
         }
-        border-top: solid 1px #ddd;
+        &.without-labels {
+            padding-top: 5px;
+            ul.labels {
+                text-align: center !important;
+            }
+        }
         position: relative;
         .label {
             position: absolute;
@@ -161,14 +203,19 @@ ul.labels {
     }
 }
 
+#milestones {
+    bottom: 0;
+}
+
 
 #milestones, #labels {
+    @include calc(height, '50% - #{$counters-height / 2 + 15px}');
+    @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+        @include calc(height, '50% - #{$counters-small-height / 2 + 5px}');
+    }
     .box-header .box-toolbar > li {
         padding-right: 0;
         margin-left: 0;
-    }
-    .box-content .empty-area {
-        font-size: 125%;
     }
 }
 

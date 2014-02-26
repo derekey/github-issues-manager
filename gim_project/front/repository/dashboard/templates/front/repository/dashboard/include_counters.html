@@ -1,6 +1,6 @@
 {% load repository_tags issues_tags staticfiles %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
-<div class="deferrable action-nav-normal" id="counters" data-url="{{ defer_url }}">
+<div class="col-part deferrable action-nav-normal" id="counters" data-url="{{ defer_url }}">
     {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:user createdy_url=current_repository|base_url_issues_filtered_by_created_by:user issues_url=current_repository|repository_view_url:'issues' %}
 
         <div class="row-fluid">

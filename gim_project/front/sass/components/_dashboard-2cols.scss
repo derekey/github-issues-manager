@@ -1,0 +1,72 @@
+$dashboard-small-height: 800px;
+$dashboard-small-width: 800px;
+
+.dashboard-2cols {
+    .row-header .area-top {
+        @media (max-height: $dashboard-small-height) {
+            padding: 0px 15px;
+            margin-bottom: 15px;
+        }
+    }
+    .dashboard-col {
+        position: absolute;
+        top: 130px;
+        bottom: 25px;
+        width: 50%;
+        margin: 0;
+        @media (max-height: $dashboard-small-height) {
+            top: 90px;
+            bottom: 5px;
+        }
+        @media (max-width: $dashboard-small-width) {
+            top: 110px;
+            bottom: 5px;
+        }
+        > .col-part {
+            position: absolute;
+            margin: 0;
+            padding-bottom: 1px;
+            > .box-content {
+                overflow-y: auto;
+                @include box-sizing(border-box);
+                height: calc(100% - 38px);
+                @include calc(height, '100% - 37px');  // box-header height
+                > div.section, > div.content {
+                    background: #FBFBFB;
+                }
+                    height: calc(100% - 38px);
+                    @include calc(height, '100% - 37px');  // box-header height
+                > .empty-area:only-child {
+                    position: absolute;
+                    margin-top: -1em;
+                }
+            }
+            &.full-col {
+                top: 0;
+                bottom: 0;
+            }
+        }
+        &:nth-child(1) {
+            left: 0;
+            > .col-part {
+                left: 22px;
+                right: 11px;
+                @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+                    left: 5px;
+                    right: 2px;
+                }
+            }
+        }
+        &:nth-child(2) {
+            left: 50%;
+            > .col-part {
+                left: 11px;
+                right: 22px;
+                @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+                    left: 3px;
+                    right: 5px;
+                }
+            }
+        }
+    }
+}

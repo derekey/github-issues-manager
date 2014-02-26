@@ -3,6 +3,7 @@
 {% static 'front/img/default-avatar.png' as default_avatar %}
 
 {% block body_id %}dashboard_home{% endblock %}
+{% block body_classes %}{{block.super}} dashboard-2cols{% endblock %}
 {% block extra_css %}
     <link href="{% static "front/css/pages/dashboard/dashboard-home.css" %}" rel="stylesheet">
 {% endblock extra_css %}
@@ -16,8 +17,8 @@
 {% block dashboard-main %}
 
     <div class="row-fluid">
-        <div class="span6">
-            <div class="box" id="subscribed_repositories">
+        <div class="span6 dashboard-col">
+            <div class="box col-part full-col" id="subscribed_repositories">
                 <div class="box-header">
                     <span class="title">Subscribed repositories</span>
                     {% if subscribed_repositories|length %}
@@ -86,7 +87,7 @@
             </div>{# #subscribed_repositories.box #}
         </div>{# .span6 #}
 
-        <div class="span6">
+        <div class="span6 dashboard-col">
             {{ parts.activity|safe }}
         </div>{# .span6 #}
     </div>{# .row-fluid #}

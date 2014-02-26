@@ -980,6 +980,105 @@ table.commits-list td.cell-sha {
   font-size: inherit;
 }
 
+@media (max-height: 800px) {
+  /* line 5, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .row-header .area-top {
+    padding: 0px 15px;
+    margin-bottom: 15px;
+  }
+}
+/* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col {
+  position: absolute;
+  top: 130px;
+  bottom: 25px;
+  width: 50%;
+  margin: 0;
+}
+@media (max-height: 800px) {
+  /* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col {
+    top: 90px;
+    bottom: 5px;
+  }
+}
+@media (max-width: 800px) {
+  /* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col {
+    top: 110px;
+    bottom: 5px;
+  }
+}
+/* line 25, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part {
+  position: absolute;
+  margin: 0;
+  padding-bottom: 1px;
+}
+/* line 29, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part > .box-content {
+  overflow-y: auto;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  height: calc(100% - 38px);
+  height: -moz-calc(100% - 37px) ;
+  height: -o-calc(100% - 37px) ;
+  height: -webkit-calc(100% - 37px) ;
+  height: calc(100% - 37px) ;
+  height: calc(100% - 38px);
+  height: -moz-calc(100% - 37px) ;
+  height: -o-calc(100% - 37px) ;
+  height: -webkit-calc(100% - 37px) ;
+  height: calc(100% - 37px) ;
+}
+/* line 34, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part > .box-content > div.section, .dashboard-2cols .dashboard-col > .col-part > .box-content > div.content {
+  background: #FBFBFB;
+}
+/* line 39, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part > .box-content > .empty-area:only-child {
+  position: absolute;
+  margin-top: -1em;
+}
+/* line 44, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part.full-col {
+  top: 0;
+  bottom: 0;
+}
+/* line 49, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col:nth-child(1) {
+  left: 0;
+}
+/* line 51, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col:nth-child(1) > .col-part {
+  left: 22px;
+  right: 11px;
+}
+@media (max-height: 800px), (max-width: 800px) {
+  /* line 51, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col:nth-child(1) > .col-part {
+    left: 5px;
+    right: 2px;
+  }
+}
+/* line 60, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col:nth-child(2) {
+  left: 50%;
+}
+/* line 62, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col:nth-child(2) > .col-part {
+  left: 11px;
+  right: 22px;
+}
+@media (max-height: 800px), (max-width: 800px) {
+  /* line 62, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col:nth-child(2) > .col-part {
+    left: 3px;
+    right: 5px;
+  }
+}
+
 /* line 5, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .activity-repository:not(:first-child) {
   border-top: 1px solid #CDCDCD;
@@ -1137,43 +1236,36 @@ table.commits-list td.cell-sha {
   border-left-color: #7bc8d7;
 }
 
-@media (max-height: 800px) {
-  /* line 16, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-  #dashboard_home .area-top {
-    padding: 0px 15px;
-    margin-bottom: 15px;
-  }
-}
-/* line 21, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 18, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #dashboard_home .area-top .btn {
   margin-top: 6px;
 }
 
-/* line 27, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 24, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .box-toolbar {
   position: absolute;
   right: 0;
 }
-/* line 31, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 28, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .news-content {
   position: relative;
   overflow: hidden;
   height: 63px;
   margin-bottom: -10px;
 }
-/* line 37, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 34, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .news-title {
   position: relative;
   z-index: 2;
 }
-/* line 41, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 38, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .issues-by-day {
   position: absolute;
   right: 0;
   bottom: 0;
   z-index: 1;
 }
-/* line 47, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 44, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters {
   float: right;
   margin-top: -13px;
@@ -1181,117 +1273,41 @@ table.commits-list td.cell-sha {
   text-align: right;
   font-weight: bold;
 }
-/* line 53, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 50, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters li {
   padding: 0 5px;
 }
-/* line 56, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 53, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .high a {
   color: #C75D5D;
 }
-/* line 59, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 56, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .medium a {
   color: #6E97AA;
 }
-/* line 62, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 59, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .low a {
   color: #808080;
 }
-/* line 65, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 62, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .none a {
   color: #8FAE53;
 }
-/* line 68, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 65, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .not-collab {
   font-weight: normal;
 }
-/* line 71, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+/* line 68, ../../../../../sass/pages/dashboard/dashboard-home.scss */
 #subscribed_repositories .counters .all-prs {
   border-top: dashed #ccc 1px;
 }
 
-/* line 79, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6 {
-  position: absolute;
-  top: 130px;
-  bottom: 25px;
-  width: 50%;
-  margin: 0;
-}
-@media (max-height: 800px) {
-  /* line 79, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-  #dashboard_home .row-fluid:not(.row-header) > .span6 {
-    top: 88px;
-    bottom: 5px;
-  }
-}
-/* line 89, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6 > .box {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  margin: 0;
-}
-/* line 94, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6 > .box > .box-content {
-  overflow-y: auto;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  height: calc(100% - 38px);
-  height: -moz-calc(100% - 37px) ;
-  height: -o-calc(100% - 37px) ;
-  height: -webkit-calc(100% - 37px) ;
-  height: calc(100% - 37px) ;
-}
-/* line 99, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6 > .box > .box-content > div.section, #dashboard_home .row-fluid:not(.row-header) > .span6 > .box > .box-content > div.content {
-  background: #FBFBFB;
-}
-/* line 102, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6 > .box > .box-content .empty-area {
-  position: absolute;
-  margin-top: -1em;
-}
-/* line 108, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(1) {
-  left: 0;
-}
-/* line 110, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(1) > .box {
-  left: 22px;
-  right: 11px;
-}
-@media (max-height: 800px) {
-  /* line 110, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-  #dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(1) > .box {
-    left: 5px;
-    right: 2px;
-  }
-}
-/* line 119, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(2) {
-  left: 50%;
-}
-/* line 121, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-#dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(2) > .box {
-  left: 11px;
-  right: 22px;
-}
-@media (max-height: 800px) {
-  /* line 121, ../../../../../sass/pages/dashboard/dashboard-home.scss */
-  #dashboard_home .row-fluid:not(.row-header) > .span6:nth-child(2) > .box {
-    left: 3px;
-    right: 5px;
-  }
-}
-
 @media (max-width: 800px) {
-  /* line 135, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+  /* line 76, ../../../../../sass/pages/dashboard/dashboard-home.scss */
   #subscribed_repositories input.quicksearch {
     width: 20px;
   }
-  /* line 137, ../../../../../sass/pages/dashboard/dashboard-home.scss */
+  /* line 78, ../../../../../sass/pages/dashboard/dashboard-home.scss */
   #subscribed_repositories input.quicksearch:focus {
     width: 103px;
   }

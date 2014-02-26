@@ -1,14 +1,15 @@
 {% extends "front/repository/dashboard/base.html" %}
 {% load staticfiles %}
+{% block body_classes %}{{block.super}} dashboard-2cols{% endblock %}
 
 {% block dashboard-content %}
     <div class="row-fluid">
-        <div class="span6">
+        <div class="span6 dashboard-col">
             {{ parts.counters|safe }}
             {{ parts.labels|safe }}
             {{ parts.milestones|safe }}
         </div>
-        <div class="span6">
+        <div class="span6 dashboard-col">
             {{ parts.activity|safe }}
         </div>
     </div>

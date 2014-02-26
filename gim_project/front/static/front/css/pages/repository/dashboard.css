@@ -981,6 +981,105 @@ table.commits-list td.cell-sha {
   font-size: inherit;
 }
 
+@media (max-height: 800px) {
+  /* line 5, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .row-header .area-top {
+    padding: 0px 15px;
+    margin-bottom: 15px;
+  }
+}
+/* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col {
+  position: absolute;
+  top: 130px;
+  bottom: 25px;
+  width: 50%;
+  margin: 0;
+}
+@media (max-height: 800px) {
+  /* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col {
+    top: 90px;
+    bottom: 5px;
+  }
+}
+@media (max-width: 800px) {
+  /* line 11, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col {
+    top: 110px;
+    bottom: 5px;
+  }
+}
+/* line 25, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part {
+  position: absolute;
+  margin: 0;
+  padding-bottom: 1px;
+}
+/* line 29, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part > .box-content {
+  overflow-y: auto;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  height: calc(100% - 38px);
+  height: -moz-calc(100% - 37px) ;
+  height: -o-calc(100% - 37px) ;
+  height: -webkit-calc(100% - 37px) ;
+  height: calc(100% - 37px) ;
+  height: calc(100% - 38px);
+  height: -moz-calc(100% - 37px) ;
+  height: -o-calc(100% - 37px) ;
+  height: -webkit-calc(100% - 37px) ;
+  height: calc(100% - 37px) ;
+}
+/* line 34, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part > .box-content > div.section, .dashboard-2cols .dashboard-col > .col-part > .box-content > div.content {
+  background: #FBFBFB;
+}
+/* line 39, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part > .box-content > .empty-area:only-child {
+  position: absolute;
+  margin-top: -1em;
+}
+/* line 44, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col > .col-part.full-col {
+  top: 0;
+  bottom: 0;
+}
+/* line 49, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col:nth-child(1) {
+  left: 0;
+}
+/* line 51, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col:nth-child(1) > .col-part {
+  left: 22px;
+  right: 11px;
+}
+@media (max-height: 800px), (max-width: 800px) {
+  /* line 51, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col:nth-child(1) > .col-part {
+    left: 5px;
+    right: 2px;
+  }
+}
+/* line 60, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col:nth-child(2) {
+  left: 50%;
+}
+/* line 62, ../../../../../sass/components/_dashboard-2cols.scss */
+.dashboard-2cols .dashboard-col:nth-child(2) > .col-part {
+  left: 11px;
+  right: 22px;
+}
+@media (max-height: 800px), (max-width: 800px) {
+  /* line 62, ../../../../../sass/components/_dashboard-2cols.scss */
+  .dashboard-2cols .dashboard-col:nth-child(2) > .col-part {
+    left: 3px;
+    right: 5px;
+  }
+}
+
 /* line 5, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .activity-repository:not(:first-child) {
   border-top: 1px solid #CDCDCD;
@@ -1138,30 +1237,37 @@ table.commits-list td.cell-sha {
   border-left-color: #7bc8d7;
 }
 
-/* line 18, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 22, ../../../../../sass/pages/repository/dashboard.scss */
 .area-top .header h3 a i {
   float: none;
   color: #ccc;
   position: relative;
   top: 1px;
 }
-/* line 24, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 28, ../../../../../sass/pages/repository/dashboard.scss */
 .area-top .header h5 {
   margin-left: 32px;
 }
+@media (max-height: 800px) {
+  /* line 33, ../../../../../sass/pages/repository/dashboard.scss */
+  .area-top .issues-by-day {
+    overflow: hidden;
+    height: 32px;
+  }
+}
 
-/* line 32, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 42, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones a[data-toggle=collapse].collapsed h3::after {
   content: '…';
   font-weight: normal;
 }
-/* line 36, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 46, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section {
   overflow: auto;
   padding: 15px;
   padding-bottom: 0;
 }
-/* line 42, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 52, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > .date, #milestones .box-section > .all-issues-link {
   float: right;
   font-style: italic;
@@ -1172,7 +1278,7 @@ table.commits-list td.cell-sha {
   transition: opacity 0.35s;
   margin-top: -10px;
 }
-/* line 49, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 59, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress {
   clear: both;
   -webkit-transition: height 0.35s;
@@ -1180,12 +1286,12 @@ table.commits-list td.cell-sha {
   -o-transition: height 0.35s;
   transition: height 0.35s;
 }
-/* line 52, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 62, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress a {
   display: block;
   color: inherit;
 }
-/* line 56, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 66, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress span {
   opacity: 0;
   font-weight: bold;
@@ -1194,16 +1300,16 @@ table.commits-list td.cell-sha {
   -o-transition: opacity 0.35s;
   transition: opacity 0.35s;
 }
-/* line 62, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 72, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > blockquote {
   margin: -10px 0 15px;
   float: left;
 }
-/* line 66, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 76, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > a {
   overflow: auto;
 }
-/* line 68, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 78, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > a > h3 {
   float: left;
   margin: 0;
@@ -1211,62 +1317,115 @@ table.commits-list td.cell-sha {
   font-size: 16px;
   line-height: normal;
 }
-/* line 79, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 89, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > a:not(.collapsed) ~ .date, #milestones .box-section > a:not(.collapsed) ~ .all-issues-link {
   opacity: 1;
   margin-bottom: 10px;
 }
-/* line 83, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 93, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > a:not(.collapsed) ~ div.progress {
   height: 20px;
 }
-/* line 85, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 95, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > a:not(.collapsed) ~ div.progress span {
   opacity: 1;
 }
 
-/* line 95, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 105, ../../../../../sass/pages/repository/dashboard.scss */
 #counters {
-  margin-bottom: 10px;
+  top: 0;
+  height: 180px;
 }
-/* line 97, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 106, ../../../../../sass/pages/repository/dashboard.scss */
 #counters .action-nav-button {
   width: 100%;
 }
-/* line 99, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 108, ../../../../../sass/pages/repository/dashboard.scss */
 #counters .action-nav-button a {
   white-space: normal;
+  position: relative;
+  height: 70px;
 }
-/* line 103, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 112, ../../../../../sass/pages/repository/dashboard.scss */
+#counters .action-nav-button a span {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  line-height: 1.5ex;
+}
+@media (max-height: 800px), (max-width: 800px) {
+  /* line 106, ../../../../../sass/pages/repository/dashboard.scss */
+  #counters .action-nav-button {
+    margin-bottom: 7px;
+  }
+}
+@media (max-height: 800px), (max-width: 800px) {
+  /* line 126, ../../../../../sass/pages/repository/dashboard.scss */
+  #counters .span4 {
+    margin-left: 6px;
+    width: -moz-calc(100% / 3 - 6px * 2 / 3) ;
+    width: -o-calc(100% / 3 - 6px * 2 / 3) ;
+    width: -webkit-calc(100% / 3 - 6px * 2 / 3) ;
+    width: calc(100% / 3 - 6px * 2 / 3) ;
+  }
+  /* line 129, ../../../../../sass/pages/repository/dashboard.scss */
+  #counters .span4:first-child {
+    margin-left: 0;
+  }
+  /* line 132, ../../../../../sass/pages/repository/dashboard.scss */
+  #counters .span4.offset2 {
+    margin-left: -moz-calc(100% / 6 + 6px) ;
+    margin-left: -o-calc(100% / 6 + 6px) ;
+    margin-left: -webkit-calc(100% / 6 + 6px) ;
+    margin-left: calc(100% / 6 + 6px) ;
+  }
+}
+/* line 137, ../../../../../sass/pages/repository/dashboard.scss */
 #counters .label.left {
   background: transparent;
   color: inherit;
   text-shadow: none;
 }
 
-@media (max-width: 1040px) {
-  /* line 111, ../../../../../sass/pages/repository/dashboard.scss */
-  #counters .action-nav-button a {
-    height: 90px;
+/* line 146, ../../../../../sass/pages/repository/dashboard.scss */
+#labels {
+  top: 180px;
+}
+@media (max-height: 800px), (max-width: 800px) {
+  /* line 146, ../../../../../sass/pages/repository/dashboard.scss */
+  #labels {
+    top: 154px;
   }
 }
-/* line 117, ../../../../../sass/pages/repository/dashboard.scss */
-#labels .box-content {
+/* line 151, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-section {
   padding: 5px;
   padding-top: 20px;
-  border-top: solid 1px #ddd;
   position: relative;
 }
-/* line 121, ../../../../../sass/pages/repository/dashboard.scss */
-#labels .box-content.only {
+/* line 155, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-section.only {
   padding-top: 5px;
 }
-/* line 124, ../../../../../sass/pages/repository/dashboard.scss */
-#labels .box-content.empty {
-  padding: 0;
+/* line 158, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-section.empty {
+  padding: 10px;
 }
-/* line 129, ../../../../../sass/pages/repository/dashboard.scss */
-#labels .box-content .label {
+/* line 160, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-section.empty .empty-area {
+  font-size: 125%;
+}
+/* line 164, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-section.without-labels {
+  padding-top: 5px;
+}
+/* line 166, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-section.without-labels ul.labels {
+  text-align: center !important;
+}
+/* line 171, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-section .label {
   position: absolute;
   top: 0;
   left: 0;
@@ -1283,26 +1442,26 @@ table.commits-list td.cell-sha {
   -webkit-border-bottom-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-/* line 138, ../../../../../sass/pages/repository/dashboard.scss */
-#labels .box-content ul li span {
+/* line 180, ../../../../../sass/pages/repository/dashboard.scss */
+#labels .box-section ul li span {
   margin-left: 5px;
   font-weight: bold;
 }
-/* line 145, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 187, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-header + .box-content {
   border-top: none;
 }
-/* line 148, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 190, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-footer {
   text-align: center;
 }
 
-/* line 153, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 195, ../../../../../sass/pages/repository/dashboard.scss */
 ul.labels {
   text-align: justify;
   margin: 0;
 }
-/* line 156, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 198, ../../../../../sass/pages/repository/dashboard.scss */
 ul.labels li {
   display: inline-block;
   margin: 5px 10px;
@@ -1310,26 +1469,43 @@ ul.labels li {
   border-bottom: solid 3px transparent;
 }
 
-/* line 166, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 206, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones {
+  bottom: 0;
+}
+
+/* line 211, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones, #labels {
+  height: -moz-calc(50% - 105px) ;
+  height: -o-calc(50% - 105px) ;
+  height: -webkit-calc(50% - 105px) ;
+  height: calc(50% - 105px) ;
+}
+@media (max-height: 800px), (max-width: 800px) {
+  /* line 211, ../../../../../sass/pages/repository/dashboard.scss */
+  #milestones, #labels {
+    height: -moz-calc(50% - 82px) ;
+    height: -o-calc(50% - 82px) ;
+    height: -webkit-calc(50% - 82px) ;
+    height: calc(50% - 82px) ;
+  }
+}
+/* line 216, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-header .box-toolbar > li, #labels .box-header .box-toolbar > li {
   padding-right: 0;
   margin-left: 0;
 }
-/* line 170, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-content .empty-area, #labels .box-content .empty-area {
-  font-size: 125%;
-}
 
-/* line 175, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 222, ../../../../../sass/pages/repository/dashboard.scss */
 body > main > .row-header .area-top {
   position: relative;
 }
-/* line 177, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 224, ../../../../../sass/pages/repository/dashboard.scss */
 body > main > .row-header .area-top > .header {
   position: relative;
   z-index: 2;
 }
-/* line 181, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 228, ../../../../../sass/pages/repository/dashboard.scss */
 body > main > .row-header .area-top > .issues-by-day {
   position: absolute;
   right: 0;
