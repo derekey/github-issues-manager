@@ -4772,3 +4772,20 @@ ol.errorlist, ul.errorlist {
     display: none;
   }
 }
+@media (max-width: 800px) {
+  /* line 15, ../../../sass/_responsive.scss */
+  body > header .navbar-inner {
+    padding: 0px 5px !important;
+  }
+
+  /* line 18, ../../../sass/_responsive.scss */
+  .navbar-inverse .nav.full > li > a {
+    margin-right: 0;
+    margin-left: 5px;
+    padding: 3px 0 3px 5px;
+  }
+  /* line 22, ../../../sass/_responsive.scss */
+  .navbar-inverse .nav.full > li > a .menu-avatar {
+    margin-right: 0;
+  }
+}
