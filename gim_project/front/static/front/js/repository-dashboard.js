@@ -43,39 +43,13 @@ $().ready(function() {
     var MilestonesDashboardWidget = DashboardWidget.$extend({
         __init__ : function() {
             this.$super("milestones", 'input[name=show-closed-milestones], input[name=show-empty-milestones]');
-        }, // __init__
-
-        prepare_content: function() {
-            this.$node.find('input[name="show-closed-milestones"]').iButton({
-                labelOn: 'With closed',
-                labelOff: 'Without closed',
-                className: 'no-text-transform small',
-                handleWidth: 24
-            });
-            this.$node.find('input[name="show-empty-milestones"]').iButton({
-                labelOn: 'With empty',
-                labelOff: 'Without empty',
-                className: 'no-text-transform small',
-                handleWidth: 24
-            });
-        } // prepare_content
-
+        } // __init__
     }); // MilestonesDashboardWidget
 
     var LabelsDashboardWidget = DashboardWidget.$extend({
         __init__ : function() {
             this.$super("labels", 'input[name=show-empty-labels]');
-        }, // __init__
-
-        prepare_content: function() {
-            this.$node.find('input[name="show-empty-labels"]').iButton({
-                labelOn: 'With empty',
-                labelOff: 'Without empty',
-                className: 'no-text-transform small',
-                handleWidth: 24
-            });
-        } // prepare_content
-
+        } // __init__
     }); // LabelsDashboardWidget
 
     MilestonesDashboardWidget();

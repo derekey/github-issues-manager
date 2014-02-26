@@ -5,8 +5,11 @@
         <div class="box-header">
             <span class="title">Labels</span>
             <ul class="box-toolbar">
-                <li title="Check to also see labels with no issues">
-                    <input name="show-empty-labels" type="checkbox" value="1"{% if show_empty_labels %} checked="checked"{% endif %}/>
+                <li class="toolbar-link">
+                    <a href="#" class="dropdown" data-toggle="dropdown"><i class="icon-cog"></i></a>
+                    <ul class="dropdown-menu">
+                        <li class="with-checkbox"><a href="#"><label title="Check to also see labels with no issues"><input name="show-empty-labels" type="checkbox" value="1"{% if show_empty_labels %} checked="checked"{% endif %}/> <span>Show empty</span></label></a></li>
+                    </ul>
                 </li>
                 {% if current_repository|can_user_write:user %}
                     <li class="toolbar-link">

@@ -3,12 +3,13 @@
     <div class="box-header">
         <span class="title">Milestones</span>
         <ul class="box-toolbar">
-          <li title="Check to also see closed milestones">
-            <input name="show-closed-milestones" type="checkbox" value="1"{% if show_closed_milestones%} checked="checked"{% endif %}/>
-          </li>
-          <li title="Check to also see empty milestones (ones without issues)">
-            <input name="show-empty-milestones" type="checkbox" value="1"{% if show_empty_milestones%} checked="checked"{% endif %}/>
-          </li>
+            <li class="toolbar-link">
+                <a href="#" class="dropdown" data-toggle="dropdown"><i class="icon-cog"></i></a>
+                <ul class="dropdown-menu">
+                    <li class="with-checkbox"><a href="#"><label title="Check to also see closed milestones"><input name="show-closed-milestones" type="checkbox" value="1"{% if show_closed_milestones%} checked="checked"{% endif %}/> <span>Show closed</span></label></a></li>
+                    <li class="with-checkbox"><a href="#"><label title="Check to also see empty milestones (ones without issues)"><input name="show-empty-milestones" type="checkbox" value="1"{% if show_empty_milestones%} checked="checked"{% endif %}/> <span>Show empty</span></label></a></li>
+                </ul>
+            </li>
         </ul>
     </div>{# .box-header #}
     <div class="box-content">

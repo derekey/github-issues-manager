@@ -1308,7 +1308,7 @@ ul.labels li {
 
 /* line 163, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-header .box-toolbar > li, #labels .box-header .box-toolbar > li {
-  padding-right: 5px;
+  padding-right: 0;
   margin-left: 0;
 }
 /* line 167, ../../../../../sass/pages/repository/dashboard.scss */

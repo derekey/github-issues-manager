@@ -158,3 +158,16 @@ $tooltip-match-colors: success 3, important 4, info 1, warning 8, inverse 2;
         }
     }
 }
+
+.toolbar-link .dropdown-menu li.with-checkbox {
+    label {
+        margin: 0;
+        line-height: 20px;
+    }
+    input {
+        vertical-align: top;
+    }
+    span {
+        vertical-align: middle;
+    }
+}
