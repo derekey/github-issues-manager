@@ -195,7 +195,7 @@ class _Issue(models.Model):
     class Meta:
         abstract = True
 
-    RENDERER_IGNORE_FIELDS = set(['state', 'merged', 'assignee'])
+    RENDERER_IGNORE_FIELDS = set(['state', 'merged', ])
 
     def get_reverse_kwargs(self):
         """

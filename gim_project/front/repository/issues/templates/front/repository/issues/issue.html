@@ -122,8 +122,10 @@
                                 {% include "front/repository/issues/include_merged_comment.html" with comment=event %}
                             {% elif event.event == 'reopened' %}
                                 {% include "front/repository/issues/include_reopened_comment.html" with comment=event %}
+                            {% comment %}
                             {% elif event.event == 'assigned' %}
                                 {% include "front/repository/issues/include_assigned_comment.html" with comment=event %}
+                            {% endcomment %}
                             {% elif event.event == 'head_ref_deleted' %}
                                 {% include "front/repository/issues/include_head_ref_deleted_comment.html" with comment=event %}
                             {% elif event.event == 'head_ref_restored' %}
