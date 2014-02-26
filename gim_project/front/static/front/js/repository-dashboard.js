@@ -43,7 +43,13 @@ $().ready(function() {
     var MilestonesDashboardWidget = DashboardWidget.$extend({
         __init__ : function() {
             this.$super("milestones", 'input[name=show-closed-milestones], input[name=show-empty-milestones]');
-        } // __init__
+        }, // __init__
+        init_events: function() {
+            this.$super();
+            $document.on('click', '#milestones a[data-toggle=collapse]', function(ev) {
+                ev.preventDefault();
+            });
+        } // init_events
     }); // MilestonesDashboardWidget
 
     var LabelsDashboardWidget = DashboardWidget.$extend({

@@ -29,6 +29,10 @@
 
 
 #milestones {
+    a[data-toggle=collapse].collapsed h3::after {
+        content: '…';
+        font-weight: normal;
+    }
     .box-section {
         overflow: auto;
         padding: 15px {
@@ -40,8 +44,6 @@
             font-style: italic;
             opacity: 0;
             @include transition(opacity 0.35s);
-        }
-        & > .all-issues-link {
             margin-top: -10px;
         }
         & > div.progress {
@@ -76,6 +78,7 @@
                 & ~ .date,
                 & ~ .all-issues-link {
                     opacity: 1;
+                    margin-bottom: 10px;
                 }
                 & ~ div.progress {
                     height: 20px;
