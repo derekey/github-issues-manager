@@ -1223,7 +1223,7 @@ table.commits-list td.cell-sha {
 
 /* line 92, ../../../../../sass/pages/repository/dashboard.scss */
 #counters {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 /* line 94, ../../../../../sass/pages/repository/dashboard.scss */
 #counters .action-nav-button {

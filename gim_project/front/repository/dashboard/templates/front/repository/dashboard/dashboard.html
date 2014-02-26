@@ -2,20 +2,16 @@
 {% load staticfiles %}
 
 {% block dashboard-content %}
-    {{ parts.counters|safe }}
-
     <div class="row-fluid">
-        <div class="span4">
+        <div class="span6">
+            {{ parts.counters|safe }}
             {{ parts.labels|safe }}
-        </div>{# .span4 #}
-        <div class="span4">
             {{ parts.milestones|safe }}
-        </div>{# .span4 #}
-        <div class="span4">
+        </div>
+        <div class="span6">
             {{ parts.activity|safe }}
-        </div>{# .span4 #}
-    </div>{# .row-fluid #}
-
+        </div>
+    </div>
 {% endblock dashboard-content %}
 
 {% block js_footer %}
