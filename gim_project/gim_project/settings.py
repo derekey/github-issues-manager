@@ -179,7 +179,6 @@ INSTALLED_APPS = (
     'front.repository',
     'front.repository.issues',
     'front.repository.dashboard',
-    'front.repository.timeline',
     'front.repository.board',
 )
 

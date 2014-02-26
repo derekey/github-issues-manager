@@ -6,5 +6,4 @@ urlpatterns = patterns('',
     url(r'^dashboard/', include('front.repository.dashboard.urls')),
     url(r'^issues/', include('front.repository.issues.urls')),
     url(r'^board/', include('front.repository.board.urls')),
-    url(r'^timeline/', include('front.repository.timeline.urls')),
 )
