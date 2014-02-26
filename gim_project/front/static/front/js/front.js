@@ -1943,6 +1943,14 @@ $().ready(function() {
                 $link.next().css('max-height', $(window).height() - $link.offset().top - $link.outerHeight() - 10);
             });
     }
+    // auto-hide owner if it has no repo found on quicksearch
+    var $repos_switcher_groups = $('#repository-switcher-content li.subscriptions-group');
+    $repos_switcher_input.on('quicksearch.after', function() {
+        $repos_switcher_groups.each(function() {
+            var $group = $(this);
+            $group.toggle(!!$group.find('li:not(.hidden)').length);
+        });
+    });
 
     var Activity = {
         selectors: {

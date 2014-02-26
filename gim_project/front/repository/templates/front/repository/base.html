@@ -13,7 +13,7 @@
             {% regroup subscribed_repositories by owner as groups %}
             <ul class="dropdown-menu" id="repository-switcher-content" role="menu" aria-labelledby="repository-switcher">
                 <li>
-                    {% include "front/include_quicksearch.html" with id="repository-switcher-filter" target="#repository-switcher-content li.subscriptions-group, #repository-switcher-content li.subscriptions-group li" only %}
+                    {% include "front/include_quicksearch.html" with id="repository-switcher-filter" target="#repository-switcher-content li.subscriptions-group li" only %}
                 </li>
                 {% for group in groups %}
                     <li class="subscriptions-group">
