@@ -1,0 +1,41 @@
+#home {
+    .box.login {
+        width: 420px;
+        margin: 80px auto 0;
+        @media (max-height: 620px) {
+            margin-top: 20px;
+        }
+        @media (max-width: 440px) {
+            width: 100%;
+            margin-top: 0;
+        }
+    }
+    .box-header span {
+        font-size: larger;
+        i {
+            font-size: inherit;
+        }
+    }
+    p.main-line {
+        font-size: larger;
+        line-height: 2em;
+    }
+    a.btn {
+        font-size: larger;
+        i {
+            font-size: larger;
+        }
+    }
+    .box-content > p:not(:first-child) {
+        margin-top: 15px;
+    }
+    blockquote {
+        margin: 0;
+        ul:first-of-type {
+            margin-bottom: 0;
+        }
+    }
+    .navbar-inverse .login {
+        display: none;
+    }
+}

@@ -1,0 +1,55 @@
+/* line 2, ../../../../sass/pages/home.scss */
+#home .box.login {
+  width: 420px;
+  margin: 80px auto 0;
+}
+@media (max-height: 620px) {
+  /* line 2, ../../../../sass/pages/home.scss */
+  #home .box.login {
+    margin-top: 20px;
+  }
+}
+@media (max-width: 440px) {
+  /* line 2, ../../../../sass/pages/home.scss */
+  #home .box.login {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+/* line 13, ../../../../sass/pages/home.scss */
+#home .box-header span {
+  font-size: larger;
+}
+/* line 15, ../../../../sass/pages/home.scss */
+#home .box-header span i {
+  font-size: inherit;
+}
+/* line 19, ../../../../sass/pages/home.scss */
+#home p.main-line {
+  font-size: larger;
+  line-height: 2em;
+}
+/* line 23, ../../../../sass/pages/home.scss */
+#home a.btn {
+  font-size: larger;
+}
+/* line 25, ../../../../sass/pages/home.scss */
+#home a.btn i {
+  font-size: larger;
+}
+/* line 29, ../../../../sass/pages/home.scss */
+#home .box-content > p:not(:first-child) {
+  margin-top: 15px;
+}
+/* line 32, ../../../../sass/pages/home.scss */
+#home blockquote {
+  margin: 0;
+}
+/* line 34, ../../../../sass/pages/home.scss */
+#home blockquote ul:first-of-type {
+  margin-bottom: 0;
+}
+/* line 38, ../../../../sass/pages/home.scss */
+#home .navbar-inverse .login {
+  display: none;
+}
