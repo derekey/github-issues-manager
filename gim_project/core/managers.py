@@ -651,6 +651,17 @@ class IssueManager(WithRepositoryManager):
                 fields['simple']['github_pr_id'] = fields['simple']['github_id']
                 del fields['simple']['github_id']
 
+        # when we fetch lists, mergeable status are not set, so we remove them from
+        # fields to update to avoid losing previous values
+        if 'mergeable' in fields and fields['mergeable'] is None:
+            fields.pop('mergeable')
+        if 'mergeable_state' in fields and fields['mergeable_state'] in (None, 'unknown'):
+            fields.pop('mergeable_state')
+
+        # idem for "merged"
+        if 'merged' in fields and fields['merged'] is None:
+            fields.pop('merged')
+
         return fields
 
 
