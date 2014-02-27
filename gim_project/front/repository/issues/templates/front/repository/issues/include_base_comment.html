@@ -3,7 +3,7 @@
 <li class="chat-box-entry arrow-box-left gray issue-comment {% block node_class %}{% endblock %}">
     <div class="avatar"><img class="avatar-small img-circle" src="{% if use_current_user %}{{ view.request.user.avatar_url|default:default_avatar }}{% else %}{{ comment.user.avatar_url|default:default_avatar }}{% endif %}"></div>
     <div class="info">
-        {% if comment and comment.created_at %}<span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ comment.created_at|ago }}</span>{% endif %}
+        {% block comment_date %}{% if comment and comment.created_at %}<span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ comment.created_at|ago }}</span>{% endif %}{% endblock %}
         {% block comment_info %}{% endblock %}
     </div>
     {% block comment_body %}<div class="content">{% block comment_inner_body %}{% endblock %}</div>{% endblock %}

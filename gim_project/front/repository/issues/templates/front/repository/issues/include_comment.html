@@ -1,5 +1,18 @@
 {% extends "front/repository/issues/include_base_comment.html" %}
 
+{% block comment_date %}
+    {% if comment.github_status != GITHUB_STATUSES.FETCHED %}
+        <span class="time">
+            <span class="label label-{% if comment.github_status in GITHUB_STATUSES.ALL_WAITING %}warning{% else %}important{% endif %}">
+            {% if comment.github_status in GITHUB_STATUSES.ALL_WAITING %}<i class="icon-spinner icon-spin"> </i>{% endif %}
+            {{ comment.get_github_status_display }}
+            </span>
+        </span>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock comment_date %}
+
 {% block comment_info %}
     <span class="name">
         <strong>{{ comment.user.username }}</strong>

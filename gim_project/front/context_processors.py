@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django.conf import settings
 
+from core.models import GITHUB_STATUS_CHOICES
+
 
 def default_context_data(request):
     return {
@@ -10,4 +12,5 @@ def default_context_data(request):
             'long_name': settings.BRAND_LONG_NAME,
         },
         'utcnow': datetime.utcnow(),
+        'GITHUB_STATUSES': GITHUB_STATUS_CHOICES,
     }
