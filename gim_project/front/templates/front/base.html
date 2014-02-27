@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700">
     <meta charset="utf-8">
-    <title>{% block title %}{% endblock title %} | Github Issues Manager</title>
+    <title>{% block title %}{% endblock title %} | {{ brand.long_name }}</title>
     <meta name="description" content="Github Issues Manager">
     <meta name="author" content='Stéphane "Twidi" Angel'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +16,7 @@
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container-fluid">
-                <a class="brand" href="/" title="Github Issues Manager">G.I.M</a>
+                <a class="brand" href="/" title="{{ brand.long_name }}">{{ brand.short_name }}</a>
                 {% block header_nav %}{% endblock header_nav %}
                 <ul class="nav full pull-right">
                     {% if user and user.is_authenticated %}

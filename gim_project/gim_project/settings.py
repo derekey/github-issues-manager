@@ -314,6 +314,9 @@ CACHES = {
     },
 }
 
+BRAND_SHORT_NAME = 'G.I.M'
+BRAND_LONG_NAME = 'Github Issues Manager'
+
 DEBUG_TOOLBAR = False
 try:
     from local_settings import *
