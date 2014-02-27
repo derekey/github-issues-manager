@@ -8,6 +8,9 @@ conf = {
     'GITHUB_CLIENT_SECRET': "FILL IT FROM GITHUB",
     'GITHUB_HOOK_URL': "http://my.doma.in/hooks/github/web/",
 
+    'BRAND_SHORT_NAME': 'G.I.M',
+    'BRAND_LONG_NAME': 'Github Issues Manager',
+
     # 'DB_ENGINE': '',
     # 'DB_NAME': '',
     # 'DB_USER': '',

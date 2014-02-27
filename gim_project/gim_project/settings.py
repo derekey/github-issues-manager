@@ -314,8 +314,8 @@ CACHES = {
     },
 }
 
-BRAND_SHORT_NAME = 'G.I.M'
-BRAND_LONG_NAME = 'Github Issues Manager'
+BRAND_SHORT_NAME = conf.get('BRAND_SHORT_NAME', 'G.I.M')
+BRAND_LONG_NAME = conf.get('BRAND_LONG_NAME', 'Github Issues Manager')
 
 DEBUG_TOOLBAR = False
 try:
