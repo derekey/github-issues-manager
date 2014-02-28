@@ -78,7 +78,7 @@ $tooltip-match-colors: success 3, important 4, info 1, warning 8, inverse 2;
         @each $arrow in $arrows {
             &.#{$arrow} .tooltip-arrow {
                 border-#{$arrow}-color: darken($color, 10);
-            }            
+            }
         }
     }
 }
@@ -162,7 +162,8 @@ $tooltip-match-colors: success 3, important 4, info 1, warning 8, inverse 2;
 .toolbar-link .dropdown-menu li.with-checkbox {
     label {
         margin: 0;
-        line-height: 20px;
+        font-size: inherit;
+        font-weight: inherit;
     }
     input {
         vertical-align: top;
