@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from operator import attrgetter
 import re
 
@@ -6,6 +8,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template import loader, Context
+from django.template.defaultfilters import escape
 
 from markdown import markdown
 
@@ -188,6 +191,13 @@ class _Milestone(models.Model):
     def html_content(self):
         return html_content(self, 'description')
 
+    @property
+    def short_title(self):
+        if len(self.title) > 25:
+            result = self.title[:20] + u'…'
+        else:
+            result = self.title
+        return escape(result)
 contribute_to_model(_Milestone, core_models.Milestone)
 
 

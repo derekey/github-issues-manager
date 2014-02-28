@@ -11,5 +11,6 @@ from .comment import *
 from .githubuser import *
 from .issue import *
 from .label import *
+from .milestone import *
 from .repository import *
 from .tokens import *
