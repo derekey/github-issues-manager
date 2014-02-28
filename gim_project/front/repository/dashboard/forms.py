@@ -3,8 +3,10 @@ import re
 from django import forms
 from django.core import validators
 
-from core.models import LabelType, LABELTYPE_EDITMODE, Label, GITHUB_STATUS_CHOICES
+from core.models import (LabelType, LABELTYPE_EDITMODE, Label,
+                         GITHUB_STATUS_CHOICES, Milestone)
 
+from front.widgets import EnclosedInput
 from front.repository.forms import LinkedToRepositoryForm
 
 
@@ -153,3 +155,75 @@ class LabelEditForm(LinkedToRepositoryForm):
         else:
             self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_CREATE
         return super(LabelEditForm, self).save(commit)
+
+
+class DueOnWidget(EnclosedInput, forms.DateInput):
+    def __init__(self, attrs=None):
+        if not attrs:
+            attrs = {}
+        if 'placeholder' not in attrs:
+            attrs['placeholder'] = 'yyyy-mm-dd'
+        if 'maxlength' not in attrs:
+            attrs['maxlength'] = 10
+        super(DueOnWidget, self).__init__(
+            attrs=attrs,
+            input_type='text',
+            prepend='icon-th',
+            append='icon-remove',
+            addons_titles={
+                'prepend': 'Click to open a datepicker',
+                'append': 'Click to clear the due-on date',
+            },
+            format='%Y-%m-%d',
+            parent_classes=['date', 'due_on'],
+        )
+
+
+class MilestoneEditForm(LinkedToRepositoryForm):
+
+    open = forms.BooleanField(required=False)
+
+    class Meta:
+        model = Milestone
+        fields = ('title', 'description', 'due_on', 'open')
+
+    def __init__(self, *args, **kwargs):
+
+        # fill the "open" field
+        instance = kwargs.get('instance')
+        if not instance or not instance.state or instance.state == 'open':
+            if 'initial' not in kwargs:
+                kwargs['initial'] = {}
+            kwargs['initial']['open'] = True
+
+        super(MilestoneEditForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget = forms.TextInput()
+        self.fields['due_on'].widget = DueOnWidget()
+
+    def save(self, commit=True):
+        """
+        Set the github status, and the state
+        """
+        self.instance.state = 'open' if self.cleaned_data['open'] else 'closed'
+        if self.instance.pk:
+            self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_UPDATE
+        else:
+            self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_CREATE
+        return super(MilestoneEditForm, self).save(commit)
+
+
+class MilestoneCreateForm(MilestoneEditForm):
+    def __init__(self, *args, **kwargs):
+        """
+        Get the "creator" argument, a user that will be used to fill the
+        "creator" field on the milestone
+        """
+        self.creator = kwargs.pop('creator')
+        super(MilestoneCreateForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        """
+        Save the user passed to the form constructor as creator of the milestone
+        """
+        self.instance.creator = self.creator
+        return super(MilestoneCreateForm, self).save(commit)

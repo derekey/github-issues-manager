@@ -198,6 +198,26 @@ class _Milestone(models.Model):
         else:
             result = self.title
         return escape(result)
+
+    def get_reverse_kwargs(self):
+        """
+        Return the kwargs to use for "reverse"
+        """
+        return {
+            'owner_username': self.repository.owner.username,
+            'repository_name': self.repository.name,
+            'milestone_id': self.id
+        }
+
+    def get_edit_url(self):
+        from front.repository.dashboard.views import MilestoneEdit
+        return reverse_lazy('front:repository:%s' % MilestoneEdit.url_name, kwargs=self.get_reverse_kwargs())
+
+    def get_delete_url(self):
+        from front.repository.dashboard.views import MilestoneDelete
+        return reverse_lazy('front:repository:%s' % MilestoneDelete.url_name, kwargs=self.get_reverse_kwargs())
+
+
 contribute_to_model(_Milestone, core_models.Milestone)
 
 

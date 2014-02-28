@@ -8,6 +8,8 @@
                 <ul class="dropdown-menu">
                     <li class="with-checkbox"><a href="#"><label title="Check to also see closed milestones"><input name="show-closed-milestones" type="checkbox" value="1"{% if show_closed_milestones%} checked="checked"{% endif %}/> <span>Show closed</span></label></a></li>
                     <li class="with-checkbox"><a href="#"><label title="Check to also see empty milestones (ones without issues)"><input name="show-empty-milestones" type="checkbox" value="1"{% if show_empty_milestones%} checked="checked"{% endif %}/> <span>Show empty</span></label></a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{ milestone_create_url }}" class="edit-link btn-loading">Create a milestone <i class='icon-spinner icon-spin'> </i></a></li>
                 </ul>
             </li>
         </ul>
@@ -38,6 +40,7 @@
                                 {% endif %}
                             {% endif %}
                         </div>
+                        {% if current_repository|can_user_write:user %}<a class="edit-link btn btn-mini btn-blue btn-loading" href="{{ milestone.get_edit_url }}">Edit <i class='icon-spinner icon-spin'> </i></a>{% endif %}
                         {% if milestone.issues_count %}<a class="all-issues-link" href="{{ issues_url }}?milestone={{ milestone.number }}">View all issues</a>{% endif %}
                         <blockquote id="milestone-{{ milestone.id}}-details" class="collapse">
                             {% if milestone.description %}

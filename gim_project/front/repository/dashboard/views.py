@@ -6,18 +6,21 @@ from operator import attrgetter, itemgetter
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DeleteView
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
 
-from core.models import LabelType, LABELTYPE_EDITMODE, Label, GITHUB_STATUS_CHOICES
+from core.models import (LabelType, LABELTYPE_EDITMODE, Label,
+                         GITHUB_STATUS_CHOICES, Milestone)
 from core.tasks.label import LabelEditJob
+from core.tasks.milestone import MilestoneEditJob
 
 from front.activity.views import ActivityMixin
 from front.views import DeferrableViewPart
 from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
-from .forms import LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm
+from .forms import (LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm,
+                    MilestoneEditForm, MilestoneCreateForm)
 
 
 class RepositoryDashboardPartView(DeferrableViewPart, RepositoryMixin):
@@ -84,6 +87,9 @@ class MilestonesPart(RepositoryDashboardPartView):
             'show_closed_milestones': self.request.GET.get('show-closed-milestones', False),
             'show_empty_milestones': self.request.GET.get('show-empty-milestones', False),
         })
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        context['milestone_create_url'] = reverse_lazy(
+                'front:repository:%s' % MilestoneCreate.url_name, kwargs=reverse_kwargs)
         return context
 
 
@@ -265,6 +271,10 @@ class LabelTypeFormBaseView(LinkedToRepositoryFormView):
     form_class = LabelTypeEditForm
     allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
 
+    def get_success_url(self):
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
+
 
 class LabelTypeEditBase(LabelTypeFormBaseView):
     template_name = 'front/repository/dashboard/labels-editor/label-type-edit.html'
@@ -282,10 +292,6 @@ class LabelTypeEditBase(LabelTypeFormBaseView):
         })
 
         return context
-
-    def get_success_url(self):
-        reverse_kwargs = self.repository.get_reverse_kwargs()
-        return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
 
 
 class LabelTypeEdit(LabelTypeEditBase, UpdateView):
@@ -381,11 +387,12 @@ class LabelTypeDelete(LabelTypeFormBaseView, DeleteView):
         return super(LabelTypeDelete, self).post(*args, **kwargs)
 
     def get_success_url(self):
+        url = super(LabelTypeDelete, self).get_success_url()
+
         messages.success(self.request,
             u'The group <strong>%s</strong> was successfully deleted' % self.object.name)
 
-        reverse_kwargs = self.repository.get_reverse_kwargs()
-        return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
+        return url
 
 
 class LabelFormBaseView(LinkedToRepositoryFormView):
@@ -417,13 +424,13 @@ class LabelFormBaseView(LinkedToRepositoryFormView):
 
         return response
 
-
-class LabelEditBase(LabelFormBaseView):
-    template_name = 'front/repository/dashboard/labels-editor/form-errors.html'
-
     def get_success_url(self):
         reverse_kwargs = self.repository.get_reverse_kwargs()
         return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
+
+
+class LabelEditBase(LabelFormBaseView):
+    template_name = 'front/repository/dashboard/labels-editor/form-errors.html'
 
 
 class LabelEdit(LabelEditBase, UpdateView):
@@ -445,10 +452,6 @@ class LabelCreate(LabelEditBase, CreateView):
 class LabelDelete(LabelFormBaseView, DeleteView):
     url_name = 'dashboard.labels.editor.label.delete'
 
-    def get_success_url(self):
-        reverse_kwargs = self.repository.get_reverse_kwargs()
-        return reverse('front:repository:%s' % LabelsEditor.url_name, kwargs=reverse_kwargs)
-
     def delete(self, request, *args, **kwargs):
         """
         Don't delete the object but update its status
@@ -465,3 +468,83 @@ class LabelDelete(LabelFormBaseView, DeleteView):
             u'The label <strong>%s</strong> will be deleted shortly' % self.object.name)
 
         return HttpResponseRedirect(self.get_success_url())
+
+
+class MilestoneFormBaseView(LinkedToRepositoryFormView):
+    model = Milestone
+    pk_url_kwarg = 'milestone_id'
+    form_class = MilestoneEditForm
+    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
+
+    def form_valid(self, form):
+        """
+        Override the default behavior to add a job to create/update the milestone
+        on the github side, and simple return 'OK', not a redirect.
+        """
+        self.object = form.save()
+
+        edit_mode = 'update'
+        if self.object.github_status == GITHUB_STATUS_CHOICES.WAITING_CREATE:
+            edit_mode = 'create'
+
+        MilestoneEditJob.add_job(self.object.pk,
+                                 mode=edit_mode,
+                                 gh=self.request.user.get_connection())
+
+        messages.success(self.request,
+            u'The milestone <strong>%s</strong> will be %sd shortly' % (
+                                                self.object.short_title, edit_mode))
+
+        return HttpResponse('OK')
+
+
+class MilestoneEditBase(MilestoneFormBaseView):
+    template_name = 'front/repository/dashboard/milestone-edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MilestoneEditBase, self).get_context_data(**kwargs)
+
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+
+        context.update({
+            'milestone_create_url': reverse_lazy(
+                'front:repository:%s' % MilestoneCreate.url_name, kwargs=reverse_kwargs),
+        })
+
+        return context
+
+
+class MilestoneEdit(MilestoneEditBase, UpdateView):
+    url_name = 'dashboard.milestone.edit'
+
+
+class MilestoneCreate(MilestoneEditBase, CreateView):
+    url_name = 'dashboard.milestone.create'
+    form_class = MilestoneCreateForm
+
+    def get_form_kwargs(self):
+        kwargs = super(MilestoneCreate, self).get_form_kwargs()
+        kwargs['creator'] = self.request.user
+        return kwargs
+
+
+class MilestoneDelete(MilestoneFormBaseView, DeleteView):
+    url_name = 'dashboard.milestone.delete'
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Don't delete the object but update its status, and return a simple "OK",
+        not a redirect
+        """
+        self.object = self.get_object()
+        self.object.github_status = GITHUB_STATUS_CHOICES.WAITING_DELETE
+        self.object.save(update_fields=['github_status'])
+
+        MilestoneEditJob.add_job(self.object.pk,
+                             mode='delete',
+                             gh=self.request.user.get_connection())
+
+        messages.success(self.request,
+            u'The milestone <strong>%s</strong> will be deleted shortly' % self.object.short_title)
+
+        return HttpResponse('OK')
