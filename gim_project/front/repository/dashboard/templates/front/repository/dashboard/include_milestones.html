@@ -19,7 +19,7 @@
             {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:'*' non_assigned_url=current_repository|base_url_issues_filtered_by_assigned:'none' issues_url=current_repository|repository_view_url:'issues' %}
                 {% for milestone in milestones %}
                     <div class="box-section">
-                        <a href="#" title="Click to view details" data-toggle="collapse" data-target="#milestone-{{ milestone.id}}-details" data-parent="#milestones" class="collapsed"><h3>{{ milestone.title }}</h3></a>
+                        <a href="#" title="[{{ milestone.state|capfirst }}] Click to view details" data-toggle="collapse" data-target="#milestone-{{ milestone.id}}-details" data-parent="#milestones" class="collapsed"><h3 class="text-{{ milestone.state }}">{{ milestone.title }}</h3></a>
                         <span class="date">{% if milestone.due_on %}Due on {{ milestone.due_on|date }}{% else %}No due date{% endif %}</span>
                         <div class="progress"{% if not milestone.issues_count %} title="No issues"{% endif %}>
                             {% if milestone.issues_count %}
