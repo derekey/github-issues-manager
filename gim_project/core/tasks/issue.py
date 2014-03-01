@@ -149,17 +149,31 @@ class UpdateIssueCacheTemplate(IssueJob):
             return ' [%s]' % msg
 
 
-class IssueEditStateJob(IssueJob):
+class BaseIssueEditJob(IssueJob):
+    abstract = True
 
-    queue_name = 'edit-issue-state'
+    action = fields.InstanceHashField()
 
     permission = 'self'
 
+    editable_fields = None
+
+    @property
+    def action_verb(self):
+        return self.action.hget()
+
+    @property
+    def action_done(self):
+        action = self.action.hget()
+        if not action.endswith('e'):
+            action += 'e'
+        return action + 'd'
+
     def run(self, queue):
         """
-        Get the issue and update its state
+        Get the issue and update it
         """
-        super(IssueEditStateJob, self).run(queue)
+        super(BaseIssueEditJob, self).run(queue)
 
         gh = self.gh
         if not gh:
@@ -170,24 +184,25 @@ class IssueEditStateJob(IssueJob):
         except Issue.DoesNotExist:
             # the issue doesn't exist anymore, stop here
             self.status.hset(STATUSES.CANCELED)
-            messages.error(self.gh_user, 'The issue you wanted to open/close seems to have been deleted!')
+            messages.error(self.gh_user, 'The issue you wanted to %s seems to have been deleted' % self.action_verb)
             return False
 
         try:
-            issue.dist_edit(mode='update', gh=gh, fields=['state'])
+            issue.dist_edit(mode=self.edit_mode, gh=gh, fields=self.editable_fields)
         except ApiError, e:
             message = None
-            issue_state_verb = 'close' if issue.state == 'closed' else 'reopen'
 
             if e.code == 422:
                 message = u'Github refused to %s the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                    issue_state_verb, issue.type, issue.number, issue.repository.full_name)
+                    self.action_verb, issue.type, issue.number, issue.repository.full_name)
+                self.status.hset(STATUSES.CANCELED)
 
             elif e.code in (401, 403):
                 tries = self.tries.hget()
                 if tries and int(tries) >= 5:
                     message = u'You seem to not have the right to %s the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                        issue_state_verb, issue.type, issue.number, issue.repository.full_name)
+                        self.action_verb, issue.type, issue.number, issue.repository.full_name)
+                    self.status.hset(STATUSES.CANCELED)
 
             if message:
                 messages.error(self.gh_user, message)
@@ -205,10 +220,28 @@ class IssueEditStateJob(IssueJob):
                     issue.type,
                     issue.number,
                     issue.repository.full_name,
-                    'closed' if issue.state == 'closed' else 'reopened')
+                    self.action_done
+                )
         messages.success(self.gh_user, message)
 
         # don't use "issue" cache
         self.object.fetch_all(gh)
 
         return None
+
+
+class IssueEditStateJob(BaseIssueEditJob):
+    queue_name = 'edit-issue-state'
+    editable_fields = ['state']
+    edit_mode = 'update'
+
+    @property
+    def action_done(self):
+        action = super(IssueEditStateJob, self).action_done
+        return 'reopened' if action == 'opened' else action
+
+    @property
+    def action_verb(self):
+        action = super(IssueEditStateJob, self).action_verb
+        return 'reopen' if action == 'open' else action
+

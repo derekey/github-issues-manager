@@ -663,13 +663,18 @@ class IssueEditState(LinkedToUserFormView, BaseIssueEditView, UpdateView):
         """
         response = super(IssueEditState, self).form_valid(form)
 
+        new_state = form.cleaned_data['state']
+
+        action = 'open' if new_state == 'open' else 'close'
+
         IssueEditStateJob.add_job(self.object.pk,
-                                  gh=self.request.user.get_connection())
+                                  gh=self.request.user.get_connection(),
+                                  action=action)
 
         messages.success(self.request,
             u'The %s <strong>#%d</strong> will be %s shortly' % (
                     self.object.type, self.object.number,
-                    'closed' if self.object.state == 'closed' else 'reopened'))
+                    'reopened' if new_state == 'open' else 'closed'))
 
         return response
 

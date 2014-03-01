@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^(?P<issue_number>\d+)/commits/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/include_issue_commits.html'), name='issue.commits'),
 
     # edit views
-    url(r'^(?P<issue_number>\d+)/edit/state/(?P<state>open|closed)/$', IssueEditState.as_view(), name=IssueEditState.url_name),
+    url(r'^(?P<issue_number>\d+)/edit/state/$', IssueEditState.as_view(), name=IssueEditState.url_name),
 
     url(r'^(?P<issue_number>\d+)/comment/add/$', IssueCommentCreate.as_view(), name=IssueCommentCreate.url_name),
     url(r'^(?P<issue_number>\d+)/code-comment/add/$', PullRequestCommentCreate.as_view(), name=PullRequestCommentCreate.url_name),

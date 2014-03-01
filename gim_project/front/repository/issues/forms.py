@@ -23,15 +23,19 @@ class IssueFormMixin(LinkedToRepositoryForm):
 
 class IssueStateForm(InstanceLinkedToUserForm, IssueFormMixin):
     class Meta(IssueFormMixin.Meta):
-        fields = []
+        fields = ['state']
 
-    def __init__(self, *args, **kwargs):
-        self.state = kwargs.pop('state')
-        super(IssueStateForm, self).__init__(*args, **kwargs)
+    def clean_state(self):
+        new_state = self.cleaned_data.get('state')
+        if new_state not in ('open', 'closed'):
+            raise forms.ValidationError('Invalide state')
+        if new_state == self.instance.state:
+            raise forms.ValidationError('State not updated')
+        return new_state
 
     def save(self, commit=True):
-        self.instance.state = self.state
-        if self.state == 'closed':
+        self.instance.state = self.cleaned_data['state']
+        if self.instance.state == 'closed':
             self.instance.closed_by = self.user
             self.instance.closed_at = datetime.utcnow()
         else:

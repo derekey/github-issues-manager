@@ -240,15 +240,8 @@ class _Issue(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('front:repository:issue', kwargs=self.get_reverse_kwargs())
 
-    def set_closed_url(self):
-        kwargs = {'state': 'closed'}
-        kwargs.update(self.get_reverse_kwargs())
-        return reverse_lazy('front:repository:issue.edit.state', kwargs=kwargs)
-
-    def set_open_url(self):
-        kwargs = {'state': 'open'}
-        kwargs.update(self.get_reverse_kwargs())
-        return reverse_lazy('front:repository:issue.edit.state', kwargs=kwargs)
+    def change_state_url(self):
+        return reverse_lazy('front:repository:issue.edit.state', kwargs=self.get_reverse_kwargs())
 
     def issue_comment_create_url(self):
         return reverse_lazy('front:repository:issue.comment.create', kwargs=self.get_reverse_kwargs())

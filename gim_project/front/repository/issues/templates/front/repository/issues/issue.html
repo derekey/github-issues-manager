@@ -65,8 +65,8 @@
                 </ul>
             </footer>
         </div>
-        {% if current_issue.is_pull_request %}
-            <div class="content pr-infos">
+        <div class="content issue-big-infos">
+            {% if current_issue.is_pull_request %}
                 {% if current_issue.pr_fetched_at %}
                     <ul class="unstyled">
                         <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="icon-pencil"></i> {{ current_issue.nb_commits }}</li>
@@ -78,7 +78,7 @@
                 <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
                 {% if current_issue.pr_fetched_at %}
                     <div class="pr-merge-status">
-                        {% include "front/repository/issues/include_state_form.html" %}
+                        {% include "front/repository/issues/include_edit_buttons.html" %}
                         {% if current_issue.state == 'open' %}
                             {% if current_issue.is_mergeable %}
                                 <div class="alert alert-success"><strong>Can be merged</strong></div>
@@ -94,12 +94,10 @@
                         {% endif %}
                     </div>
                 {% endif %}
-            </div>
-        {% elif current_issue_edit_level == 'full' %}
-            <div class="content issue-button">
-                {% include "front/repository/issues/include_state_form.html" %}
-            </div>
-        {% endif %}
+            {% elif current_issue_edit_level %}
+                {% include "front/repository/issues/include_edit_buttons.html" %}
+            {% endif %}
+        </div>
         {% if current_issue.is_pull_request %}
             <ul class="nav nav-tabs pr-tabs">
                 <li class="pr-discussion-tab active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion</a></li>
@@ -110,7 +108,7 @@
                 <div class="tab-pane active issue-discussion" id="issue-{{ current_issue.number }}-discussion">
         {% endif %}
             <div class="content issue-body{% if not current_issue.body %} empty{% endif %}" >
-                {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this issue !{% endif %}
+                {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this {{ current_issue.type }} !{% endif %}
             </div>
             <aside>
                 <ul class="unstyled chat-box timeline issue-activity" id="issue-activity-{{ current_issue.number }}">

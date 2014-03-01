@@ -68,6 +68,7 @@ $file-list-width: 400px;
         @extend %issue-state-marker;
         padding-bottom: 5px;
         min-height: 95px;
+        margin-bottom: 0;
     }
     .issue-pull-request {
         position: absolute;
@@ -130,15 +131,11 @@ $file-list-width: 400px;
         }
     }
 
-    .pr-infos, .issue-button {
-        margin-top: -15px;
-        margin-bottom: 10px;
+    .issue-big-infos {
         background: $highlight-background-color;
         padding: 15px;
         border-bottom: solid 1px $box-border-color;
         overflow: auto;
-    }
-    .pr-infos {
         ul {
             float: right;
             li {
@@ -154,18 +151,21 @@ $file-list-width: 400px;
             margin: 0;
         }
     }
-    .issue-edit-state-form {
+    .issue-buttons {
         float: right;
-        margin-bottom: 0;
-        button {
+        .btn {
             padding: 8px 14px;
             font-size: 13px;
             line-height: 18px;
+            margin-left: 15px;
+        }
+        form {
+            margin-bottom: 0;
+            display: inline-block;
         }
     }
 
     .issue-body {
-        margin-top: -15px;
         padding: 15px;
         background: white;
         border-bottom: solid 1px $box-border-color;
