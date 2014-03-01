@@ -26,7 +26,7 @@
         {% if issue.milestone %}
             <div class="issue-item-milestone">
                 <a href="" class="js-filter-trigger" data-filter='milestone:{{ issue.milestone.number }}'>
-                    <i class="icon-tasks"> </i> {{ issue.milestone.title }}
+                    <i class="icon-tasks text-{{ issue.milestone.state }}" title="{{ issue.milestone.state|capfirst }} milestone{% if issue.milestone.state == 'open' and issue.milestone.due_on %}, due on {{ issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </i> {{ issue.milestone.title }}
                 </a>
             </div>
         {% endif %}

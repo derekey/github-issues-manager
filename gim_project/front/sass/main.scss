@@ -14,7 +14,7 @@ del {
 }
 
 .text-open {
-    color: darken($state-open-color, 20%);
+    color: $state-open-color;
 }
 .text-closed {
     color: $state-closed-color;
