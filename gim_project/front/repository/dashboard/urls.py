@@ -3,7 +3,8 @@ from django.conf.urls import patterns, url
 from .views import (DashboardView, MilestonesPart, CountersPart, LabelsPart,
                     LabelsEditor, LabelTypeCreate, LabelTypeEdit,
                     LabelTypePreview, LabelTypeDelete, LabelCreate,
-                    LabelEdit, LabelDelete, ActivityPart)
+                    LabelEdit, LabelDelete, ActivityPart,
+                    MilestoneCreate, MilestoneEdit, MilestoneDelete)
 
 from front.activity.urls import activity_pattern
 
@@ -23,4 +24,8 @@ urlpatterns = patterns('',
     url(r'^labels/editor/label/create/$', LabelCreate.as_view(), name=LabelCreate.url_name),
     url(r'^labels/editor/label/(?P<label_id>\d+)/edit/$', LabelEdit.as_view(), name=LabelEdit.url_name),
     url(r'^labels/editor/label/(?P<label_id>\d+)/delete/$', LabelDelete.as_view(), name=LabelDelete.url_name),
+
+    url(r'milestone/create/$', MilestoneCreate.as_view(), name=MilestoneCreate.url_name),
+    url(r'milestone/(?P<milestone_id>\d+)/edit/$', MilestoneEdit.as_view(), name=MilestoneEdit.url_name),
+    url(r'milestone/(?P<milestone_id>\d+)/delete/$', MilestoneDelete.as_view(), name=MilestoneDelete.url_name),
 )

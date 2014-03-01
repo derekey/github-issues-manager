@@ -4612,13 +4612,14 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
 /* line 163, ../../../sass/_core-admin-correct.scss */
 .toolbar-link .dropdown-menu li.with-checkbox label {
   margin: 0;
-  line-height: 20px;
+  font-size: inherit;
+  font-weight: inherit;
 }
-/* line 167, ../../../sass/_core-admin-correct.scss */
+/* line 168, ../../../sass/_core-admin-correct.scss */
 .toolbar-link .dropdown-menu li.with-checkbox input {
   vertical-align: top;
 }
-/* line 170, ../../../sass/_core-admin-correct.scss */
+/* line 171, ../../../sass/_core-admin-correct.scss */
 .toolbar-link .dropdown-menu li.with-checkbox span {
   vertical-align: middle;
 }
@@ -4630,7 +4631,7 @@ del {
 
 /* line 16, ../../../sass/main.scss */
 .text-open {
-  color: #8cc079;
+  color: #589043;
 }
 
 /* line 19, ../../../sass/main.scss */

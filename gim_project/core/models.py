@@ -1767,11 +1767,11 @@ class Label(WithRepositoryMixin, GithubObject):
 
 class Milestone(WithRepositoryMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='milestones')
-    number = models.PositiveIntegerField(db_index=True)
+    number = models.PositiveIntegerField(blank=True, null=True, db_index=True)
     title = models.TextField(db_index=True)
     description = models.TextField(blank=True, null=True)
     state = models.CharField(max_length=10, db_index=True)
-    created_at = models.DateTimeField(db_index=True)
+    created_at = models.DateTimeField(db_index=True, blank=True, null=True)
     due_on = models.DateTimeField(db_index=True, blank=True, null=True)
     creator = models.ForeignKey(GithubUser, related_name='milestones')
 

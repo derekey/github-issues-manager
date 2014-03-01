@@ -1,4 +1,41 @@
 @charset "UTF-8";
+/* line 3, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy {
+  border: 3px solid #808080;
+}
+/* line 6, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-body {
+  background: #f5f5f5;
+}
+/* line 10, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header, .modal.fancy .modal-footer {
+  background: #eaeaea;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #eaeaea));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: linear-gradient(top, #fdfdfd, #eaeaea);
+}
+/* line 12, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header h1, .modal.fancy .modal-header h2, .modal.fancy .modal-header h3, .modal.fancy .modal-header h4, .modal.fancy .modal-header h5, .modal.fancy .modal-header h6, .modal.fancy .modal-footer h1, .modal.fancy .modal-footer h2, .modal.fancy .modal-footer h3, .modal.fancy .modal-footer h4, .modal.fancy .modal-footer h5, .modal.fancy .modal-footer h6 {
+  margin: 0;
+}
+/* line 17, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header {
+  -moz-border-radius-topleft: 4px;
+  -webkit-border-top-left-radius: 4px;
+  border-top-left-radius: 4px;
+  -moz-border-radius-topright: 4px;
+  -webkit-border-top-right-radius: 4px;
+  border-top-right-radius: 4px;
+}
+/* line 22, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header {
+  border-bottom: 1px solid #CDCDCD;
+}
+
 /* line 3, ../../../../../sass/widgets/_avatar.scss */
 .avatar img {
   display: inline-block;
@@ -1237,38 +1274,989 @@ table.commits-list td.cell-sha {
   border-left-color: #7bc8d7;
 }
 
-/* line 22, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 3, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker {
+  padding: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  direction: ltr;
+  /*.dow {
+      border-top: 1px solid #ddd !important;
+  }*/
+}
+/* line 7, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.datepicker-rtl {
+  direction: rtl;
+}
+/* line 9, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.datepicker-rtl table tr td span {
+  float: right;
+}
+/* line 13, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker > div {
+  display: none;
+}
+/* line 16, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.days div.datepicker-days {
+  display: block;
+}
+/* line 19, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.months div.datepicker-months {
+  display: block;
+}
+/* line 22, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.years div.datepicker-years {
+  display: block;
+}
+/* line 25, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table {
+  margin: 0;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+/* line 35, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker td,
+.datepicker th {
+  text-align: center;
+  width: 20px;
+  height: 20px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  border: none;
+}
+/* line 46, ../../../../../sass/widgets/_datepicker.scss */
+.table-striped .datepicker table tr td, .table-striped .datepicker table tr th {
+  background-color: transparent;
+}
+/* line 51, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.day:hover, .datepicker table tr td.day.focused {
+  background: #eeeeee;
+  cursor: pointer;
+}
+/* line 56, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.old, .datepicker table tr td.new {
+  color: #999999;
+}
+/* line 60, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.disabled, .datepicker table tr td.disabled:hover {
+  background: none;
+  color: #999999;
+  cursor: default;
+}
+/* line 68, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.today, .datepicker table tr td.today:hover, .datepicker table tr td.today.disabled, .datepicker table tr td.today.disabled:hover {
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #fde19a;
+  background-image: -moz-linear-gradient(top, #fdd49a, #fdf59a);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fdd49a), to(#fdf59a));
+  background-image: -webkit-linear-gradient(top, #fdd49a, #fdf59a);
+  background-image: -o-linear-gradient(top, #fdd49a, #fdf59a);
+  background-image: linear-gradient(to bottom, #fdd49a, #fdf59a);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFDD49A', endColorstr='#FFFDF59A', GradientType=0);
+  border-color: #fdf59a #fdf59a #fbed50;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: #fdf59a;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  color: #000;
+}
+/* line 502, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td.today:hover, .datepicker table tr td.today:focus, .datepicker table tr td.today:active, .datepicker table tr td.today.active, .datepicker table tr td.today.disabled, .datepicker table tr td.today[disabled], .datepicker table tr td.today:hover:hover, .datepicker table tr td.today:hover:focus, .datepicker table tr td.today:hover:active, .datepicker table tr td.today:hover.active, .datepicker table tr td.today:hover.disabled, .datepicker table tr td.today:hover[disabled], .datepicker table tr td.today.disabled:hover, .datepicker table tr td.today.disabled:focus, .datepicker table tr td.today.disabled:active, .datepicker table tr td.today.disabled.active, .datepicker table tr td.today.disabled.disabled, .datepicker table tr td.today.disabled[disabled], .datepicker table tr td.today.disabled:hover:hover, .datepicker table tr td.today.disabled:hover:focus, .datepicker table tr td.today.disabled:hover:active, .datepicker table tr td.today.disabled:hover.active, .datepicker table tr td.today.disabled:hover.disabled, .datepicker table tr td.today.disabled:hover[disabled] {
+  color: white;
+  background-color: #fdf59a;
+  *background-color: #fcf282;
+}
+/* line 510, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td.today:active, .datepicker table tr td.today.active, .datepicker table tr td.today:hover:active, .datepicker table tr td.today:hover.active, .datepicker table tr td.today.disabled:active, .datepicker table tr td.today.disabled.active, .datepicker table tr td.today.disabled:hover:active, .datepicker table tr td.today.disabled:hover.active {
+  background-color: #fbf069 \9;
+}
+/* line 73, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.today:hover:hover {
+  color: #000;
+}
+/* line 77, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.today.active:hover {
+  color: #fff;
+}
+/* line 83, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.range, .datepicker table tr td.range:hover, .datepicker table tr td.range.disabled, .datepicker table tr td.range.disabled:hover {
+  background: #eeeeee;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+}
+/* line 90, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.range.today, .datepicker table tr td.range.today:hover, .datepicker table tr td.range.today.disabled, .datepicker table tr td.range.today.disabled:hover {
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #f3d17a;
+  background-image: -moz-linear-gradient(top, #f3c17a, #f3e97a);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f3c17a), to(#f3e97a));
+  background-image: -webkit-linear-gradient(top, #f3c17a, #f3e97a);
+  background-image: -o-linear-gradient(top, #f3c17a, #f3e97a);
+  background-image: linear-gradient(to bottom, #f3c17a, #f3e97a);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFF3C17A', endColorstr='#FFF3E97A', GradientType=0);
+  border-color: #f3e97a #f3e97a #edde34;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: #f3e97a;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+}
+/* line 502, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td.range.today:hover, .datepicker table tr td.range.today:focus, .datepicker table tr td.range.today:active, .datepicker table tr td.range.today.active, .datepicker table tr td.range.today.disabled, .datepicker table tr td.range.today[disabled], .datepicker table tr td.range.today:hover:hover, .datepicker table tr td.range.today:hover:focus, .datepicker table tr td.range.today:hover:active, .datepicker table tr td.range.today:hover.active, .datepicker table tr td.range.today:hover.disabled, .datepicker table tr td.range.today:hover[disabled], .datepicker table tr td.range.today.disabled:hover, .datepicker table tr td.range.today.disabled:focus, .datepicker table tr td.range.today.disabled:active, .datepicker table tr td.range.today.disabled.active, .datepicker table tr td.range.today.disabled.disabled, .datepicker table tr td.range.today.disabled[disabled], .datepicker table tr td.range.today.disabled:hover:hover, .datepicker table tr td.range.today.disabled:hover:focus, .datepicker table tr td.range.today.disabled:hover:active, .datepicker table tr td.range.today.disabled:hover.active, .datepicker table tr td.range.today.disabled:hover.disabled, .datepicker table tr td.range.today.disabled:hover[disabled] {
+  color: white;
+  background-color: #f3e97a;
+  *background-color: #f1e663;
+}
+/* line 510, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td.range.today:active, .datepicker table tr td.range.today.active, .datepicker table tr td.range.today:hover:active, .datepicker table tr td.range.today:hover.active, .datepicker table tr td.range.today.disabled:active, .datepicker table tr td.range.today.disabled.active, .datepicker table tr td.range.today.disabled:hover:active, .datepicker table tr td.range.today.disabled:hover.active {
+  background-color: #efe24b \9;
+}
+/* line 98, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.selected, .datepicker table tr td.selected:hover, .datepicker table tr td.selected.disabled, .datepicker table tr td.selected.disabled:hover {
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #9e9e9e;
+  background-image: -moz-linear-gradient(top, #b3b3b3, gray);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#b3b3b3), to(gray));
+  background-image: -webkit-linear-gradient(top, #b3b3b3, gray);
+  background-image: -o-linear-gradient(top, #b3b3b3, gray);
+  background-image: linear-gradient(to bottom, #b3b3b3, #808080);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFB3B3B3', endColorstr='#FF808080', GradientType=0);
+  border-color: gray gray #595959;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: gray;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+/* line 502, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td.selected:hover, .datepicker table tr td.selected:focus, .datepicker table tr td.selected:active, .datepicker table tr td.selected.active, .datepicker table tr td.selected.disabled, .datepicker table tr td.selected[disabled], .datepicker table tr td.selected:hover:hover, .datepicker table tr td.selected:hover:focus, .datepicker table tr td.selected:hover:active, .datepicker table tr td.selected:hover.active, .datepicker table tr td.selected:hover.disabled, .datepicker table tr td.selected:hover[disabled], .datepicker table tr td.selected.disabled:hover, .datepicker table tr td.selected.disabled:focus, .datepicker table tr td.selected.disabled:active, .datepicker table tr td.selected.disabled.active, .datepicker table tr td.selected.disabled.disabled, .datepicker table tr td.selected.disabled[disabled], .datepicker table tr td.selected.disabled:hover:hover, .datepicker table tr td.selected.disabled:hover:focus, .datepicker table tr td.selected.disabled:hover:active, .datepicker table tr td.selected.disabled:hover.active, .datepicker table tr td.selected.disabled:hover.disabled, .datepicker table tr td.selected.disabled:hover[disabled] {
+  color: white;
+  background-color: gray;
+  *background-color: #737373;
+}
+/* line 510, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td.selected:active, .datepicker table tr td.selected.active, .datepicker table tr td.selected:hover:active, .datepicker table tr td.selected:hover.active, .datepicker table tr td.selected.disabled:active, .datepicker table tr td.selected.disabled.active, .datepicker table tr td.selected.disabled:hover:active, .datepicker table tr td.selected.disabled:hover.active {
+  background-color: #666666 \9;
+}
+/* line 106, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td.active, .datepicker table tr td.active:hover, .datepicker table tr td.active.disabled, .datepicker table tr td.active.disabled:hover {
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #006ccc;
+  background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
+  background-image: -webkit-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -o-linear-gradient(top, #0088cc, #0044cc);
+  background-image: linear-gradient(to bottom, #0088cc, #0044cc);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF0088CC', endColorstr='#FF0044CC', GradientType=0);
+  border-color: #0044cc #0044cc #002a80;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: #0044cc;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+/* line 502, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td.active:hover, .datepicker table tr td.active:focus, .datepicker table tr td.active:active, .datepicker table tr td.active.active, .datepicker table tr td.active.disabled, .datepicker table tr td.active[disabled], .datepicker table tr td.active:hover:hover, .datepicker table tr td.active:hover:focus, .datepicker table tr td.active:hover:active, .datepicker table tr td.active:hover.active, .datepicker table tr td.active:hover.disabled, .datepicker table tr td.active:hover[disabled], .datepicker table tr td.active.disabled:hover, .datepicker table tr td.active.disabled:focus, .datepicker table tr td.active.disabled:active, .datepicker table tr td.active.disabled.active, .datepicker table tr td.active.disabled.disabled, .datepicker table tr td.active.disabled[disabled], .datepicker table tr td.active.disabled:hover:hover, .datepicker table tr td.active.disabled:hover:focus, .datepicker table tr td.active.disabled:hover:active, .datepicker table tr td.active.disabled:hover.active, .datepicker table tr td.active.disabled:hover.disabled, .datepicker table tr td.active.disabled:hover[disabled] {
+  color: white;
+  background-color: #0044cc;
+  *background-color: #003bb3;
+}
+/* line 510, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td.active:active, .datepicker table tr td.active.active, .datepicker table tr td.active:hover:active, .datepicker table tr td.active:hover.active, .datepicker table tr td.active.disabled:active, .datepicker table tr td.active.disabled.active, .datepicker table tr td.active.disabled:hover:active, .datepicker table tr td.active.disabled:hover.active {
+  background-color: #003399 \9;
+}
+/* line 111, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td span {
+  display: block;
+  width: 23%;
+  height: 54px;
+  line-height: 54px;
+  float: left;
+  margin: 1%;
+  cursor: pointer;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+/* line 120, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td span:hover {
+  background: #eeeeee;
+}
+/* line 124, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td span.disabled, .datepicker table tr td span.disabled:hover {
+  background: none;
+  color: #999999;
+  cursor: default;
+}
+/* line 132, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td span.active, .datepicker table tr td span.active:hover, .datepicker table tr td span.active.disabled, .datepicker table tr td span.active.disabled:hover {
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #006ccc;
+  background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
+  background-image: -webkit-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -o-linear-gradient(top, #0088cc, #0044cc);
+  background-image: linear-gradient(to bottom, #0088cc, #0044cc);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF0088CC', endColorstr='#FF0044CC', GradientType=0);
+  border-color: #0044cc #0044cc #002a80;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  *background-color: #0044cc;
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+/* line 502, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td span.active:hover, .datepicker table tr td span.active:focus, .datepicker table tr td span.active:active, .datepicker table tr td span.active.active, .datepicker table tr td span.active.disabled, .datepicker table tr td span.active[disabled], .datepicker table tr td span.active:hover:hover, .datepicker table tr td span.active:hover:focus, .datepicker table tr td span.active:hover:active, .datepicker table tr td span.active:hover.active, .datepicker table tr td span.active:hover.disabled, .datepicker table tr td span.active:hover[disabled], .datepicker table tr td span.active.disabled:hover, .datepicker table tr td span.active.disabled:focus, .datepicker table tr td span.active.disabled:active, .datepicker table tr td span.active.disabled.active, .datepicker table tr td span.active.disabled.disabled, .datepicker table tr td span.active.disabled[disabled], .datepicker table tr td span.active.disabled:hover:hover, .datepicker table tr td span.active.disabled:hover:focus, .datepicker table tr td span.active.disabled:hover:active, .datepicker table tr td span.active.disabled:hover.active, .datepicker table tr td span.active.disabled:hover.disabled, .datepicker table tr td span.active.disabled:hover[disabled] {
+  color: white;
+  background-color: #0044cc;
+  *background-color: #003bb3;
+}
+/* line 510, ../../../../../core-admin/stylesheets/bootstrap/_mixins.scss */
+.datepicker table tr td span.active:active, .datepicker table tr td span.active.active, .datepicker table tr td span.active:hover:active, .datepicker table tr td span.active:hover.active, .datepicker table tr td span.active.disabled:active, .datepicker table tr td span.active.disabled.active, .datepicker table tr td span.active.disabled:hover:active, .datepicker table tr td span.active.disabled:hover.active {
+  background-color: #003399 \9;
+}
+/* line 138, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker table tr td span.old, .datepicker table tr td span.new {
+  color: #999999;
+}
+/* line 144, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker th.datepicker-switch {
+  width: 145px;
+}
+/* line 149, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker thead tr:first-child th,
+.datepicker tfoot tr th {
+  cursor: pointer;
+}
+/* line 151, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker thead tr:first-child th:hover,
+.datepicker tfoot tr th:hover {
+  background: #eeeeee;
+}
+/* line 160, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker .cw {
+  font-size: 10px;
+  width: 12px;
+  padding: 0 2px 0 5px;
+  vertical-align: middle;
+}
+/* line 166, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker thead tr:first-child th.cw {
+  cursor: default;
+  background-color: transparent;
+}
+
+/* line 171, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-inline {
+  width: 220px;
+}
+
+/* line 174, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown {
+  top: 0;
+  left: 0;
+}
+/* line 177, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown:before {
+  content: '';
+  display: inline-block;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #ccc;
+  border-top: 0;
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+}
+/* line 187, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown:after {
+  content: '';
+  display: inline-block;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid white;
+  border-top: 0;
+  position: absolute;
+}
+/* line 196, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown.datepicker-orient-left:before {
+  left: 6px;
+}
+/* line 197, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown.datepicker-orient-left:after {
+  left: 7px;
+}
+/* line 198, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown.datepicker-orient-right:before {
+  right: 6px;
+}
+/* line 199, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown.datepicker-orient-right:after {
+  right: 7px;
+}
+/* line 200, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown.datepicker-orient-top:before {
+  top: -7px;
+}
+/* line 201, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown.datepicker-orient-top:after {
+  top: -6px;
+}
+/* line 202, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown.datepicker-orient-bottom:before {
+  bottom: -7px;
+  border-bottom: 0;
+  border-top: 7px solid #999;
+}
+/* line 207, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker-dropdown.datepicker-orient-bottom:after {
+  bottom: -6px;
+  border-bottom: 0;
+  border-top: 6px solid white;
+}
+
+/* line 216, ../../../../../sass/widgets/_datepicker.scss */
+.input-append.date .add-on i,
+.input-prepend.date .add-on i {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+/* line 224, ../../../../../sass/widgets/_datepicker.scss */
+.input-daterange input {
+  text-align: center;
+}
+/* line 227, ../../../../../sass/widgets/_datepicker.scss */
+.input-daterange input:first-child {
+  -webkit-border-radius: 3px 0 0 3px;
+  -moz-border-radius: 3px 0 0 3px;
+  border-radius: 3px 0 0 3px;
+}
+/* line 230, ../../../../../sass/widgets/_datepicker.scss */
+.input-daterange input:last-child {
+  -webkit-border-radius: 0 3px 3px 0;
+  -moz-border-radius: 0 3px 3px 0;
+  border-radius: 0 3px 3px 0;
+}
+/* line 233, ../../../../../sass/widgets/_datepicker.scss */
+.input-daterange .add-on {
+  display: inline-block;
+  width: auto;
+  min-width: 16px;
+  height: 20px;
+  padding: 4px 5px;
+  font-weight: normal;
+  line-height: 20px;
+  text-align: center;
+  text-shadow: 0 1px 0 white;
+  vertical-align: middle;
+  background-color: #eeeeee;
+  border: 1px solid #ccc;
+  margin-left: -5px;
+  margin-right: -5px;
+}
+
+/* line 5, ../../../../../core-admin/stylesheets/bootstrap-editable-fix.scss */
+.datepicker table {
+  width: 100%;
+  border: 1px solid #CDCDCD;
+  background: #fafafa;
+  -webkit-box-shadow: 0 2px 2px -2px #cccccc;
+  -moz-box-shadow: 0 2px 2px -2px #cccccc;
+  box-shadow: 0 2px 2px -2px #cccccc;
+}
+/* line 13, ../../../../../core-admin/stylesheets/bootstrap-editable-fix.scss */
+.datepicker table thead tr:first-child {
+  background: #ececec;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VjZWNlYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #ececec));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: -o-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: linear-gradient(top, #fdfdfd, #ececec);
+  border-bottom: 1px solid #CDCDCD;
+}
+/* line 18, ../../../../../core-admin/stylesheets/bootstrap-editable-fix.scss */
+.datepicker table thead tr:first-child th {
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+}
+/* line 21, ../../../../../core-admin/stylesheets/bootstrap-editable-fix.scss */
+.datepicker table thead tr:first-child th:hover {
+  background: #ececec;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VjZWNlYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #ececec));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: -o-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: linear-gradient(top, #fdfdfd, #ececec);
+  color: #404040;
+}
+/* line 31, ../../../../../core-admin/stylesheets/bootstrap-editable-fix.scss */
+.datepicker table tr td.day:hover, .datepicker table tr td span:hover {
+  background: #32779a;
+  color: #fff;
+}
+/* line 36, ../../../../../core-admin/stylesheets/bootstrap-editable-fix.scss */
+.datepicker table tr td.active.active, .datepicker table tr td.active:hover.active, .datepicker table tr td span.active:hover.active, .datepicker table tr td span.active.active {
+  background: #519FC7;
+  color: #fff;
+}
+
+/* line 44, ../../../../../core-admin/stylesheets/bootstrap-editable-fix.scss */
+.datepicker-inline {
+  width: auto;
+}
+
+/* line 253, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.datepicker-dropdown {
+  padding: 0;
+}
+/* line 255, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.datepicker-dropdown table {
+  width: 100%;
+  border: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+/* line 261, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.datepicker-dropdown table thead tr:first-child {
+  background: transparent;
+  -webkit-border-radius: 4px 4px 0 0;
+  -moz-border-radius: 4px 4px 0 0;
+  -ms-border-radius: 4px 4px 0 0;
+  -o-border-radius: 4px 4px 0 0;
+  border-radius: 4px 4px 0 0;
+}
+/* line 264, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.datepicker-dropdown table thead tr:first-child th {
+  background: #ececec;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VjZWNlYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #ececec));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: -o-linear-gradient(top, #fdfdfd, #ececec);
+  background-image: linear-gradient(top, #fdfdfd, #ececec);
+}
+/* line 266, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.datepicker-dropdown table thead tr:first-child th:first-of-type {
+  -webkit-border-radius: 4px 0 0 0;
+  -moz-border-radius: 4px 0 0 0;
+  -ms-border-radius: 4px 0 0 0;
+  -o-border-radius: 4px 0 0 0;
+  border-radius: 4px 0 0 0;
+}
+/* line 269, ../../../../../sass/widgets/_datepicker.scss */
+.datepicker.datepicker-dropdown table thead tr:first-child th:last-of-type {
+  -webkit-border-radius: 0 4px 0 0;
+  -moz-border-radius: 0 4px 0 0;
+  -ms-border-radius: 0 4px 0 0;
+  -o-border-radius: 0 4px 0 0;
+  border-radius: 0 4px 0 0;
+}
+
+/* \f020 doesn't work in Safari. all shifted one down */
+/* line 8, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 0;
+}
+/* line 10, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 16, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up input, form.fill-up textarea, form.fill-up select {
+  width: 100%;
+}
+/* line 20, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .padded .control-group:last-child {
+  margin-bottom: 0;
+}
+/* line 24, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up.form-horizontal .form-actions {
+  padding-left: 20px;
+}
+
+/* line 32, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .radio, form.fill-up .checkbox {
+  padding-left: 0;
+}
+
+/* line 38, ../../../../../core-admin/stylesheets/form_elements.scss */
+.form-actions {
+  margin-bottom: 0;
+}
+
+/* line 42, ../../../../../core-admin/stylesheets/form_elements.scss */
+.box form {
+  padding: 0;
+}
+
+/* line 46, ../../../../../core-admin/stylesheets/form_elements.scss */
+form {
+  margin-bottom: 0;
+}
+
+/* line 64, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append, .input-prepend {
+  height: 26px;
+  line-height: 26px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+/* line 59, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append .add-on i, .input-prepend .add-on i {
+  line-height: 16px;
+}
+/* line 68, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append *, .input-prepend * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 75, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append a.add-on, .input-append span.add-on, .input-prepend a.add-on, .input-prepend span.add-on {
+  min-width: 26px;
+  color: #5a6573;
+  position: absolute;
+  height: 100%;
+  z-index: 2;
+  -webkit-box-shadow: inset 0 1px 2px white;
+  -moz-box-shadow: inset 0 1px 2px white;
+  box-shadow: inset 0 1px 2px white;
+  border: 1px solid #ccc;
+  background: #eaeaea;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #eaeaea));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: linear-gradient(top, #fdfdfd, #eaeaea);
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+/* line 89, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append a.add-on:active, .input-append span.add-on:active, .input-prepend a.add-on:active, .input-prepend span.add-on:active {
+  background: #eee;
+}
+/* line 94, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append ul.add-on, .input-prepend ul.add-on {
+  list-style: none;
+  position: absolute;
+  z-index: 2;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  top: 1px;
+  right: 2px;
+}
+/* line 107, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append ul.add-on li, .input-prepend ul.add-on li {
+  float: left;
+  margin-left: 10px;
+  line-height: 32px;
+  height: 32px;
+}
+/* line 113, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append ul.add-on li a, .input-append ul.add-on li button, .input-prepend ul.add-on li a, .input-prepend ul.add-on li button {
+  vertical-align: middle;
+}
+/* line 116, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append ul.add-on li a.btn, .input-append ul.add-on li button.btn, .input-prepend ul.add-on li a.btn, .input-prepend ul.add-on li button.btn {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+}
+/* line 121, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append ul.add-on li .btn, .input-prepend ul.add-on li .btn {
+  padding: 0;
+  line-height: 25px;
+  height: 25px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-right: 5px;
+}
+/* line 132, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append input[type="text"], .input-append input[type="password"], .input-append input[type="email"], .input-append input[type="number"], .input-prepend input[type="text"], .input-prepend input[type="password"], .input-prepend input[type="email"], .input-prepend input[type="number"] {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+
+/* line 141, ../../../../../core-admin/stylesheets/form_elements.scss */
+.box .input-append, .box .input-prepend {
+  margin-bottom: 0;
+}
+
+/* line 147, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append .add-on:last-child {
+  right: 0;
+}
+/* line 149, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append input[type="text"], .input-append input[type="password"], .input-append input[type="email"], .input-append input[type="number"] {
+  padding-right: 25px;
+}
+
+/* line 155, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-prepend .add-on:first-child {
+  left: 0;
+}
+/* line 157, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-prepend input[type="text"], .input-prepend input[type="password"], .input-prepend input[type="email"], .input-prepend input[type="number"] {
+  padding-left: 35px;
+}
+
+/* line 166, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.uploader {
+  width: 100%;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: 1px solid #ccc;
+  height: 28px;
+  background: #fff;
+}
+/* line 174, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.uploader span.filename {
+  border-right: none;
+  width: 120px;
+  height: 24px;
+  margin: 2px 0px 2px 2px;
+  line-height: 24px;
+}
+/* line 183, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.uploader.hover span.action {
+  background: #8dbfd8;
+}
+/* line 189, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.uploader.active span.action {
+  background: #4194bd;
+}
+/* line 194, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.uploader span.action {
+  height: 24px;
+  line-height: 24px;
+  float: right;
+  width: 22px;
+  text-align: center;
+  height: 22px;
+  margin-top: 2px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+  background: #549fc4;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzdhYjRkMSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzU0OWZjNCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7ab4d1), color-stop(100%, #549fc4));
+  background-image: -webkit-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: -moz-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: -o-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: linear-gradient(top, #7ab4d1, #549fc4);
+  color: white;
+  text-shadow: none;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+/* line 215, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.selector {
+  position: relative;
+  padding-left: 5px;
+  overflow: hidden;
+  width: 100%;
+  font-size: 12px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  background: whitesmoke;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2Y1ZjVmNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #f5f5f5));
+  background-image: -webkit-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: -moz-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: -o-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: linear-gradient(top, #ffffff, #f5f5f5);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid #ccc;
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
+  color: #666;
+}
+/* line 223, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.selector:after {
+  content: "\f0dd";
+  top: 2px;
+  right: 2px;
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  text-decoration: inherit;
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  text-align: center;
+  line-height: 18px;
+  font-size: 14px;
+  color: #888;
+}
+/* line 230, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.selector span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0px 25px 0px 2px;
+  cursor: pointer;
+  color: #666;
+  text-shadow: 0 1px 0 #fff;
+  height: 26px;
+  line-height: 26px;
+  background: transparent;
+}
+/* line 247, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.selector.disabled span {
+  color: #bbb;
+}
+/* line 252, ../../../../../core-admin/stylesheets/form_elements.scss */
+div.selector select {
+  position: absolute;
+  opacity: 0;
+  height: 25px;
+  border: none;
+  background: none;
+  top: 0;
+  left: 0;
+  font-size: 12px;
+  border: solid 1px #fff;
+}
+
+/* line 268, ../../../../../core-admin/stylesheets/form_elements.scss */
+textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  font-size: 12px;
+  color: #858585;
+  padding: 0 0 0 5px;
+  border: 1px solid #d7d7d7;
+  display: inline-block;
+  background: #fdfdfd;
+  height: 26px;
+}
+/* line 279, ../../../../../core-admin/stylesheets/form_elements.scss */
+textarea:focus, input[type="text"]:focus, input[type="password"]:focus, input[type="datetime"]:focus, input[type="datetime-local"]:focus, input[type="date"]:focus, input[type="month"]:focus, input[type="time"]:focus, input[type="week"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="url"]:focus, input[type="search"]:focus, input[type="tel"]:focus, input[type="color"]:focus, .uneditable-input:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: 1px solid #68A6CE;
+}
+
+/* line 285, ../../../../../core-admin/stylesheets/form_elements.scss */
+textarea {
+  height: auto;
+}
+
+/* line 289, ../../../../../core-admin/stylesheets/form_elements.scss */
+label {
+  font-size: 12px;
+  color: #5F5F5F;
+}
+
+/* line 56, ../../../../../core-admin/stylesheets/_arrow.scss */
+.search-dropdown {
+  position: relative;
+  background: #fbfbfb;
+  border: 1px solid #cccccc;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+/* line 72, ../../../../../core-admin/stylesheets/_arrow.scss */
+.search-dropdown:after, .search-dropdown:before {
+  bottom: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+/* line 82, ../../../../../core-admin/stylesheets/_arrow.scss */
+.search-dropdown:after {
+  border-bottom-color: #fbfbfb;
+  border-width: 7px;
+  left: 50%;
+  margin-left: -7px;
+}
+
+/* line 94, ../../../../../core-admin/stylesheets/_arrow.scss */
+.search-dropdown:before {
+  border-bottom-color: #cccccc;
+  border-width: 8px;
+  left: 50%;
+  margin-left: -8px;
+}
+
+/* line 299, ../../../../../core-admin/stylesheets/form_elements.scss */
+.search-dropdown {
+  margin-top: 15px;
+}
+/* line 302, ../../../../../core-admin/stylesheets/form_elements.scss */
+.search-dropdown .box-section:first-child {
+  border-top: none;
+  -moz-border-radius-topleft: 3px;
+  -webkit-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -webkit-border-top-right-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+/* line 311, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-with-submit {
+  position: relative;
+}
+/* line 314, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-with-submit button {
+  background: transparent;
+  border: none;
+  position: absolute;
+  right: 2px;
+  top: 7px;
+}
+/* line 322, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-with-submit i {
+  color: #909090;
+}
+
+/* line 2, ../../../../../sass/_core-admin-forms-correct.scss */
+[class*="span"] > div.selector {
+  width: 100% !important;
+}
+
+/* line 5, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  height: auto;
+  line-height: normal;
+}
+/* line 9, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector:after {
+  top: 0;
+}
+/* line 12, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector span {
+  width: auto !important;
+  height: 24px;
+  line-height: 24px;
+}
+
+/* line 27, ../../../../../sass/pages/repository/dashboard.scss */
 .area-top .header h3 a i {
   float: none;
   color: #ccc;
   position: relative;
   top: 1px;
 }
-/* line 28, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 33, ../../../../../sass/pages/repository/dashboard.scss */
 .area-top .header h5 {
   margin-left: 32px;
 }
 @media (max-height: 800px) {
-  /* line 33, ../../../../../sass/pages/repository/dashboard.scss */
+  /* line 38, ../../../../../sass/pages/repository/dashboard.scss */
   .area-top .issues-by-day {
     overflow: hidden;
     height: 32px;
   }
 }
 
-/* line 42, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 47, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones a[data-toggle=collapse].collapsed h3::after {
   content: '…';
   font-weight: normal;
 }
-/* line 46, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 51, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section {
   overflow: auto;
   padding: 15px;
   padding-bottom: 0;
 }
-/* line 52, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > .date, #milestones .box-section > .all-issues-link {
+/* line 58, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > .date, #milestones .box-section > .all-issues-link, #milestones .box-section > .edit-link {
   float: right;
   font-style: italic;
   opacity: 0;
@@ -1278,7 +2266,11 @@ table.commits-list td.cell-sha {
   transition: opacity 0.35s;
   margin-top: -10px;
 }
-/* line 59, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 65, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > .edit-link {
+  margin-left: 1em;
+}
+/* line 68, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress {
   clear: both;
   -webkit-transition: height 0.35s;
@@ -1286,12 +2278,12 @@ table.commits-list td.cell-sha {
   -o-transition: height 0.35s;
   transition: height 0.35s;
 }
-/* line 62, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 71, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress a {
   display: block;
   color: inherit;
 }
-/* line 66, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 75, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress span {
   opacity: 0;
   font-weight: bold;
@@ -1300,53 +2292,53 @@ table.commits-list td.cell-sha {
   -o-transition: opacity 0.35s;
   transition: opacity 0.35s;
 }
-/* line 72, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 81, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > blockquote {
   margin: -10px 0 15px;
   float: left;
 }
-/* line 76, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a {
+/* line 85, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > a[data-toggle=collapse] {
   overflow: auto;
 }
-/* line 78, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a > h3 {
+/* line 87, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > a[data-toggle=collapse] > h3 {
   float: left;
   margin: 0;
   margin-bottom: 5px;
   font-size: 16px;
   line-height: normal;
 }
-/* line 89, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a:not(.collapsed) ~ .date, #milestones .box-section > a:not(.collapsed) ~ .all-issues-link {
+/* line 99, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .date, #milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .all-issues-link, #milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .edit-link {
   opacity: 1;
   margin-bottom: 10px;
 }
-/* line 93, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a:not(.collapsed) ~ div.progress {
+/* line 103, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ div.progress {
   height: 20px;
 }
-/* line 95, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a:not(.collapsed) ~ div.progress span {
+/* line 105, ../../../../../sass/pages/repository/dashboard.scss */
+#milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ div.progress span {
   opacity: 1;
 }
 
-/* line 105, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 115, ../../../../../sass/pages/repository/dashboard.scss */
 #counters {
   top: 0;
   height: 180px;
 }
-/* line 106, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 116, ../../../../../sass/pages/repository/dashboard.scss */
 #counters .action-nav-button {
   width: 100%;
 }
-/* line 108, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 118, ../../../../../sass/pages/repository/dashboard.scss */
 #counters .action-nav-button a {
   white-space: normal;
   position: relative;
   height: 70px;
 }
-/* line 112, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 122, ../../../../../sass/pages/repository/dashboard.scss */
 #counters .action-nav-button a span {
   position: absolute;
   left: 5px;
@@ -1355,13 +2347,13 @@ table.commits-list td.cell-sha {
   line-height: 1.5ex;
 }
 @media (max-height: 800px), (max-width: 800px) {
-  /* line 106, ../../../../../sass/pages/repository/dashboard.scss */
+  /* line 116, ../../../../../sass/pages/repository/dashboard.scss */
   #counters .action-nav-button {
     margin-bottom: 7px;
   }
 }
 @media (max-height: 800px), (max-width: 800px) {
-  /* line 126, ../../../../../sass/pages/repository/dashboard.scss */
+  /* line 136, ../../../../../sass/pages/repository/dashboard.scss */
   #counters .span4 {
     margin-left: 6px;
     width: -moz-calc(100% / 3 - 6px * 2 / 3) ;
@@ -1369,11 +2361,11 @@ table.commits-list td.cell-sha {
     width: -webkit-calc(100% / 3 - 6px * 2 / 3) ;
     width: calc(100% / 3 - 6px * 2 / 3) ;
   }
-  /* line 129, ../../../../../sass/pages/repository/dashboard.scss */
+  /* line 139, ../../../../../sass/pages/repository/dashboard.scss */
   #counters .span4:first-child {
     margin-left: 0;
   }
-  /* line 132, ../../../../../sass/pages/repository/dashboard.scss */
+  /* line 142, ../../../../../sass/pages/repository/dashboard.scss */
   #counters .span4.offset2 {
     margin-left: -moz-calc(100% / 6 + 6px) ;
     margin-left: -o-calc(100% / 6 + 6px) ;
@@ -1381,50 +2373,50 @@ table.commits-list td.cell-sha {
     margin-left: calc(100% / 6 + 6px) ;
   }
 }
-/* line 137, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 147, ../../../../../sass/pages/repository/dashboard.scss */
 #counters .label.left {
   background: transparent;
   color: inherit;
   text-shadow: none;
 }
 
-/* line 146, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 156, ../../../../../sass/pages/repository/dashboard.scss */
 #labels {
   top: 180px;
 }
 @media (max-height: 800px), (max-width: 800px) {
-  /* line 146, ../../../../../sass/pages/repository/dashboard.scss */
+  /* line 156, ../../../../../sass/pages/repository/dashboard.scss */
   #labels {
     top: 154px;
   }
 }
-/* line 151, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 161, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-section {
   padding: 5px;
   padding-top: 20px;
   position: relative;
 }
-/* line 155, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 165, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-section.only {
   padding-top: 5px;
 }
-/* line 158, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 168, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-section.empty {
   padding: 10px;
 }
-/* line 160, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 170, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-section.empty .empty-area {
   font-size: 125%;
 }
-/* line 164, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 174, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-section.without-labels {
   padding-top: 5px;
 }
-/* line 166, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 176, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-section.without-labels ul.labels {
   text-align: center !important;
 }
-/* line 171, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 181, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-section .label {
   position: absolute;
   top: 0;
@@ -1442,26 +2434,26 @@ table.commits-list td.cell-sha {
   -webkit-border-bottom-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-/* line 180, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 190, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-section ul li span {
   margin-left: 5px;
   font-weight: bold;
 }
-/* line 187, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 197, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-header + .box-content {
   border-top: none;
 }
-/* line 190, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 200, ../../../../../sass/pages/repository/dashboard.scss */
 #labels .box-footer {
   text-align: center;
 }
 
-/* line 195, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 205, ../../../../../sass/pages/repository/dashboard.scss */
 ul.labels {
   text-align: justify;
   margin: 0;
 }
-/* line 198, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 208, ../../../../../sass/pages/repository/dashboard.scss */
 ul.labels li {
   display: inline-block;
   margin: 5px 10px;
@@ -1469,12 +2461,12 @@ ul.labels li {
   border-bottom: solid 3px transparent;
 }
 
-/* line 206, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 216, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones {
   bottom: 0;
 }
 
-/* line 211, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 221, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones, #labels {
   height: -moz-calc(50% - 105px) ;
   height: -o-calc(50% - 105px) ;
@@ -1482,7 +2474,7 @@ ul.labels li {
   height: calc(50% - 105px) ;
 }
 @media (max-height: 800px), (max-width: 800px) {
-  /* line 211, ../../../../../sass/pages/repository/dashboard.scss */
+  /* line 221, ../../../../../sass/pages/repository/dashboard.scss */
   #milestones, #labels {
     height: -moz-calc(50% - 82px) ;
     height: -o-calc(50% - 82px) ;
@@ -1490,24 +2482,92 @@ ul.labels li {
     height: calc(50% - 82px) ;
   }
 }
-/* line 216, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 226, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-header .box-toolbar > li, #labels .box-header .box-toolbar > li {
   padding-right: 0;
   margin-left: 0;
 }
 
-/* line 222, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 232, ../../../../../sass/pages/repository/dashboard.scss */
 body > main > .row-header .area-top {
   position: relative;
 }
-/* line 224, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 234, ../../../../../sass/pages/repository/dashboard.scss */
 body > main > .row-header .area-top > .header {
   position: relative;
   z-index: 2;
 }
-/* line 228, ../../../../../sass/pages/repository/dashboard.scss */
+/* line 238, ../../../../../sass/pages/repository/dashboard.scss */
 body > main > .row-header .area-top > .issues-by-day {
   position: absolute;
   right: 0;
   bottom: 0;
+}
+
+/* line 246, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-due_on {
+  float: left;
+}
+/* line 248, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-due_on div.input-prepend {
+  width: 140px;
+}
+/* line 251, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-due_on > label {
+  float: left;
+  margin-top: 2px;
+  margin-right: 1em;
+}
+/* line 256, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-due_on input {
+  text-align: center;
+  padding-left: 25px;
+}
+/* line 260, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-due_on .add-on {
+  min-width: 26px;
+}
+/* line 262, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-due_on .add-on:first-of-type {
+  padding-top: 3px;
+}
+/* line 267, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-open {
+  float: right;
+  margin-top: 1px;
+}
+/* line 270, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-open .ibutton-label-on {
+  background: #8cc079;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2FhZDA5YyIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzhjYzA3OSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #aad09c), color-stop(100%, #8cc079));
+  background-image: -webkit-linear-gradient(top, #aad09c, #8cc079);
+  background-image: -moz-linear-gradient(top, #aad09c, #8cc079);
+  background-image: -o-linear-gradient(top, #aad09c, #8cc079);
+  background-image: linear-gradient(top, #aad09c, #8cc079);
+}
+/* line 273, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-open .ibutton-label-off {
+  background: #b35d5d;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2MzODA4MCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2IzNWQ1ZCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #c38080), color-stop(100%, #b35d5d));
+  background-image: -webkit-linear-gradient(top, #c38080, #b35d5d);
+  background-image: -moz-linear-gradient(top, #c38080, #b35d5d);
+  background-image: -o-linear-gradient(top, #c38080, #b35d5d);
+  background-image: linear-gradient(top, #c38080, #b35d5d);
+}
+/* line 276, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form .field-open > label {
+  display: none;
+}
+/* line 280, ../../../../../sass/pages/repository/dashboard.scss */
+#milestone-form input[type=submit] {
+  display: none;
+}
+
+/* line 284, ../../../../../sass/pages/repository/dashboard.scss */
+.datepicker-due_on {
+  margin-left: 30px;
 }

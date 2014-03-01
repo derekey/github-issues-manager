@@ -876,17 +876,15 @@ disabled look for disabled choices in the results dropdown
 }
 
 /* line 3, ../../../../../core-admin/stylesheets/modal.scss */
-.modal-body {
-  background: #f5f5f5;
-}
-
-/* line 7, ../../../../../core-admin/stylesheets/modal.scss */
-.modal {
+.modal.fancy {
   border: 3px solid #808080;
 }
-
-/* line 11, ../../../../../core-admin/stylesheets/modal.scss */
-.modal-header, .modal-footer {
+/* line 6, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-body {
+  background: #f5f5f5;
+}
+/* line 10, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header, .modal.fancy .modal-footer {
   background: #eaeaea;
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
   background-size: 100%;
@@ -896,13 +894,12 @@ disabled look for disabled choices in the results dropdown
   background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
   background-image: linear-gradient(top, #fdfdfd, #eaeaea);
 }
-/* line 14, ../../../../../core-admin/stylesheets/modal.scss */
-.modal-header h1, .modal-header h2, .modal-header h3, .modal-header h4, .modal-header h5, .modal-header h6, .modal-footer h1, .modal-footer h2, .modal-footer h3, .modal-footer h4, .modal-footer h5, .modal-footer h6 {
+/* line 12, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header h1, .modal.fancy .modal-header h2, .modal.fancy .modal-header h3, .modal.fancy .modal-header h4, .modal.fancy .modal-header h5, .modal.fancy .modal-header h6, .modal.fancy .modal-footer h1, .modal.fancy .modal-footer h2, .modal.fancy .modal-footer h3, .modal.fancy .modal-footer h4, .modal.fancy .modal-footer h5, .modal.fancy .modal-footer h6 {
   margin: 0;
 }
-
-/* line 19, ../../../../../core-admin/stylesheets/modal.scss */
-.modal-header {
+/* line 17, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header {
   -moz-border-radius-topleft: 4px;
   -webkit-border-top-left-radius: 4px;
   border-top-left-radius: 4px;
@@ -910,9 +907,8 @@ disabled look for disabled choices in the results dropdown
   -webkit-border-top-right-radius: 4px;
   border-top-right-radius: 4px;
 }
-
-/* line 24, ../../../../../core-admin/stylesheets/modal.scss */
-.modal-header {
+/* line 22, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header {
   border-bottom: 1px solid #CDCDCD;
 }
 
@@ -966,8 +962,8 @@ form {
 
 /* line 64, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append, .input-prepend {
-  height: 36px;
-  line-height: 36px;
+  height: 26px;
+  line-height: 26px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -977,7 +973,7 @@ form {
 }
 /* line 59, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append .add-on i, .input-prepend .add-on i {
-  line-height: 26px;
+  line-height: 16px;
 }
 /* line 68, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append *, .input-prepend * {
@@ -987,7 +983,7 @@ form {
 }
 /* line 75, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append a.add-on, .input-append span.add-on, .input-prepend a.add-on, .input-prepend span.add-on {
-  min-width: 36px;
+  min-width: 26px;
   color: #5a6573;
   position: absolute;
   height: 100%;
@@ -1004,14 +1000,16 @@ form {
   background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
   background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
   background-image: linear-gradient(top, #fdfdfd, #eaeaea);
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
 }
-/* line 87, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 89, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append a.add-on:active, .input-append span.add-on:active, .input-prepend a.add-on:active, .input-prepend span.add-on:active {
   background: #eee;
 }
-/* line 92, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 94, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append ul.add-on, .input-prepend ul.add-on {
   list-style: none;
   position: absolute;
@@ -1024,18 +1022,18 @@ form {
   top: 1px;
   right: 2px;
 }
-/* line 105, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 107, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append ul.add-on li, .input-prepend ul.add-on li {
   float: left;
   margin-left: 10px;
   line-height: 32px;
   height: 32px;
 }
-/* line 111, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 113, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append ul.add-on li a, .input-append ul.add-on li button, .input-prepend ul.add-on li a, .input-prepend ul.add-on li button {
   vertical-align: middle;
 }
-/* line 114, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 116, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append ul.add-on li a.btn, .input-append ul.add-on li button.btn, .input-prepend ul.add-on li a.btn, .input-prepend ul.add-on li button.btn {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -1043,7 +1041,7 @@ form {
   -o-border-radius: 3px;
   border-radius: 3px;
 }
-/* line 119, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 121, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append ul.add-on li .btn, .input-prepend ul.add-on li .btn {
   padding: 0;
   line-height: 25px;
@@ -1052,7 +1050,7 @@ form {
   padding-right: 10px;
   margin-right: 5px;
 }
-/* line 130, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 132, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append input[type="text"], .input-append input[type="password"], .input-append input[type="email"], .input-append input[type="number"], .input-prepend input[type="text"], .input-prepend input[type="password"], .input-prepend input[type="email"], .input-prepend input[type="number"] {
   height: 100%;
   width: 100%;
@@ -1064,30 +1062,30 @@ form {
   border-radius: 4px;
 }
 
-/* line 139, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 141, ../../../../../core-admin/stylesheets/form_elements.scss */
 .box .input-append, .box .input-prepend {
   margin-bottom: 0;
 }
 
-/* line 145, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append .add-on {
+/* line 147, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-append .add-on:last-child {
   right: 0;
 }
-/* line 147, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 149, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-append input[type="text"], .input-append input[type="password"], .input-append input[type="email"], .input-append input[type="number"] {
-  padding-right: 35px;
+  padding-right: 25px;
 }
 
-/* line 153, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-prepend .add-on {
+/* line 155, ../../../../../core-admin/stylesheets/form_elements.scss */
+.input-prepend .add-on:first-child {
   left: 0;
 }
-/* line 155, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 157, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-prepend input[type="text"], .input-prepend input[type="password"], .input-prepend input[type="email"], .input-prepend input[type="number"] {
-  padding-left: 45px;
+  padding-left: 35px;
 }
 
-/* line 164, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 166, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.uploader {
   width: 100%;
   -webkit-box-shadow: none;
@@ -1097,7 +1095,7 @@ div.uploader {
   height: 28px;
   background: #fff;
 }
-/* line 172, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 174, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.uploader span.filename {
   border-right: none;
   width: 120px;
@@ -1105,15 +1103,15 @@ div.uploader span.filename {
   margin: 2px 0px 2px 2px;
   line-height: 24px;
 }
-/* line 181, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 183, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.uploader.hover span.action {
   background: #8dbfd8;
 }
-/* line 187, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 189, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.uploader.active span.action {
   background: #4194bd;
 }
-/* line 192, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 194, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.uploader span.action {
   height: 24px;
   line-height: 24px;
@@ -1143,7 +1141,7 @@ div.uploader span.action {
   line-height: 20px;
 }
 
-/* line 213, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 215, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.selector {
   position: relative;
   padding-left: 5px;
@@ -1172,7 +1170,7 @@ div.selector {
   line-height: 28px;
   color: #666;
 }
-/* line 221, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 223, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.selector:after {
   content: "\f0dd";
   top: 2px;
@@ -1191,7 +1189,7 @@ div.selector:after {
   font-size: 14px;
   color: #888;
 }
-/* line 228, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 230, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.selector span {
   display: block;
   overflow: hidden;
@@ -1205,11 +1203,11 @@ div.selector span {
   line-height: 26px;
   background: transparent;
 }
-/* line 245, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 247, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.selector.disabled span {
   color: #bbb;
 }
-/* line 250, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 252, ../../../../../core-admin/stylesheets/form_elements.scss */
 div.selector select {
   position: absolute;
   opacity: 0;
@@ -1222,7 +1220,7 @@ div.selector select {
   border: solid 1px #fff;
 }
 
-/* line 266, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 268, ../../../../../core-admin/stylesheets/form_elements.scss */
 textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
@@ -1240,7 +1238,7 @@ textarea, input[type="text"], input[type="password"], input[type="datetime"], in
   background: #fdfdfd;
   height: 26px;
 }
-/* line 277, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 279, ../../../../../core-admin/stylesheets/form_elements.scss */
 textarea:focus, input[type="text"]:focus, input[type="password"]:focus, input[type="datetime"]:focus, input[type="datetime-local"]:focus, input[type="date"]:focus, input[type="month"]:focus, input[type="time"]:focus, input[type="week"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="url"]:focus, input[type="search"]:focus, input[type="tel"]:focus, input[type="color"]:focus, .uneditable-input:focus {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
@@ -1248,12 +1246,12 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, input[ty
   border: 1px solid #68A6CE;
 }
 
-/* line 283, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 285, ../../../../../core-admin/stylesheets/form_elements.scss */
 textarea {
   height: auto;
 }
 
-/* line 287, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 289, ../../../../../core-admin/stylesheets/form_elements.scss */
 label {
   font-size: 12px;
   color: #5F5F5F;
@@ -1296,11 +1294,11 @@ label {
   margin-left: -8px;
 }
 
-/* line 297, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 299, ../../../../../core-admin/stylesheets/form_elements.scss */
 .search-dropdown {
   margin-top: 15px;
 }
-/* line 300, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 302, ../../../../../core-admin/stylesheets/form_elements.scss */
 .search-dropdown .box-section:first-child {
   border-top: none;
   -moz-border-radius-topleft: 3px;
@@ -1311,11 +1309,11 @@ label {
   border-top-right-radius: 3px;
 }
 
-/* line 309, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 311, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-with-submit {
   position: relative;
 }
-/* line 312, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 314, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-with-submit button {
   background: transparent;
   border: none;
@@ -1323,7 +1321,7 @@ label {
   right: 2px;
   top: 7px;
 }
-/* line 320, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 322, ../../../../../core-admin/stylesheets/form_elements.scss */
 .input-with-submit i {
   color: #909090;
 }

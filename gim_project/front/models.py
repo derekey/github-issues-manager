@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from operator import attrgetter
 import re
 
@@ -6,6 +8,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template import loader, Context
+from django.template.defaultfilters import escape
 
 from markdown import markdown
 
@@ -187,6 +190,33 @@ class _Milestone(models.Model):
     @property
     def html_content(self):
         return html_content(self, 'description')
+
+    @property
+    def short_title(self):
+        if len(self.title) > 25:
+            result = self.title[:20] + u'…'
+        else:
+            result = self.title
+        return escape(result)
+
+    def get_reverse_kwargs(self):
+        """
+        Return the kwargs to use for "reverse"
+        """
+        return {
+            'owner_username': self.repository.owner.username,
+            'repository_name': self.repository.name,
+            'milestone_id': self.id
+        }
+
+    def get_edit_url(self):
+        from front.repository.dashboard.views import MilestoneEdit
+        return reverse_lazy('front:repository:%s' % MilestoneEdit.url_name, kwargs=self.get_reverse_kwargs())
+
+    def get_delete_url(self):
+        from front.repository.dashboard.views import MilestoneDelete
+        return reverse_lazy('front:repository:%s' % MilestoneDelete.url_name, kwargs=self.get_reverse_kwargs())
+
 
 contribute_to_model(_Milestone, core_models.Milestone)
 
