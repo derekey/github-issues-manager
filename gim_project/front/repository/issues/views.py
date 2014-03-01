@@ -1,6 +1,5 @@
 from datetime import datetime
 from math import ceil
-from operator import attrgetter
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
@@ -19,6 +18,7 @@ from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 from subscriptions.models import SUBSCRIPTION_STATES
 
 from front.models import GroupedCommits
+from front.views import LinkedToUserFormView
 from ..views import BaseRepositoryView, LinkedToRepositoryFormView
 from ...utils import make_querystring
 from .forms import (IssueStateForm,
@@ -637,13 +637,6 @@ class FilesAjaxIssueView(SimpleAjaxIssueView):
         return context
 
 
-class LinkedToUserFormView(object):
-    def get_form_kwargs(self):
-        kwargs = super(LinkedToUserFormView, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
-
-
 class BaseIssueEditView(LinkedToRepositoryFormView):
     model = Issue
     allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
@@ -662,11 +655,6 @@ class BaseIssueEditView(LinkedToRepositoryFormView):
 class IssueEditState(LinkedToUserFormView, BaseIssueEditView, UpdateView):
     url_name = 'issue.edit.state'
     form_class = IssueStateForm
-
-    def get_form_kwargs(self):
-        kwargs = super(IssueEditState, self).get_form_kwargs()
-        kwargs['state'] = self.kwargs['state']
-        return kwargs
 
     def form_valid(self, form):
         """

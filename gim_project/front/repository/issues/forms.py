@@ -1,20 +1,18 @@
 from datetime import datetime
 
-from markdown import markdown
-
 from django import forms
 
 from core.models import Issue, IssueComment, PullRequestComment
 
+from front.forms import LinkedToUserForm
 from front.repository.forms import LinkedToRepositoryForm
 
 
-class LinkedToUserForm(forms.ModelForm):
+class InstanceLinkedToUserForm(LinkedToUserForm):
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
-        super(LinkedToUserForm, self).__init__(*args, **kwargs)
-        if not self.instance.user_id:
+        super(InstanceLinkedToUserForm, self).__init__(*args, **kwargs)
+        if self.instance and not self.instance.user_id:
             self.instance.user = self.user
 
 
@@ -23,7 +21,7 @@ class IssueFormMixin(LinkedToRepositoryForm):
         model = Issue
 
 
-class IssueStateForm(LinkedToUserForm, IssueFormMixin):
+class IssueStateForm(InstanceLinkedToUserForm, IssueFormMixin):
     class Meta(IssueFormMixin.Meta):
         fields = []
 
@@ -74,7 +72,7 @@ def validate_filled_string(value):
         raise forms.ValidationError('You must enter a comment')
 
 
-class BaseCommentCreateForm(LinkedToUserForm, LinkedToIssueForm):
+class BaseCommentCreateForm(InstanceLinkedToUserForm, LinkedToIssueForm):
     class Meta:
         fields = ['body', ]
 

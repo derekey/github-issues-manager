@@ -15,7 +15,7 @@ from core import GITHUB_HOST
 from core.tasks.repository import FirstFetch
 from hooks.tasks import CheckRepositoryEvents
 
-from ...views import BaseFrontViewMixin, DeferrableViewPart
+from ...views import BaseFrontViewMixin, DeferrableViewPart, LinkedToUserFormView
 from .forms import AddRepositoryForm, RemoveRepositoryForm
 
 
@@ -26,7 +26,7 @@ FakeRepository = namedtuple('FakeRepository', ['owner', 'name', 'full_name', 'no
 NO_REPOSITORY = '_/_'
 
 
-class ToggleRepositoryBaseView(BaseFrontViewMixin, FormView):
+class ToggleRepositoryBaseView(LinkedToUserFormView, BaseFrontViewMixin, FormView):
     """
     Base view to use to add/remove a repository
     """
@@ -38,14 +38,6 @@ class ToggleRepositoryBaseView(BaseFrontViewMixin, FormView):
     def __init__(self, *args, **kwargs):
         self.repo_full_name = None
         super(ToggleRepositoryBaseView, self).__init__(*args, **kwargs)
-
-    def get_form_kwargs(self):
-        """
-        Add the current request's user in the kwargs to use in the form
-        """
-        kwargs = super(ToggleRepositoryBaseView, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
 
     def form_invalid(self, form):
         """

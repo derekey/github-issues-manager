@@ -6,6 +6,7 @@ from django.core import validators
 from core.models import (LabelType, LABELTYPE_EDITMODE, Label,
                          GITHUB_STATUS_CHOICES, Milestone)
 
+from front.forms import LinkedToUserForm
 from front.widgets import EnclosedInput
 from front.repository.forms import LinkedToRepositoryForm
 
@@ -212,18 +213,11 @@ class MilestoneEditForm(LinkedToRepositoryForm):
         return super(MilestoneEditForm, self).save(commit)
 
 
-class MilestoneCreateForm(MilestoneEditForm):
-    def __init__(self, *args, **kwargs):
-        """
-        Get the "creator" argument, a user that will be used to fill the
-        "creator" field on the milestone
-        """
-        self.creator = kwargs.pop('creator')
-        super(MilestoneCreateForm, self).__init__(*args, **kwargs)
+class MilestoneCreateForm(LinkedToUserForm, MilestoneEditForm):
 
     def save(self, commit=True):
         """
         Save the user passed to the form constructor as creator of the milestone
         """
-        self.instance.creator = self.creator
+        self.instance.creator = self.user
         return super(MilestoneCreateForm, self).save(commit)

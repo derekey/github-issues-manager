@@ -9,6 +9,16 @@ from core.models import Repository
 from subscriptions.models import SUBSCRIPTION_STATES
 
 
+class LinkedToUserFormView(object):
+    def get_form_kwargs(self):
+        """
+        Add the current request's user in the kwargs to use in the form
+        """
+        kwargs = super(LinkedToUserFormView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
 class BaseFrontViewMixin(object):
 
     def get_qs_parts(self, context):
