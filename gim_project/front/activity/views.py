@@ -1,7 +1,7 @@
 import re
 
 
-class ActivityMixin(object):
+class ActivityViewMixin(object):
     RE_VALIDATE_SCORE = re.compile(r'^\d{14}\.0$')
     partial_template_name = 'front/activity/include_activity.html'
 
@@ -24,7 +24,7 @@ class ActivityMixin(object):
         return self._activity_args
 
     def get_context_data(self, *args, **kwargs):
-        context = super(ActivityMixin, self).get_context_data(**kwargs)
+        context = super(ActivityViewMixin, self).get_context_data(**kwargs)
         context['activity_args'] = self.activity_args
         context['partial_activity'] = bool(self.request.GET.get('partial'))
         return context
@@ -32,4 +32,4 @@ class ActivityMixin(object):
     def get_template_names(self):
         if self.request.GET.get('partial'):
             return self.partial_template_name
-        return super(ActivityMixin, self).get_template_names()
+        return super(ActivityViewMixin, self).get_template_names()

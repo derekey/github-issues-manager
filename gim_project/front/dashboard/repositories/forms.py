@@ -5,10 +5,10 @@ from django.core import validators
 
 from subscriptions.models import WaitingSubscription, Subscription
 
-from front.forms import LinkedToUserForm
+from front.mixins.forms import LinkedToUserFormMixin
 
 
-class ToggleRepositoryBaseForm(LinkedToUserForm, forms.Form):
+class ToggleRepositoryBaseForm(LinkedToUserFormMixin, forms.Form):
     """
     Base form to use to add/remove a repository
     """

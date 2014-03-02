@@ -4,24 +4,18 @@ from django import forms
 
 from core.models import Issue, IssueComment, PullRequestComment
 
-from front.forms import LinkedToUserForm
-from front.repository.forms import LinkedToRepositoryForm
+from front.mixins.forms import (LinkedToUserFormMixin, LinkedToIssueFormMixin,
+                                LinkedToRepositoryFormMixin)
 
 
-class InstanceLinkedToUserForm(LinkedToUserForm):
-
-    def __init__(self, *args, **kwargs):
-        super(InstanceLinkedToUserForm, self).__init__(*args, **kwargs)
-        if self.instance and not self.instance.user_id:
-            self.instance.user = self.user
-
-
-class IssueFormMixin(LinkedToRepositoryForm):
+class IssueFormMixin(LinkedToRepositoryFormMixin):
     class Meta:
         model = Issue
 
 
-class IssueStateForm(InstanceLinkedToUserForm, IssueFormMixin):
+class IssueStateForm(LinkedToUserFormMixin, IssueFormMixin):
+    user_attribute = None  # don't update issue's user
+
     class Meta(IssueFormMixin.Meta):
         fields = ['state']
 
@@ -44,39 +38,12 @@ class IssueStateForm(InstanceLinkedToUserForm, IssueFormMixin):
         return super(IssueStateForm, self).save(commit)
 
 
-class LinkedToIssueForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        self.issue = kwargs.pop('issue')
-        super(LinkedToIssueForm, self).__init__(*args, **kwargs)
-        if not self.instance.issue_id:
-            self.instance.issue = self.issue
-        if not self.instance.repository_id:
-            self.instance.repository = self.issue.repository
-
-    def validate_unique(self):
-        """
-        Calls the instance's validate_unique() method and updates the form's
-        validation errors if any were raised.
-        """
-        exclude = self._get_validation_exclusions()
-        if exclude:
-            if 'repository' in exclude:
-                exclude.remove('repository')
-            if 'issue' in exclude:
-                exclude.remove('issue')
-        try:
-            self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e:
-            self._update_errors(e.message_dict)
-
-
 def validate_filled_string(value):
     if not value or not value.strip():
         raise forms.ValidationError('You must enter a comment')
 
 
-class BaseCommentCreateForm(InstanceLinkedToUserForm, LinkedToIssueForm):
+class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):
     class Meta:
         fields = ['body', ]
 

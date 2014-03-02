@@ -15,7 +15,8 @@ from core import GITHUB_HOST
 from core.tasks.repository import FirstFetch
 from hooks.tasks import CheckRepositoryEvents
 
-from ...views import BaseFrontViewMixin, DeferrableViewPart, LinkedToUserFormView
+from front.mixins.views import LinkedToUserFormViewMixin, DeferrableViewPart
+
 from .forms import AddRepositoryForm, RemoveRepositoryForm
 
 
@@ -26,7 +27,7 @@ FakeRepository = namedtuple('FakeRepository', ['owner', 'name', 'full_name', 'no
 NO_REPOSITORY = '_/_'
 
 
-class ToggleRepositoryBaseView(LinkedToUserFormView, BaseFrontViewMixin, FormView):
+class ToggleRepositoryBaseView(LinkedToUserFormViewMixin, FormView):
     """
     Base view to use to add/remove a repository
     """
@@ -624,7 +625,7 @@ class ChooseRepositoryView(TemplateView):
         return context
 
 
-class AskFetchAvailableRepositories(BaseFrontViewMixin, RedirectView):
+class AskFetchAvailableRepositories(RedirectView):
     """
     Fetch the available repositories of the current user from github then
     redirect him to the subscriptions page

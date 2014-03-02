@@ -1,45 +1,11 @@
-from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import classonlymethod
 from django.views.generic import DetailView
 
-from ..views import SubscribedRepositoriesMixin
-from subscriptions.models import SUBSCRIPTION_STATES, Subscription
-from core.models import Repository
+from front.mixins.views import SubscribedRepositoryViewMixin
 
 
-class RepositoryMixin(SubscribedRepositoriesMixin, DetailView):
-    context_object_name = 'current_repository'
-
-    def get_object(self, queryset=None):
-        """
-        Totally override this method to return a repository based on its
-        owner's username and its name.
-        """
-        if queryset is None:
-            queryset = self.get_queryset()
-
-        owner_username = self.kwargs['owner_username']
-        repository_name = self.kwargs['repository_name']
-
-        filters = {
-            'owner__username': owner_username,
-            'name': repository_name
-        }
-
-        self.repository = get_object_or_404(queryset.select_related('owner'), **filters)
-        self.subscription = Subscription.objects.get(user=self.request.user,
-                                                     repository=self.repository)
-
-        return self.repository
-
-    def get_context_data(self, **kwargs):
-        context = super(RepositoryMixin, self).get_context_data(**kwargs)
-        context['current_subscription'] = self.subscription
-        return context
-
-
-class BaseRepositoryView(RepositoryMixin):
+class BaseRepositoryView(SubscribedRepositoryViewMixin, DetailView):
     # details vue attributes
     template_name = 'front/repository/base.html'
 
@@ -97,44 +63,3 @@ class BaseRepositoryView(RepositoryMixin):
         context['repository_main_views'] = repo_main_views
 
         return context
-
-
-class LinkedToRepositoryFormView(object):
-    repository_related_name = 'repository'
-    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
-    ajax_only = False
-
-    def get_repository_kwargs(self):
-        return {
-            'owner__username': self.kwargs.get('owner_username', None),
-            'name': self.kwargs.get('repository_name', None),
-        }
-
-    def dispatch(self, *args, **kwargs):
-        filters = {
-            'subscriptions__user': self.request.user
-        }
-        if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
-            filters['subscriptions__state__in'] = self.allowed_rights
-
-        queryset = Repository.objects.filter(**filters)
-
-        repository_kwargs = self.get_repository_kwargs()
-        self.repository = get_object_or_404(queryset, **repository_kwargs)
-
-        return super(LinkedToRepositoryFormView, self).dispatch(*args, **kwargs)
-
-    def get_queryset(self):
-        return self.model._default_manager.filter(**{
-                self.repository_related_name: self.repository
-            })
-
-    def post(self, *args, **kwargs):
-        if self.ajax_only and not self.request.is_ajax():
-            return self.http_method_not_allowed(self.request)
-        return super(LinkedToRepositoryFormView, self).post(*args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super(LinkedToRepositoryFormView, self).get_form_kwargs()
-        kwargs['repository'] = self.repository
-        return kwargs

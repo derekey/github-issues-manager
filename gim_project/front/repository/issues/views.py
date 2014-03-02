@@ -6,7 +6,6 @@ from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
 from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
 from django.http import Http404
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
@@ -17,15 +16,20 @@ from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
 
+from front.mixins.views import (WithQueryStringViewMixin,
+                                LinkedToRepositoryFormViewMixin,
+                                LinkedToIssueFormViewMixin,
+                                LinkedToUserFormViewMixin)
+
 from front.models import GroupedCommits
-from front.views import LinkedToUserFormView
-from ..views import BaseRepositoryView, LinkedToRepositoryFormView
-from ...utils import make_querystring
+from front.repository.views import BaseRepositoryView
+
+from front.utils import make_querystring
 from .forms import (IssueStateForm,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
-class IssuesView(BaseRepositoryView):
+class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
     name = 'Issues'
     url_name = 'issues'
     template_name = 'front/repository/issues/base.html'
@@ -637,22 +641,26 @@ class FilesAjaxIssueView(SimpleAjaxIssueView):
         return context
 
 
-class BaseIssueEditView(LinkedToRepositoryFormView):
+class BaseIssueEditView(LinkedToRepositoryFormViewMixin):
     model = Issue
-    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
+    allowed_rights = SUBSCRIPTION_STATES.READ_RIGHTS
     http_method_names = [u'post']
     ajax_only = True
 
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
-        return queryset.get(number=self.kwargs['issue_number'])
+        filters = {
+            'number': self.kwargs['issue_number'],
+        }
+
+        return queryset.get(**filters)
 
     def get_success_url(self):
         return self.object.get_absolute_url()
 
 
-class IssueEditState(LinkedToUserFormView, BaseIssueEditView, UpdateView):
+class IssueEditState(LinkedToUserFormViewMixin, BaseIssueEditView, UpdateView):
     url_name = 'issue.edit.state'
     form_class = IssueStateForm
 
@@ -679,49 +687,7 @@ class IssueEditState(LinkedToUserFormView, BaseIssueEditView, UpdateView):
         return response
 
 
-class LinkedToIssueFormView(object):
-    issue_related_name = 'issue'
-    allowed_rights = SUBSCRIPTION_STATES.READ_RIGHTS  # everybody can add an issue
-    ajax_only = False
-
-    def get_issue_kwargs(self):
-        return {
-            'repository__owner__username': self.kwargs.get('owner_username', None),
-            'repository__name': self.kwargs.get('repository_name', None),
-            'number': self.kwargs.get('issue_number', None),
-        }
-
-    def dispatch(self, *args, **kwargs):
-        filters = {
-            'repository__subscriptions__user': self.request.user
-        }
-        if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
-            filters['repository__subscriptions__state__in'] = self.allowed_rights
-
-        queryset = Issue.objects.filter(**filters)
-
-        issue_kwargs = self.get_issue_kwargs()
-        self.issue = get_object_or_404(queryset, **issue_kwargs)
-
-        return super(LinkedToIssueFormView, self).dispatch(*args, **kwargs)
-
-    def get_queryset(self):
-        return self.model._default_manager.filter(**{
-                self.issue_related_name: self.issue
-            })
-
-    def post(self, *args, **kwargs):
-        if self.ajax_only and not self.request.is_ajax():
-            return self.http_method_not_allowed(self.request)
-        return super(LinkedToIssueFormView, self).post(*args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super(LinkedToIssueFormView, self).get_form_kwargs()
-        kwargs['issue'] = self.issue
-        return kwargs
-
-
-class BaseCommentCreateView(LinkedToUserFormView, LinkedToIssueFormView, CreateView):
+class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):
     job_model = None
 
     def get_success_url(self):

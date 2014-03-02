@@ -5,7 +5,7 @@ from operator import attrgetter, itemgetter
 
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
-from django.views.generic import UpdateView, CreateView, DeleteView
+from django.views.generic import UpdateView, CreateView, DeleteView, DetailView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 
@@ -16,14 +16,19 @@ from core.models import (LabelType, LABELTYPE_EDITMODE, Label,
 from core.tasks.label import LabelEditJob
 from core.tasks.milestone import MilestoneEditJob
 
-from front.activity.views import ActivityMixin
-from front.views import DeferrableViewPart
-from ..views import BaseRepositoryView, RepositoryMixin, LinkedToRepositoryFormView
+from front.mixins.views import (DeferrableViewPart, SubscribedRepositoryViewMixin,
+                                LinkedToRepositoryFormViewMixin,
+                                LinkedToUserFormViewMixin)
+
+from front.activity.views import ActivityViewMixin
+
+from front.repository.views import BaseRepositoryView
+
 from .forms import (LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm,
                     MilestoneEditForm, MilestoneCreateForm)
 
 
-class RepositoryDashboardPartView(DeferrableViewPart, RepositoryMixin):
+class RepositoryDashboardPartView(DeferrableViewPart, SubscribedRepositoryViewMixin, DetailView):
     @property
     def part_url(self):
         reverse_kwargs = self.repository.get_reverse_kwargs()
@@ -31,7 +36,7 @@ class RepositoryDashboardPartView(DeferrableViewPart, RepositoryMixin):
 
     def inherit_from_view(self, view):
         super(RepositoryDashboardPartView, self).inherit_from_view(view)
-        self.object = self.repository = view.repository
+        self.object = self._repository = view.repository
         self.subscription = view.subscription
 
     def get_object(self, queryset=None):
@@ -45,7 +50,7 @@ class MilestonesPart(RepositoryDashboardPartView):
     url_name = 'dashboard.milestones'
 
     def get_milestones(self):
-        queryset = self.repository.milestones.ready().annotate(issues_count=Count('issues'))
+        queryset = self.repository.milestones.annotate(issues_count=Count('issues'))
 
         if not self.request.GET.get('show-closed-milestones', False):
             queryset = queryset.filter(state='open')
@@ -192,7 +197,7 @@ class LabelsPart(RepositoryDashboardPartView):
         return context
 
 
-class ActivityPart(ActivityMixin, RepositoryDashboardPartView):
+class ActivityPart(ActivityViewMixin, RepositoryDashboardPartView):
     template_name = 'front/repository/dashboard/include_activity.html'
     deferred_template_name = 'front/repository/dashboard/include_activity_deferred.html'
     url_name = 'dashboard.timeline'
@@ -265,7 +270,7 @@ class LabelsEditor(BaseRepositoryView):
         return super(LabelsEditor, self).get_template_names()
 
 
-class LabelTypeFormBaseView(LinkedToRepositoryFormView):
+class LabelTypeFormBaseView(LinkedToRepositoryFormViewMixin):
     model = LabelType
     pk_url_kwarg = 'label_type_id'
     form_class = LabelTypeEditForm
@@ -395,7 +400,7 @@ class LabelTypeDelete(LabelTypeFormBaseView, DeleteView):
         return url
 
 
-class LabelFormBaseView(LinkedToRepositoryFormView):
+class LabelFormBaseView(LinkedToRepositoryFormViewMixin):
     model = Label
     pk_url_kwarg = 'label_id'
     form_class = LabelEditForm
@@ -470,7 +475,7 @@ class LabelDelete(LabelFormBaseView, DeleteView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class MilestoneFormBaseView(LinkedToRepositoryFormView):
+class MilestoneFormBaseView(LinkedToRepositoryFormViewMixin):
     model = Milestone
     pk_url_kwarg = 'milestone_id'
     form_class = MilestoneEditForm
@@ -518,14 +523,9 @@ class MilestoneEdit(MilestoneEditBase, UpdateView):
     url_name = 'dashboard.milestone.edit'
 
 
-class MilestoneCreate(MilestoneEditBase, CreateView):
+class MilestoneCreate(LinkedToUserFormViewMixin, MilestoneEditBase, CreateView):
     url_name = 'dashboard.milestone.create'
     form_class = MilestoneCreateForm
-
-    def get_form_kwargs(self):
-        kwargs = super(MilestoneCreate, self).get_form_kwargs()
-        kwargs['creator'] = self.request.user
-        return kwargs
 
 
 class MilestoneDelete(MilestoneFormBaseView, DeleteView):

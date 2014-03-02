@@ -1,12 +1,13 @@
-from django.views.generic import ListView, TemplateView
+from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse_lazy
 
 from activity.limpyd_models import RepositoryActivity
-from front.activity.views import ActivityMixin
-from ..views import SubscribedRepositoriesMixin, DeferrableViewPart
+
+from front.mixins.views import WithSubscribedRepositoriesViewMixin, DeferrableViewPart
+from front.activity.views import ActivityViewMixin
 
 
-class DashboardActivityPart(ActivityMixin, DeferrableViewPart, SubscribedRepositoriesMixin, TemplateView):
+class DashboardActivityPart(ActivityViewMixin, DeferrableViewPart, WithSubscribedRepositoriesViewMixin, TemplateView):
     part_url = reverse_lazy('front:dashboard:activity')
     template_name = 'front//dashboard/include_activity.html'
     deferred_template_name = 'front/dashboard/include_activity_deferred.html'
@@ -36,7 +37,7 @@ class DashboardActivityPart(ActivityMixin, DeferrableViewPart, SubscribedReposit
         return context
 
 
-class DashboardHome(SubscribedRepositoriesMixin, ListView):
+class DashboardHome(WithSubscribedRepositoriesViewMixin, TemplateView):
     template_name = 'front/dashboard/home.html'
     url_name = 'front:dashboard:home'
 

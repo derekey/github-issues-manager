@@ -2,7 +2,7 @@ from django import template
 
 from adv_cache_tag.tag import CacheTag
 
-from ..views import UserIssuesView
+from front.repository.issues.views import UserIssuesView
 
 register = template.Library()
 

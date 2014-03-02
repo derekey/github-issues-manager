@@ -6,12 +6,11 @@ from django.core import validators
 from core.models import (LabelType, LABELTYPE_EDITMODE, Label,
                          GITHUB_STATUS_CHOICES, Milestone)
 
-from front.forms import LinkedToUserForm
 from front.widgets import EnclosedInput
-from front.repository.forms import LinkedToRepositoryForm
+from front.mixins.forms import LinkedToRepositoryFormMixin, LinkedToUserFormMixin
 
 
-class LabelTypeEditForm(LinkedToRepositoryForm):
+class LabelTypeEditForm(LinkedToRepositoryFormMixin):
 
     format_string = forms.CharField(
                         required=False,
@@ -125,7 +124,7 @@ class LabelTypePreviewForm(LabelTypeEditForm):
         return cleaned_data
 
 
-class LabelEditForm(LinkedToRepositoryForm):
+class LabelEditForm(LinkedToRepositoryFormMixin):
     color_validator = validators.RegexValidator(
             re.compile('^[0-9a-f]{6}$', flags=re.IGNORECASE),
             'Must be a valid hex color (without the #)',
@@ -180,7 +179,7 @@ class DueOnWidget(EnclosedInput, forms.DateInput):
         )
 
 
-class MilestoneEditForm(LinkedToRepositoryForm):
+class MilestoneEditForm(LinkedToRepositoryFormMixin):
 
     open = forms.BooleanField(required=False)
 
@@ -213,11 +212,5 @@ class MilestoneEditForm(LinkedToRepositoryForm):
         return super(MilestoneEditForm, self).save(commit)
 
 
-class MilestoneCreateForm(LinkedToUserForm, MilestoneEditForm):
-
-    def save(self, commit=True):
-        """
-        Save the user passed to the form constructor as creator of the milestone
-        """
-        self.instance.creator = self.user
-        return super(MilestoneCreateForm, self).save(commit)
+class MilestoneCreateForm(LinkedToUserFormMixin, MilestoneEditForm):
+    user_attribute = 'creator'
