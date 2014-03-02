@@ -2,6 +2,7 @@ __all__ = [
     'FetchIssueByNumber',
     'UpdateIssueCacheTemplate',
     'IssueEditStateJob',
+    'IssueEditTitleJob',
 ]
 
 import time
@@ -152,22 +153,17 @@ class UpdateIssueCacheTemplate(IssueJob):
 class BaseIssueEditJob(IssueJob):
     abstract = True
 
-    action = fields.InstanceHashField()
-
     permission = 'self'
-
     editable_fields = None
+    values = None
 
     @property
     def action_verb(self):
-        return self.action.hget()
+        return self.edit_mode
 
     @property
     def action_done(self):
-        action = self.action.hget()
-        if not action.endswith('e'):
-            action += 'e'
-        return action + 'd'
+        return self.edit_mode + 'd'
 
     def run(self, queue):
         """
@@ -188,7 +184,7 @@ class BaseIssueEditJob(IssueJob):
             return False
 
         try:
-            issue.dist_edit(mode=self.edit_mode, gh=gh, fields=self.editable_fields)
+            issue.dist_edit(mode=self.edit_mode, gh=gh, fields=self.editable_fields, values=self.values)
         except ApiError, e:
             message = None
 
@@ -216,32 +212,53 @@ class BaseIssueEditJob(IssueJob):
             else:
                 raise
 
-        message = u'The %s <strong>#%d</strong> on <strong>%s</strong> was correctly %s' % (
-                    issue.type,
-                    issue.number,
-                    issue.repository.full_name,
-                    self.action_done
-                )
-        messages.success(self.gh_user, message)
+        messages.success(self.gh_user, self.get_success_user_message(issue))
 
         # don't use "issue" cache
         self.object.fetch_all(gh)
 
         return None
 
+    def get_success_user_message(self, issue):
+        return u'The %s <strong>#%d</strong> on <strong>%s</strong> was correctly %s' % (
+                    issue.type,
+                    issue.number,
+                    issue.repository.full_name,
+                    self.action_done
+                )
 
-class IssueEditStateJob(BaseIssueEditJob):
+
+class IssueEditFieldJob(BaseIssueEditJob):
+    abstract = True
+    edit_mode = 'update'
+
+    value = fields.InstanceHashField()
+
+    @property
+    def values(self):
+        return {
+            self.editable_fields[0]: self.value.hget()
+        }
+
+    def get_success_user_message(self, issue):
+        message = super(IssueEditFieldJob, self).get_success_user_message(issue)
+        return message + u' (updated: %s)' % self.editable_fields[0]
+
+
+class IssueEditStateJob(IssueEditFieldJob):
     queue_name = 'edit-issue-state'
     editable_fields = ['state']
-    edit_mode = 'update'
 
     @property
     def action_done(self):
-        action = super(IssueEditStateJob, self).action_done
-        return 'reopened' if action == 'opened' else action
+        value = self.value.hget()
+        return 'reopened' if value == 'open' else 'closed'
 
     @property
     def action_verb(self):
-        action = super(IssueEditStateJob, self).action_verb
-        return 'reopen' if action == 'open' else action
+        value = self.value.hget()
+        return 'reopen' if value == 'open' else 'close'
 
+    def get_success_user_message(self, issue):
+        # call the one from BaseIssueEditJob
+        super(IssueEditFieldJob, self).get_success_user_message(issue)

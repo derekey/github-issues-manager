@@ -660,31 +660,46 @@ class BaseIssueEditView(LinkedToRepositoryFormViewMixin):
         return self.object.get_absolute_url()
 
 
-class IssueEditState(LinkedToUserFormViewMixin, BaseIssueEditView, UpdateView):
-    url_name = 'issue.edit.state'
-    form_class = IssueStateForm
+class IssueEditFieldMixin(LinkedToUserFormViewMixin, BaseIssueEditView, UpdateView):
+    field = None
+    job_model = None
+    url_name = None
+    form_class = None
 
     def form_valid(self, form):
         """
         Override the default behavior to add a job to update the issue on the
         github side
         """
-        response = super(IssueEditState, self).form_valid(form)
+        response = super(IssueEditFieldMixin, self).form_valid(form)
+        value = form.cleaned_data[self.field]
 
-        new_state = form.cleaned_data['state']
+        self.job_model.add_job(self.object.pk,
+                          gh=self.request.user.get_connection(),
+                          value=value)
 
-        action = 'open' if new_state == 'open' else 'close'
-
-        IssueEditStateJob.add_job(self.object.pk,
-                                  gh=self.request.user.get_connection(),
-                                  action=action)
-
-        messages.success(self.request,
-            u'The %s <strong>#%d</strong> will be %s shortly' % (
-                    self.object.type, self.object.number,
-                    'reopened' if new_state == 'open' else 'closed'))
+        messages.success(self.request, self.get_success_user_message(self.object))
 
         return response
+
+    def form_invalid(self, form):
+        return self.render_form_errors_as_messages(form)
+
+    def get_success_user_message(self, issue):
+        return u"The %s for the %s <strong>#%d</strong>will be updated shortly" % (
+                            self.field, issue.type, issue.number, self.field)
+
+
+class IssueEditState(IssueEditFieldMixin):
+    field = 'state'
+    job_model = IssueEditStateJob
+    url_name = 'issue.edit.state'
+    form_class = IssueStateForm
+
+    def get_success_user_message(self, issue):
+        new_state = 'reopened' if issue.state == 'open' else 'closed'
+        return u'The %s <strong>#%d</strong> will be %s shortly' % (
+                                            issue.type, issue.number, new_state)
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

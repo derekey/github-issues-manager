@@ -504,7 +504,7 @@ class GithubObject(models.Model):
         gh_callable.delete()
         self.delete()
 
-    def dist_edit(self, gh, mode, fields=None):
+    def dist_edit(self, gh, mode, fields=None, values=None):
         """
         Edit the object on the github side. Mode can be 'create' or 'update' to
         do the matching action on Github.
@@ -529,21 +529,24 @@ class GithubObject(models.Model):
             else:
                 key = field_name
 
-            if '__' in field_name:
-                field_name, subfield_name = field_name.split('__')
-                field, _, direct, is_m2m = self._meta.get_field_by_name(field_name)
-                relation = getattr(self, field_name)
-                if is_m2m or not direct:
-                    # we have a many to many relationship
-                    data[key] = list(relation.values_list(subfield_name, flat=True))
-                else:
-                    # we have a foreignkey
-                    data[key] = None if not relation else getattr(relation, subfield_name)
+            if key in values:
+                data[key] = values[key]
             else:
-                # it's a direct field
-                data[key] = getattr(self, field_name)
-                if isinstance(data[field_name], datetime):
-                    data[key] = data[field_name].isoformat()
+                if '__' in field_name:
+                    field_name, subfield_name = field_name.split('__')
+                    field, _, direct, is_m2m = self._meta.get_field_by_name(field_name)
+                    relation = getattr(self, field_name)
+                    if is_m2m or not direct:
+                        # we have a many to many relationship
+                        data[key] = list(relation.values_list(subfield_name, flat=True))
+                    else:
+                        # we have a foreignkey
+                        data[key] = None if not relation else getattr(relation, subfield_name)
+                else:
+                    # it's a direct field
+                    data[key] = getattr(self, field_name)
+                    if isinstance(data[field_name], datetime):
+                        data[key] = data[field_name].isoformat()
 
         # prepare the request
         identifiers = self.github_callable_identifiers if mode == 'update' else self.github_callable_create_identifiers

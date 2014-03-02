@@ -1,7 +1,11 @@
 from copy import deepcopy
+import json
 from urlparse import parse_qs
 
-from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.forms.forms import NON_FIELD_ERRORS
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
 
 from core.models import Repository, Issue
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
@@ -18,6 +22,33 @@ class WithAjaxRestrictionViewMixin(object):
         if self.ajax_only and not self.request.is_ajax():
             return self.http_method_not_allowed(self.request)
         return super(WithAjaxRestrictionViewMixin, self).post(*args, **kwargs)
+
+    def render_form_errors_as_json(self, form, code=422):
+        """
+        To be used in form_invalid to return the errors in json format to be
+        used by the js
+        """
+        json_data = json.dumps({
+            'errors': form._errors
+        })
+        return HttpResponse(
+            json_data,
+            content_type='application/json',
+            status=code,
+        )
+
+    def render_form_errors_as_messages(self, form):
+        """
+        To be used in form_invalid to return nothing but messages (added to the
+        content via a middleware)
+        """
+        for field, errors in form._errors.items():
+            for error in errors:
+                msg = error
+                if field != NON_FIELD_ERRORS:
+                    msg = '%s: %s' % (field, error)
+                messages.error(self.request, msg)
+        return render(self.request, 'front/messages.html')
 
 
 class LinkedToUserFormViewMixin(object):

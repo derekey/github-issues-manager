@@ -1812,7 +1812,7 @@ $().ready(function() {
 
         on_state_submit_done: (function IssueEditor__on_state_submit_done (data) {
             this.$form.find('button').removeClass('loading');
-            IssueEditor.display_issue(data, this);
+            if (data.trim()) { IssueEditor.display_issue(data, this); }
         }), // on_state_submit_done
 
         on_state_submit_failed: (function IssueEditor__on_state_submit_failed () {

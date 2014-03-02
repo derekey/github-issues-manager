@@ -23,9 +23,14 @@ class IssueStateForm(LinkedToUserFormMixin, IssueFormMixin):
         new_state = self.cleaned_data.get('state')
         if new_state not in ('open', 'closed'):
             raise forms.ValidationError('Invalide state')
-        if new_state == self.instance.state:
-            raise forms.ValidationError('State not updated')
         return new_state
+
+    def clean(self):
+        new_state = self.cleaned_data.get('state')
+        if new_state == self.instance.state:
+            raise forms.ValidationError('The %s was already %s, please reload.' %
+                (self.instance.type, 'reopened' if new_state == 'open' else 'closed'))
+        return self.cleaned_data
 
     def save(self, commit=True):
         self.instance.state = self.cleaned_data['state']
