@@ -72,12 +72,12 @@ class Connection(GitHub):
             self._connection_args['access_token'] = access_token
         super(Connection, self).__init__(username, password, access_token, client_id, client_secret, redirect_uri, scope)
 
-    def _http(self, method, path, request_headers=None, response_headers=None, json_post=True, kw={}):
+    def _http(self, method, path, request_headers=None, response_headers=None, json_post=True, timeout=None, kw={}):
         api_error = None
         if response_headers is None:
             response_headers = {}
         try:
-            return super(Connection, self)._http(method, path, request_headers, response_headers, json_post, kw)
+            return super(Connection, self)._http(method, path, request_headers, response_headers, json_post, timeout, kw)
         except ApiError, e:
             api_error = e
             raise
