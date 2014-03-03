@@ -1818,7 +1818,12 @@ $().ready(function() {
 
         on_state_submit_done: (function IssueEditor__on_state_submit_done (data) {
             this.$form.find('button').removeClass('loading');
-            if (data.trim()) { IssueEditor.display_issue(data, this); }
+            if (data.trim()) {
+                IssueEditor.display_issue(data, this);
+            } else {
+                IssueEditor.enable_form(this.$form);
+                this.$form.find('button.loading').removeClass('loading');
+            }
         }), // on_state_submit_done
 
         on_state_submit_failed: (function IssueEditor__on_state_submit_failed () {
@@ -1952,8 +1957,12 @@ $().ready(function() {
         }), // on_issue_edit_field_ready_click_failed
 
         on_issue_edit_field_ready: (function IssueEditor__on_issue_edit_field_ready (data) {
-            var $link = this,
-                field = $link.data('field'),
+            var $link = this;
+            if (!data.trim()) {
+                $link.removeClass('loading');
+                return false;
+            }
+            var field = $link.data('field'),
                 $placeholder = $link.closest('article').find('.edit-place[data-field=' + field + ']'),
                 method = 'on_issue_edit_' + field + '_ready';
             if (typeof IssueEditor[method] == 'undefined') {
@@ -2010,9 +2019,9 @@ $().ready(function() {
             if (data.trim()) {
                 IssueEditor.display_issue(data, this);
             } else {
-                 IssueEditor.enable_form(this.$form);
-                 this.$form.find('button.loading').removeClass('loading');
-                 IssueEditor.focus_form(this.$form);
+                IssueEditor.enable_form(this.$form);
+                this.$form.find('button.loading').removeClass('loading');
+                IssueEditor.focus_form(this.$form);
             }
         }), // on_issue_edit_submit_done
 

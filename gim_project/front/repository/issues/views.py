@@ -1,11 +1,13 @@
 from datetime import datetime
 from math import ceil
+from time import sleep
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
 from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
+from django.shortcuts import render
 from django.http import Http404
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
@@ -687,14 +689,57 @@ class IssueEditFieldMixin(BaseIssueEditView, UpdateView):
         return self.render_form_errors_as_messages(form, show_fields=False)
 
     def get_success_user_message(self, issue):
-        return u"The %s for the %s <strong>#%d</strong> will be updated shortly" % (
-                                        self.field, issue.type, issue.number)
+        return u"""The <strong>%s</strong> for the %s <strong>#%d</strong> will
+                be updated shortly""" % (self.field, issue.type, issue.number)
 
     def get_context_data(self, **kwargs):
         context = super(IssueEditFieldMixin, self).get_context_data(**kwargs)
         context['form_action'] = self.object.edit_field_url(self.field)
         context['form_classes'] = "issue-edit-field issue-edit-%s" % self.field
         return context
+
+    def get_object(self, queryset=None):
+        # use current self.object if we have it
+        if getattr(self, 'object', None):
+            return self.object
+        return super(IssueEditFieldMixin, self).get_object(queryset)
+
+    def current_job(self):
+        self.object = self.get_object()
+        try:
+            job = self.job_model.collection(identifier=self.object.id, queued=1).instances()[0]
+        except IndexError:
+            return None
+        else:
+            return job
+
+    def dispatch(self, request, *args, **kwargs):
+        current_job = self.current_job()
+
+        if current_job:
+            for i in range(0, 3):
+                sleep(0.1)  # wait a little, it may be fast
+                current_job = self.current_job()
+                if not current_job:
+                    break
+
+            if current_job:
+                who = current_job.gh_args.hget('username')
+                return self.render_not_editable(request, who)
+
+        return super(IssueEditFieldMixin, self).dispatch(request, *args, **kwargs)
+
+    def render_not_editable(self, request, who):
+        if who == request.user.username:
+            who = 'yourself'
+        messages.warning(request, self.get_not_editable_user_message(self.object, who))
+        return render(self.request, 'front/messages.html')
+
+    def get_not_editable_user_message(self, issue, who):
+        return u"""The <strong>%s</strong> for the %s <strong>#%d</strong> is
+                currently being updated (asked by <strong>%s</strong>), please
+                wait a few seconds and retry""" % (
+                                    self.field, issue.type, issue.number, who)
 
 
 class IssueEditState(LinkedToUserFormViewMixin, IssueEditFieldMixin):
@@ -708,6 +753,12 @@ class IssueEditState(LinkedToUserFormViewMixin, IssueEditFieldMixin):
         new_state = 'reopened' if issue.state == 'open' else 'closed'
         return u'The %s <strong>#%d</strong> will be %s shortly' % (
                                             issue.type, issue.number, new_state)
+
+    def get_not_editable_user_message(self, issue, who):
+        new_state = 'reopened' if issue.state == 'open' else 'closed'
+        return u"""The %s <strong>#%d</strong> is currently being %s (asked by
+                <strong>%s</strong>), please wait a few seconds and retry""" % (
+                                    issue.type, issue.number, new_state, who)
 
 
 class IssueEditTitle(IssueEditFieldMixin):

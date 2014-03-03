@@ -242,7 +242,7 @@ class IssueEditFieldJob(BaseIssueEditJob):
 
     def get_success_user_message(self, issue):
         message = super(IssueEditFieldJob, self).get_success_user_message(issue)
-        return message + u' (updated: %s)' % self.editable_fields[0]
+        return message + u' (updated: <strong>%s</strong>)' % self.editable_fields[0]
 
 
 class IssueEditStateJob(IssueEditFieldJob):
