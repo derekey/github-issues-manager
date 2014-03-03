@@ -35,7 +35,7 @@
     <div class="news-content">
         <div class="news-title">
             <a href="{{ issue.get_absolute_url }}" class="issue-link" data-number="{{ issue.number }}" title="{% if issue.is_pull_request %}Pull-request. {% endif %}State: {{ issue.state }}">
-                <strong>#{{ issue.number }}</strong> - {{ issue.title }}
+                <strong class="text-{{ issue.state }}">#{{ issue.number }}</strong> - {{ issue.title }}
             </a>
         </div>
     </div>

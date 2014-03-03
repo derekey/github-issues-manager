@@ -11,7 +11,7 @@
                     <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url|default:default_avatar }}" alt="{{ current_issue.user.username }}" title="Created by {{ current_issue.user.username }}">
                 </div>
                 <h3>
-                    <a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github">#{{ current_issue.number }}
+                    <a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github"><span class="text-{{ current_issue.state }}">#{{ current_issue.number }}</span>
                     -
                     <span class="edit-place" data-field="title">{{ current_issue.title }}</span>
                     </a>
