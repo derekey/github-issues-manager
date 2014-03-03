@@ -18,10 +18,10 @@ class WithAjaxRestrictionViewMixin(object):
     """
     ajax_only = False
 
-    def post(self, *args, **kwargs):
-        if self.ajax_only and not self.request.is_ajax():
+    def dispatch(self, request, *args, **kwargs):
+        if self.ajax_only and not request.is_ajax():
             return self.http_method_not_allowed(self.request)
-        return super(WithAjaxRestrictionViewMixin, self).post(*args, **kwargs)
+        return super(WithAjaxRestrictionViewMixin, self).dispatch(request, *args, **kwargs)
 
     def render_form_errors_as_json(self, form, code=422):
         """
@@ -37,7 +37,7 @@ class WithAjaxRestrictionViewMixin(object):
             status=code,
         )
 
-    def render_form_errors_as_messages(self, form):
+    def render_form_errors_as_messages(self, form, show_fields=True):
         """
         To be used in form_invalid to return nothing but messages (added to the
         content via a middleware)
@@ -45,7 +45,7 @@ class WithAjaxRestrictionViewMixin(object):
         for field, errors in form._errors.items():
             for error in errors:
                 msg = error
-                if field != NON_FIELD_ERRORS:
+                if show_fields and field != NON_FIELD_ERRORS:
                     msg = '%s: %s' % (field, error)
                 messages.error(self.request, msg)
         return render(self.request, 'front/messages.html')

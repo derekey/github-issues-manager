@@ -11,7 +11,7 @@ from django.http import Http404
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
                          PullRequestComment)
-from core.tasks.issue import IssueEditStateJob
+from core.tasks.issue import IssueEditStateJob, IssueEditTitleJob
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
@@ -25,7 +25,7 @@ from front.models import GroupedCommits
 from front.repository.views import BaseRepositoryView
 
 from front.utils import make_querystring
-from .forms import (IssueStateForm,
+from .forms import (IssueStateForm, IssueTitleForm,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
@@ -644,7 +644,7 @@ class FilesAjaxIssueView(SimpleAjaxIssueView):
 class BaseIssueEditView(LinkedToRepositoryFormViewMixin):
     model = Issue
     allowed_rights = SUBSCRIPTION_STATES.READ_RIGHTS
-    http_method_names = [u'post']
+    http_method_names = [u'get', u'post']
     ajax_only = True
 
     def get_object(self, queryset=None):
@@ -660,11 +660,12 @@ class BaseIssueEditView(LinkedToRepositoryFormViewMixin):
         return self.object.get_absolute_url()
 
 
-class IssueEditFieldMixin(LinkedToUserFormViewMixin, BaseIssueEditView, UpdateView):
+class IssueEditFieldMixin(BaseIssueEditView, UpdateView):
     field = None
     job_model = None
     url_name = None
     form_class = None
+    template_name = 'front/one_field_form.html'
 
     def form_valid(self, form):
         """
@@ -683,23 +684,37 @@ class IssueEditFieldMixin(LinkedToUserFormViewMixin, BaseIssueEditView, UpdateVi
         return response
 
     def form_invalid(self, form):
-        return self.render_form_errors_as_messages(form)
+        return self.render_form_errors_as_messages(form, show_fields=False)
 
     def get_success_user_message(self, issue):
-        return u"The %s for the %s <strong>#%d</strong>will be updated shortly" % (
-                            self.field, issue.type, issue.number, self.field)
+        return u"The %s for the %s <strong>#%d</strong> will be updated shortly" % (
+                                        self.field, issue.type, issue.number)
+
+    def get_context_data(self, **kwargs):
+        context = super(IssueEditFieldMixin, self).get_context_data(**kwargs)
+        context['form_action'] = self.object.edit_field_url(self.field)
+        context['form_classes'] = "issue-edit-field issue-edit-%s" % self.field
+        return context
 
 
-class IssueEditState(IssueEditFieldMixin):
+class IssueEditState(LinkedToUserFormViewMixin, IssueEditFieldMixin):
     field = 'state'
     job_model = IssueEditStateJob
     url_name = 'issue.edit.state'
     form_class = IssueStateForm
+    http_method_names = [u'post']
 
     def get_success_user_message(self, issue):
         new_state = 'reopened' if issue.state == 'open' else 'closed'
         return u'The %s <strong>#%d</strong> will be %s shortly' % (
                                             issue.type, issue.number, new_state)
+
+
+class IssueEditTitle(IssueEditFieldMixin):
+    field = 'title'
+    job_model = IssueEditTitleJob
+    url_name = 'issue.edit.title'
+    form_class = IssueTitleForm
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

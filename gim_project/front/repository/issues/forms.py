@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import partial
 
 from django import forms
 
@@ -6,6 +7,11 @@ from core.models import Issue, IssueComment, PullRequestComment
 
 from front.mixins.forms import (LinkedToUserFormMixin, LinkedToIssueFormMixin,
                                 LinkedToRepositoryFormMixin)
+
+
+def validate_filled_string(value, name='comment'):
+    if not value or not value.strip():
+        raise forms.ValidationError('You must enter a %s' % name)
 
 
 class IssueFormMixin(LinkedToRepositoryFormMixin):
@@ -23,14 +29,10 @@ class IssueStateForm(LinkedToUserFormMixin, IssueFormMixin):
         new_state = self.cleaned_data.get('state')
         if new_state not in ('open', 'closed'):
             raise forms.ValidationError('Invalide state')
-        return new_state
-
-    def clean(self):
-        new_state = self.cleaned_data.get('state')
         if new_state == self.instance.state:
             raise forms.ValidationError('The %s was already %s, please reload.' %
                 (self.instance.type, 'reopened' if new_state == 'open' else 'closed'))
-        return self.cleaned_data
+        return new_state
 
     def save(self, commit=True):
         self.instance.state = self.cleaned_data['state']
@@ -43,9 +45,14 @@ class IssueStateForm(LinkedToUserFormMixin, IssueFormMixin):
         return super(IssueStateForm, self).save(commit)
 
 
-def validate_filled_string(value):
-    if not value or not value.strip():
-        raise forms.ValidationError('You must enter a comment')
+class IssueTitleForm(IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['title']
+
+    def __init__(self, *args, **kwargs):
+        super(IssueTitleForm, self).__init__(*args, **kwargs)
+        self.fields['title'].validators = [partial(validate_filled_string, name='title')]
+        self.fields['title'].widget = forms.TextInput()
 
 
 class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):

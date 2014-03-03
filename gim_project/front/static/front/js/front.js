@@ -123,8 +123,8 @@ $().ready(function() {
         this.$node.removeClass('active');
     }); // IssuesListIssue__unset_current
 
-    IssuesListIssue.prototype.set_current = (function IssuesListIssue__set_current (propagate) {
-        this.get_html_and_display();
+    IssuesListIssue.prototype.set_current = (function IssuesListIssue__set_current (propagate, force_load, no_loading) {
+        this.get_html_and_display(null, null, force_load, no_loading);
         if (!this.group.no_visible_issues) {
             if (propagate) {
                 this.group.list.set_current();
@@ -145,14 +145,14 @@ $().ready(function() {
         }
     }); // IssuesListIssue__set_current
 
-    IssuesListIssue.prototype.get_html_and_display = (function IssuesListIssue__get_html_and_display (url, force_popup) {
-        var container = IssueDetail.get_container_waiting_for_issue(this.issue_ident, force_popup);
+    IssuesListIssue.prototype.get_html_and_display = (function IssuesListIssue__get_html_and_display (url, force_popup, force_load, no_loading) {
+        var container = IssueDetail.get_container_waiting_for_issue(this.issue_ident, force_popup, force_load);
         if (!container) {
             return;
         }
         var is_popup = !!(force_popup || container.$window);
         if (!url) { url = this.$link.attr('href'); }
-        IssueDetail.set_container_loading(container);
+        if (!no_loading) { IssueDetail.set_container_loading(container); }
         if (is_popup) {
             // open the popup with its loading spinner
             container.$window.modal("show");
@@ -181,13 +181,13 @@ $().ready(function() {
         alert('error ' + jqXHR.status);
     }); // IssuesListIssue__error_getting_html_in_popup
 
-    IssuesListIssue.open_issue = (function IssuesListIssue_open_issue (issue_ident, force_popup) {
+    IssuesListIssue.open_issue = (function IssuesListIssue_open_issue (issue_ident, force_popup, force_load, no_loading) {
         var issue = IssuesList.get_issue_by_ident(issue_ident);
         if (issue) {
             if (force_popup) {
-                issue.get_html_and_display(null, true);
+                issue.get_html_and_display(null, true, force_load, no_loading);
             } else {
-                issue.set_current(true);
+                issue.set_current(true, force_load, no_loading);
             }
         } else {
             var url = IssueDetail.get_url_for_ident(issue_ident);
@@ -882,10 +882,10 @@ $().ready(function() {
             $node.data('repository', issue_ident.repository);
         }), // set_issue_ident
 
-        get_container_waiting_for_issue: (function IssueDetail__get_container_waiting_for_issue (issue_ident, force_popup) {
+        get_container_waiting_for_issue: (function IssueDetail__get_container_waiting_for_issue (issue_ident, force_popup, force_load) {
             var container = IssueDetail.get_container(force_popup),
                 is_popup = (force_popup || container.$window);
-            if (!is_popup && IssueDetail.is_issue_ident_for_node(container.$node, issue_ident)) {
+            if (!force_load && !is_popup && IssueDetail.is_issue_ident_for_node(container.$node, issue_ident)) {
                 return false;
             }
             IssueDetail.set_issue_ident(container.$node, issue_ident);
@@ -1763,19 +1763,25 @@ $().ready(function() {
             $form.data('disabled', false);
         }), // enable_form
 
+        focus_form: (function IssueEditor__focus_form ($form, delay) {
+            if (delay) {
+                setTimeout(function() { IssueEditor.focus_form($form); }, delay)
+            } else {
+                $form.find(':input:visible:not([type=submit])').first().focus();
+            }
+        }), // focus_form
+
         display_issue: (function IssueEditor__display_issue (html, context) {
             var is_popup = context.$container.parents('.modal').length > 0;
             IssueDetail.display_issue(html, context.issue_ident, is_popup);
         }), // display_issue
 
         get_form_context: (function IssueEditor__get_form_context ($form) {
-            var context = {
-                issue_ident: {
-                    number: $form.data('number'),
-                    repository: $form.data('repository')
-                },
+            var $container = $form.closest('.issue-container'),
+            context = {
+                issue_ident: IssueDetail.get_issue_ident($container),
                 $form: $form,
-                $container: $form.closest('.issue-container')
+                $container: $container
             };
             return context;
         }), // get_form_context
@@ -1924,10 +1930,109 @@ $().ready(function() {
 
         }), // on_new_entry_point_click
 
+        // EDIT ISSUES FIELDS, ONE BY ONE
+        on_issue_edit_field_click: (function IssueEditor__on_issue_edit_field_click (ev) {
+            var $link = $(this);
+            if ($link.hasClass('loading')) { return false; }
+            $link.addClass('loading');
+            $.ajax({
+                url: $link.attr('href'),
+                type: 'GET',
+                success: IssueEditor.on_issue_edit_field_ready,
+                error: IssueEditor.on_issue_edit_field_ready_click_failed,
+                context: $link
+            });
+            return false;
+        }), // on_issue_edit_field_click
+
+        on_issue_edit_field_ready_click_failed: (function IssueEditor__on_issue_edit_field_ready_click_failed () {
+            var $link = this;
+            $link.removeClass('loading');
+             alert('A problem prevented us to do your action !');
+        }), // on_issue_edit_field_ready_click_failed
+
+        on_issue_edit_field_ready: (function IssueEditor__on_issue_edit_field_ready (data) {
+            var $link = this,
+                field = $link.data('field'),
+                $placeholder = $link.closest('article').find('.edit-place[data-field=' + field + ']'),
+                method = 'on_issue_edit_' + field + '_ready';
+            if (typeof IssueEditor[method] == 'undefined') {
+                method = 'on_issue_edit_default_ready';
+            }
+            IssueEditor[method]($link, $placeholder, data);
+        }), // on_issue_edit_field_ready
+
+        on_issue_edit_default_ready: (function IssueEditor__on_issue_edit_default_ready ($link, $placeholder, data) {
+            var $form = $(data);
+            $link.remove();
+            $placeholder.replaceWith($form);
+            IssueEditor.focus_form($form, 50);
+            return $form;
+        }), // on_issue_edit_default_ready
+
+        on_issue_edit_title_ready: (function IssueEditor__on_issue_edit_title_ready ($link, $placeholder, data) {
+            var left = $placeholder.position().left, $form;
+            $placeholder.parent().after($placeholder);
+            $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data);
+            $form.css('left', left + 'px');
+        }), // on_issue_edit_title_ready
+
+        on_issue_edit_field_cancel_click: (function IssueEditor__on_issue_edit_field_cancel_click (ev) {
+            var $btn = $(this),
+                $form = $btn.closest('form');
+            if ($form.data('disabled')) { return false; }
+            IssueEditor.disable_form($form);
+            $btn.addClass('loading');
+            var issue_ident = IssueDetail.get_issue_ident($btn.closest('.issue-container'));
+            IssuesListIssue.open_issue(issue_ident, false, true, true);
+            return false;
+        }), // on_issue_edit_field_cancel_click
+
+        on_issue_edit_field_submit: (function IssueEditor__on_issue_edit_field_submit (ev) {
+            var $form = $(this);
+            if ($form.data('disabled')) { return false; }
+            var $btn = $form.find('.btn-save');
+            IssueEditor.disable_form($form);
+            $btn.addClass('loading');
+            $.ajax({
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                type: 'POST',
+                success: IssueEditor.on_issue_edit_submit_done,
+                error: IssueEditor.on_issue_edit_submit_fail,
+                context: IssueEditor.get_form_context($form)
+            });
+            return false;
+        }), // on_issue_edit_field_submit
+
+        on_issue_edit_submit_done: (function IssueEditor__on_issue_edit_submit_done (data) {
+            this.$form.find('button.loading').removeClass('loading');
+            if (data.trim()) {
+                IssueEditor.display_issue(data, this);
+            } else {
+                 IssueEditor.enable_form(this.$form);
+                 this.$form.find('button.loading').removeClass('loading');
+                 IssueEditor.focus_form(this.$form);
+            }
+        }), // on_issue_edit_submit_done
+
+        on_issue_edit_submit_fail: (function IssueEditor__on_issue_edit_submit_fail () {
+            IssueEditor.enable_form(this.$form);
+            this.$form.find('button.loading').removeClass('loading');
+            alert('A problem prevented us to do your action !');
+        }), // on_issue_edit_submit_fail
+
+
         init: (function IssueEditor__init () {
             $document.on('submit', '.issue-edit-state-form', IssueEditor.on_state_submit);
+
+            $document.on('click', 'a.issue-edit', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_click));
+            $document.on('click', 'form.issue-edit-field button.btn-cancel', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_cancel_click));
+            $document.on('submit', 'form.issue-edit-field', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_submit));
+
             $document.on('submit', '.comment-create-form', IssueEditor.on_comment_create_submit);
             $document.on('click', '.comment-create-placeholder button', IssueEditor.on_comment_create_placeholder_click);
+
             $document.on('click', 'td.code span.label', IssueEditor.on_new_entry_point_click);
         }) // init
     }; // IssueEditor

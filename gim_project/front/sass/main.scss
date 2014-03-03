@@ -137,6 +137,39 @@ ol, ul {
     }
 }
 
+.one-field-form {
+    display: inline-block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    > div {
+        display: inline-block;
+        input, select, textarea {
+            margin: 0;
+        }
+    }
+    button {
+        width: 30px;
+        font-size: 14px;
+        margin-left: 10px;
+        i {
+            font-size: inherit;
+            float: none;
+            margin: 0;
+        }
+        &.btn-save {
+            i {
+                color: white;
+            }
+        }
+        &.loading {
+            i:first-of-type {
+                display: none;
+            }
+        }
+    }
+}
+
 // show which panel is the current one with a top blue border
 .active-panel {
     border-top: solid 5px $active-color !important;

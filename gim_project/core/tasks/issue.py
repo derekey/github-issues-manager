@@ -262,3 +262,8 @@ class IssueEditStateJob(IssueEditFieldJob):
     def get_success_user_message(self, issue):
         # call the one from BaseIssueEditJob
         super(IssueEditFieldJob, self).get_success_user_message(issue)
+
+
+class IssueEditTitleJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-title'
+    editable_fields = ['title']

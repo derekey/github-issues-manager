@@ -240,8 +240,8 @@ class _Issue(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('front:repository:issue', kwargs=self.get_reverse_kwargs())
 
-    def change_state_url(self):
-        return reverse_lazy('front:repository:issue.edit.state', kwargs=self.get_reverse_kwargs())
+    def edit_field_url(self, field):
+        return reverse_lazy('front:repository:issue.edit.%s' % field, kwargs=self.get_reverse_kwargs())
 
     def issue_comment_create_url(self):
         return reverse_lazy('front:repository:issue.comment.create', kwargs=self.get_reverse_kwargs())
