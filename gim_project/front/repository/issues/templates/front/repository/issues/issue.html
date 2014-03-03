@@ -71,39 +71,41 @@
                 </ul>
             </footer>
         </div>
-        <div class="content issue-big-infos">
-            {% if current_issue.is_pull_request %}
-                {% if current_issue.pr_fetched_at %}
-                    <ul class="unstyled">
-                        <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="icon-pencil"></i> {{ current_issue.nb_commits }}</li>
-                        <li class="label label-green" title="{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ current_issue.nb_additions }}</li>
-                        <li class="label label-red" title="{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ current_issue.nb_deletions }}</li>
-                        <li class="label label-black" title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="icon-file"></i> {{ current_issue.nb_changed_files }}</li>
-                    </ul>
-                {% endif %}
-                <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
-                {% if current_issue.pr_fetched_at %}
-                    <div class="pr-merge-status">
-                        {% include "front/repository/issues/include_edit_buttons.html" %}
-                        {% if current_issue.state == 'open' %}
-                            {% if current_issue.is_mergeable %}
-                                <div class="alert alert-success"><strong>Can be merged</strong></div>
+        {% if current_issue.is_pull_request or current_issue_edit_level %}
+            <div class="content issue-big-infos">
+                {% if current_issue.is_pull_request %}
+                    {% if current_issue.pr_fetched_at %}
+                        <ul class="unstyled">
+                            <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="icon-pencil"></i> {{ current_issue.nb_commits }}</li>
+                            <li class="label label-green" title="{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ current_issue.nb_additions }}</li>
+                            <li class="label label-red" title="{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ current_issue.nb_deletions }}</li>
+                            <li class="label label-black" title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="icon-file"></i> {{ current_issue.nb_changed_files }}</li>
+                        </ul>
+                    {% endif %}
+                    <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
+                    {% if current_issue.pr_fetched_at %}
+                        <div class="pr-merge-status">
+                            {% include "front/repository/issues/include_edit_buttons.html" %}
+                            {% if current_issue.state == 'open' %}
+                                {% if current_issue.is_mergeable %}
+                                    <div class="alert alert-success"><strong>Can be merged</strong></div>
+                                {% else %}
+                                    <div class="alert alert-error"><strong>Cannot be merged</strong>{% if current_issue.mergeable_state %} (reason: {{ current_issue.mergeable_state }}){% endif %}</div>
+                                {% endif %}
                             {% else %}
-                                <div class="alert alert-error"><strong>Cannot be merged</strong>{% if current_issue.mergeable_state %} (reason: {{ current_issue.mergeable_state }}){% endif %}</div>
+                                {% if current_issue.merged %}
+                                    <div class="alert alert-success">Merged</div>
+                                {% else %}
+                                    <div class="alert alert-error">Not merged</div>
+                                {% endif %}
                             {% endif %}
-                        {% else %}
-                            {% if current_issue.merged %}
-                                <div class="alert alert-success">Merged</div>
-                            {% else %}
-                                <div class="alert alert-error">Not merged</div>
-                            {% endif %}
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
+                {% elif current_issue_edit_level %}
+                    {% include "front/repository/issues/include_edit_buttons.html" %}
                 {% endif %}
-            {% elif current_issue_edit_level %}
-                {% include "front/repository/issues/include_edit_buttons.html" %}
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
         {% if current_issue.is_pull_request %}
             <ul class="nav nav-tabs pr-tabs">
                 <li class="pr-discussion-tab active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion</a></li>
