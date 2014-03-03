@@ -1931,29 +1931,24 @@ form.fill-up .padded .control-group:last-child {
 form.fill-up.form-horizontal .form-actions {
   padding-left: 20px;
 }
-
-/* line 32, ../../../../../core-admin/stylesheets/form_elements.scss */
+/* line 30, ../../../../../core-admin/stylesheets/form_elements.scss */
 form.fill-up .radio, form.fill-up .checkbox {
   padding-left: 0;
 }
-
-/* line 38, ../../../../../core-admin/stylesheets/form_elements.scss */
-.form-actions {
+/* line 35, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .form-actions {
   margin-bottom: 0;
 }
-
-/* line 42, ../../../../../core-admin/stylesheets/form_elements.scss */
-.box form {
+/* line 39, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .box form {
   padding: 0;
 }
-
-/* line 46, ../../../../../core-admin/stylesheets/form_elements.scss */
-form {
+/* line 43, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up form {
   margin-bottom: 0;
 }
-
-/* line 64, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append, .input-prepend {
+/* line 61, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append, form.fill-up .input-prepend {
   height: 26px;
   line-height: 26px;
   -webkit-box-sizing: border-box;
@@ -1963,18 +1958,18 @@ form {
   position: relative;
   z-index: 1;
 }
-/* line 59, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append .add-on i, .input-prepend .add-on i {
+/* line 56, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append .add-on i, form.fill-up .input-prepend .add-on i {
   line-height: 16px;
 }
-/* line 68, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append *, .input-prepend * {
+/* line 65, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append *, form.fill-up .input-prepend * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* line 75, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append a.add-on, .input-append span.add-on, .input-prepend a.add-on, .input-prepend span.add-on {
+/* line 72, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append a.add-on, form.fill-up .input-append span.add-on, form.fill-up .input-prepend a.add-on, form.fill-up .input-prepend span.add-on {
   min-width: 26px;
   color: #5a6573;
   position: absolute;
@@ -1997,12 +1992,12 @@ form {
   padding-left: 6px;
   padding-right: 6px;
 }
-/* line 89, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append a.add-on:active, .input-append span.add-on:active, .input-prepend a.add-on:active, .input-prepend span.add-on:active {
+/* line 86, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append a.add-on:active, form.fill-up .input-append span.add-on:active, form.fill-up .input-prepend a.add-on:active, form.fill-up .input-prepend span.add-on:active {
   background: #eee;
 }
-/* line 94, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append ul.add-on, .input-prepend ul.add-on {
+/* line 91, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on, form.fill-up .input-prepend ul.add-on {
   list-style: none;
   position: absolute;
   z-index: 2;
@@ -2014,27 +2009,27 @@ form {
   top: 1px;
   right: 2px;
 }
-/* line 107, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append ul.add-on li, .input-prepend ul.add-on li {
+/* line 104, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li, form.fill-up .input-prepend ul.add-on li {
   float: left;
   margin-left: 10px;
   line-height: 32px;
   height: 32px;
 }
-/* line 113, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append ul.add-on li a, .input-append ul.add-on li button, .input-prepend ul.add-on li a, .input-prepend ul.add-on li button {
+/* line 110, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li a, form.fill-up .input-append ul.add-on li button, form.fill-up .input-prepend ul.add-on li a, form.fill-up .input-prepend ul.add-on li button {
   vertical-align: middle;
 }
-/* line 116, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append ul.add-on li a.btn, .input-append ul.add-on li button.btn, .input-prepend ul.add-on li a.btn, .input-prepend ul.add-on li button.btn {
+/* line 113, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li a.btn, form.fill-up .input-append ul.add-on li button.btn, form.fill-up .input-prepend ul.add-on li a.btn, form.fill-up .input-prepend ul.add-on li button.btn {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   -ms-border-radius: 3px;
   -o-border-radius: 3px;
   border-radius: 3px;
 }
-/* line 121, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append ul.add-on li .btn, .input-prepend ul.add-on li .btn {
+/* line 118, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li .btn, form.fill-up .input-prepend ul.add-on li .btn {
   padding: 0;
   line-height: 25px;
   height: 25px;
@@ -2042,8 +2037,8 @@ form {
   padding-right: 10px;
   margin-right: 5px;
 }
-/* line 132, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append input[type="text"], .input-append input[type="password"], .input-append input[type="email"], .input-append input[type="number"], .input-prepend input[type="text"], .input-prepend input[type="password"], .input-prepend input[type="email"], .input-prepend input[type="number"] {
+/* line 129, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append input[type="text"], form.fill-up .input-append input[type="password"], form.fill-up .input-append input[type="email"], form.fill-up .input-append input[type="number"], form.fill-up .input-prepend input[type="text"], form.fill-up .input-prepend input[type="password"], form.fill-up .input-prepend input[type="email"], form.fill-up .input-prepend input[type="number"] {
   height: 100%;
   width: 100%;
   z-index: 1;
@@ -2053,32 +2048,28 @@ form {
   -o-border-radius: 4px;
   border-radius: 4px;
 }
-
-/* line 141, ../../../../../core-admin/stylesheets/form_elements.scss */
-.box .input-append, .box .input-prepend {
+/* line 138, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .box .input-append, form.fill-up .box .input-prepend {
   margin-bottom: 0;
 }
-
-/* line 147, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append .add-on:last-child {
+/* line 144, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append .add-on:last-child {
   right: 0;
 }
-/* line 149, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-append input[type="text"], .input-append input[type="password"], .input-append input[type="email"], .input-append input[type="number"] {
+/* line 146, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append input[type="text"], form.fill-up .input-append input[type="password"], form.fill-up .input-append input[type="email"], form.fill-up .input-append input[type="number"] {
   padding-right: 25px;
 }
-
-/* line 155, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-prepend .add-on:first-child {
+/* line 152, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-prepend .add-on:first-child {
   left: 0;
 }
-/* line 157, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-prepend input[type="text"], .input-prepend input[type="password"], .input-prepend input[type="email"], .input-prepend input[type="number"] {
+/* line 154, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-prepend input[type="text"], form.fill-up .input-prepend input[type="password"], form.fill-up .input-prepend input[type="email"], form.fill-up .input-prepend input[type="number"] {
   padding-left: 35px;
 }
-
-/* line 166, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.uploader {
+/* line 163, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader {
   width: 100%;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
@@ -2087,24 +2078,24 @@ div.uploader {
   height: 28px;
   background: #fff;
 }
-/* line 174, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.uploader span.filename {
+/* line 171, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader span.filename {
   border-right: none;
   width: 120px;
   height: 24px;
   margin: 2px 0px 2px 2px;
   line-height: 24px;
 }
-/* line 183, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.uploader.hover span.action {
+/* line 180, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader.hover span.action {
   background: #8dbfd8;
 }
-/* line 189, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.uploader.active span.action {
+/* line 186, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader.active span.action {
   background: #4194bd;
 }
-/* line 194, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.uploader span.action {
+/* line 191, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader span.action {
   height: 24px;
   line-height: 24px;
   float: right;
@@ -2132,9 +2123,8 @@ div.uploader span.action {
   font-size: 16px;
   line-height: 20px;
 }
-
-/* line 215, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.selector {
+/* line 212, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector {
   position: relative;
   padding-left: 5px;
   overflow: hidden;
@@ -2162,8 +2152,8 @@ div.selector {
   line-height: 28px;
   color: #666;
 }
-/* line 223, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.selector:after {
+/* line 220, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector:after {
   content: "\f0dd";
   top: 2px;
   right: 2px;
@@ -2181,8 +2171,8 @@ div.selector:after {
   font-size: 14px;
   color: #888;
 }
-/* line 230, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.selector span {
+/* line 227, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector span {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2195,12 +2185,12 @@ div.selector span {
   line-height: 26px;
   background: transparent;
 }
-/* line 247, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.selector.disabled span {
+/* line 244, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector.disabled span {
   color: #bbb;
 }
-/* line 252, ../../../../../core-admin/stylesheets/form_elements.scss */
-div.selector select {
+/* line 249, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector select {
   position: absolute;
   opacity: 0;
   height: 25px;
@@ -2211,9 +2201,8 @@ div.selector select {
   font-size: 12px;
   border: solid 1px #fff;
 }
-
-/* line 268, ../../../../../core-admin/stylesheets/form_elements.scss */
-textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+/* line 265, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea, form.fill-up input[type="text"], form.fill-up input[type="password"], form.fill-up input[type="datetime"], form.fill-up input[type="datetime-local"], form.fill-up input[type="date"], form.fill-up input[type="month"], form.fill-up input[type="time"], form.fill-up input[type="week"], form.fill-up input[type="number"], form.fill-up input[type="email"], form.fill-up input[type="url"], form.fill-up input[type="search"], form.fill-up input[type="tel"], form.fill-up input[type="color"], form.fill-up .uneditable-input {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
@@ -2230,27 +2219,24 @@ textarea, input[type="text"], input[type="password"], input[type="datetime"], in
   background: #fdfdfd;
   height: 26px;
 }
-/* line 279, ../../../../../core-admin/stylesheets/form_elements.scss */
-textarea:focus, input[type="text"]:focus, input[type="password"]:focus, input[type="datetime"]:focus, input[type="datetime-local"]:focus, input[type="date"]:focus, input[type="month"]:focus, input[type="time"]:focus, input[type="week"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="url"]:focus, input[type="search"]:focus, input[type="tel"]:focus, input[type="color"]:focus, .uneditable-input:focus {
+/* line 276, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea:focus, form.fill-up input[type="text"]:focus, form.fill-up input[type="password"]:focus, form.fill-up input[type="datetime"]:focus, form.fill-up input[type="datetime-local"]:focus, form.fill-up input[type="date"]:focus, form.fill-up input[type="month"]:focus, form.fill-up input[type="time"]:focus, form.fill-up input[type="week"]:focus, form.fill-up input[type="number"]:focus, form.fill-up input[type="email"]:focus, form.fill-up input[type="url"]:focus, form.fill-up input[type="search"]:focus, form.fill-up input[type="tel"]:focus, form.fill-up input[type="color"]:focus, form.fill-up .uneditable-input:focus {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
   border: 1px solid #68A6CE;
 }
-
-/* line 285, ../../../../../core-admin/stylesheets/form_elements.scss */
-textarea {
+/* line 282, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea {
   height: auto;
 }
-
-/* line 289, ../../../../../core-admin/stylesheets/form_elements.scss */
-label {
+/* line 286, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up label {
   font-size: 12px;
   color: #5F5F5F;
 }
-
 /* line 56, ../../../../../core-admin/stylesheets/_arrow.scss */
-.search-dropdown {
+form.fill-up .search-dropdown {
   position: relative;
   background: #fbfbfb;
   border: 1px solid #cccccc;
@@ -2258,9 +2244,8 @@ label {
   -moz-box-sizing: content-box;
   box-sizing: content-box;
 }
-
 /* line 72, ../../../../../core-admin/stylesheets/_arrow.scss */
-.search-dropdown:after, .search-dropdown:before {
+form.fill-up .search-dropdown:after, form.fill-up .search-dropdown:before {
   bottom: 100%;
   border: solid transparent;
   content: " ";
@@ -2269,29 +2254,26 @@ label {
   position: absolute;
   pointer-events: none;
 }
-
 /* line 82, ../../../../../core-admin/stylesheets/_arrow.scss */
-.search-dropdown:after {
+form.fill-up .search-dropdown:after {
   border-bottom-color: #fbfbfb;
   border-width: 7px;
   left: 50%;
   margin-left: -7px;
 }
-
 /* line 94, ../../../../../core-admin/stylesheets/_arrow.scss */
-.search-dropdown:before {
+form.fill-up .search-dropdown:before {
   border-bottom-color: #cccccc;
   border-width: 8px;
   left: 50%;
   margin-left: -8px;
 }
-
-/* line 299, ../../../../../core-admin/stylesheets/form_elements.scss */
-.search-dropdown {
+/* line 296, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .search-dropdown {
   margin-top: 15px;
 }
-/* line 302, ../../../../../core-admin/stylesheets/form_elements.scss */
-.search-dropdown .box-section:first-child {
+/* line 299, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .search-dropdown .box-section:first-child {
   border-top: none;
   -moz-border-radius-topleft: 3px;
   -webkit-border-top-left-radius: 3px;
@@ -2300,21 +2282,20 @@ label {
   -webkit-border-top-right-radius: 3px;
   border-top-right-radius: 3px;
 }
-
-/* line 311, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-with-submit {
+/* line 308, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit {
   position: relative;
 }
-/* line 314, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-with-submit button {
+/* line 311, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit button {
   background: transparent;
   border: none;
   position: absolute;
   right: 2px;
   top: 7px;
 }
-/* line 322, ../../../../../core-admin/stylesheets/form_elements.scss */
-.input-with-submit i {
+/* line 319, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit i {
   color: #909090;
 }
 

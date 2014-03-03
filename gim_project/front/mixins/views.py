@@ -111,15 +111,17 @@ class DependsOnSubscribedViewMixin(object):
     """
     allowed_rights = SUBSCRIPTION_STATES.READ_RIGHTS
 
-    def get_allowed_repositories(self):
+    def get_allowed_repositories(self, rights=None):
         """
         Limit repositories to the ones subscribed by the user
         """
+        if rights is None:
+            rights = self.allowed_rights
         filters = {
             'subscriptions__user': self.request.user
         }
-        if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
-            filters['subscriptions__state__in'] = self.allowed_rights
+        if rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
+            filters['subscriptions__state__in'] = rights
 
         return Repository.objects.filter(**filters)
 
@@ -131,17 +133,19 @@ class WithSubscribedRepositoriesViewMixin(DependsOnSubscribedViewMixin):
     repositories
     Provides also a list of all the subscriptions as a cached property
     """
+    subscriptions_list_rights = SUBSCRIPTION_STATES.READ_RIGHTS
+
     @property
     def subscriptions(self):
         """
         Return (and cache) the list of all subscriptions of the current user
-        based on the "allowed_rights" attribute
+        based on the "subscriptions_list_rights" attribute
         """
         if not hasattr(self, '_subscriptions'):
             self._subscriptions = self.request.user.subscriptions.all()
-            if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
+            if self.subscriptions_list_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
                 self._subscriptions = self._subscriptions.filter(
-                                                state__in=self.allowed_rights)
+                                        state__in=self.subscriptions_list_rights)
         return self._subscriptions
 
     def get_context_data(self, **kwargs):
@@ -152,6 +156,7 @@ class WithSubscribedRepositoriesViewMixin(DependsOnSubscribedViewMixin):
         context = super(WithSubscribedRepositoriesViewMixin, self).get_context_data(**kwargs)
 
         context['subscribed_repositories'] = self.get_allowed_repositories(
+                rights=self.subscriptions_list_rights
            ).extra(select={
                     'lower_name': 'lower(name)',
                     'lower_owner': 'lower(username)',

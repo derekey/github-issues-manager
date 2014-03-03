@@ -2,10 +2,10 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import classonlymethod
 from django.views.generic import DetailView
 
-from front.mixins.views import SubscribedRepositoryViewMixin
+from front.mixins.views import SubscribedRepositoryViewMixin, WithSubscribedRepositoriesViewMixin
 
 
-class BaseRepositoryView(SubscribedRepositoryViewMixin, DetailView):
+class BaseRepositoryView(WithSubscribedRepositoriesViewMixin, SubscribedRepositoryViewMixin, DetailView):
     # details vue attributes
     template_name = 'front/repository/base.html'
 
