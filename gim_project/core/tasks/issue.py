@@ -267,3 +267,8 @@ class IssueEditStateJob(IssueEditFieldJob):
 class IssueEditTitleJob(IssueEditFieldJob):
     queue_name = 'edit-issue-title'
     editable_fields = ['title']
+
+
+class IssueEditBodyJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-body'
+    editable_fields = ['body']

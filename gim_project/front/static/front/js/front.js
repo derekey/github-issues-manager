@@ -2035,7 +2035,7 @@ $().ready(function() {
         init: (function IssueEditor__init () {
             $document.on('submit', '.issue-edit-state-form', IssueEditor.on_state_submit);
 
-            $document.on('click', 'a.issue-edit', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_click));
+            $document.on('click', 'a.issue-edit-btn', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_click));
             $document.on('click', 'form.issue-edit-field button.btn-cancel', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_cancel_click));
             $document.on('submit', 'form.issue-edit-field', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_submit));
 

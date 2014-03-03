@@ -6,7 +6,7 @@
         {% endif %}
     {% endfor %}
     <div class="edit-buttons">{% spaceless %}
-        <button type="submit" class="btn btn-blue btn-loading btn-save" title="Save"><i class="icon-ok"> </i><i class='icon-spinner icon-spin'> </i></button>
-        <button type="button" class="btn btn-default btn-loading btn-cancel" title="Cancel"><i class="icon-remove"> </i><i class='icon-spinner icon-spin'> </i></button>
+        <button type="submit" class="btn btn-blue btn-loading btn-save" title="Save">{% block save_btn %}<i class="icon-ok"> </i>{% endblock save_btn %}<i class='icon-spinner icon-spin'> </i></button>
+        <button type="button" class="btn btn-default btn-loading btn-cancel" title="Cancel">{% block cancel_btn %}<i class="icon-remove"> </i>{% endblock cancel_btn %}<i class='icon-spinner icon-spin'> </i></button>
     {% endspaceless %}</div>
 </form>

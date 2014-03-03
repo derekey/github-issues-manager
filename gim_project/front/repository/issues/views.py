@@ -13,7 +13,8 @@ from django.http import Http404
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
                          PullRequestComment)
-from core.tasks.issue import IssueEditStateJob, IssueEditTitleJob
+from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
+                              IssueEditBodyJob)
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
@@ -27,7 +28,7 @@ from front.models import GroupedCommits
 from front.repository.views import BaseRepositoryView
 
 from front.utils import make_querystring
-from .forms import (IssueStateForm, IssueTitleForm,
+from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
@@ -766,6 +767,14 @@ class IssueEditTitle(IssueEditFieldMixin):
     job_model = IssueEditTitleJob
     url_name = 'issue.edit.title'
     form_class = IssueTitleForm
+
+
+class IssueEditBody(IssueEditFieldMixin):
+    field = 'body'
+    job_model = IssueEditBodyJob
+    url_name = 'issue.edit.body'
+    form_class = IssueBodyForm
+    template_name = 'front/one_field_form_real_buttons.html'
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

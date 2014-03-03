@@ -55,6 +55,16 @@ class IssueTitleForm(IssueFormMixin):
         self.fields['title'].widget = forms.TextInput()
 
 
+class IssueBodyForm(IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['body']
+
+    def save(self, commit=True):
+        self.instance.body_html = None  # will be reset with data from github
+        return super(IssueBodyForm, self).save(commit)
+
+
+
 class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):
     class Meta:
         fields = ['body', ]

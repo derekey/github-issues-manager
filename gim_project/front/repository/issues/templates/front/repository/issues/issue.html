@@ -15,7 +15,7 @@
                     -
                     <span class="edit-place" data-field="title">{{ current_issue.title }}</span>
                     </a>
-                    {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'title' }}" class="issue-edit btn-loading" data-field="title" title="Edit the title"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                    {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'title' }}" class="issue-edit-btn issue-edit-btn-title btn-loading" data-field="title" title="Edit the title"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
                 </h3>
             </header>
             <section>
@@ -113,8 +113,9 @@
             <div class="tab-content">
                 <div class="tab-pane active issue-discussion" id="issue-{{ current_issue.number }}-discussion">
         {% endif %}
-            <div class="content issue-body{% if not current_issue.body %} empty{% endif %}" >
+            <div class="content issue-body{% if not current_issue.body %} empty{% endif %} edit-place" data-field="body">
                 {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this {{ current_issue.type }} !{% endif %}
+                {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'body' }}" class="issue-edit-btn issue-edit-btn-body btn-loading" data-field="body" title="Edit the body"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
             </div>
             <aside>
                 <ul class="unstyled chat-box timeline issue-activity" id="issue-activity-{{ current_issue.number }}">

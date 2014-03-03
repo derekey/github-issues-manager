@@ -170,6 +170,7 @@ $file-list-width: 400px;
         background: white;
         border-bottom: solid 1px $box-border-color;
         @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
+        position: relative;
     }
     .content.empty {
         color: $light-text-color;
@@ -195,15 +196,27 @@ $file-list-width: 400px;
         }
     }
 
-    a.issue-edit {
+    a.issue-edit-btn {
         i {
             float: none;
             color: #ccc;
+            font-size: inherit;
+            font-weight: inherit;
         }
         &.loading i.icon-edit {
             display: none;
         }
+        &, &:hover {
+            text-decoration: none;
+        }
+        &.issue-edit-btn-body {
+            font-size: 18px;
+            position: absolute;
+            top: 3px;
+            right: 7px;
+        }
     }
+
     .issue-edit-title {
         position: absolute;
         left: 130px;
@@ -227,7 +240,49 @@ $file-list-width: 400px;
                 @include border-radius(0);
             }
         }
-    }
+    } // .issue-edit-title
+
+    .issue-edit-body {
+        // same as .issue-body
+        display: block;
+        padding: 10px;
+        background: white;
+        border-bottom: solid 1px $box-border-color;
+        @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);            
+        div.edit-field {
+            display: block;
+            padding: 5px 5px 0;
+        }
+        textarea {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            font-size: inherit;
+            font-family: inherit;
+            line-height: inherit;
+            min-height: 180px;
+            height: auto;
+            background: white;
+            border: none;
+            @include border-radius(0px);
+            @include box-shadow(none);
+        }
+        div.edit-buttons {
+            display: block;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: solid 1px $box-border-color;
+        }
+        button {
+            width: auto;
+            font-size: inherit;
+            margin: 0;
+            &.btn-cancel {
+                float: right;
+                font-weight: normal;
+            }
+        }
+    } // .issue-edit-body
 
 } // .issue-container
 

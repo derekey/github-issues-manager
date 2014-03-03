@@ -552,9 +552,10 @@ class GithubObject(models.Model):
         identifiers = self.github_callable_identifiers if mode == 'update' else self.github_callable_create_identifiers
         gh_callable = self.__class__.objects.get_github_callable(gh, identifiers)
         method = getattr(gh_callable, 'patch' if mode == 'update' else 'post')
+        request_headers = prepare_fetch_headers(github_format=self.github_format)
 
         # make the request and get fresh data for the object
-        result = method(**data)
+        result = method(request_headers=request_headers, **data)
 
         # get defaults to update the data with fresh data we just got
         defaults = self.defaults_create_values()
