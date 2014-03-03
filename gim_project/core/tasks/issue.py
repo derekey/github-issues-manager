@@ -214,8 +214,8 @@ class BaseIssueEditJob(IssueJob):
 
         messages.success(self.gh_user, self.get_success_user_message(issue))
 
-        # don't use "issue" cache
-        self.object.fetch_all(gh)
+        # ask for frech data
+        FetchIssueByNumber.add_job('%s#%s' % (issue.repository_id, issue.number), gh=gh)
 
         return None
 
