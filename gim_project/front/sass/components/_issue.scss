@@ -167,6 +167,7 @@ $file-list-width: 400px;
 
     .issue-body {
         padding: 15px;
+        padding-right: 30px;
         background: white;
         border-bottom: solid 1px $box-border-color;
         @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
@@ -246,9 +247,10 @@ $file-list-width: 400px;
         // same as .issue-body
         display: block;
         padding: 10px;
+        padding-right: 25px;
         background: white;
         border-bottom: solid 1px $box-border-color;
-        @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);            
+        @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
         div.edit-field {
             display: block;
             padding: 5px 5px 0;
