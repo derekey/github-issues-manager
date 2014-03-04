@@ -2097,7 +2097,8 @@ $().ready(function() {
             IssueEditor.disable_form($form);
             $btn.addClass('loading');
             var issue_ident = IssueDetail.get_issue_ident($btn.closest('.issue-container'));
-            IssuesListIssue.open_issue(issue_ident, false, true, true);
+                is_popup = IssueDetail.is_modal($form.closest('.issue-container'));
+            IssuesListIssue.open_issue(issue_ident, is_popup, true, true);
             return false;
         }), // on_issue_edit_field_cancel_click
 
