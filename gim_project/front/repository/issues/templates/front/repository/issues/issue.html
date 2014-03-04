@@ -53,7 +53,7 @@
                         {% endif %}
                         {% if current_issue.assignee %}
                             <span class="issue-footer-info-part issue-assignee" title="Assigned to {{ current_issue.assignee.username }}">
-                                <i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" />
+                                <i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" />
                             </span>
                         {% endif %}
                         {% if current_issue_involved|length > 1 %}

@@ -34,18 +34,16 @@
     }
     & > li > a {
         color: inherit;
-        text-decoration: none;        
+        text-decoration: none;
     }
 }
 
 %issue-assignee {
     i {
-        font-size: 11px;
         position: relative;
         top: 2px;
-        color: #bbb;
     }
-    width: 38px;
+    width: 43px;
 }
 
 

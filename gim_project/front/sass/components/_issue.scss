@@ -99,8 +99,8 @@ $file-list-width: 400px;
         line-height: 26px;
         border-left: solid 1px #f0f0f0;
         border-right: solid 1px #ddd;
-        display: block;
-        float: left;
+        display: table-cell;
+        vertical-align: middle;
         &:first-child {
             @include border-radius(4px 0 0 4px);
             border-left: none;
@@ -130,6 +130,7 @@ $file-list-width: 400px;
     }
 
     .issue-involved {
+        max-width: 190px;
         margin-bottom: 0;
         li {
             display: inline-block;
@@ -199,6 +200,9 @@ $file-list-width: 400px;
         .stuck {
             // width: 100%!important;
             @include calc(width, $stuck-full-width, !important);
+        }
+        .issue-involved {
+            max-width: 300px;
         }
     }
 

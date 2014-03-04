@@ -42,7 +42,7 @@
     {% with issue_labels=issue.labels.all %}
         <div class="issue-item-footer{% if issue_labels %} with-labels{% endif %}">
             {% if issue.assignee %}
-                    <a href="" title="Assigned to {{ issue.assignee.username }}" class="issue-item-assignee js-filter-trigger" data-filter='assigned:{{ issue.assignee.username }}'><i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url|default:default_avatar }}"></a>
+                    <a href="" title="Assigned to {{ issue.assignee.username }}" class="issue-item-assignee js-filter-trigger" data-filter='assigned:{{ issue.assignee.username }}'><i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url|default:default_avatar }}"></a>
             {% endif %}
             {% if issue.total_comments_count %}
                 <div class="issue-item-comments-count" title="{{ issue.total_comments_count }} comment{{ issue.total_comments_count|pluralize }}">
