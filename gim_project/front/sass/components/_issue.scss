@@ -114,11 +114,6 @@ $file-list-width: 400px;
         }
     }
 
-    .issue-assignee {
-        @extend %issue-assignee;
-        cursor: default;
-    }
-
     .issue-comments-count {
         top: 0;
         color: inherit;

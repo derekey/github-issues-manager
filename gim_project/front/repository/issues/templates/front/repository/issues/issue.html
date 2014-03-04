@@ -42,19 +42,19 @@
                         {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'milestone' }}" class="issue-edit-btn issue-edit-btn-milestone btn-loading" data-field="milestone" title="Edit the milestone"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
                     </div>
                 {% endif %}
+                {% if current_issue.assignee %}
+                    <div class="issue-assignee">
+                        <i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" /> Assigned to <strong>{{ current_issue.assignee.username }}</strong>
+                    </div>
+                {% endif %}
             </section>
             <footer>
-                {% if current_issue.total_comments_count or current_issue.assignee or current_issue_involved|length > 1  %}
+                {% if current_issue.total_comments_count or current_issue_involved|length > 1  %}
                     <div class="issue-footer-infos">
                         {% if current_issue.total_comments_count %}
                             <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
                                 <i class="icon-comments-alt"> </i>{{ current_issue.total_comments_count }}
                             </a>
-                        {% endif %}
-                        {% if current_issue.assignee %}
-                            <span class="issue-footer-info-part issue-assignee" title="Assigned to {{ current_issue.assignee.username }}">
-                                <i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" />
-                            </span>
                         {% endif %}
                         {% if current_issue_involved|length > 1 %}
                             <ul class="unstyled issue-footer-info-part issue-involved">
