@@ -103,6 +103,36 @@ class IssueMilestoneForm(IssueFormMixin):
         return [('', 'No milestone')] + list(data.items())
 
 
+class IssueAssigneeForm(IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['assignee']
+
+    def __init__(self, *args, **kwargs):
+        super(IssueAssigneeForm, self).__init__(*args, **kwargs)
+        collaborators = self.repository.collaborators.all()
+        self.fields['assignee'].queryset = collaborators
+        self.fields['assignee'].widget.choices = self.get_collaborators_choices(collaborators)
+        self.fields['assignee'].widget.attrs.update({
+            'data-collaborators': self.get_collaborators_json(collaborators),
+            'placeholder': 'Choose an assignee',
+        })
+
+    def get_collaborators_json(self, collaborators):
+        data = {u.id: {
+                        'id': u.id,
+                        'avatar_url': u.avatar_url,
+                        'username': u.username,
+                      }
+                for u in collaborators}
+        return json.dumps(data)
+
+        collaborators = sorted(self.repository.collaborators.all(), key=lambda u: u.username.lower())
+
+    def get_collaborators_choices(self, collaborators):
+        collaborators = sorted(collaborators, key=lambda u: u.username.lower())
+        return [('', 'No one assigned')] + [(u.id, u.username) for u in collaborators]
+
+
 class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):
     class Meta:
         fields = ['body', ]

@@ -14,7 +14,8 @@ from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
                          PullRequestComment)
 from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
-                              IssueEditBodyJob, IssueEditMilestoneJob)
+                              IssueEditBodyJob, IssueEditMilestoneJob,
+                              IssueEditAssigneeJob)
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
@@ -29,7 +30,7 @@ from front.repository.views import BaseRepositoryView
 
 from front.utils import make_querystring
 from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
-                    IssueMilestoneForm,
+                    IssueMilestoneForm, IssueAssigneeForm,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
@@ -795,6 +796,19 @@ class IssueEditMilestone(IssueEditFieldMixin):
         Return the value that will be pushed to githubs
         """
         return value.number if value else ''
+
+
+class IssueEditAssignee(IssueEditFieldMixin):
+    field = 'assignee'
+    job_model = IssueEditAssigneeJob
+    url_name = 'issue.edit.assignee'
+    form_class = IssueAssigneeForm
+
+    def get_final_value(self, value):
+        """
+        Return the value that will be pushed to githubs
+        """
+        return value.username if value else ''
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

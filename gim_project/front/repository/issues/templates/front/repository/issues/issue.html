@@ -35,16 +35,21 @@
                 {% if current_issue.milestone or current_issue_edit_level == 'full' %}
                     <div class="issue-milestone{% if not current_issue.milestone %} no-milestone{% endif %} edit-place" data-field="milestone">
                         {% if current_issue.milestone %}
-                        <span class="icon-tasks text-{{ current_issue.milestone.state }}" title="{{ current_issue.milestone.state|capfirst }} milestone{% if current_issue.milestone.state == 'open' and current_issue.milestone.due_on %}, due on {{ current_issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </span> Milestone: <strong>{{ current_issue.milestone.title|truncatechars:30 }}</strong>
+                            <i class="icon-tasks text-{{ current_issue.milestone.state }}" title="{{ current_issue.milestone.state|capfirst }} milestone{% if current_issue.milestone.state == 'open' and current_issue.milestone.due_on %}, due on {{ current_issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </i> Milestone: <strong>{{ current_issue.milestone.title|truncatechars:30 }}</strong>
                         {% else %}
-                        <span class="icon-tasks"> </span> No milestone
+                            <i class="icon-tasks"> </i> No milestone
                         {% endif %}
                         {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'milestone' }}" class="issue-edit-btn issue-edit-btn-milestone btn-loading" data-field="milestone" title="Edit the milestone"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
                     </div>
                 {% endif %}
-                {% if current_issue.assignee %}
-                    <div class="issue-assignee">
-                        <i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" /> Assigned to <strong>{{ current_issue.assignee.username }}</strong>
+                {% if current_issue.assignee or current_issue_edit_level == 'full' %}
+                    <div class="issue-assignee{% if not current_issue.assignee %} no-assignee{% endif %} edit-place" data-field="assignee">
+                        {% if current_issue.assignee %}
+                            <i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" /> Assigned to <strong>{{ current_issue.assignee.username }}</strong>
+                        {% else %}
+                            <i class="icon-hand-right"> </i> No one assigned
+                        {% endif %}
+                        {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'assignee' }}" class="issue-edit-btn issue-edit-btn-assignee btn-loading" data-field="assignee" title="Edit the assignee"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
                     </div>
                 {% endif %}
             </section>

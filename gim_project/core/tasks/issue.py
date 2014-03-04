@@ -283,3 +283,11 @@ class IssueEditMilestoneJob(IssueEditFieldJob):
 
     def get_field_value(self):
         return self.value.hget() or None
+
+
+class IssueEditAssigneeJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-assignee'
+    editable_fields = ['assignee']
+
+    def get_field_value(self):
+        return self.value.hget() or None

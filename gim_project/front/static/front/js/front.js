@@ -2056,8 +2056,39 @@ $().ready(function() {
             } else {
                 callback();
             }
-
         }), // on_issue_edit_milestone_ready
+
+        on_issue_edit_assignee_ready: (function IssueEditor__on_issue_edit_assignee_ready ($link, $placeholder, data) {
+            var callback = function() {
+                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
+                    $select = $form.find('select'),
+                    collaborators_data = $select.data('collaborators');
+                    var format = function(state, include_icon) {
+                        var data = collaborators_data[state.id];
+                        if (data) {
+                            var avatar_url = data.avatar_url || default_avatar;
+                            result = '<img class="avatar-tiny img-circle" src="' + avatar_url + '" /> <strong>' + (data.username.length > 25 ? data.username.substring(0, 20) + '…' : data.username);
+                        } else {
+                            result = 'No one assigned';
+                        }
+                        if (include_icon) {
+                            result = '<i class="icon-hand-right"> </i> ' + result;
+                        }
+                        return result;
+                    };
+                    $select.select2({
+                        formatSelection: function(state) { return format(state, true); },
+                        formatResult:  function(state) { return format(state, false); },
+                        escapeMarkup: function(m) { return m; },
+                        dropdownCssClass: 'select2-assignee'
+                    });
+            }
+            if (typeof $().select2 == 'undefined') {
+                IssueEditor.load_select2(callback);
+            } else {
+                callback();
+            }
+        }), // on_issue_edit_assignee_ready
 
         on_issue_edit_field_cancel_click: (function IssueEditor__on_issue_edit_field_cancel_click (ev) {
             var $btn = $(this),

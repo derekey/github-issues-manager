@@ -78,10 +78,9 @@ $file-list-width: 400px;
         text-align: center;
         font-size: 24px;
     }
-    .issue-milestone {
-        &.no-milestone {
-            color: #ccc;
-        }
+    .issue-milestone .no-milestone,
+    .issue-assigne .no-assignee {
+        color: #ccc;
     }
     .issue-footer-infos {
         overflow: auto;
@@ -220,7 +219,8 @@ $file-list-width: 400px;
             top: 3px;
             right: 7px;
         }
-        &.issue-edit-btn-milestone {
+        &.issue-edit-btn-milestone,
+        &.issue-edit-btn-assignee {
             font-size: 16px;
             position: relative;
             top: 1px;
@@ -296,11 +296,9 @@ $file-list-width: 400px;
         }
     } // .issue-edit-body
 
-    .issue-edit-milestone {
-        .select2-container {
-            vertical-align: middle;
-        }
-
+    .issue-edit-milestone,
+    .issue-edit-assignee {
+        display: block;
         div.edit-field {
             min-width: 200px;
         }
