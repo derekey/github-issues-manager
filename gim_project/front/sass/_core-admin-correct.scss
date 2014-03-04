@@ -172,3 +172,11 @@ $tooltip-match-colors: success 3, important 4, info 1, warning 8, inverse 2;
         vertical-align: middle;
     }
 }
+
+/* fill-up add border and shadow even on select2, remove ! */
+input.select2-input:focus {
+    @include box-shadow(none !important);
+}
+form.fill-up .select2-search-field input:focus {
+    border: none !important;
+}

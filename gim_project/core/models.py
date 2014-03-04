@@ -529,7 +529,7 @@ class GithubObject(models.Model):
             else:
                 key = field_name
 
-            if key in values:
+            if values and key in values:
                 data[key] = values[key]
             else:
                 if '__' in field_name:
@@ -1790,7 +1790,7 @@ class Milestone(WithRepositoryMixin, GithubObjectWithId):
     github_per_page = {'min': 100, 'max': 100}
 
     class Meta:
-        ordering = ('number', )
+        ordering = ('-number', )
 
     @property
     def github_url(self):

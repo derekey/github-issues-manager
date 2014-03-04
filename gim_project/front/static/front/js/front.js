@@ -893,6 +893,9 @@ $().ready(function() {
         }), // get_container_waiting_for_issue
 
         fill_container: (function IssueDetail__fill_container (container, html) {
+            if (typeof $().select2 != 'undefined') {
+                container.$node.find('select.select2-offscreen').select2('destroy');
+            }
             container.$node.html(html);
             container.$scroll_node.scrollTop(1);  // to move the scrollbar (WTF !)
             container.$scroll_node.scrollTop(0);
@@ -1752,14 +1755,20 @@ $().ready(function() {
         disable_form: (function IssueEditor__disable_form ($form) {
             // disabled input will be ignored by serialize, so just set them
             // readonly
-            $form.find(':input').attr('readonly', true);
-            $form.find(':button').attr('disabled', true);
+            $form.find(':input').prop('readonly', true);
+            $form.find(':button').prop('disabled', true);
+            if (typeof $().select2 != 'undefined') {
+                $form.find('select.select2-offscreen').select2('readonly', true);
+            }
             $form.data('disabled', true);
         }), // disable_form
 
         enable_form: (function IssueEditor__enable_form ($form) {
-            $form.find(':input').attr('readonly', false);
-            $form.find(':button').attr('disabled', false);
+            $form.find(':input').prop('readonly', false);
+            $form.find(':button').prop('disabled', false);
+            if (typeof $().select2 != 'undefined') {
+                $form.find('select.select2-offscreen').select2('readonly', false);
+            }
             $form.data('disabled', false);
         }), // enable_form
 
@@ -1985,6 +1994,70 @@ $().ready(function() {
             $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data);
             $form.css('left', left + 'px');
         }), // on_issue_edit_title_ready
+
+        load_select2: (function IssueEditor__load_select2 (callback) {
+            var count_done = 0,
+                on_one_done = function() {
+                    count_done++;
+                    if (count_done == 2) {
+                        callback();
+                    }
+                };
+            $.ajax({
+                url: static_base_url + 'front/css/select.2.css',
+                dataType: 'text',
+                cache: true,
+                success: function(data) {
+                    $('<style>').attr('type', 'text/css').text(data).appendTo('head');
+                    on_one_done();
+                }
+            });
+            $.ajax({
+                url: static_base_url + 'front/js/select.2.js',
+                dataType: 'script',
+                cache: true,
+                success: on_one_done
+            });
+        }), // load_select2
+
+        on_issue_edit_milestone_ready: (function IssueEditor__on_issue_edit_milestone_ready ($link, $placeholder, data) {
+            var callback = function() {
+                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
+                    $select = $form.find('select'),
+                    milestones_data = $select.data('milestones');
+                    var format = function(state, include_title) {
+                        if (state.children) {
+                            return state.text.charAt(0).toUpperCase() + state.text.substring(1) + ' milestones';
+                        }
+                        var data = milestones_data[state.id];
+                        if (data) {
+                            var result = '<i class="icon-tasks text-' + data.state + '"> </i> <strong>' + (data.title.length > 25 ? data.title.substring(0, 20) + '…' : data.title);
+                            if (include_title) {
+                                var title = data.state.charAt(0).toUpperCase() + data.state.substring(1) + ' milestone';
+                                if (data.state == 'open' && data.due_on) {
+                                    title += ', due on ' + data.due_on;
+                                }
+                                result = '<div title="' + title + '">' + result + '</div>';
+                            }
+                            return result;
+                        } else {
+                            return '<i class="icon-tasks"> </i> No milestone';
+                        }
+                    };
+                    $select.select2({
+                        formatSelection: function(state) { return format(state, false); },
+                        formatResult:  function(state) { return format(state, true); },
+                        escapeMarkup: function(m) { return m; },
+                        dropdownCssClass: 'select2-milestone'
+                    });
+            }
+            if (typeof $().select2 == 'undefined') {
+                IssueEditor.load_select2(callback);
+            } else {
+                callback();
+            }
+
+        }), // on_issue_edit_milestone_ready
 
         on_issue_edit_field_cancel_click: (function IssueEditor__on_issue_edit_field_cancel_click (ev) {
             var $btn = $(this),

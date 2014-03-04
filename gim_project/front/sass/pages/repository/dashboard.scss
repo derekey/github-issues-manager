@@ -273,6 +273,9 @@ body > main > .row-header .area-top {
         .ibutton-label-off {
             @include std-bg(lighten($state-closed-color, 10%), $state-closed-color);
         }
+        label {
+            color: white;
+        }
         > label {
             display: none;
         }

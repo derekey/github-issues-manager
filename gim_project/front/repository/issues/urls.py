@@ -3,6 +3,7 @@ from django.conf.urls import patterns, url
 from .views import (IssuesView, IssueView, UserIssuesView,
                     SimpleAjaxIssueView, FilesAjaxIssueView,
                     IssueEditState, IssueEditTitle, IssueEditBody,
+                    IssueEditMilestone,
                     IssueCommentCreate, PullRequestCommentCreate)
 
 urlpatterns = patterns('',
@@ -18,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^(?P<issue_number>\d+)/edit/state/$', IssueEditState.as_view(), name=IssueEditState.url_name),
     url(r'^(?P<issue_number>\d+)/edit/title/$', IssueEditTitle.as_view(), name=IssueEditTitle.url_name),
     url(r'^(?P<issue_number>\d+)/edit/body/$', IssueEditBody.as_view(), name=IssueEditBody.url_name),
+    url(r'^(?P<issue_number>\d+)/edit/milestone/$', IssueEditMilestone.as_view(), name=IssueEditMilestone.url_name),
 
     url(r'^(?P<issue_number>\d+)/comment/add/$', IssueCommentCreate.as_view(), name=IssueCommentCreate.url_name),
     url(r'^(?P<issue_number>\d+)/code-comment/add/$', PullRequestCommentCreate.as_view(), name=PullRequestCommentCreate.url_name),

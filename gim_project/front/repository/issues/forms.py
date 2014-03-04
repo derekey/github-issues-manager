@@ -1,7 +1,12 @@
 from datetime import datetime
 from functools import partial
 
+import json
+
 from django import forms
+from django.conf import settings
+from django.template.defaultfilters import date as convert_date
+from django.utils.html import escape
 
 from core.models import Issue, IssueComment, PullRequestComment
 
@@ -63,6 +68,39 @@ class IssueBodyForm(IssueFormMixin):
         self.instance.body_html = None  # will be reset with data from github
         return super(IssueBodyForm, self).save(commit)
 
+
+class IssueMilestoneForm(IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['milestone']
+
+    def __init__(self, *args, **kwargs):
+        super(IssueMilestoneForm, self).__init__(*args, **kwargs)
+        milestones = self.repository.milestones.all().order_by('state', '-number')
+        self.fields['milestone'].queryset = milestones
+        self.fields['milestone'].widget.choices = self.get_milestones_choices(milestones)
+        self.fields['milestone'].widget.attrs.update({
+            'data-milestones': self.get_milestones_json(milestones),
+            'placeholder': 'Choose a milestone',
+        })
+
+    def get_milestones_json(self, milestones):
+        data = {m.id: {
+                        'id': m.id,
+                        'number': m.number,
+                        'due_on': convert_date(m.due_on, settings.DATE_FORMAT) if m.due_on else None,
+                        'title': escape(m.title),
+                        'state': m.state,
+                      }
+                for m in milestones}
+        return json.dumps(data)
+
+    def get_milestones_choices(self, milestones):
+        data = {}
+        for milestone in milestones:
+            data.setdefault(milestone.state, []).append(
+                (milestone.id, milestone.title)
+            )
+        return [('', 'No milestone')] + list(data.items())
 
 
 class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):

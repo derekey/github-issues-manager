@@ -14,7 +14,7 @@ from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
                          PullRequestComment)
 from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
-                              IssueEditBodyJob)
+                              IssueEditBodyJob, IssueEditMilestoneJob)
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
@@ -29,6 +29,7 @@ from front.repository.views import BaseRepositoryView
 
 from front.utils import make_querystring
 from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
+                    IssueMilestoneForm,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
@@ -676,7 +677,7 @@ class IssueEditFieldMixin(BaseIssueEditView, UpdateView):
         github side
         """
         response = super(IssueEditFieldMixin, self).form_valid(form)
-        value = form.cleaned_data[self.field]
+        value = self.get_final_value(form.cleaned_data[self.field])
 
         self.job_model.add_job(self.object.pk,
                           gh=self.request.user.get_connection(),
@@ -685,6 +686,12 @@ class IssueEditFieldMixin(BaseIssueEditView, UpdateView):
         messages.success(self.request, self.get_success_user_message(self.object))
 
         return response
+
+    def get_final_value(self, value):
+        """
+        Return the value that will be pushed to githubs
+        """
+        return value
 
     def form_invalid(self, form):
         return self.render_form_errors_as_messages(form, show_fields=False)
@@ -775,6 +782,19 @@ class IssueEditBody(IssueEditFieldMixin):
     url_name = 'issue.edit.body'
     form_class = IssueBodyForm
     template_name = 'front/one_field_form_real_buttons.html'
+
+
+class IssueEditMilestone(IssueEditFieldMixin):
+    field = 'milestone'
+    job_model = IssueEditMilestoneJob
+    url_name = 'issue.edit.milestone'
+    form_class = IssueMilestoneForm
+
+    def get_final_value(self, value):
+        """
+        Return the value that will be pushed to githubs
+        """
+        return value.number if value else ''
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

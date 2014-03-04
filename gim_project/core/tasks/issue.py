@@ -234,10 +234,13 @@ class IssueEditFieldJob(BaseIssueEditJob):
 
     value = fields.InstanceHashField()
 
+    def get_field_value(self):
+        return self.value.hget()
+
     @property
     def values(self):
         return {
-            self.editable_fields[0]: self.value.hget()
+            self.editable_fields[0]: self.get_field_value()
         }
 
     def get_success_user_message(self, issue):
@@ -272,3 +275,11 @@ class IssueEditTitleJob(IssueEditFieldJob):
 class IssueEditBodyJob(IssueEditFieldJob):
     queue_name = 'edit-issue-body'
     editable_fields = ['body']
+
+
+class IssueEditMilestoneJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-milestone'
+    editable_fields = ['milestone']
+
+    def get_field_value(self):
+        return self.value.hget() or None
