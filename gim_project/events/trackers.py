@@ -1,7 +1,7 @@
 # inspired by http://justcramer.com/2010/12/06/tracking-changes-to-fields-in-django/
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_init, post_save
+from django.db.models.signals import post_init, post_save, m2m_changed
 
 from core.models import GithubUser,  Milestone, Issue, Label
 
@@ -32,7 +32,7 @@ class ChangeTracker(object):
     @classmethod
     def create_event(cls, instance, **kwargs):
         event = None
-        if kwargs['created']:
+        if kwargs.get('created'):
             event = cls.add_created_event(instance)
         else:
             changed_fields = instance.changed_fields()
@@ -78,10 +78,95 @@ class ChangeTracker(object):
             if not is_m2m:
                 continue
 
-            @property
-            def get_m2m_ids(self):
-                return list(getattr(self, m2m_field).values_list('id', flat=True))
-            setattr(cls.model, field, get_m2m_ids)
+            # use a function to avoid var pbms in loops with closures
+            def _prepare_m2m_field(cls, m2m_field, field):
+
+                @property
+                def get_m2m_ids(self):
+                    return list(getattr(self, m2m_field).values_list('id', flat=True))
+                setattr(cls.model, field, get_m2m_ids)
+
+                # we need to check for m2m updates
+                through = getattr(cls.model, m2m_field).through
+
+                def _instance_m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
+                    # if reverse: instance is related object, pk_set are from cls.model
+                    # if not: instance is from cls.model, pk_set are related objects
+
+                    # prepare...
+                    self_name = cls.model._meta.module_name
+                    if action in ('pre_clear', 'post_clear'):
+                        if not hasattr(instance, '_m2m_dirty_fields'):
+                            instance._m2m_dirty_fields = {}
+
+                    # in pre_clear mode, we node to compute ourself the "pk_set" which is none, to know
+                    # which values to remove in post_clear
+                    if action == 'pre_clear':
+
+                        # reverse mode, the pk_set is from "cls.model" linked to the instance
+                        if reverse:
+                            pk_set = set(cls.model.objects.filter(**{m2m_field: instance}).values_list('pk', flat=True))
+                            instance._m2m_dirty_fields[self_name] = pk_set
+
+                        # direct mode, the pk_set are related objects accessible via field
+                        else:
+                            pk_set = set(getattr(instance, field))  # get_m2m_ids directly gives us pks
+                            instance._m2m_dirty_fields[field] = pk_set
+
+                        return
+
+                    to_add, to_remove = set(), set()
+
+                    # in post_add/remove mode, we know which one to add/remove
+                    if action in ('post_add', 'post_remove'):
+                        if not pk_set:
+                            return
+
+                        the_set = to_add if action == 'post_add' else to_remove
+
+                        # in reverse mode, the instance is to obj to add/remove,
+                        # and the updated objects are cls.model from pk_set
+                        if reverse:
+                            objs = cls.model.objects.filter(pk__in=pk_set)
+                            the_set.add(instance.id)
+
+                        # in direct mode, the instance is the cls.model to update,
+                        # and the objects to add/remove are taken from pk_set
+                        else:
+                            objs = [instance]
+                            the_set.update(pk_set)
+
+                    # in post_clear mode, we need to retrieve pk_set saved in pre_clear
+                    # then we work like for pre_remove
+                    elif action == 'post_clear':
+                        if reverse:
+                            pk_set = instance._m2m_dirty_fields.pop(self_name, set())
+                            objs = cls.model.objects.filter(pk__in=pk_set)
+                            to_remove.add(instance.id)
+                        else:
+                            pk_set = instance._m2m_dirty_fields.pop(field, set())
+                            objs = [instance]
+                            to_remove.update(pk_set)
+
+                    else:
+                        # ignore other modes than [pre|post]_clear and post_[add|remove]
+                        return
+
+                    # so, trigger update event for all objects
+                    for obj in objs:
+                        # initiate saving dirty_fields, but we now have the definitive
+                        # values here
+                        cls._instance_post_init(obj)
+                        # so we update the dirty_field entry by adding the ones to remove, and remove the ones to add
+                        # so the tracker, by comparing from DB, will not the difference
+                        current = set(obj._dirty_fields.get(field, []))
+                        obj._dirty_fields[field] = list(current.union(to_remove) - to_add)
+                        # now trigger the post_save to view the difference and create events
+                        cls._instance_post_save(obj)
+
+                m2m_changed.connect(_instance_m2m_changed, sender=through, weak=False)
+
+            _prepare_m2m_field(cls, m2m_field, field)
 
     @classmethod
     def connect(cls):

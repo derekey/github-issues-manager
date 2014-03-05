@@ -11,6 +11,8 @@ from core.utils import contribute_to_model
 
 from .renderers import IssueRenderer
 
+import django_m2m_descriptor_hack  # replace clear+add by remove+add
+
 
 class Event(models.Model):
     repository = models.ForeignKey(Repository)
@@ -105,6 +107,9 @@ class EventPart(models.Model):
     field = models.CharField(max_length=50, db_index=True)
     old_value = JSONField(blank=True, null=True)
     new_value = JSONField(blank=True, null=True)
+
+    class Meta:
+        ordering = ('id', )
 
     def __unicode__(self):
         return u'%s: %s' % (self.event, self.field)
