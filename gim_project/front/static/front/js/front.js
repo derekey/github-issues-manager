@@ -946,7 +946,9 @@ $().ready(function() {
                 $node = $link.closest('.issue-container');
             IssueDetail.scroll_in_files_list($node, $target);
             IssueDetail.set_active_file($node, $link.closest('tr').data('pos'), true);
-            $target.find('.box-header a.path').focus();
+            if (!ev.no_file_focus) {
+                $target.find('.box-header a.path').focus();
+            }
             return false;
         }), // on_files_list_click
 
@@ -1023,7 +1025,7 @@ $().ready(function() {
             var $files_list = $node.find('.pr-files-list'),
                 $first_link = $files_list.find('tr:not(.hidden) a').first();
             if (($first_link).length) {
-                $first_link.click();
+                $first_link.trigger({type: 'click', no_file_focus: true});
             }
         }), // on_files_filter_done
 
