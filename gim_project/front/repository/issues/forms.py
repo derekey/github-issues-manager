@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import partial
 from collections import OrderedDict
 
@@ -23,6 +23,16 @@ def validate_filled_string(value, name='comment'):
 class IssueFormMixin(LinkedToRepositoryFormMixin):
     class Meta:
         model = Issue
+
+    def save(self, commit=True):
+        """
+        Update the updated_at to create a new event at the correct time, but
+        slightly in the past to be sure to retrieve correct data from github
+        """
+        now = datetime.utcnow() - timedelta(seconds=10)
+        if not self.instance.updated_at or now > self.instance.updated_at:
+            self.instance.updated_at = now
+        return super(IssueFormMixin, self).save(commit)
 
 
 class IssueStateForm(LinkedToUserFormMixin, IssueFormMixin):
