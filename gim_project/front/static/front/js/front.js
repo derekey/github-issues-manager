@@ -1998,36 +1998,40 @@ $().ready(function() {
         }), // on_issue_edit_title_ready
 
         load_select2: (function IssueEditor__load_select2 (callback) {
-            var count_done = 0,
-                on_one_done = function() {
-                    count_done++;
-                    if (count_done == 2) {
-                        callback();
+            if (typeof $().select2 == 'undefined') {
+                var count_done = 0,
+                    on_one_done = function() {
+                        count_done++;
+                        if (count_done == 2) {
+                            callback();
+                        }
+                    };
+                $.ajax({
+                    url: static_base_url + 'front/css/select.2.css',
+                    dataType: 'text',
+                    cache: true,
+                    success: function(data) {
+                        $('<style>').attr('type', 'text/css').text(data).appendTo('head');
+                        on_one_done();
                     }
-                };
-            $.ajax({
-                url: static_base_url + 'front/css/select.2.css',
-                dataType: 'text',
-                cache: true,
-                success: function(data) {
-                    $('<style>').attr('type', 'text/css').text(data).appendTo('head');
-                    on_one_done();
-                }
-            });
-            $.ajax({
-                url: static_base_url + 'front/js/select.2.js',
-                dataType: 'script',
-                cache: true,
-                success: on_one_done
-            });
+                });
+                $.ajax({
+                    url: static_base_url + 'front/js/select.2.js',
+                    dataType: 'script',
+                    cache: true,
+                    success: on_one_done
+                });
+            } else {
+                callback();
+            }
         }), // load_select2
 
         on_issue_edit_milestone_ready: (function IssueEditor__on_issue_edit_milestone_ready ($link, $placeholder, data) {
             var callback = function() {
                 var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
                     $select = $form.find('select'),
-                    milestones_data = $select.data('milestones');
-                    var format = function(state, include_title) {
+                    milestones_data = $select.data('milestones'),
+                    format = function(state, include_title) {
                         if (state.children) {
                             return state.text.charAt(0).toUpperCase() + state.text.substring(1) + ' milestones';
                         }
@@ -2046,26 +2050,23 @@ $().ready(function() {
                             return '<i class="icon-tasks"> </i> No milestone';
                         }
                     };
-                    $select.select2({
-                        formatSelection: function(state) { return format(state, false); },
-                        formatResult:  function(state) { return format(state, true); },
-                        escapeMarkup: function(m) { return m; },
-                        dropdownCssClass: 'select2-milestone'
-                    });
+                $select.select2({
+                    formatSelection: function(state) { return format(state, false); },
+                    formatResult:  function(state) { return format(state, true); },
+                    escapeMarkup: function(m) { return m; },
+                    dropdownCssClass: 'select2-milestone'
+                });
+                $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            if (typeof $().select2 == 'undefined') {
-                IssueEditor.load_select2(callback);
-            } else {
-                callback();
-            }
+            IssueEditor.load_select2(callback);
         }), // on_issue_edit_milestone_ready
 
         on_issue_edit_assignee_ready: (function IssueEditor__on_issue_edit_assignee_ready ($link, $placeholder, data) {
             var callback = function() {
                 var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
                     $select = $form.find('select'),
-                    collaborators_data = $select.data('collaborators');
-                    var format = function(state, include_icon) {
+                    collaborators_data = $select.data('collaborators'),
+                    format = function(state, include_icon) {
                         var data = collaborators_data[state.id];
                         if (data) {
                             var avatar_url = data.avatar_url || default_avatar;
@@ -2078,26 +2079,23 @@ $().ready(function() {
                         }
                         return result;
                     };
-                    $select.select2({
-                        formatSelection: function(state) { return format(state, true); },
-                        formatResult:  function(state) { return format(state, false); },
-                        escapeMarkup: function(m) { return m; },
-                        dropdownCssClass: 'select2-assignee'
-                    });
+                $select.select2({
+                    formatSelection: function(state) { return format(state, true); },
+                    formatResult:  function(state) { return format(state, false); },
+                    escapeMarkup: function(m) { return m; },
+                    dropdownCssClass: 'select2-assignee'
+                });
+                $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            if (typeof $().select2 == 'undefined') {
-                IssueEditor.load_select2(callback);
-            } else {
-                callback();
-            }
+            IssueEditor.load_select2(callback);
         }), // on_issue_edit_assignee_ready
 
         on_issue_edit_labels_ready: (function IssueEditor__on_issue_edit_labels_ready ($link, $placeholder, data) {
             var callback = function() {
                 var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
                     $select = $form.find('select'),
-                    labels_data = $select.data('labels');
-                    var format = function(state, include_type) {
+                    labels_data = $select.data('labels'),
+                    format = function(state, include_type) {
                         if (state.children) {
                             return state.text;
                         }
@@ -2108,21 +2106,18 @@ $().ready(function() {
                         }
                         return '<span style="border-bottom-color: #' + data.color + '">' + result + '</span>';
                     };
-                    $select.select2({
-                        formatSelection: function(state) { return format(state, true); },
-                        formatResult:  function(state) { return format(state, false); },
-                        escapeMarkup: function(m) { return m; },
-                        dropdownCssClass: 'select2-labels',
-                        closeOnSelect: false
-                    }).on('select2-focus', function() {
-                        $select.select2('open');
-                    });
+                $select.select2({
+                    formatSelection: function(state) { return format(state, true); },
+                    formatResult:  function(state) { return format(state, false); },
+                    escapeMarkup: function(m) { return m; },
+                    dropdownCssClass: 'select2-labels',
+                    closeOnSelect: false
+                }).on('select2-focus', function() {
+                    $select.select2('open');
+                });
+                $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            if (typeof $().select2 == 'undefined') {
-                IssueEditor.load_select2(callback);
-            } else {
-                callback();
-            }
+            IssueEditor.load_select2(callback);
         }), // on_issue_edit_labels_ready
 
         on_issue_edit_field_cancel_click: (function IssueEditor__on_issue_edit_field_cancel_click (ev) {
@@ -2131,9 +2126,13 @@ $().ready(function() {
             if ($form.data('disabled')) { return false; }
             IssueEditor.disable_form($form);
             $btn.addClass('loading');
-            var issue_ident = IssueDetail.get_issue_ident($btn.closest('.issue-container'));
-                is_popup = IssueDetail.is_modal($form.closest('.issue-container'));
+            var $container = $form.closest('.issue-container');
+            var issue_ident = IssueDetail.get_issue_ident($container);
+                is_popup = IssueDetail.is_modal($container);
             IssuesListIssue.open_issue(issue_ident, is_popup, true, true);
+            if (is_popup) {
+                $container.closest('.modal').attr('tabindex', '-1');
+            }
             return false;
         }), // on_issue_edit_field_cancel_click
 
