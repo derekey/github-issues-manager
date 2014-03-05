@@ -3,8 +3,13 @@ __all__ = [
     'UpdateIssueCacheTemplate',
     'IssueEditStateJob',
     'IssueEditTitleJob',
+    'IssueEditBodyJob',
+    'IssueEditMilestoneJob',
+    'IssueEditAssigneeJob',
+    'IssueEditLabelsJob',
 ]
 
+import json
 import time
 
 from async_messages import messages
@@ -291,3 +296,12 @@ class IssueEditAssigneeJob(IssueEditFieldJob):
 
     def get_field_value(self):
         return self.value.hget() or None
+
+
+class IssueEditLabelsJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-labels'
+    editable_fields = ['labels']
+
+    def get_field_value(self):
+        labels = self.value.hget() or '[]'
+        return json.loads(labels)

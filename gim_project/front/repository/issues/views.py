@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from math import ceil
 from time import sleep
 
@@ -15,7 +16,7 @@ from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestComment)
 from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
                               IssueEditBodyJob, IssueEditMilestoneJob,
-                              IssueEditAssigneeJob)
+                              IssueEditAssigneeJob, IssueEditLabelsJob)
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
@@ -30,7 +31,7 @@ from front.repository.views import BaseRepositoryView
 
 from front.utils import make_querystring
 from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
-                    IssueMilestoneForm, IssueAssigneeForm,
+                    IssueMilestoneForm, IssueAssigneeForm, IssueLabelsForm,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
@@ -809,6 +810,27 @@ class IssueEditAssignee(IssueEditFieldMixin):
         Return the value that will be pushed to githubs
         """
         return value.username if value else ''
+
+
+class IssueEditLabels(IssueEditFieldMixin):
+    field = 'labels'
+    job_model = IssueEditLabelsJob
+    url_name = 'issue.edit.labels'
+    form_class = IssueLabelsForm
+
+    def get_final_value(self, value):
+        """
+        Return the value that will be pushed to githubs. We encode the list of
+        labels as json to be stored in the job single field
+        """
+        labels = [l.name for l in value] if value else []
+        return json.dumps(labels)
+
+    def get_not_editable_user_message(self, issue, who):
+        return u"""The <strong>%s</strong> for the %s <strong>#%d</strong> are
+                currently being updated (asked by <strong>%s</strong>), please
+                wait a few seconds and retry""" % (
+                                    self.field, issue.type, issue.number, who)
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

@@ -2090,6 +2090,39 @@ $().ready(function() {
             }
         }), // on_issue_edit_assignee_ready
 
+        on_issue_edit_labels_ready: (function IssueEditor__on_issue_edit_labels_ready ($link, $placeholder, data) {
+            var callback = function() {
+                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
+                    $select = $form.find('select'),
+                    labels_data = $select.data('labels');
+                    var format = function(state, include_type) {
+                        if (state.children) {
+                            return state.text;
+                        }
+                        var data = labels_data[state.id];
+                        var result = data.typed_name;
+                        if (include_type && data.type) {
+                            result = '<strong>' + data.type + ':</strong> ' + result;
+                        }
+                        return '<span style="border-bottom-color: #' + data.color + '">' + result + '</span>';
+                    };
+                    $select.select2({
+                        formatSelection: function(state) { return format(state, true); },
+                        formatResult:  function(state) { return format(state, false); },
+                        escapeMarkup: function(m) { return m; },
+                        dropdownCssClass: 'select2-labels',
+                        closeOnSelect: false
+                    }).on('select2-focus', function() {
+                        $select.select2('open');
+                    });
+            }
+            if (typeof $().select2 == 'undefined') {
+                IssueEditor.load_select2(callback);
+            } else {
+                callback();
+            }
+        }), // on_issue_edit_labels_ready
+
         on_issue_edit_field_cancel_click: (function IssueEditor__on_issue_edit_field_cancel_click (ev) {
             var $btn = $(this),
                 $form = $btn.closest('form');

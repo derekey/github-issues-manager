@@ -20,17 +20,21 @@
     }
 }
 
+%issue-label {
+    display: inline-block;
+    white-space: nowrap;
+    margin: 1px 0;
+    padding: 0 3px;
+    color: inherit;
+    border-bottom: solid #ccc 3px;
+}
+
 %issue-labels {
     margin: 0;
     padding: 0;
     padding-right: 5px;
     & > li, & > a {
-        display: inline-block;
-        white-space: nowrap;
-        margin: 1px 0;
-        padding: 0 3px;
-        color: inherit;
-        border-bottom: solid #ccc 3px;
+        @extend %issue-label;
     }
     & > li > a {
         color: inherit;

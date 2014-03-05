@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import partial
+from collections import OrderedDict
 
 import json
 
@@ -75,7 +76,7 @@ class IssueMilestoneForm(IssueFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(IssueMilestoneForm, self).__init__(*args, **kwargs)
-        milestones = self.repository.milestones.all().order_by('state', '-number')
+        milestones = self.repository.milestones.all().order_by('-state', '-number')
         self.fields['milestone'].queryset = milestones
         self.fields['milestone'].widget.choices = self.get_milestones_choices(milestones)
         self.fields['milestone'].widget.attrs.update({
@@ -95,7 +96,7 @@ class IssueMilestoneForm(IssueFormMixin):
         return json.dumps(data)
 
     def get_milestones_choices(self, milestones):
-        data = {}
+        data = OrderedDict()
         for milestone in milestones:
             data.setdefault(milestone.state, []).append(
                 (milestone.id, milestone.title)
@@ -131,6 +132,47 @@ class IssueAssigneeForm(IssueFormMixin):
     def get_collaborators_choices(self, collaborators):
         collaborators = sorted(collaborators, key=lambda u: u.username.lower())
         return [('', 'No one assigned')] + [(u.id, u.username) for u in collaborators]
+
+
+class IssueLabelsForm(IssueFormMixin):
+    simple_label_name = 'Labels'
+
+    class Meta(IssueFormMixin.Meta):
+        fields = ['labels']
+
+    def __init__(self, *args, **kwargs):
+        super(IssueLabelsForm, self).__init__(*args, **kwargs)
+        labels = self.repository.labels.all().select_related('label_type')
+        self.fields['labels'].required = False
+        self.fields['labels'].queryset = labels
+        self.fields['labels'].widget.choices = self.get_labels_choices(labels)
+        self.fields['labels'].widget.attrs.update({
+            'data-labels': self.get_labels_json(labels),
+            'placeholder': 'Choose some labels',
+        })
+
+    def get_labels_json(self, labels):
+        data = {l.id: {
+                        'id': l.id,
+                        'name': l.name,
+                        'color': l.color,
+                        'type': l.label_type.name if l.label_type_id else None,
+                        'typed_name': l.typed_name,
+                      }
+                for l in labels}
+        return json.dumps(data)
+
+    def get_labels_choices(self, labels):
+        data = OrderedDict()
+        for label in labels:
+            type_name = label.label_type.name if label.label_type_id else self.simple_label_name
+            data.setdefault(type_name, []).append(
+                (label.id, label.typed_name)
+            )
+        # move Others at the end
+        if self.simple_label_name in data:
+            data[self.simple_label_name] = data.pop(self.simple_label_name)
+        return [(k, sorted(v, key=lambda x: x[1].lower())) for k, v in data.items()]
 
 
 class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):

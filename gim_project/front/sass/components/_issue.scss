@@ -64,6 +64,12 @@ $file-list-width: 400px;
         footer {
             overflow: auto;
             margin-right: -5px;
+            display: table;
+            width: 100%;
+            > * {
+                display: table-cell;
+                vertical-align: top;
+            }
         }
         @extend %issue-state-marker;
         padding-bottom: 5px;
@@ -82,15 +88,18 @@ $file-list-width: 400px;
     .issue-assigne .no-assignee {
         color: #ccc;
     }
+
     .issue-footer-infos {
-        overflow: auto;
-        border: 1px solid #ccc;
-        @include box-shadow(0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eee);
-        float: right;
-        @include border-radius(4px);
-        margin-right: 1px;
-        margin-bottom: 1px;
-        margin-left: 10px;
+        > div {
+            overflow: auto;
+            border: 1px solid #ccc;
+            @include box-shadow(0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eee);
+            float: right;
+            @include border-radius(4px);
+            margin-right: 1px;
+            margin-bottom: 1px;
+            margin-left: 10px;
+        }
     }
     .issue-footer-info-part {
         margin: 0;
@@ -116,11 +125,15 @@ $file-list-width: 400px;
     .issue-comments-count {
         top: 0;
         color: inherit;
+        white-space: nowrap;
     }
 
     .issue-labels {
-        @extend %issue-labels;
-        margin-top: 9px;
+        padding-top: 7px;
+        > ul {
+            @extend %issue-labels;
+            display: inline;
+        }
     }
 
     .issue-involved {
@@ -220,7 +233,8 @@ $file-list-width: 400px;
             right: 7px;
         }
         &.issue-edit-btn-milestone,
-        &.issue-edit-btn-assignee {
+        &.issue-edit-btn-assignee,
+        &.issue-edit-btn-labels {
             font-size: 16px;
             position: relative;
             top: 1px;
@@ -297,7 +311,8 @@ $file-list-width: 400px;
     } // .issue-edit-body
 
     .issue-edit-milestone,
-    .issue-edit-assignee {
+    .issue-edit-assignee,
+    .issue-edit-labels {
         display: block;
         div.edit-field {
             min-width: 200px;
@@ -311,12 +326,56 @@ $file-list-width: 400px;
             }
         }
     }
+    .issue-edit-labels {
+        float: left;
+        .select2-container-multi .select2-choices {
+            padding: 0 4px 3px 0;
+            .select2-search-field {
+                padding: 4px 0px 0px 4px;
+                margin: 0;
+                input {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            .select2-search-choice {
+                margin: 4px 0 0 4px;
+                @include border-radius(0);
+                background: transparent;
+                border: none;
+                padding: 0 0 0 18px;
+                span {
+                    @extend %issue-label;
+                    margin-left: -18px;
+                    padding-left: 18px;
+                    padding-right: 3px;
+                    line-height: 20px;
+                }
+            }
+            .select2-search-choice-close {
+                top: 5px;
+            }
+        }
+        div.edit-field,
+        div.edit-buttons {
+            display: table-cell;
+            vertical-align: top;
+        }
+        div.edit-buttons {
+            white-space: nowrap;
+        }
+    }
 
 } // .issue-container
 
 .select2-milestone {
     .select2-result-sub li > div > div {
         @include ellipsis();
+    }
+}
+.select2-labels {
+    .select2-result-label span {
+        @extend %issue-label;
     }
 }
 

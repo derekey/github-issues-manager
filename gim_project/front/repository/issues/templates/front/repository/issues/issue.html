@@ -54,35 +54,47 @@
                 {% endif %}
             </section>
             <footer>
+                {% with labels=current_issue.labels.ready %}
+                    {% if labels|length or current_issue_edit_level == 'full' %}
+                        <div class="issue-labels edit-place" data-field="labels">
+                            <ul class="unstyled">
+                                {% if labels|length %}
+                                    {% for label in current_issue.labels.ready %}
+                                        {% if label.label_type_id %}
+                                            <li style="border-bottom-color: #{{ label.color }}"><strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for label in current_issue.labels.ready %}
+                                        {% if not label.label_type_id %}
+                                            <li style="border-bottom-color: #{{ label.color }}">{{ label.name }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <li style="border: none">No labels</li>
+                                {% endif %}
+                            </ul>
+                            {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'labels' }}" class="issue-edit-btn issue-edit-btn-labels btn-loading" data-field="labels" title="Edit the labels"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
                 {% if current_issue.total_comments_count or current_issue_involved|length > 1  %}
                     <div class="issue-footer-infos">
-                        {% if current_issue.total_comments_count %}
-                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
-                                <i class="icon-comments-alt"> </i>{{ current_issue.total_comments_count }}
-                            </a>
-                        {% endif %}
-                        {% if current_issue_involved|length > 1 %}
-                            <ul class="unstyled issue-footer-info-part issue-involved">
-                                {% for involved_user in current_issue_involved %}
-                                    <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
+                        <div>
+                            {% if current_issue.total_comments_count %}
+                                <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
+                                    <i class="icon-comments-alt"> </i>{{ current_issue.total_comments_count }}
+                                </a>
+                            {% endif %}
+                            {% if current_issue_involved|length > 1 %}
+                                <ul class="unstyled issue-footer-info-part issue-involved">
+                                    {% for involved_user in current_issue_involved %}
+                                        <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endif %}
-
-                <ul class="unstyled issue-labels">
-                    {% for label in current_issue.labels.ready %}
-                        {% if label.label_type_id %}
-                            <li style="border-bottom-color: #{{ label.color }}"><strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}</li>
-                        {% endif %}
-                    {% endfor %}
-                    {% for label in current_issue.labels.ready %}
-                        {% if not label.label_type_id %}
-                            <li style="border-bottom-color: #{{ label.color }}">{{ label.name }}</li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
             </footer>
         </div>
         {% if current_issue.is_pull_request or current_issue_edit_level %}
