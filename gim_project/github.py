@@ -129,7 +129,7 @@ class GitHub(object):
             kw['state'] = state
         return 'https://github.com/login/oauth/authorize?%s' % _encode_params(kw)
 
-    def get_access_token(self, code, state=None):
+    def get_access_token(self, code, state=None, timeout=None):
         '''
         In callback url: http://host/callback?code=123&state=xyz
 
@@ -145,7 +145,7 @@ class GitHub(object):
         request.get_method = _METHOD_MAP['POST']
         request.add_header('Accept', 'application/json')
         try:
-            response = opener.open(request, timeout=TIMEOUT)
+            response = opener.open(request, timeout=timeout or TIMEOUT)
             r = _parse_json(response.read())
             if 'error' in r:
                 raise ApiAuthError(str(r.error))
@@ -156,7 +156,7 @@ class GitHub(object):
     def __getattr__(self, attr):
         return _Callable(self, '/%s' % attr)
 
-    def _http(self, method, path, request_headers=None, response_headers=None, json_post=True, kw={}):
+    def _http(self, method, path, request_headers=None, response_headers=None, json_post=True, timeout=None, kw={}):
         data = None
         if method == 'GET' and kw:
             path = '%s?%s' % (path, _encode_params(kw))
@@ -178,7 +178,7 @@ class GitHub(object):
         if method in ('POST', 'PUT', 'PATCH'):
             request.add_header('Content-Type', 'application/x-www-form-urlencoded')
         try:
-            response = opener.open(request, timeout=TIMEOUT)
+            response = opener.open(request, timeout=timeout or TIMEOUT)
             is_json = self._process_resp(response.headers)
             if isinstance(response_headers, dict):
                 response_headers.update(response.headers.dict.copy())
@@ -241,8 +241,8 @@ class _Executable(object):
         self._method = method
         self._path = path
 
-    def __call__(self, request_headers=None, response_headers=None, json_post=True, **kw):
-        return self._gh._http(self._method, self._path, request_headers, response_headers, json_post, kw)
+    def __call__(self, request_headers=None, response_headers=None, json_post=True, timeout=None, **kw):
+        return self._gh._http(self._method, self._path, request_headers, response_headers, json_post, timeout, kw)
 
     def __str__(self):
         return '_Executable (%s %s)' % (self._method, self._path)

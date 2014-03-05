@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from django import template
 
-from ..utils import make_querystring
+from front.utils import make_querystring
 
 register = template.Library()
 

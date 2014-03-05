@@ -2,8 +2,14 @@ __all__ = [
     'FetchIssueByNumber',
     'UpdateIssueCacheTemplate',
     'IssueEditStateJob',
+    'IssueEditTitleJob',
+    'IssueEditBodyJob',
+    'IssueEditMilestoneJob',
+    'IssueEditAssigneeJob',
+    'IssueEditLabelsJob',
 ]
 
+import json
 import time
 
 from async_messages import messages
@@ -149,17 +155,26 @@ class UpdateIssueCacheTemplate(IssueJob):
             return ' [%s]' % msg
 
 
-class IssueEditStateJob(IssueJob):
-
-    queue_name = 'edit-issue-state'
+class BaseIssueEditJob(IssueJob):
+    abstract = True
 
     permission = 'self'
+    editable_fields = None
+    values = None
+
+    @property
+    def action_verb(self):
+        return self.edit_mode
+
+    @property
+    def action_done(self):
+        return self.edit_mode + 'd'
 
     def run(self, queue):
         """
-        Get the issue and update its state
+        Get the issue and update it
         """
-        super(IssueEditStateJob, self).run(queue)
+        super(BaseIssueEditJob, self).run(queue)
 
         gh = self.gh
         if not gh:
@@ -170,24 +185,25 @@ class IssueEditStateJob(IssueJob):
         except Issue.DoesNotExist:
             # the issue doesn't exist anymore, stop here
             self.status.hset(STATUSES.CANCELED)
-            messages.error(self.gh_user, 'The issue you wanted to open/close seems to have been deleted!')
+            messages.error(self.gh_user, 'The issue you wanted to %s seems to have been deleted' % self.action_verb)
             return False
 
         try:
-            issue.dist_edit(mode='update', gh=gh, fields=['state'])
+            issue.dist_edit(mode=self.edit_mode, gh=gh, fields=self.editable_fields, values=self.values)
         except ApiError, e:
             message = None
-            issue_state_verb = 'close' if issue.state == 'closed' else 'reopen'
 
             if e.code == 422:
                 message = u'Github refused to %s the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                    issue_state_verb, issue.type, issue.number, issue.repository.full_name)
+                    self.action_verb, issue.type, issue.number, issue.repository.full_name)
+                self.status.hset(STATUSES.CANCELED)
 
             elif e.code in (401, 403):
                 tries = self.tries.hget()
                 if tries and int(tries) >= 5:
                     message = u'You seem to not have the right to %s the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                        issue_state_verb, issue.type, issue.number, issue.repository.full_name)
+                        self.action_verb, issue.type, issue.number, issue.repository.full_name)
+                    self.status.hset(STATUSES.CANCELED)
 
             if message:
                 messages.error(self.gh_user, message)
@@ -201,14 +217,91 @@ class IssueEditStateJob(IssueJob):
             else:
                 raise
 
-        message = u'The %s <strong>#%d</strong> on <strong>%s</strong> was correctly %s' % (
+        messages.success(self.gh_user, self.get_success_user_message(issue))
+
+        # ask for frech data
+        FetchIssueByNumber.add_job('%s#%s' % (issue.repository_id, issue.number), gh=gh)
+
+        return None
+
+    def get_success_user_message(self, issue):
+        return u'The %s <strong>#%d</strong> on <strong>%s</strong> was correctly %s' % (
                     issue.type,
                     issue.number,
                     issue.repository.full_name,
-                    'closed' if issue.state == 'closed' else 'reopened')
-        messages.success(self.gh_user, message)
+                    self.action_done
+                )
 
-        # don't use "issue" cache
-        self.object.fetch_all(gh)
 
-        return None
+class IssueEditFieldJob(BaseIssueEditJob):
+    abstract = True
+    edit_mode = 'update'
+
+    value = fields.InstanceHashField()
+
+    def get_field_value(self):
+        return self.value.hget()
+
+    @property
+    def values(self):
+        return {
+            self.editable_fields[0]: self.get_field_value()
+        }
+
+    def get_success_user_message(self, issue):
+        message = super(IssueEditFieldJob, self).get_success_user_message(issue)
+        return message + u' (updated: <strong>%s</strong>)' % self.editable_fields[0]
+
+
+class IssueEditStateJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-state'
+    editable_fields = ['state']
+
+    @property
+    def action_done(self):
+        value = self.value.hget()
+        return 'reopened' if value == 'open' else 'closed'
+
+    @property
+    def action_verb(self):
+        value = self.value.hget()
+        return 'reopen' if value == 'open' else 'close'
+
+    def get_success_user_message(self, issue):
+        # call the one from BaseIssueEditJob
+        super(IssueEditFieldJob, self).get_success_user_message(issue)
+
+
+class IssueEditTitleJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-title'
+    editable_fields = ['title']
+
+
+class IssueEditBodyJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-body'
+    editable_fields = ['body']
+
+
+class IssueEditMilestoneJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-milestone'
+    editable_fields = ['milestone']
+
+    def get_field_value(self):
+        return self.value.hget() or None
+
+
+class IssueEditAssigneeJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-assignee'
+    editable_fields = ['assignee']
+
+    def get_field_value(self):
+        return self.value.hget() or None
+
+
+class IssueEditLabelsJob(IssueEditFieldJob):
+    queue_name = 'edit-issue-labels'
+    editable_fields = ['labels']
+
+    def get_field_value(self):
+        labels = self.value.hget() or '[]'
+        return json.loads(labels)

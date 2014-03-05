@@ -1,4 +1,4 @@
-from ..views import BaseRepositoryView
+from front.repository.views import BaseRepositoryView
 
 
 class BoardView(BaseRepositoryView):

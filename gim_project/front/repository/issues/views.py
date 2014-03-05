@@ -1,31 +1,41 @@
 from datetime import datetime
+import json
 from math import ceil
-from operator import attrgetter
+from time import sleep
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
 from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from django.http import Http404
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
                          PullRequestComment)
-from core.tasks.issue import IssueEditStateJob
+from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
+                              IssueEditBodyJob, IssueEditMilestoneJob,
+                              IssueEditAssigneeJob, IssueEditLabelsJob)
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
 
+from front.mixins.views import (WithQueryStringViewMixin,
+                                LinkedToRepositoryFormViewMixin,
+                                LinkedToIssueFormViewMixin,
+                                LinkedToUserFormViewMixin)
+
 from front.models import GroupedCommits
-from ..views import BaseRepositoryView, LinkedToRepositoryFormView
-from ...utils import make_querystring
-from .forms import (IssueStateForm,
+from front.repository.views import BaseRepositoryView
+
+from front.utils import make_querystring
+from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
+                    IssueMilestoneForm, IssueAssigneeForm, IssueLabelsForm,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
-class IssuesView(BaseRepositoryView):
+class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
     name = 'Issues'
     url_name = 'issues'
     template_name = 'front/repository/issues/base.html'
@@ -637,98 +647,193 @@ class FilesAjaxIssueView(SimpleAjaxIssueView):
         return context
 
 
-class LinkedToUserFormView(object):
-    def get_form_kwargs(self):
-        kwargs = super(LinkedToUserFormView, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
-
-
-class BaseIssueEditView(LinkedToRepositoryFormView):
+class BaseIssueEditView(LinkedToRepositoryFormViewMixin):
     model = Issue
-    allowed_rights = SUBSCRIPTION_STATES.WRITE_RIGHTS
-    http_method_names = [u'post']
+    allowed_rights = SUBSCRIPTION_STATES.READ_RIGHTS
+    http_method_names = [u'get', u'post']
     ajax_only = True
 
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
-        return queryset.get(number=self.kwargs['issue_number'])
+        filters = {
+            'number': self.kwargs['issue_number'],
+        }
+
+        return queryset.get(**filters)
 
     def get_success_url(self):
         return self.object.get_absolute_url()
 
 
-class IssueEditState(LinkedToUserFormView, BaseIssueEditView, UpdateView):
-    url_name = 'issue.edit.state'
-    form_class = IssueStateForm
-
-    def get_form_kwargs(self):
-        kwargs = super(IssueEditState, self).get_form_kwargs()
-        kwargs['state'] = self.kwargs['state']
-        return kwargs
+class IssueEditFieldMixin(BaseIssueEditView, UpdateView):
+    field = None
+    job_model = None
+    url_name = None
+    form_class = None
+    template_name = 'front/one_field_form.html'
 
     def form_valid(self, form):
         """
         Override the default behavior to add a job to update the issue on the
         github side
         """
-        response = super(IssueEditState, self).form_valid(form)
+        response = super(IssueEditFieldMixin, self).form_valid(form)
+        value = self.get_final_value(form.cleaned_data[self.field])
 
-        IssueEditStateJob.add_job(self.object.pk,
-                                  gh=self.request.user.get_connection())
+        self.job_model.add_job(self.object.pk,
+                          gh=self.request.user.get_connection(),
+                          value=value)
 
-        messages.success(self.request,
-            u'The %s <strong>#%d</strong> will be %s shortly' % (
-                    self.object.type, self.object.number,
-                    'closed' if self.object.state == 'closed' else 'reopened'))
+        messages.success(self.request, self.get_success_user_message(self.object))
 
         return response
 
+    def get_final_value(self, value):
+        """
+        Return the value that will be pushed to githubs
+        """
+        return value
 
-class LinkedToIssueFormView(object):
-    issue_related_name = 'issue'
-    allowed_rights = SUBSCRIPTION_STATES.READ_RIGHTS  # everybody can add an issue
-    ajax_only = False
+    def form_invalid(self, form):
+        return self.render_form_errors_as_messages(form, show_fields=False)
 
-    def get_issue_kwargs(self):
-        return {
-            'repository__owner__username': self.kwargs.get('owner_username', None),
-            'repository__name': self.kwargs.get('repository_name', None),
-            'number': self.kwargs.get('issue_number', None),
-        }
+    def get_success_user_message(self, issue):
+        return u"""The <strong>%s</strong> for the %s <strong>#%d</strong> will
+                be updated shortly""" % (self.field, issue.type, issue.number)
 
-    def dispatch(self, *args, **kwargs):
-        filters = {
-            'repository__subscriptions__user': self.request.user
-        }
-        if self.allowed_rights != SUBSCRIPTION_STATES.ALL_RIGHTS:
-            filters['repository__subscriptions__state__in'] = self.allowed_rights
+    def get_context_data(self, **kwargs):
+        context = super(IssueEditFieldMixin, self).get_context_data(**kwargs)
+        context['form_action'] = self.object.edit_field_url(self.field)
+        context['form_classes'] = "issue-edit-field issue-edit-%s" % self.field
+        return context
 
-        queryset = Issue.objects.filter(**filters)
+    def get_object(self, queryset=None):
+        # use current self.object if we have it
+        if getattr(self, 'object', None):
+            return self.object
+        return super(IssueEditFieldMixin, self).get_object(queryset)
 
-        issue_kwargs = self.get_issue_kwargs()
-        self.issue = get_object_or_404(queryset, **issue_kwargs)
+    def current_job(self):
+        self.object = self.get_object()
+        try:
+            job = self.job_model.collection(identifier=self.object.id, queued=1).instances()[0]
+        except IndexError:
+            return None
+        else:
+            return job
 
-        return super(LinkedToIssueFormView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        current_job = self.current_job()
 
-    def get_queryset(self):
-        return self.model._default_manager.filter(**{
-                self.issue_related_name: self.issue
-            })
+        if current_job:
+            for i in range(0, 3):
+                sleep(0.1)  # wait a little, it may be fast
+                current_job = self.current_job()
+                if not current_job:
+                    break
 
-    def post(self, *args, **kwargs):
-        if self.ajax_only and not self.request.is_ajax():
-            return self.http_method_not_allowed(self.request)
-        return super(LinkedToIssueFormView, self).post(*args, **kwargs)
+            if current_job:
+                who = current_job.gh_args.hget('username')
+                return self.render_not_editable(request, who)
 
-    def get_form_kwargs(self):
-        kwargs = super(LinkedToIssueFormView, self).get_form_kwargs()
-        kwargs['issue'] = self.issue
-        return kwargs
+        return super(IssueEditFieldMixin, self).dispatch(request, *args, **kwargs)
+
+    def render_not_editable(self, request, who):
+        if who == request.user.username:
+            who = 'yourself'
+        messages.warning(request, self.get_not_editable_user_message(self.object, who))
+        return render(self.request, 'front/messages.html')
+
+    def get_not_editable_user_message(self, issue, who):
+        return u"""The <strong>%s</strong> for the %s <strong>#%d</strong> is
+                currently being updated (asked by <strong>%s</strong>), please
+                wait a few seconds and retry""" % (
+                                    self.field, issue.type, issue.number, who)
 
 
-class BaseCommentCreateView(LinkedToUserFormView, LinkedToIssueFormView, CreateView):
+class IssueEditState(LinkedToUserFormViewMixin, IssueEditFieldMixin):
+    field = 'state'
+    job_model = IssueEditStateJob
+    url_name = 'issue.edit.state'
+    form_class = IssueStateForm
+    http_method_names = [u'post']
+
+    def get_success_user_message(self, issue):
+        new_state = 'reopened' if issue.state == 'open' else 'closed'
+        return u'The %s <strong>#%d</strong> will be %s shortly' % (
+                                            issue.type, issue.number, new_state)
+
+    def get_not_editable_user_message(self, issue, who):
+        new_state = 'reopened' if issue.state == 'open' else 'closed'
+        return u"""The %s <strong>#%d</strong> is currently being %s (asked by
+                <strong>%s</strong>), please wait a few seconds and retry""" % (
+                                    issue.type, issue.number, new_state, who)
+
+
+class IssueEditTitle(IssueEditFieldMixin):
+    field = 'title'
+    job_model = IssueEditTitleJob
+    url_name = 'issue.edit.title'
+    form_class = IssueTitleForm
+
+
+class IssueEditBody(IssueEditFieldMixin):
+    field = 'body'
+    job_model = IssueEditBodyJob
+    url_name = 'issue.edit.body'
+    form_class = IssueBodyForm
+    template_name = 'front/one_field_form_real_buttons.html'
+
+
+class IssueEditMilestone(IssueEditFieldMixin):
+    field = 'milestone'
+    job_model = IssueEditMilestoneJob
+    url_name = 'issue.edit.milestone'
+    form_class = IssueMilestoneForm
+
+    def get_final_value(self, value):
+        """
+        Return the value that will be pushed to githubs
+        """
+        return value.number if value else ''
+
+
+class IssueEditAssignee(IssueEditFieldMixin):
+    field = 'assignee'
+    job_model = IssueEditAssigneeJob
+    url_name = 'issue.edit.assignee'
+    form_class = IssueAssigneeForm
+
+    def get_final_value(self, value):
+        """
+        Return the value that will be pushed to githubs
+        """
+        return value.username if value else ''
+
+
+class IssueEditLabels(IssueEditFieldMixin):
+    field = 'labels'
+    job_model = IssueEditLabelsJob
+    url_name = 'issue.edit.labels'
+    form_class = IssueLabelsForm
+
+    def get_final_value(self, value):
+        """
+        Return the value that will be pushed to githubs. We encode the list of
+        labels as json to be stored in the job single field
+        """
+        labels = [l.name for l in value] if value else []
+        return json.dumps(labels)
+
+    def get_not_editable_user_message(self, issue, who):
+        return u"""The <strong>%s</strong> for the %s <strong>#%d</strong> are
+                currently being updated (asked by <strong>%s</strong>), please
+                wait a few seconds and retry""" % (
+                                    self.field, issue.type, issue.number, who)
+
+
+class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):
     job_model = None
 
     def get_success_url(self):

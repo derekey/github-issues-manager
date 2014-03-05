@@ -5,8 +5,10 @@ from django.core import validators
 
 from subscriptions.models import WaitingSubscription, Subscription
 
+from front.mixins.forms import LinkedToUserFormMixin
 
-class ToggleRepositoryBaseForm(forms.Form):
+
+class ToggleRepositoryBaseForm(LinkedToUserFormMixin, forms.Form):
     """
     Base form to use to add/remove a repository
     """
@@ -24,13 +26,7 @@ class ToggleRepositoryBaseForm(forms.Form):
                 widget=forms.HiddenInput
             )
 
-    def __init__(self, *args, **kwargs):
-        """
-        A user must be passed in kwargs.
-        """
-        self.user = kwargs.pop('user')
-        self.repo_full_name = None
-        super(ToggleRepositoryBaseForm, self).__init__(*args, **kwargs)
+    repo_full_name = None
 
     def clean_name(self):
         """

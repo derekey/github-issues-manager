@@ -4624,6 +4624,19 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   vertical-align: middle;
 }
 
+/* fill-up add border and shadow even on select2, remove ! */
+/* line 177, ../../../sass/_core-admin-correct.scss */
+input.select2-input:focus {
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+/* line 180, ../../../sass/_core-admin-correct.scss */
+form.fill-up .select2-search-field input:focus {
+  border: none !important;
+}
+
 /* line 12, ../../../sass/main.scss */
 del {
   text-decoration: line-through;
@@ -4753,12 +4766,48 @@ ol.errorlist, ul.errorlist {
   display: inline-block !important;
 }
 
-/* line 141, ../../../sass/main.scss */
+/* line 140, ../../../sass/main.scss */
+.one-field-form {
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+/* line 145, ../../../sass/main.scss */
+.one-field-form > div {
+  display: inline-block;
+}
+/* line 147, ../../../sass/main.scss */
+.one-field-form > div input, .one-field-form > div select, .one-field-form > div textarea {
+  margin: 0;
+}
+/* line 151, ../../../sass/main.scss */
+.one-field-form button {
+  width: 30px;
+  font-size: 14px;
+  margin-left: 10px;
+}
+/* line 155, ../../../sass/main.scss */
+.one-field-form button i {
+  font-size: inherit;
+  float: none;
+  margin: 0;
+}
+/* line 161, ../../../sass/main.scss */
+.one-field-form button.btn-save i {
+  color: white;
+}
+/* line 166, ../../../sass/main.scss */
+.one-field-form button.loading i:first-of-type {
+  display: none;
+}
+
+/* line 174, ../../../sass/main.scss */
 .active-panel {
   border-top: solid 5px #7bc8d7 !important;
 }
 
-/* line 146, ../../../sass/main.scss */
+/* line 179, ../../../sass/main.scss */
 .sparkline-graph {
   line-height: 1px !important;
 }

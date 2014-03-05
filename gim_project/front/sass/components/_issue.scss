@@ -64,10 +64,17 @@ $file-list-width: 400px;
         footer {
             overflow: auto;
             margin-right: -5px;
+            display: table;
+            width: 100%;
+            > * {
+                display: table-cell;
+                vertical-align: top;
+            }
         }
         @extend %issue-state-marker;
         padding-bottom: 5px;
         min-height: 95px;
+        margin-bottom: 0;
     }
     .issue-pull-request {
         position: absolute;
@@ -77,15 +84,22 @@ $file-list-width: 400px;
         text-align: center;
         font-size: 24px;
     }
+    .issue-milestone .no-milestone,
+    .issue-assigne .no-assignee {
+        color: #ccc;
+    }
+
     .issue-footer-infos {
-        overflow: auto;
-        border: 1px solid #ccc;
-        @include box-shadow(0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eee);
-        float: right;
-        @include border-radius(4px);
-        margin-right: 1px;
-        margin-bottom: 1px;
-        margin-left: 10px;
+        > div {
+            overflow: auto;
+            border: 1px solid #ccc;
+            @include box-shadow(0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eee);
+            float: right;
+            @include border-radius(4px);
+            margin-right: 1px;
+            margin-bottom: 1px;
+            margin-left: 10px;
+        }
     }
     .issue-footer-info-part {
         margin: 0;
@@ -93,8 +107,8 @@ $file-list-width: 400px;
         line-height: 26px;
         border-left: solid 1px #f0f0f0;
         border-right: solid 1px #ddd;
-        display: block;
-        float: left;
+        display: table-cell;
+        vertical-align: middle;
         &:first-child {
             @include border-radius(4px 0 0 4px);
             border-left: none;
@@ -108,37 +122,33 @@ $file-list-width: 400px;
         }
     }
 
-    .issue-assignee {
-        @extend %issue-assignee;
-        cursor: default;
-    }
-
     .issue-comments-count {
         top: 0;
         color: inherit;
+        white-space: nowrap;
     }
 
     .issue-labels {
-        @extend %issue-labels;
-        margin-top: 9px;
+        padding-top: 7px;
+        > ul {
+            @extend %issue-labels;
+            display: inline;
+        }
     }
 
     .issue-involved {
+        max-width: 190px;
         margin-bottom: 0;
         li {
             display: inline-block;
         }
     }
 
-    .pr-infos, .issue-button {
-        margin-top: -15px;
-        margin-bottom: 10px;
+    .issue-big-infos {
         background: $highlight-background-color;
         padding: 15px;
         border-bottom: solid 1px $box-border-color;
         overflow: auto;
-    }
-    .pr-infos {
         ul {
             float: right;
             li {
@@ -154,22 +164,27 @@ $file-list-width: 400px;
             margin: 0;
         }
     }
-    .issue-edit-state-form {
+    .issue-buttons {
         float: right;
-        margin-bottom: 0;
-        button {
+        .btn {
             padding: 8px 14px;
             font-size: 13px;
             line-height: 18px;
+            margin-left: 15px;
+        }
+        form {
+            margin-bottom: 0;
+            display: inline-block;
         }
     }
 
     .issue-body {
-        margin-top: -15px;
         padding: 15px;
+        padding-right: 30px;
         background: white;
         border-bottom: solid 1px $box-border-color;
         @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
+        position: relative;
     }
     .content.empty {
         color: $light-text-color;
@@ -193,9 +208,176 @@ $file-list-width: 400px;
             // width: 100%!important;
             @include calc(width, $stuck-full-width, !important);
         }
+        .issue-involved {
+            max-width: 300px;
+        }
+    }
+
+    a.issue-edit-btn {
+        i {
+            float: none;
+            color: #ccc;
+            font-size: inherit;
+            font-weight: inherit;
+        }
+        &.loading i.icon-edit {
+            display: none;
+        }
+        &, &:hover {
+            text-decoration: none;
+        }
+        &.issue-edit-btn-body {
+            font-size: 18px;
+            position: absolute;
+            top: 3px;
+            right: 7px;
+        }
+        &.issue-edit-btn-milestone,
+        &.issue-edit-btn-assignee,
+        &.issue-edit-btn-labels {
+            font-size: 16px;
+            position: relative;
+            top: 1px;
+            margin-left: 3px;
+        }
+    }
+
+    .issue-edit-title {
+        position: absolute;
+        left: 130px;
+        right: 10px;
+        height: 35px;
+        div.edit-buttons {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            .btn-cancel {
+                margin-left: 7px;
+            }
+        }
+        div.edit-field {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 88px;
+            input {
+                width: 100%;
+                @include border-radius(0);
+            }
+        }
+    } // .issue-edit-title
+
+    .issue-edit-body {
+        // same as .issue-body
+        display: block;
+        padding: 10px;
+        padding-right: 25px;
+        background: white;
+        border-bottom: solid 1px $box-border-color;
+        @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
+        div.edit-field {
+            display: block;
+            padding: 5px 5px 0;
+        }
+        textarea {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            font-size: inherit;
+            font-family: inherit;
+            line-height: inherit;
+            min-height: 180px;
+            height: auto;
+            background: white;
+            border: none;
+            @include border-radius(0px);
+            @include box-shadow(none);
+        }
+        div.edit-buttons {
+            display: block;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: solid 1px $box-border-color;
+        }
+        button {
+            width: auto;
+            font-size: inherit;
+            margin: 0;
+            &.btn-cancel {
+                float: right;
+                font-weight: normal;
+            }
+        }
+    } // .issue-edit-body
+
+    .issue-edit-milestone,
+    .issue-edit-assignee,
+    .issue-edit-labels {
+        display: block;
+        div.edit-field {
+            min-width: 200px;
+        }
+        div.edit-buttons {
+            button {
+                margin-left: 6px;
+                &:first-of-type {
+                    margin-left: 3px;
+                }
+            }
+        }
+    }
+    .issue-edit-labels {
+        float: left;
+        .select2-container-multi .select2-choices {
+            padding: 0 4px 3px 0;
+            .select2-search-field {
+                padding: 4px 0px 0px 4px;
+                margin: 0;
+                input {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            .select2-search-choice {
+                margin: 4px 0 0 4px;
+                @include border-radius(0);
+                background: transparent;
+                border: none;
+                padding: 0 0 0 18px;
+                span {
+                    @extend %issue-label;
+                    margin-left: -18px;
+                    padding-left: 18px;
+                    padding-right: 3px;
+                    line-height: 20px;
+                }
+            }
+            .select2-search-choice-close {
+                top: 5px;
+            }
+        }
+        div.edit-field,
+        div.edit-buttons {
+            display: table-cell;
+            vertical-align: top;
+        }
+        div.edit-buttons {
+            white-space: nowrap;
+        }
     }
 
 } // .issue-container
+
+.select2-milestone {
+    .select2-result-sub li > div > div {
+        @include ellipsis();
+    }
+}
+.select2-labels {
+    .select2-result-label span {
+        @extend %issue-label;
+    }
+}
 
 @media (min-width: 1023px) {
     .issue-container.big-issue .issue-files {

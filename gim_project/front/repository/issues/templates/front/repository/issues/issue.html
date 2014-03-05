@@ -10,7 +10,13 @@
                 <div class="avatar">
                     <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url|default:default_avatar }}" alt="{{ current_issue.user.username }}" title="Created by {{ current_issue.user.username }}">
                 </div>
-                <h3><a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github">#{{ current_issue.number }} - {{ current_issue.title }}</a></h3>
+                <h3>
+                    <a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github"><span class="text-{{ current_issue.state }}">#{{ current_issue.number }}</span>
+                    -
+                    <span class="edit-place" data-field="title">{{ current_issue.title }}</span>
+                    </a>
+                    {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'title' }}" class="issue-edit-btn issue-edit-btn-title btn-loading" data-field="title" title="Edit the title"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                </h3>
             </header>
             <section>
                 <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date:"DATETIME_FORMAT" }}</h5>
@@ -26,78 +32,104 @@
                     {% endif %}
                 {% endif %}
                 {% if current_issue.is_pull_request %}<i class="icon-upload-alt issue-pull-request" title="It's a pull-request"> </i>{% endif %}
-                {% if current_issue.milestone %}<div class="issue-milestone"><span class="icon-tasks text-{{ current_issue.milestone.state }}" title="{{ current_issue.milestone.state|capfirst }} milestone{% if current_issue.milestone.state == 'open' and current_issue.milestone.due_on %}, due on {{ current_issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </span> Milestone: <strong>{{ current_issue.milestone.title }}</strong></div>{% endif %}
+                {% if current_issue.milestone or current_issue_edit_level == 'full' %}
+                    <div class="issue-milestone{% if not current_issue.milestone %} no-milestone{% endif %} edit-place" data-field="milestone">
+                        {% if current_issue.milestone %}
+                            <i class="icon-tasks text-{{ current_issue.milestone.state }}" title="{{ current_issue.milestone.state|capfirst }} milestone{% if current_issue.milestone.state == 'open' and current_issue.milestone.due_on %}, due on {{ current_issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </i> Milestone: <strong>{{ current_issue.milestone.title|truncatechars:30 }}</strong>
+                        {% else %}
+                            <i class="icon-tasks"> </i> No milestone
+                        {% endif %}
+                        {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'milestone' }}" class="issue-edit-btn issue-edit-btn-milestone btn-loading" data-field="milestone" title="Edit the milestone"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                    </div>
+                {% endif %}
+                {% if current_issue.assignee or current_issue_edit_level == 'full' %}
+                    <div class="issue-assignee{% if not current_issue.assignee %} no-assignee{% endif %} edit-place" data-field="assignee">
+                        {% if current_issue.assignee %}
+                            <i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" /> Assigned to <strong>{{ current_issue.assignee.username }}</strong>
+                        {% else %}
+                            <i class="icon-hand-right"> </i> No one assigned
+                        {% endif %}
+                        {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'assignee' }}" class="issue-edit-btn issue-edit-btn-assignee btn-loading" data-field="assignee" title="Edit the assignee"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                    </div>
+                {% endif %}
             </section>
             <footer>
-                {% if current_issue.total_comments_count or current_issue.assignee or current_issue_involved|length > 1  %}
-                    <div class="issue-footer-infos">
-                        {% if current_issue.total_comments_count %}
-                            <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
-                                <i class="icon-comments-alt"> </i>{{ current_issue.total_comments_count }}
-                            </a>
-                        {% endif %}
-                        {% if current_issue.assignee %}
-                            <span class="issue-footer-info-part issue-assignee" title="Assigned to {{ current_issue.assignee.username }}">
-                                <i class="icon-share-alt"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" />
-                            </span>
-                        {% endif %}
-                        {% if current_issue_involved|length > 1 %}
-                            <ul class="unstyled issue-footer-info-part issue-involved">
-                                {% for involved_user in current_issue_involved %}
-                                    <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
-                                {% endfor %}
+                {% with labels=current_issue.labels.ready %}
+                    {% if labels|length or current_issue_edit_level == 'full' %}
+                        <div class="issue-labels edit-place" data-field="labels">
+                            <ul class="unstyled">
+                                {% if labels|length %}
+                                    {% for label in current_issue.labels.ready %}
+                                        {% if label.label_type_id %}
+                                            <li style="border-bottom-color: #{{ label.color }}"><strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for label in current_issue.labels.ready %}
+                                        {% if not label.label_type_id %}
+                                            <li style="border-bottom-color: #{{ label.color }}">{{ label.name }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <li style="border: none">No labels</li>
+                                {% endif %}
                             </ul>
-                        {% endif %}
+                            {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'labels' }}" class="issue-edit-btn issue-edit-btn-labels btn-loading" data-field="labels" title="Edit the labels"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                {% if current_issue.total_comments_count or current_issue_involved|length > 1  %}
+                    <div class="issue-footer-infos">
+                        <div>
+                            {% if current_issue.total_comments_count %}
+                                <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
+                                    <i class="icon-comments-alt"> </i>{{ current_issue.total_comments_count }}
+                                </a>
+                            {% endif %}
+                            {% if current_issue_involved|length > 1 %}
+                                <ul class="unstyled issue-footer-info-part issue-involved">
+                                    {% for involved_user in current_issue_involved %}
+                                        <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endif %}
-
-                <ul class="unstyled issue-labels">
-                    {% for label in current_issue.labels.ready %}
-                        {% if label.label_type_id %}
-                            <li style="border-bottom-color: #{{ label.color }}"><strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}</li>
-                        {% endif %}
-                    {% endfor %}
-                    {% for label in current_issue.labels.ready %}
-                        {% if not label.label_type_id %}
-                            <li style="border-bottom-color: #{{ label.color }}">{{ label.name }}</li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
             </footer>
         </div>
-        {% if current_issue.is_pull_request %}
-            <div class="content pr-infos">
-                {% if current_issue.pr_fetched_at %}
-                    <ul class="unstyled">
-                        <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="icon-pencil"></i> {{ current_issue.nb_commits }}</li>
-                        <li class="label label-green" title="{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ current_issue.nb_additions }}</li>
-                        <li class="label label-red" title="{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ current_issue.nb_deletions }}</li>
-                        <li class="label label-black" title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="icon-file"></i> {{ current_issue.nb_changed_files }}</li>
-                    </ul>
-                {% endif %}
-                <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
-                {% if current_issue.pr_fetched_at %}
-                    <div class="pr-merge-status">
-                        {% include "front/repository/issues/include_state_form.html" %}
-                        {% if current_issue.state == 'open' %}
-                            {% if current_issue.is_mergeable %}
-                                <div class="alert alert-success"><strong>Can be merged</strong></div>
+        {% if current_issue.is_pull_request or current_issue_edit_level %}
+            <div class="content issue-big-infos">
+                {% if current_issue.is_pull_request %}
+                    {% if current_issue.pr_fetched_at %}
+                        <ul class="unstyled">
+                            <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="icon-pencil"></i> {{ current_issue.nb_commits }}</li>
+                            <li class="label label-green" title="{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ current_issue.nb_additions }}</li>
+                            <li class="label label-red" title="{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ current_issue.nb_deletions }}</li>
+                            <li class="label label-black" title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="icon-file"></i> {{ current_issue.nb_changed_files }}</li>
+                        </ul>
+                    {% endif %}
+                    <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
+                    {% if current_issue.pr_fetched_at %}
+                        <div class="pr-merge-status">
+                            {% include "front/repository/issues/include_edit_buttons.html" %}
+                            {% if current_issue.state == 'open' %}
+                                {% if current_issue.is_mergeable %}
+                                    <div class="alert alert-success"><strong>Can be merged</strong></div>
+                                {% else %}
+                                    <div class="alert alert-error"><strong>Cannot be merged</strong>{% if current_issue.mergeable_state %} (reason: {{ current_issue.mergeable_state }}){% endif %}</div>
+                                {% endif %}
                             {% else %}
-                                <div class="alert alert-error"><strong>Cannot be merged</strong>{% if current_issue.mergeable_state %} (reason: {{ current_issue.mergeable_state }}){% endif %}</div>
+                                {% if current_issue.merged %}
+                                    <div class="alert alert-success">Merged</div>
+                                {% else %}
+                                    <div class="alert alert-error">Not merged</div>
+                                {% endif %}
                             {% endif %}
-                        {% else %}
-                            {% if current_issue.merged %}
-                                <div class="alert alert-success">Merged</div>
-                            {% else %}
-                                <div class="alert alert-error">Not merged</div>
-                            {% endif %}
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
+                {% elif current_issue_edit_level %}
+                    {% include "front/repository/issues/include_edit_buttons.html" %}
                 {% endif %}
-            </div>
-        {% elif current_issue_edit_level == 'full' %}
-            <div class="content issue-button">
-                {% include "front/repository/issues/include_state_form.html" %}
             </div>
         {% endif %}
         {% if current_issue.is_pull_request %}
@@ -109,8 +141,9 @@
             <div class="tab-content">
                 <div class="tab-pane active issue-discussion" id="issue-{{ current_issue.number }}-discussion">
         {% endif %}
-            <div class="content issue-body{% if not current_issue.body %} empty{% endif %}" >
-                {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this issue !{% endif %}
+            <div class="content issue-body{% if not current_issue.body %} empty{% endif %} edit-place" data-field="body">
+                {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this {{ current_issue.type }} !{% endif %}
+                {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'body' }}" class="issue-edit-btn issue-edit-btn-body btn-loading" data-field="body" title="Edit the body"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
             </div>
             <aside>
                 <ul class="unstyled chat-box timeline issue-activity" id="issue-activity-{{ current_issue.number }}">
