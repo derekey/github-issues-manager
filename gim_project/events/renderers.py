@@ -166,7 +166,7 @@ class IssueRenderer(Renderer):
         if mode == 'text':
             return ', '.join(['"%s"' % l['name'] for l in labels])
         else:
-            return '<ul class="unstyled issue-labels">%s</ul>' % (''.join([
+            return '<ul class="unstyled">%s</ul>' % (''.join([
                 '<li style="border-bottom-color: #%(color)s;">%(name)s</li>' % {
                     'name': escape(l['name']),
                     'color': l['color']

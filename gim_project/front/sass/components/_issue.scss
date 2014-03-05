@@ -582,8 +582,12 @@ $file-list-width: 400px;
 
     .part-labels, .part-label_type {
         ul {
+            @extend %issue-labels;
             display: inline-block;
             margin-top: 0;
+            li {
+                margin-top: 0;
+            }
         }
         & > span {
             float: left;
