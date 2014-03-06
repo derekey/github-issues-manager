@@ -1977,29 +1977,34 @@ $().ready(function() {
                 $link.removeClass('loading');
                 return false;
             }
-            var field = $link.data('field'),
+            var field = $link.data('field'), $form,
                 $placeholder = $link.closest('article').find('.edit-place[data-field=' + field + ']'),
-                method = 'on_issue_edit_' + field + '_ready';
+                method = 'issue_edit_' + field + '_insert_field_form';
             if (typeof IssueEditor[method] == 'undefined') {
-                method = 'on_issue_edit_default_ready';
+                method = 'issue_edit_default_insert_field_form';
             }
-            IssueEditor[method]($link, $placeholder, data);
+            $form = IssueEditor[method]($link, $placeholder, data);
+            method = 'issue_edit_' + field + '_field_prepare';
+            if (typeof IssueEditor[method] != 'undefined') {
+                IssueEditor[method]($form);
+            }
         }), // on_issue_edit_field_ready
 
-        on_issue_edit_default_ready: (function IssueEditor__on_issue_edit_default_ready ($link, $placeholder, data) {
+        issue_edit_default_insert_field_form: (function IssueEditor__issue_edit_default_insert_field_form ($link, $placeholder, data) {
             var $form = $(data);
             $link.remove();
             $placeholder.replaceWith($form);
             IssueEditor.focus_form($form, 50);
             return $form;
-        }), // on_issue_edit_default_ready
+        }), // issue_edit_default_insert_field_form
 
-        on_issue_edit_title_ready: (function IssueEditor__on_issue_edit_title_ready ($link, $placeholder, data) {
+        issue_edit_title_insert_field_form: (function IssueEditor__issue_edit_title_insert_field_form ($link, $placeholder, data) {
             var left = $placeholder.position().left, $form;
             $placeholder.parent().after($placeholder);
-            $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data);
+            $form = IssueEditor.issue_edit_default_insert_field_form($link, $placeholder, data);
             $form.css('left', left + 'px');
-        }), // on_issue_edit_title_ready
+            return $form;
+        }), // issue_edit_title_insert_field_form
 
         load_select2: (function IssueEditor__load_select2 (callback) {
             if (typeof $().select2 == 'undefined') {
@@ -2041,10 +2046,9 @@ $().ready(function() {
                 return true;
         }), // select2_matcher
 
-        on_issue_edit_milestone_ready: (function IssueEditor__on_issue_edit_milestone_ready ($link, $placeholder, data) {
+        issue_edit_milestone_field_prepare: (function IssueEditor__issue_edit_milestone_field_prepare ($form) {
             var callback = function() {
-                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
-                    $select = $form.find('select'),
+                var $select = $form.find('#id_milestone'),
                     milestones_data = $select.data('milestones'),
                     format = function(state, include_title) {
                         if (state.children) {
@@ -2075,12 +2079,11 @@ $().ready(function() {
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
             IssueEditor.load_select2(callback);
-        }), // on_issue_edit_milestone_ready
+        }), // issue_edit_milestone_field_prepare
 
-        on_issue_edit_assignee_ready: (function IssueEditor__on_issue_edit_assignee_ready ($link, $placeholder, data) {
+        issue_edit_assignee_field_prepare: (function IssueEditor__issue_edit_assignee_field_prepare ($form) {
             var callback = function() {
-                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
-                    $select = $form.find('select'),
+                var $select = $form.find('#id_assignee'),
                     collaborators_data = $select.data('collaborators'),
                     format = function(state, include_icon) {
                         var data = collaborators_data[state.id];
@@ -2105,12 +2108,11 @@ $().ready(function() {
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
             IssueEditor.load_select2(callback);
-        }), // on_issue_edit_assignee_ready
+        }), // issue_edit_assignee_field_prepare
 
-        on_issue_edit_labels_ready: (function IssueEditor__on_issue_edit_labels_ready ($link, $placeholder, data) {
+        issue_edit_labels_field_prepare: (function IssueEditor__issue_edit_labels_field_prepare ($form) {
             var callback = function() {
-                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
-                    $select = $form.find('select'),
+                var $select = $form.find('#id_labels'),
                     labels_data = $select.data('labels'),
                     format = function(state, include_type) {
                         if (state.children) {
@@ -2139,7 +2141,7 @@ $().ready(function() {
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
             IssueEditor.load_select2(callback);
-        }), // on_issue_edit_labels_ready
+        }), // issue_edit_labels_field_prepare
 
         on_issue_edit_field_cancel_click: (function IssueEditor__on_issue_edit_field_cancel_click (ev) {
             var $btn = $(this),
