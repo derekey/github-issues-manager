@@ -1446,13 +1446,11 @@ $().ready(function() {
 
     var activate_quicksearches = (function activate_quicksearches ($inputs) {
         $inputs.each(function() {
-            var $input, target, content, options, qs;
+            var $input, target, content, content_data, options, qs;
             $input = $(this);
             if (!$input.data('quicksearch')) {
                 target = $input.data('target');
                 if (!target) { return; }
-
-                content = $input.data('content');
 
                 options = {
                     bind: 'keyup quicksearch.refresh',
@@ -1471,8 +1469,14 @@ $().ready(function() {
                         $input.trigger('quicksearch.after');
                     }
                 };
+
+                content = $input.data('content');
                 if (content) {
                     options.selector = content;
+                }
+                content_data = $input.data('content-data');
+                if (content_data) {
+                    options.selector_data = content_data;
                 }
 
                 qs = $input.quicksearch(target, options);

@@ -485,7 +485,7 @@
                     </ul>
                 </div>
             </nav>
-            {% include "front/include_quicksearch.html" with id="issues-list-search" class="issues-quicksearch" target="#issues-list .issue-item" placeholder="Filter by title" only %}
+            {% include "front/include_quicksearch.html" with id="issues-list-search" class="issues-quicksearch" target="#issues-list .issue-item" content_data="search" placeholder="Filter by owner+number+title+milestone+labels" only %}
             <div id="issues-list" class='issues-list' data-quicksearch="#issues-list-search input">
                 {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
                 {% for group in issues_groups %}

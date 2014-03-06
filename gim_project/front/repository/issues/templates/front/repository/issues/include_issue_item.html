@@ -1,6 +1,6 @@
 {% load staticfiles querystring frontutils issues_tags %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
-<li id="issue-{{ issue.number }}" class="box-section news issue-item state-{{ issue.state }}" data-number="{{ issue.number }}" data-repository="{{ issue.repository.full_name }}">
+{% with issue_labels=issue.labels.all %}<li id="issue-{{ issue.number }}" class="box-section news issue-item state-{{ issue.state }}" data-number="{{ issue.number }}" data-repository="{{ issue.repository.full_name }}" data-search="{{ issue.user.username }} #{{ issue.number }} {{ issue.title }}{% if issue.milestone %} {{ issue.milestone.title }}{% endif %}{% for label in issue_labels %}{% if label.label_type_id %} {{ label.label_type.name }}:{{ label.typed_name }}{% endif %}{% endfor %}{% for label in issue_labels %}{% if not label.label_type_id %} {{ label.name }}{% endif %}{% endfor %}">
     <div class="issue-item-header">
         <div class="issue-item-times">
             <span title="Created on {{ issue.created_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.created_at|date:'r' }}">{{ issue.created_at|ago:True }}</span>
@@ -39,33 +39,31 @@
             </a>
         </div>
     </div>
-    {% with issue_labels=issue.labels.all %}
-        <div class="issue-item-footer{% if issue_labels %} with-labels{% endif %}">
-            {% if issue.assignee %}
-                    <a href="" title="Assigned to {{ issue.assignee.username }}" class="issue-item-assignee js-filter-trigger" data-filter='assigned:{{ issue.assignee.username }}'><i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url|default:default_avatar }}"></a>
-            {% endif %}
-            {% if issue.total_comments_count %}
-                <div class="issue-item-comments-count" title="{{ issue.total_comments_count }} comment{{ issue.total_comments_count|pluralize }}">
-                    <i class="icon-comments-alt"> </i>{{ issue.total_comments_count }}
-                </div>
-            {% endif %}
-            <div class="issue-item-labels"><!--
-                {% for label in issue_labels %}
-                    {% if label.label_type_id %}
-                            {% attributes_for_list label.label_type.labels.all "name" as label_names %}
-                            --><a href="" class="js-filter-trigger" style="border-bottom-color: #{{ label.color }}" data-filter='labels:{{ label.name }}' data-type-name='{{ label.label_type.name }}'>
-                                <strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}
-                            </a><!--
-                    {% endif %}
-                {% endfor %}
-                {% for label in issue_labels %}
-                    {% if not label.label_type_id %}
-                            --><a href="" class="js-filter-trigger" style="border-bottom: solid 3px #{{ label.color }}" data-filter='labels:{{ label.name }}'>
-                                {{ label.name }}
-                            </a><!--
-                    {% endif %}
-                {% endfor %}
-            --></div>
-        </div>
-    {% endwith %}
-</li>
+    <div class="issue-item-footer{% if issue_labels %} with-labels{% endif %}">
+        {% if issue.assignee %}
+                <a href="" title="Assigned to {{ issue.assignee.username }}" class="issue-item-assignee js-filter-trigger" data-filter='assigned:{{ issue.assignee.username }}'><i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url|default:default_avatar }}"></a>
+        {% endif %}
+        {% if issue.total_comments_count %}
+            <div class="issue-item-comments-count" title="{{ issue.total_comments_count }} comment{{ issue.total_comments_count|pluralize }}">
+                <i class="icon-comments-alt"> </i>{{ issue.total_comments_count }}
+            </div>
+        {% endif %}
+        <div class="issue-item-labels"><!--
+            {% for label in issue_labels %}
+                {% if label.label_type_id %}
+                        {% attributes_for_list label.label_type.labels.all "name" as label_names %}
+                        --><a href="" class="js-filter-trigger" style="border-bottom-color: #{{ label.color }}" data-filter='labels:{{ label.name }}' data-type-name='{{ label.label_type.name }}'>
+                            <strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}
+                        </a><!--
+                {% endif %}
+            {% endfor %}
+            {% for label in issue_labels %}
+                {% if not label.label_type_id %}
+                        --><a href="" class="js-filter-trigger" style="border-bottom: solid 3px #{{ label.color }}" data-filter='labels:{{ label.name }}'>
+                            {{ label.name }}
+                        </a><!--
+                {% endif %}
+            {% endfor %}
+        --></div>
+    </div>
+</li>{% endwith %}

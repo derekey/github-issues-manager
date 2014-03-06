@@ -4,6 +4,7 @@
 		var timeout, cache, rowcache, jq_results, val = '', e = this, options = $.extend({
 			delay: 100,
 			selector: null,
+			selector_data: null,
 			stripeRows: null,
 			loader: null,
 			noResults: '',
@@ -102,10 +103,14 @@
 			return this;
 		};
 
+
+		this.strip = function(input) {
+			return $.trim(input.toLowerCase());
+		};
+
 		this.strip_html = function (input) {
 			var output = input.replace(new RegExp('<[^<]+\>', 'g'), "");
-			output = $.trim(output.toLowerCase());
-			return output;
+			return e.strip(output);
 		};
 
 		this.results = function (bool) {
@@ -136,7 +141,11 @@
 
 			var t = (typeof options.selector === "string") ? jq_results.find(options.selector) : $(target).not(options.noResults);
 			cache = t.map(function () {
-				return e.strip_html(this.innerHTML);
+				if (options.selector_data) {
+					return e.strip(this.getAttribute('data-' + options.selector_data) || $(this).data(options.selector_data));
+				} else {
+					return e.strip_html(this.innerHTML);
+				}
 			});
 
 			rowcache = jq_results.map(function () {
