@@ -2030,6 +2030,17 @@ $().ready(function() {
             }
         }), // load_select2
 
+        select2_matcher: (function IssueEditor__select2_matcher (term, text) {
+                var last = -1;
+                term = term.toLowerCase();
+                text = text.toLowerCase();
+                for (var i = 0; i < term.length; i++) {
+                    last = text.indexOf(term[i], last+1);
+                    if (last == -1) { return false; }
+                }
+                return true;
+        }), // select2_matcher
+
         on_issue_edit_milestone_ready: (function IssueEditor__on_issue_edit_milestone_ready ($link, $placeholder, data) {
             var callback = function() {
                 var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
@@ -2058,7 +2069,8 @@ $().ready(function() {
                     formatSelection: function(state) { return format(state, false); },
                     formatResult:  function(state) { return format(state, true); },
                     escapeMarkup: function(m) { return m; },
-                    dropdownCssClass: 'select2-milestone'
+                    dropdownCssClass: 'select2-milestone',
+                    matcher: IssueEditor.select2_matcher
                 });
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
@@ -2087,7 +2099,8 @@ $().ready(function() {
                     formatSelection: function(state) { return format(state, true); },
                     formatResult:  function(state) { return format(state, false); },
                     escapeMarkup: function(m) { return m; },
-                    dropdownCssClass: 'select2-assignee'
+                    dropdownCssClass: 'select2-assignee',
+                    matcher: IssueEditor.select2_matcher
                 });
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
@@ -2115,6 +2128,7 @@ $().ready(function() {
                     formatResult:  function(state) { return format(state, false); },
                     escapeMarkup: function(m) { return m; },
                     dropdownCssClass: 'select2-labels',
+                    matcher: IssueEditor.select2_matcher,
                     closeOnSelect: false
                 }).on('select2-focus', function() {
                     $select.select2('open');
