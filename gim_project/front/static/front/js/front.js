@@ -2122,13 +2122,16 @@ $().ready(function() {
                             result = '<strong>' + data.type + ':</strong> ' + result;
                         }
                         return '<span style="border-bottom-color: #' + data.color + '">' + result + '</span>';
+                    },
+                    matcher = function(term, text, opt) {
+                        return IssueEditor.select2_matcher(term, labels_data[opt.val()].search);
                     };
                 $select.select2({
                     formatSelection: function(state) { return format(state, true); },
                     formatResult:  function(state) { return format(state, false); },
                     escapeMarkup: function(m) { return m; },
                     dropdownCssClass: 'select2-labels',
-                    matcher: IssueEditor.select2_matcher,
+                    matcher: matcher,
                     closeOnSelect: false
                 }).on('select2-focus', function() {
                     $select.select2('open');

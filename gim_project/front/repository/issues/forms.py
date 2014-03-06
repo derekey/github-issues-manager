@@ -168,6 +168,8 @@ class IssueLabelsForm(IssueFormMixin):
                         'color': l.color,
                         'type': l.label_type.name if l.label_type_id else None,
                         'typed_name': l.typed_name,
+                        'search': '%s: %s' % (l.label_type.name, l.typed_name)
+                                            if l.label_type_id else l.name,
                       }
                 for l in labels}
         return json.dumps(data)
