@@ -3,6 +3,9 @@
 @import "compass/css3/box-sizing";
 @import "compass/css3/transition";
 @import "mixins";
+@import "modal";
+@import "form_elements";
+@import "core-admin-forms-correct.scss";
 
 $stuck-width: "0.583333 * (100% - 160px) - #{$scrollbar-width}"; // 58.333% is col width, but fixed width is viewport so we remove the left col size (and the scrollbar)
 $top-border: 5px;
@@ -822,7 +825,7 @@ table.commits-list {
     }
 }
 
-#modal-issue-view {
+#modal-issue-view, #modal-issue-created {
     .modal-body {
         padding: 0;
         @include border-radius(6px);

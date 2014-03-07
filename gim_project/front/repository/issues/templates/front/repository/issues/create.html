@@ -1,0 +1,4 @@
+<form method="post" action="{{ current_repository.get_create_issue_url }}" id="issue-create-form" class="fill-up">
+    {{ form }}
+    {% csrf_token %}
+</form>

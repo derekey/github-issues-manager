@@ -105,6 +105,10 @@ class _Repository(models.Model):
         return self.get_issues_user_filter_url_for_username._cache[cache_key]
     get_issues_user_filter_url_for_username._cache = {}
 
+    def get_create_issue_url(self):
+        return reverse_lazy('front:repository:issue.create',
+                                  kwargs=self.get_reverse_kwargs())
+
 contribute_to_model(_Repository, core_models.Repository)
 
 
@@ -239,6 +243,12 @@ class _Issue(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('front:repository:issue', kwargs=self.get_reverse_kwargs())
+
+    def get_created_url(self):
+        kwargs = self.get_reverse_kwargs()
+        del kwargs['issue_number']
+        kwargs['issue_pk'] = self.pk
+        return reverse_lazy('front:repository:issue.created', kwargs=kwargs)
 
     def edit_field_url(self, field):
         return reverse_lazy('front:repository:issue.edit.%s' % field, kwargs=self.get_reverse_kwargs())

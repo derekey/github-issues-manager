@@ -32,6 +32,7 @@ from front.repository.views import BaseRepositoryView
 from front.utils import make_querystring
 from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueMilestoneForm, IssueAssigneeForm, IssueLabelsForm,
+                    IssueCreateForm,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
@@ -452,9 +453,9 @@ class IssueView(UserIssuesView):
     url_name = 'issue'
     ajax_template_name = 'front/repository/issues/issue.html'
 
-    def get_current_issue_for_context(self, context):
+    def get_current_issue(self):
         """
-        Based on the informations from the context and url, try to return
+        Based on the informations from the url, try to return
         the wanted issue
         """
         issue = None
@@ -544,7 +545,7 @@ class IssueView(UserIssuesView):
         current_issue_state = 'ok'
         current_issue = None
         try:
-            current_issue = self.get_current_issue_for_context(context)
+            current_issue = self.get_current_issue()
         except Issue.DoesNotExist:
             current_issue_state = 'notfound'
         else:
@@ -557,11 +558,12 @@ class IssueView(UserIssuesView):
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
             activity = current_issue.get_activity()
             involved = self.get_involved_people(current_issue, activity, context['collaborators_ids'])
-            if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
-                edit_level = 'full'
-            elif self.subscription.state == SUBSCRIPTION_STATES.READ\
-                                    and current_issue.user == self.request.user:
-                edit_level = 'self'
+            if current_issue.number:
+                if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
+                    edit_level = 'full'
+                elif self.subscription.state == SUBSCRIPTION_STATES.READ\
+                                        and current_issue.user == self.request.user:
+                    edit_level = 'self'
 
             if current_issue.is_pull_request:
                 context['entry_points_dict'] = self.get_entry_points_dict(current_issue)
@@ -605,6 +607,20 @@ class IssueView(UserIssuesView):
         return super(IssueView, self).get_template_names()
 
 
+class CreatedIssueView(IssueView):
+    url_name = 'issue.created'
+
+    def get_current_issue(self):
+        """
+        Based on the informations from the url, try to return the wanted issue
+        """
+        return self.repository.issues.select_related(
+                    'user',  'assignee', 'closed_by', 'milestone',
+                ).prefetch_related(
+                    'labels__label_type'
+                ).get(pk=self.kwargs['issue_pk'])
+
+
 class SimpleAjaxIssueView(IssueView):
     """
     A base class to fetch some parts of an issue via ajax.
@@ -628,7 +644,7 @@ class SimpleAjaxIssueView(IssueView):
         context = super(IssuesView, self).get_context_data(**kwargs)
 
         try:
-            context['current_issue'] = self.get_current_issue_for_context(context)
+            context['current_issue'] = self.get_current_issue()
         except Issue.DoesNotExist:
             raise Http404
 
@@ -831,6 +847,16 @@ class IssueEditLabels(IssueEditFieldMixin):
                 currently being updated (asked by <strong>%s</strong>), please
                 wait a few seconds and retry""" % (
                                     self.field, issue.type, issue.number, who)
+
+
+class IssueCreateView(LinkedToUserFormViewMixin, BaseIssueEditView, CreateView):
+    url_name = 'issue.create'
+    form_class = IssueCreateForm
+    template_name = 'front/repository/issues/create.html'
+    ajax_only = False
+
+    def get_success_url(self):
+        return self.object.get_created_url()
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

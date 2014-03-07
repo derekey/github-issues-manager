@@ -71,4 +71,28 @@
             </form>
         </div>
     </div>
+    <div id="issue-create-modal" class="modal fancy hide fade" data-keyboard="false">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
+            <h6>New issue</h6>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+            <div class="row-fluid auto-align">
+                <div class="span6">
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+                <div class="span6">
+                    <button class="btn btn-blue submit btn-loading">Create the issue <i class='icon-spinner icon-spin'> </i></button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
+
+{% block js_footer %}
+    {{ block.super }}
+    <script type='text/javascript'>
+        var create_issue_url = "{{ current_repository.get_create_issue_url }}";
+    </script>
+{% endblock js_footer %}

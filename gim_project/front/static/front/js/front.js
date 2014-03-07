@@ -889,6 +889,10 @@ $().ready(function() {
                 return false;
             }
             IssueDetail.set_issue_ident(container.$node, issue_ident);
+            if (container.$window && !container.$window.hasClass('in')) {
+                // open the popup with its loading spinner
+                container.$window.modal("show");
+            }
             return container;
         }), // get_container_waiting_for_issue
 
@@ -1786,8 +1790,8 @@ $().ready(function() {
             }
         }), // focus_form
 
-        display_issue: (function IssueEditor__display_issue (html, context) {
-            var is_popup = context.$container.parents('.modal').length > 0;
+        display_issue: (function IssueEditor__display_issue (html, context, force_popup) {
+            var is_popup = force_popup || context.$container.parents('.modal').length > 0;
             IssueDetail.display_issue(html, context.issue_ident, is_popup);
         }), // display_issue
 
@@ -2193,6 +2197,125 @@ $().ready(function() {
             alert('A problem prevented us to do your action !');
         }), // on_issue_edit_submit_fail
 
+        create: {
+            allowed_path_re: new RegExp('^/([\\w\\-\\.]+/[\\w\\-\\.]+)/(?:issues/|dashboard/$)'),
+            $modal: null,
+            $modal_body: null,
+            $modal_footer: null,
+            $modal_submit: null,
+            modal_issue_body: '<div class="modal-body"><div class="issue-container"></div></div>',
+            get_form: function() {
+                return $('#issue-create-form');
+            },
+
+            start: (function IssueEditor_create__start () {
+                if (!location.pathname.match(IssueEditor.create.allowed_path_re)) {
+                    return;
+                }
+                if ($('#milestone-edit-form:visible').length) {
+                    return;
+                }
+                if ($('#milestone-edit-form:visible').length) {
+                    return;
+                }
+                IssueEditor.create.$modal = $('#issue-create-modal');
+                if (IssueEditor.create.$modal.is(':visible')) {
+                    return;
+                }
+                IssueEditor.create.$modal_footer = IssueEditor.create.$modal.children('.modal-footer');
+                IssueEditor.create.$modal_footer.hide();
+                IssueEditor.create.$modal_body = IssueEditor.create.$modal.children('.modal-body');
+                IssueEditor.create.$modal_body.html('<p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>');
+                IssueEditor.create.$modal_submit = IssueEditor.create.$modal_footer.find('button.submit');
+                IssueEditor.create.$modal_submit.removeClass('loading');
+                IssueEditor.create.$modal.modal('show');
+                $.get(create_issue_url)
+                    .done(IssueEditor.create.on_load_done)
+                    .fail(IssueEditor.create.on_load_failed);
+                return false;
+            }), // start
+
+            on_load_done: (function IssueEditor_create__on_load_done (data) {
+                IssueEditor.create.$modal_body.html(data);
+                var $form = IssueEditor.create.get_form();
+                IssueEditor.create.update_form($form);
+                IssueEditor.focus_form($form, 250);
+                IssueEditor.create.$modal_footer.show();
+            }), // on_load_done
+
+            on_load_failed: (function($link) {
+                IssueEditor.create.$modal_body.html('<div class="alert alert-error">A problem prevented us to display the form</div>');
+            }), // on_load_failed
+
+            update_form: (function IssueEditor_create__update_form ($form) {
+            }), // update_form
+
+            on_form_submit: (function IssueEditor_create__on_form_submit (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                var $form = IssueEditor.create.get_form();
+                if ($form.data('disabled')) { return false; }
+                IssueEditor.disable_form($form);
+                IssueEditor.create.$modal_submit.addClass('loading');
+                IssueEditor.create.$modal_footer.find('.alert').remove();
+                $.post($form.attr('action'), $form.serialize())
+                    .done(IssueEditor.create.on_submit_done)
+                    .fail(IssueEditor.create.on_submit_failed);
+            }), // on_form_submit
+
+            on_submit_done: (function IssueEditor_create__on_submit_done (data) {
+                IssueEditor.create.$modal_body.scrollTop(0);
+                if (data.substr(0, 6) == '<form ') {
+                    // we have an error, the whole form is returned
+                    IssueEditor.create.get_form().replaceWith(data);
+                    var $form = IssueEditor.create.get_form();
+                    IssueEditor.enable_form($form);
+                    IssueEditor.focus_form($form, 250);
+                    IssueEditor.create.update_form($form);
+                    IssueEditor.create.$modal_submit.removeClass('loading');
+                } else {
+                    // no error, we display the issue
+                    IssueEditor.create.display_created_issue(data);
+                }
+            }), // on_submit_done
+
+            on_submit_failed: (function IssueEditor_create__on_submit_failed () {
+                var $form = IssueEditor.create.get_form();
+                IssueEditor.enable_form($form);
+                IssueEditor.focus_form($form, 250);
+                IssueEditor.create.$modal_submit.removeClass('loading');
+                IssueEditor.create.$modal_footer.prepend('<div class="alert alert-error">A problem prevented us to save the issue</div>');
+            }), // on_submit_failed
+
+            display_created_issue: (function IssueEditor_create__display_created_issue (html) {
+                var $html = $('<div/>').html(html),
+                    $article = $html.children('article:first-of-type'),
+                    number = $article.data('number'),
+                    context = {
+                        issue_ident: {
+                            repository: $article.data('repository'),
+                            number: number || 'pk-' + $article.data('issue-id')
+                        }
+                    };
+                IssueEditor.create.$modal.modal('hide');
+                var container = IssueDetail.get_container_waiting_for_issue(context.issue_ident, true, true)
+                IssueDetail.set_container_loading(container);
+                context.$container = container.$node;
+                IssueEditor.display_issue($html.children(), context);
+            }), // display_created_issue
+
+            on_created_modal_hidden: (function IssueEditor_create__on_created_modal_hidden () {
+                var $modal = $(this);
+                setTimeout(function() { $modal.remove(); }, 50);
+            }), // on_created_modal_hidden
+
+            init: (function IssueEditor_create__init () {
+                jwerty.key('c', Ev.key_decorate(IssueEditor.create.start));
+                $document.on('submit', '#issue-create-form', IssueEditor.create.on_form_submit);
+                $document.on('click', '#issue-create-modal .modal-footer button.submit', IssueEditor.create.on_form_submit);
+                $document.on('hidden.modal', '#modal-issue-created', IssueEditor.create.on_created_modal_hidden);
+            }), // IssueEditor_create__init
+        },
 
         init: (function IssueEditor__init () {
             $document.on('submit', '.issue-edit-state-form', IssueEditor.on_state_submit);
@@ -2205,6 +2328,8 @@ $().ready(function() {
             $document.on('click', '.comment-create-placeholder button', IssueEditor.on_comment_create_placeholder_click);
 
             $document.on('click', 'td.code span.label', IssueEditor.on_new_entry_point_click);
+
+            IssueEditor.create.init();
         }) // init
     }; // IssueEditor
     IssueEditor.init();
