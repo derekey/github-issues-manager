@@ -403,6 +403,9 @@ $file-list-width: 400px;
 }
 
 #issue-create-form {
+    input[type=submit] {
+        display: none;
+    }
     .select2-container {
         margin-bottom: 10px;
         .select2-choice {
@@ -423,7 +426,7 @@ $file-list-width: 400px;
         > textarea {
             min-height: 180px;
         }
-        &:last-child .select2-container {
+        &:last-of-type .select2-container {
             margin-bottom: 0;
         }
     }
