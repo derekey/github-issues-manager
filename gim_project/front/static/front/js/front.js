@@ -1815,7 +1815,8 @@ $().ready(function() {
 
         display_issue: (function IssueEditor__display_issue (html, context, force_popup) {
             var is_popup = force_popup || context.$node.parents('.modal').length > 0;
-            IssueDetail.set_container_loading(context);
+                container = IssueDetail.get_container(is_popup);
+            IssueDetail.set_container_loading(container);
             IssueDetail.display_issue(html, context.issue_ident, is_popup);
         }), // display_issue
 
@@ -2356,9 +2357,10 @@ $().ready(function() {
                             repository: $article.data('repository'),
                             number: number || 'pk-' + $article.data('issue-id')
                         }
-                    };
+                    },
+                    container = IssueDetail.get_container_waiting_for_issue(context.issue_ident, true, true);
                 IssueEditor.create.$modal.modal('hide');
-                var container = IssueDetail.get_container_waiting_for_issue(context.issue_ident, true, true)
+                context.$node = container.$node;
                 IssueEditor.display_issue($html.children(), context);
             }), // display_created_issue
 
