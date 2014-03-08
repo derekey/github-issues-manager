@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from datetime import datetime
 import json
 from math import ceil
@@ -9,14 +11,17 @@ from django.db import DatabaseError
 from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
 from django.shortcuts import render
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
+
+from limpyd_jobs import STATUSES
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
                          PullRequestComment)
 from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
                               IssueEditBodyJob, IssueEditMilestoneJob,
-                              IssueEditAssigneeJob, IssueEditLabelsJob)
+                              IssueEditAssigneeJob, IssueEditLabelsJob,
+                              IssueCreateJob)
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
@@ -856,7 +861,43 @@ class IssueCreateView(LinkedToUserFormViewMixin, BaseIssueEditView, CreateView):
     ajax_only = False
 
     def get_success_url(self):
+        if self.object.number:
+            return super(IssueCreateView, self).get_success_url()
         return self.object.get_created_url()
+
+    def form_valid(self, form):
+        """
+        Override the default behavior to add a job to create the issue on the
+        github side
+        """
+        response = super(IssueCreateView, self).form_valid(form)
+
+        # create the job
+        job = IssueCreateJob.add_job(self.object.pk,
+                               gh=self.request.user.get_connection())
+
+        # try to wait just a little for the job to be done
+        for i in range(0, 3):
+            sleep(0.1)  # wait a little, it may be fast
+            if job.status.hget() == STATUSES.SUCCESS:
+                self.object = Issue.objects.get(pk=job.created_pk.hget())
+                break
+
+        if self.object.number:
+            # if job done, it would have create the message itself
+            # and we want to be sure to redirect to the good url now that the
+            # issue was created
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            messages.success(self.request, self.get_success_user_message(self.object))
+            return response
+
+    def get_success_user_message(self, issue):
+        title = issue.title
+        if len(title) > 30:
+            title = title[:30] + u'…'
+        return u"""The %s "<strong>%s</strong>" will
+                be created shortly""" % (issue.type, title)
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

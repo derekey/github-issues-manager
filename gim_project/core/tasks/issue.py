@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __all__ = [
     'FetchIssueByNumber',
     'UpdateIssueCacheTemplate',
@@ -161,6 +163,7 @@ class BaseIssueEditJob(IssueJob):
     permission = 'self'
     editable_fields = None
     values = None
+    edited_issue = None
 
     @property
     def action_verb(self):
@@ -169,6 +172,15 @@ class BaseIssueEditJob(IssueJob):
     @property
     def action_done(self):
         return self.edit_mode + 'd'
+
+    def get_issue_title_for_message(self, issue, number=True):
+        if number and issue.number:
+            return '<strong>#%d</strong>' % issue.number
+        else:
+            title = issue.title
+            if len(title) > 30:
+                title = title[:30] + u'…'
+        return '"<strong>%s</strong>"' % title
 
     def run(self, queue):
         """
@@ -189,20 +201,22 @@ class BaseIssueEditJob(IssueJob):
             return False
 
         try:
-            issue.dist_edit(mode=self.edit_mode, gh=gh, fields=self.editable_fields, values=self.values)
+            issue = self.edited_issue = issue.dist_edit(mode=self.edit_mode, gh=gh, fields=self.editable_fields, values=self.values)
         except ApiError, e:
             message = None
 
             if e.code == 422:
-                message = u'Github refused to %s the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                    self.action_verb, issue.type, issue.number, issue.repository.full_name)
+                message = u'Github refused to %s the %s %s on <strong>%s</strong>' % (
+                    self.action_verb, issue.type, self.get_issue_title_for_message(issue),
+                    issue.repository.full_name)
                 self.status.hset(STATUSES.CANCELED)
 
             elif e.code in (401, 403):
                 tries = self.tries.hget()
                 if tries and int(tries) >= 5:
-                    message = u'You seem to not have the right to %s the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                        self.action_verb, issue.type, issue.number, issue.repository.full_name)
+                    message = u'You seem to not have the right to %s the %s %s on <strong>%s</strong>' % (
+                        self.action_verb, issue.type, self.get_issue_title_for_message(issue),
+                        issue.repository.full_name)
                     self.status.hset(STATUSES.CANCELED)
 
             if message:
@@ -225,9 +239,9 @@ class BaseIssueEditJob(IssueJob):
         return None
 
     def get_success_user_message(self, issue):
-        return u'The %s <strong>#%d</strong> on <strong>%s</strong> was correctly %s' % (
+        return u'The %s %s on <strong>%s</strong> was correctly %s' % (
                     issue.type,
-                    issue.number,
+                    self.get_issue_title_for_message(issue),
                     issue.repository.full_name,
                     self.action_done
                 )
@@ -305,3 +319,20 @@ class IssueEditLabelsJob(IssueEditFieldJob):
     def get_field_value(self):
         labels = self.value.hget() or '[]'
         return json.loads(labels)
+
+
+class IssueCreateJob(BaseIssueEditJob):
+    queue_name = 'create-issue'
+    edit_mode = 'create'
+
+    created_pk = fields.InstanceHashField(indexable=True)
+
+    def run(self, queue):
+        result = super(IssueCreateJob, self).run(queue)
+        if self.edited_issue:
+            self.created_pk.hset(self.edited_issue.pk)
+        return result
+
+    def get_issue_title_for_message(self, issue, number=False):
+        # dont use the number in create mode, but the title
+        return super(IssueCreateJob, self).get_issue_title_for_message(issue, number)
