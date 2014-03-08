@@ -50,6 +50,9 @@
                 </li>
         {% endif %}
         {% endfor %}
+        {% if display_add_issue_btn %}
+            <li class="add-issue-btn"><a role="menuitem" href="#" title="Create an issue on this repository"><i class="icon-plus"> </i> <span>Add issue</span></a></li>
+        {% endif %}
     </ul>
 {% endblock header_nav %}
 

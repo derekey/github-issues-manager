@@ -294,6 +294,8 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         })
         context['issues'] = self.finalize_issues(issues, context)
 
+        context['display_add_issue_btn'] = True
+
         return context
 
     def prepare_issues_filter_context(self, filter_context):

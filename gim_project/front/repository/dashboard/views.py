@@ -229,6 +229,8 @@ class DashboardView(BaseRepositoryView):
             'activity': ActivityPart().get_as_deferred(self),
         }
 
+        context['display_add_issue_btn'] = True
+
         return context
 
 

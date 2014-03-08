@@ -180,4 +180,11 @@ ol, ul {
     line-height: 1px !important;
 }
 
+// the main "add issue" button
+.add-issue-btn {
+    a {
+        margin-left: 20px;
+    }
+}
+
 @import "responsive";

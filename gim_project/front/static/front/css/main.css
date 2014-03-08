@@ -4828,6 +4828,11 @@ ol.errorlist, ul.errorlist {
   line-height: 1px !important;
 }
 
+/* line 185, ../../../sass/main.scss */
+.add-issue-btn a {
+  margin-left: 20px;
+}
+
 @media (max-width: 1023px) {
   /* line 4, ../../../sass/_responsive.scss */
   .navbar-fixed-top .user_avatar .dropdown-toggle > span > span:not(.caret) {

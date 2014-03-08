@@ -2374,6 +2374,7 @@ $().ready(function() {
 
             init: (function IssueEditor_create__init () {
                 jwerty.key('c', Ev.key_decorate(IssueEditor.create.start));
+                $('.add-issue-btn a').on('click', Ev.stop_event_decorate(IssueEditor.create.start));
                 $document.on('submit', '#issue-create-form', IssueEditor.create.on_form_submit);
                 $document.on('click', '#issue-create-modal .modal-footer button.submit', IssueEditor.create.on_form_submit);
                 $document.on('hidden.modal', '#modal-issue-created', IssueEditor.create.on_created_modal_hidden);
