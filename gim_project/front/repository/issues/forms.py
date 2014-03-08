@@ -211,13 +211,11 @@ class IssueLabelsForm(IssueLabelsFormPart, IssueFormMixin):
         fields = ['labels']
 
 
-class IssueCreateForm(LinkedToUserFormMixin,
-                            IssueTitleFormPart, IssueBodyFormPart,
-                            IssueMilestoneFormPart, IssueAssigneeFormPart,
-                            IssueLabelsFormPart, IssueFormMixin):
+class IssueCreateForm(IssueTitleFormPart, IssueBodyFormPart,
+                      LinkedToUserFormMixin, IssueFormMixin):
 
     class Meta(IssueFormMixin.Meta):
-        fields = ['title', 'body', 'milestone', 'assignee', 'labels']
+        fields = ['title', 'body', ]
 
     user_attribute = 'user'
 
@@ -227,6 +225,13 @@ class IssueCreateForm(LinkedToUserFormMixin,
         self.instance.is_pull_request = False
         self.instance.created_at = datetime.utcnow()
         return super(IssueCreateForm, self).save(commit)
+
+
+class IssueCreateFormFull(IssueMilestoneFormPart, IssueAssigneeFormPart,
+                          IssueLabelsFormPart, IssueCreateForm):
+
+    class Meta(IssueCreateForm.Meta):
+        fields = ['title', 'body', 'milestone', 'assignee', 'labels']
 
 
 class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):

@@ -37,7 +37,7 @@ from front.repository.views import BaseRepositoryView
 from front.utils import make_querystring
 from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueMilestoneForm, IssueAssigneeForm, IssueLabelsForm,
-                    IssueCreateForm,
+                    IssueCreateForm, IssueCreateFormFull,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
@@ -856,9 +856,16 @@ class IssueEditLabels(IssueEditFieldMixin):
 
 class IssueCreateView(LinkedToUserFormViewMixin, BaseIssueEditView, CreateView):
     url_name = 'issue.create'
-    form_class = IssueCreateForm
     template_name = 'front/repository/issues/create.html'
     ajax_only = False
+
+    def get_form_class(self):
+        """
+        Not the same form depending of the rights
+        """
+        if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
+            return IssueCreateFormFull
+        return IssueCreateForm
 
     def get_success_url(self):
         if self.object.number:

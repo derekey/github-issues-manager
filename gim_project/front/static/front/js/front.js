@@ -2093,9 +2093,10 @@ $().ready(function() {
         }), // on_select2_focus
 
         issue_edit_milestone_field_prepare: (function IssueEditor__issue_edit_milestone_field_prepare ($form, dont_load_select2) {
+            var $select = $form.find('#id_milestone');
+            if (!$select.length) { return; }
             var callback = function() {
-                var $select = $form.find('#id_milestone'),
-                    milestones_data = $select.data('milestones'),
+                var milestones_data = $select.data('milestones'),
                     format = function(state, include_title) {
                         if (state.children) {
                             return state.text.charAt(0).toUpperCase() + state.text.substring(1) + ' milestones';
@@ -2133,9 +2134,10 @@ $().ready(function() {
         }), // issue_edit_milestone_field_prepare
 
         issue_edit_assignee_field_prepare: (function IssueEditor__issue_edit_assignee_field_prepare ($form, dont_load_select2) {
+            var $select = $form.find('#id_assignee');
+            if (!$select.length) { return; }
             var callback = function() {
-                var $select = $form.find('#id_assignee'),
-                    collaborators_data = $select.data('collaborators'),
+                var collaborators_data = $select.data('collaborators'),
                     format = function(state, include_icon) {
                         var data = collaborators_data[state.id];
                         if (data) {
@@ -2167,9 +2169,10 @@ $().ready(function() {
         }), // issue_edit_assignee_field_prepare
 
         issue_edit_labels_field_prepare: (function IssueEditor__issue_edit_labels_field_prepare ($form, dont_load_select2) {
+            var $select = $form.find('#id_labels');
+            if (!$select.length) { return; }
             var callback = function() {
-                var $select = $form.find('#id_labels'),
-                    labels_data = $select.data('labels'),
+                var labels_data = $select.data('labels'),
                     format = function(state, include_type) {
                         if (state.children) {
                             return state.text;

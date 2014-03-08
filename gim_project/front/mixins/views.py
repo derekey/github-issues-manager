@@ -201,9 +201,17 @@ class WithSubscribedRepositoryViewMixin(DependsOnSubscribedViewMixin):
             qs = self.get_allowed_repositories()
             self._repository = get_object_or_404(qs.select_related('owner'),
                                                   **self.get_repository_filter_args())
-            self.subscription = Subscription.objects.get(user=self.request.user,
-                                                repository=self._repository)
         return self._repository
+
+    @property
+    def subscription(self):
+        """
+        Return (and cache) the subscription for the current user/repository
+        """
+        if not hasattr(self, '_subscription'):
+            self._subscription = Subscription.objects.get(user=self.request.user,
+                                                repository=self.repository)
+        return self._subscription
 
     def get_context_data(self, **kwargs):
         """
