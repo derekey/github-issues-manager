@@ -353,6 +353,15 @@ $file-list-width: 400px;
     }
 }
 .select2-labels {
+    .select2-results {
+        display: block;
+        > li li:not(.select2-selected) {
+            display: inline-block;
+            .select2-result-label {
+                padding-left: 5px !important;
+            }
+        }
+    }
     .select2-result-label span {
         @extend %issue-label;
     }
@@ -419,7 +428,7 @@ $file-list-width: 400px;
         }
     }
 }
-#issue-create-modal {
+#issue-create-modal .modal-footer {
     button {
         font-size: inherit;
     }
