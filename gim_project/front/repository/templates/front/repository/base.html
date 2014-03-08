@@ -76,7 +76,13 @@
     </div>
     <div id="issue-create-modal" class="modal fancy hide fade" data-keyboard="false">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
+            <nav class="issue-create-nav dropdown">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="icon-reorder"> </i></button>
+                <ul class="dropdown-menu pull-right" role="menu" aria-label="Issue menu">
+                    <li><a href="#" class="resize-issue"><i class="icon-fullscreen"> </i> Toggle full screen</a></li>
+                    <li><a href="#" data-dismiss="modal"><i class="icon-remove"> </i> Close window</a></li>
+                </ul>
+            </nav>
             <h6>New issue</h6>
         </div>
         <div class="modal-body"></div>

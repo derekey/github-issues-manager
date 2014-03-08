@@ -1314,7 +1314,7 @@ $().ready(function() {
             // full screen mode
             jwerty.key('s', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
             jwerty.key('s', IssueDetail.on_main_issue_panel_key_event('toggle_full_screen'));
-            $document.on('click', '.resize-issue', Ev.stop_event_decorate(toggle_full_screen_for_current_modal));
+            $document.on('click', '.resize-issue', Ev.stop_event_decorate_dropdown(toggle_full_screen_for_current_modal));
             $document.on('click', '.resize-issue', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
 
             jwerty.key('v', IssueDetail.on_current_panel_key_event('view_on_github'));

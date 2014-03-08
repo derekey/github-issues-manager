@@ -432,10 +432,20 @@ $file-list-width: 400px;
         }
     }
 }
-#issue-create-modal .modal-footer {
-    button {
-        font-size: inherit;
+#issue-create-modal {
+    .modal-header {
+        position: relative;
     }
+    .modal-footer {
+        button {
+            font-size: inherit;
+        }
+    }
+}
+.issue-create-nav {
+    position: absolute;
+    top: 4px;
+    right: 5px;
 }
 
 @media (min-width: 1023px) {
