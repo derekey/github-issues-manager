@@ -100,7 +100,19 @@ $arrows: top, right, left, bottom;
 // manage zindex if two modals opened
 .modal-backdrop ~ .modal-backdrop {
     z-index: 1060;
+    ~ .modal-backdrop {
+        z-index: 1080;
+        ~ .modal-backdrop {
+            z-index: 1100;
+        }
+    }
 }
 .modal.in ~ .modal.in {
     z-index: 1070;
+    ~ .modal.in {
+        z-index: 1090;
+        ~ .modal.in {
+            z-index: 1110;
+        }
+    }
 }

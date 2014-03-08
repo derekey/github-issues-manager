@@ -758,13 +758,22 @@ $().ready(function() {
 
     IssueByNumber.init_events();
 
-    var toggle_full_screen_for_current_modal = (function toggle_full_screen_for_current_modal() {
+    var toggle_full_screen_for_current_modal = (function toggle_full_screen_for_current_modal(ev) {
         var $modal = $('.modal.in');
         if ($modal.length) {
+            if ($modal.length > 1) {
+                // get one with higher z-index
+                $modal = $($modal.sort(function(a, b) { return $(b).css('zIndex') - $(a).css('zIndex'); })[0]);
+            }
             $modal.toggleClass('full-screen');
+            if (IssueDetail.is_modal_an_IssueDetail($modal)) {
+                // continue to IssueDetail.toggle_full_screen if the modal is a IssueDetail
+                return true;
+            }
+            return false; // stop event propagation
         }
-        return false; // stop event propagation
     }); // toggle_full_screen_for_current_modal
+    jwerty.key('s', Ev.key_decorate(toggle_full_screen_for_current_modal));
 
     var on_help = (function on_help(e) {
         $('#show-shortcuts').click();
@@ -1201,11 +1210,18 @@ $().ready(function() {
 
         on_current_panel_key_event: (function IssueDetail__on_current_panel_key_event (method) {
             var decorator = function(e) {
-                if (PanelsSwpr.current_panel.obj != IssueDetail) { return; }
+                if (!PanelsSwpr.current_panel || PanelsSwpr.current_panel.obj != IssueDetail) { return; }
                 return IssueDetail[method](PanelsSwpr.current_panel);
             };
             return Ev.key_decorate(decorator);
         }), // on_current_panel_key_event
+
+        is_modal_an_IssueDetail: (function IssueDetail__is_modal_an_IssueDetail ($modal) {
+            var panel = PanelsSwpr.current_panel;
+            if (!panel || panel.obj != IssueDetail) { return false; }
+            if (!IssueDetail.is_modal(panel.$node)) { return false; }
+            return  (panel.$node.data('$modal')[0] == $modal[0]);
+        }), // is_modal_an_IssueDetail
 
         on_main_issue_panel_key_event: (function IssueDetail__on_main_issue_panel_key_event (method) {
             var decorator = function(e) {
@@ -1269,9 +1285,6 @@ $().ready(function() {
         }), // focus_search_input
 
         toggle_full_screen: (function IssueDetail__toggle_full_screen (panel) {
-            if (IssueDetail.is_modal(panel.$node)) {
-                toggle_full_screen_for_current_modal();
-            }
             panel.$node.toggleClass('big-issue');
             return false;
         }), // toggle_full_screen
