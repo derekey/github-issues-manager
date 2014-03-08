@@ -2050,7 +2050,24 @@ $().ready(function() {
                 return true;
         }), // select2_matcher
 
-        issue_edit_milestone_field_prepare: (function IssueEditor__issue_edit_milestone_field_prepare ($form) {
+        select2_auto_open: (function IssueEditor__select2_auto_open ($select) {
+            // http://stackoverflow.com/a/22210140
+            $select.one('select2-focus', IssueEditor.on_select2_focus)
+                   .on("select2-blur", function () {
+                        $(this).one('select2-focus', IssueEditor.on_select2_focus)
+                    });
+        }), // select2_auto_open
+
+        on_select2_focus: (function IssueEditor__on_select2_focus () {
+           var select2 = $(this).data('select2');
+            setTimeout(function() {
+                if (!select2.opened()) {
+                    select2.open();
+                }
+            }, 0);
+        }), // on_select2_focus
+
+        issue_edit_milestone_field_prepare: (function IssueEditor__issue_edit_milestone_field_prepare ($form, dont_load_select2) {
             var callback = function() {
                 var $select = $form.find('#id_milestone'),
                     milestones_data = $select.data('milestones'),
@@ -2080,12 +2097,17 @@ $().ready(function() {
                     dropdownCssClass: 'select2-milestone',
                     matcher: IssueEditor.select2_matcher
                 });
+                IssueEditor.select2_auto_open($select);
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            IssueEditor.load_select2(callback);
+            if (dont_load_select2) {
+                callback();
+            } else {
+                IssueEditor.load_select2(callback);
+            }
         }), // issue_edit_milestone_field_prepare
 
-        issue_edit_assignee_field_prepare: (function IssueEditor__issue_edit_assignee_field_prepare ($form) {
+        issue_edit_assignee_field_prepare: (function IssueEditor__issue_edit_assignee_field_prepare ($form, dont_load_select2) {
             var callback = function() {
                 var $select = $form.find('#id_assignee'),
                     collaborators_data = $select.data('collaborators'),
@@ -2109,12 +2131,17 @@ $().ready(function() {
                     dropdownCssClass: 'select2-assignee',
                     matcher: IssueEditor.select2_matcher
                 });
+                IssueEditor.select2_auto_open($select);
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            IssueEditor.load_select2(callback);
+            if (dont_load_select2) {
+                callback();
+            } else {
+                IssueEditor.load_select2(callback);
+            }
         }), // issue_edit_assignee_field_prepare
 
-        issue_edit_labels_field_prepare: (function IssueEditor__issue_edit_labels_field_prepare ($form) {
+        issue_edit_labels_field_prepare: (function IssueEditor__issue_edit_labels_field_prepare ($form, dont_load_select2) {
             var callback = function() {
                 var $select = $form.find('#id_labels'),
                     labels_data = $select.data('labels'),
@@ -2139,12 +2166,15 @@ $().ready(function() {
                     dropdownCssClass: 'select2-labels',
                     matcher: matcher,
                     closeOnSelect: false
-                }).on('select2-focus', function() {
-                    $select.select2('open');
                 });
+                IssueEditor.select2_auto_open($select);
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            IssueEditor.load_select2(callback);
+            if (dont_load_select2) {
+                callback();
+            } else {
+                IssueEditor.load_select2(callback);
+            }
         }), // issue_edit_labels_field_prepare
 
         on_issue_edit_field_cancel_click: (function IssueEditor__on_issue_edit_field_cancel_click (ev) {
@@ -2248,6 +2278,12 @@ $().ready(function() {
             }), // on_load_failed
 
             update_form: (function IssueEditor_create__update_form ($form) {
+                var select2_callback = function() {
+                    IssueEditor.issue_edit_milestone_field_prepare($form, true);
+                    IssueEditor.issue_edit_assignee_field_prepare($form, true);
+                    IssueEditor.issue_edit_labels_field_prepare($form, true);
+                };
+                IssueEditor.load_select2(select2_callback);
             }), // update_form
 
             on_form_submit: (function IssueEditor_create__on_form_submit (ev) {

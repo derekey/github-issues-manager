@@ -24,6 +24,11 @@ class IssueFormMixin(LinkedToRepositoryFormMixin):
     class Meta:
         model = Issue
 
+    def __init__(self, *args, **kwargs):
+        super(IssueFormMixin, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.help_text = None
+
     def save(self, commit=True):
         """
         Update the updated_at to create a new event at the correct time, but
@@ -65,10 +70,17 @@ class IssueTitleFormPart(object):
     def __init__(self, *args, **kwargs):
         super(IssueTitleFormPart, self).__init__(*args, **kwargs)
         self.fields['title'].validators = [partial(validate_filled_string, name='title')]
-        self.fields['title'].widget = forms.TextInput()
+        self.fields['title'].widget = forms.TextInput(attrs={'placeholder': 'Title'})
 
 
 class IssueBodyFormPart(object):
+    def __init__(self, *args, **kwargs):
+        super(IssueBodyFormPart, self).__init__(*args, **kwargs)
+        self.fields['body'].widget.attrs.update({
+            'placeholder': 'Description',
+            'cols': None,
+            'rows': None,
+        })
 
     def save(self, commit=True):
         self.instance.body_html = None  # will be reset with data from github
