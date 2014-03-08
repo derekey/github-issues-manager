@@ -400,7 +400,7 @@
                                     </span>
                                 {% endif %}
                             </a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu" role="menu" arua-label="Sort options">
                                 {% for sort_field in view.allowed_sort_fields %}
                                     <li{% if issues_filter.parts.sort == sort_field %} class="active"{% endif %}>
                                         <a href="{{ current_issues_url }}{% replace_many_in_querystring "sort" sort_field "direction" issues_filter.parts.direction|default:"desc" %}">{{ sort_field|capfirst }}</a>
@@ -437,7 +437,7 @@
                                     {% endif %}
                                 </span>
                             </a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu" role="menu" aria-label="Group options">
                                 {% for group_by_field in view.allowed_group_by_fields %}
                                     <li{% if issues_filter.parts.group_by == group_by_field %} class="active"{% endif %}>
                                         <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a>
@@ -474,7 +474,7 @@
                                     <span class="caret"></span>
                                 </span>
                             </a>
-                            <ul class="dropdown-menu pull-right">
+                            <ul class="dropdown-menu pull-right" role="menu" aria-label="Options">
                                 <li><a href="#" id="toggle-issues-details">Toggle details</a></li>
                                 <li><a href="#" id="close-all-groups">Close all groups</a></li>
                                 <li><a href="#" id="open-all-groups">Open all groups</a></li>

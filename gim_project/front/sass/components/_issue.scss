@@ -36,6 +36,7 @@ $file-list-width: 400px;
             h3 {
                 margin-top: 4px;
                 margin-left: 50px;
+                margin-right: 65px;
             }
             &.stuck {
                 top: $header-top + $top-border;
@@ -248,7 +249,7 @@ $file-list-width: 400px;
     .issue-edit-title {
         position: absolute;
         left: 130px;
-        right: 10px;
+        right: 75px;
         height: 35px;
         div.edit-buttons {
             position: absolute;
@@ -488,14 +489,19 @@ $file-list-width: 400px;
 
 // the toolbar of an issue is placed on the top right corner
 .issue-nav {
-    position: fixed;
+    position: absolute;
     right: 23px;
-    top: 52px;
+    top: 21px;
     z-index: 120;
     i {
         cursor: pointer;
         color: $body-text-color;
     }
+}
+
+.header-stuck .issue-nav {
+    top: 60px;
+    position: fixed;
 }
 
 .issue-activity {
@@ -885,11 +891,10 @@ table.commits-list {
         padding: 0;
         @include border-radius(6px);
         background: $body-background-color;
-        .issue-nav {
-            @include calc(right, "50% - 260px");
-            @include calc(top, "10% + 10px");
-            .close {
-                margin-left: 10px;
+        .header-stuck {
+            .issue-nav {
+                @include calc(right, "50% - 260px");
+                @include calc(top, "10% + 9px");
             }
         }
         .stuck, {
@@ -923,9 +928,11 @@ table.commits-list {
     &.full-screen {
         .modal-body {
             height: 100%;
-            .issue-nav {
-                @include calc(right, "5% + 20px");
-                @include calc(top, "5% + 10px");
+            .header-stuck {
+                .issue-nav {
+                    @include calc(right, "5% + 20px");
+                    @include calc(top, "5% + 9px");
+                }
             }
             .stuck {
                 width: 90% !important;

@@ -152,7 +152,11 @@ $().ready(function() {
         }
         var is_popup = !!(force_popup || container.$window);
         if (!url) { url = this.$link.attr('href'); }
-        if (!no_loading) { IssueDetail.set_container_loading(container); }
+        if (!no_loading) {
+            IssueDetail.set_container_loading(container);
+        } else {
+            IssueDetail.unset_issue_waypoints(container.$node);
+        }
         if (is_popup) {
             // open the popup with its loading spinner
             container.$window.modal("show");
@@ -813,12 +817,16 @@ $().ready(function() {
 
         set_issue_waypoints: (function IssueDetail__set_issue_waypoints ($node, is_modal) {
             var issue_ident = IssueDetail.get_issue_ident($node);
+            $node.removeClass('header-stuck');
             setTimeout(function() {
                 if (!IssueDetail.is_issue_ident_for_node($node, issue_ident)) { return; }
                 var $context = IssueDetail.get_scroll_context($node, is_modal);
                 $node.find(' > article > .area-top header').waypoint('sticky', {
                     context: $context,
-                    stuckClass: 'area-top stuck'
+                    stuckClass: 'area-top stuck',
+                    handler: function(direction) {
+                        $node.toggleClass('header-stuck', direction == 'down');
+                    }
                 });
                 var $tabs = $node.find('.pr-tabs');
                 if ($tabs.length) {
@@ -840,7 +848,7 @@ $().ready(function() {
                 $files_list_container.waypoint('sticky', {
                     context: $context,
                     wrapper: '<div class="sticky-wrapper files-list-sticky-wrapper" />',
-                      offset: 84  // 47 for stuck header height + 37 for stuck tabs height
+                    offset: 84  // 47 for stuck header height + 37 for stuck tabs height
                 });
             }
         }), // set_tab_files_issue_waypoints
@@ -856,7 +864,7 @@ $().ready(function() {
         }), // is_modal
 
         enhance_modal: (function IssueDetail__enhance_modal ($node) {
-            $node.find('.issue-nav').append('<button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>');
+            $node.find('.issue-nav ul').append('<li><a href="#" data-dismiss="modal"><i class="icon-remove"> </i> Close window</a></li>');
         }), // enhance_modal
 
         get_container: (function IssueDetail__get_container (force_popup) {
@@ -1261,6 +1269,7 @@ $().ready(function() {
 
         on_modal_hidden: (function IssueDetail__on_modal_hidden () {
             var $modal = $(this);
+            IssueDetail.unset_issue_waypoints($modal.find('.issue-container'));
             PanelsSwpr.select_panel($modal.data('previous-panel'));
             $modal.data('$container').html('');
         }), // on_modal_hidden
@@ -1305,6 +1314,7 @@ $().ready(function() {
             // full screen mode
             jwerty.key('s', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
             jwerty.key('s', IssueDetail.on_main_issue_panel_key_event('toggle_full_screen'));
+            $document.on('click', '.resize-issue', Ev.stop_event_decorate(toggle_full_screen_for_current_modal));
             $document.on('click', '.resize-issue', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
 
             jwerty.key('v', IssueDetail.on_current_panel_key_event('view_on_github'));
@@ -1804,16 +1814,17 @@ $().ready(function() {
         }), // focus_form
 
         display_issue: (function IssueEditor__display_issue (html, context, force_popup) {
-            var is_popup = force_popup || context.$container.parents('.modal').length > 0;
+            var is_popup = force_popup || context.$node.parents('.modal').length > 0;
+            IssueDetail.set_container_loading(context);
             IssueDetail.display_issue(html, context.issue_ident, is_popup);
         }), // display_issue
 
         get_form_context: (function IssueEditor__get_form_context ($form) {
-            var $container = $form.closest('.issue-container'),
+            var $node = $form.closest('.issue-container'),
             context = {
-                issue_ident: IssueDetail.get_issue_ident($container),
+                issue_ident: IssueDetail.get_issue_ident($node),
                 $form: $form,
-                $container: $container
+                $node: $node
             };
             return context;
         }), // get_form_context
@@ -2348,8 +2359,6 @@ $().ready(function() {
                     };
                 IssueEditor.create.$modal.modal('hide');
                 var container = IssueDetail.get_container_waiting_for_issue(context.issue_ident, true, true)
-                IssueDetail.set_container_loading(container);
-                context.$container = container.$node;
                 IssueEditor.display_issue($html.children(), context);
             }), // display_created_issue
 
