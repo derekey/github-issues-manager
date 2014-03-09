@@ -1,7 +1,6 @@
 import base64
 from random import random
 
-from github import GitHub
 
 from django.views.generic import RedirectView
 from django.conf import settings
@@ -9,6 +8,7 @@ from django.core.urlresolvers import reverse, reverse_lazy, resolve
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 
+from core.ghpool import Connection
 from core.models import GithubUser
 from core.tasks.githubuser import FetchAvailableRepositoriesJob
 
@@ -27,7 +27,7 @@ class BaseGithubAuthView(RedirectView):
         if redirect_uri:
             params['redirect_uri'] = redirect_uri
 
-        return GitHub(**params)
+        return Connection(**params)
 
 
 class LoginView(BaseGithubAuthView):
@@ -55,17 +55,17 @@ class ConfirmView(BaseGithubAuthView):
         # check state
         attended_state = self.request.session.get('github-auth-state', None)
         if not attended_state:
-            return False, "Unexpected request"
+            return False, "Unexpected request, please retry"
         del self.request.session['github-auth-state']
 
         state = self.request.GET.get('state', None)
         if state != attended_state:
-            return False, "Unexpected request"
+            return False, "Unexpected request, please retry"
 
         # get code
         code = self.request.GET.get('code', None)
         if not code:
-            return False, "Authentication denied"
+            return False, "Authentication denied, please retry"
 
         # get the token for the given code
         try:
@@ -75,7 +75,7 @@ class ConfirmView(BaseGithubAuthView):
             token = None
 
         if not token:
-            return False, "Authentication failed"
+            return False, "Authentication failed, please retry"
 
         # do we have a user for this token ?
         try:
@@ -88,12 +88,12 @@ class ConfirmView(BaseGithubAuthView):
 
         # get informations about this user
         try:
-            user_infos = GitHub(access_token=token).user.get()
+            user_infos = Connection(access_token=token).user.get()
         except:
             user_infos = None
 
         if not user_infos:
-            return False, "Cannot get user informations"
+            return False, "Cannot get user informations, please retry"
 
         # create/update and get a user with the given infos and token
         try:
@@ -101,7 +101,7 @@ class ConfirmView(BaseGithubAuthView):
                                         data=user_infos,
                                         defaults={'simple': {'token': token}})
         except:
-            return False, "Cannot save user informations"
+            return False, "Cannot save user informations, please retry"
 
         # reject banned users
         if not user.is_active:
@@ -110,7 +110,7 @@ class ConfirmView(BaseGithubAuthView):
         # authenticate the user (needed to call login later)
         user = authenticate(username=user.username, token=user.token)
         if not user:
-            return False, "Final authentication failed"
+            return False, "Final authentication failed, please retry"
 
         # and finally login
         login(self.request, user)

@@ -234,7 +234,7 @@ class RepositoryActivity(BaseActivity):
         """
 
         if not pks:
-            return []
+            return [], False
         pks = sorted(set(pks))
 
         if len(pks) == 1:

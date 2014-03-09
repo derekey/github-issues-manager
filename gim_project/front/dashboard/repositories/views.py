@@ -6,6 +6,8 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 
+from limpyd_jobs import STATUSES
+
 from core.models import (Repository, GithubUser, AVAILABLE_PERMISSIONS)
 from subscriptions.models import (WaitingSubscription,
                                   WAITING_SUBSCRIPTION_STATES,
@@ -411,7 +413,10 @@ class ChooseRepositoryTabSubscriptions(ChooseRepositoryTab):
         context = super(ChooseRepositoryTabSubscriptions, self).get_context_data(**kwargs)
 
         extra = self.sql_extra_is_self()
-        self.add_in_orgs_to_sql_extra(extra, 'T4')
+        order_by = ['is_self', 'repository__owner']
+        if self.organizations_ids:
+            self.add_in_orgs_to_sql_extra(extra, 'T4')
+            order_by.insert(0, 'in_orgs')
 
         context['groups'] = [
             {
@@ -424,7 +429,7 @@ class ChooseRepositoryTabSubscriptions(ChooseRepositoryTab):
             in groupby(
                 self.request.user.subscriptions.extra(**extra)
                                 # start by not in ones not in orgs, with user owns first
-                               .order_by('in_orgs', 'is_self', 'repository__owner')
+                               .order_by(*order_by)
                                .select_related('repository__owner'),
                 lambda sub: self.get_organization_name_for_repository(sub.repository)
             )
@@ -548,7 +553,10 @@ class ChooseRepositoryTabWatched(ChooseRepositoryTab):
         context = super(ChooseRepositoryTabWatched, self).get_context_data(**kwargs)
 
         extra = self.sql_extra_is_self()
-        self.add_in_orgs_to_sql_extra(extra, 'T4')
+        order_by = ['is_self', 'owner']
+        if self.organizations_ids:
+            self.add_in_orgs_to_sql_extra(extra, 'T4')
+            order_by.insert(0, 'in_orgs')
 
         context['groups'] = self.order_organizations(
             [
@@ -562,7 +570,7 @@ class ChooseRepositoryTabWatched(ChooseRepositoryTab):
                 in groupby(
                     self.request.user.watched_repositories.extra(**extra)
                                     # start by not in ones not in orgs, with user owns first
-                                   .order_by('in_orgs', 'is_self', 'owner')
+                                   .order_by(*order_by)
                                    .select_related('owner'),
                     lambda repository: self.get_organization_name_for_repository(repository)
                 )

@@ -58,7 +58,9 @@ class Token(lmodel.RedisModel):
         If the remaining call is small (< 10% of the limit), mark the token as
         unavailable and ask for a reset when they will be available
         """
-        self.username.hset(gh._connection_args['username'])
+        username = gh._connection_args.get('username')
+        if username:
+            self.username.hset(username)
 
         # save last calls
         now = datetime.utcnow()
@@ -190,10 +192,14 @@ class Token(lmodel.RedisModel):
         the user can admin/push
         """
         self.repos_admin.delete()
-        self.repos_admin.sadd(*self.get_repos_pks_with_permissions('admin'))
+        repos_admin = self.get_repos_pks_with_permissions('admin')
+        if repos_admin:
+            self.repos_admin.sadd(*repos_admin)
 
         self.repos_push.delete()
-        self.repos_push.sadd(*self.get_repos_pks_with_permissions('admin', 'push'))
+        repos_push = self.get_repos_pks_with_permissions('admin', 'push')
+        if repos_push:
+            self.repos_push.sadd(*repos_push)
 
     @classmethod
     def get_one_for_repository(cls, repository_pk, permission, available=True, sort_by='-rate_limit_remaining'):
