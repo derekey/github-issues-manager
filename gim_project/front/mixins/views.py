@@ -371,6 +371,9 @@ class DeferrableViewPart(object):
 
     def get_as_part(self, main_view, **kwargs):
         self.inherit_from_view(main_view)
+        return self.render_part(**kwargs)
+
+    def render_part(self, **kwargs):
         response = self.get(self.request, **kwargs)
         response.render()
         return response.content
@@ -388,6 +391,9 @@ class DeferrableViewPart(object):
 
     def get_as_deferred(self, main_view, **kwargs):
         self.inherit_from_view(main_view)
+        return self.render_deferred(*kwargs)
+
+    def render_deferred(self, **kwargs):
         response = self.response_class(
             request = self.request,
             template = self.get_deferred_template_names(),

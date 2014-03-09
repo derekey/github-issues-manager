@@ -4,6 +4,9 @@
 @import "compass/css3/box-sizing";
 
 #available-repositories {
+    .nav-tabs .label {
+        margin-left: 10px;
+    }
     .tab-pane .area-top {
         border-top: 0;
         margin: 0;

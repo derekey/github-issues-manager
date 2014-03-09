@@ -305,6 +305,9 @@ class ChooseRepositoryTab(DeferrableViewPart, WithRepoMixin, TemplateView):
     def part_url(self):
         return reverse_lazy('front:dashboard:repositories:choose-part-%s' % self.slug)
 
+    def count(self):
+        return 0
+
     def get_organization_name_for_repository(self, repository):
         """
         Returns:
@@ -375,6 +378,14 @@ class ChooseRepositoryTab(DeferrableViewPart, WithRepoMixin, TemplateView):
             extra['select']['in_orgs'] = ' or '.join(
                     ['%s.id=%s' % (table, org_id) for org_id in self.organizations_ids])
 
+    def render_for_start(self, **kwargs):
+        """
+        Return the rendered content for the view as part or deferred depending
+        on the start_deferred attr
+        """
+        method = 'render_deferred' if self.start_deferred else 'render_part'
+        return getattr(self, method)(**kwargs)
+
     def get_for_start(self, main_view, **kwargs):
         """
         Return the view as part or deferred depending on the start_deferred attr
@@ -400,6 +411,11 @@ class ChooseRepositoryTabSubscriptions(ChooseRepositoryTab):
     title = 'Subscriptions'
     description = 'The list of your the respositories you subscribed.'
     start_deferred = False
+
+    def count(self):
+        count_real_sub = self.request.user.subscriptions.count()
+        count_waiting_sub = self.request.user.waiting_subscriptions.count()
+        return count_real_sub + count_waiting_sub
 
     def get_context_data(self, **kwargs):
         """
@@ -474,6 +490,9 @@ class ChooseRepositoryTabAvailableNotInOrgs(ChooseRepositoryTab):
     title = 'Available (yours and collabs)'
     description = 'The list of repositories you own or ones you were set as a collaborator (but not in organizations).'
 
+    def count(self):
+        return self.request.user.available_repositories_set.exclude(organization_id__in=self.organizations_ids).count()
+
     def get_context_data(self, **kwargs):
         """
         We want the available repositories for the user, that are not in
@@ -509,6 +528,9 @@ class ChooseRepositoryTabAvailableInOrgs(ChooseRepositoryTab):
     title = 'Available (in orgs)'
     description = 'The list of repositories of your organizations.'
 
+    def count(self):
+        return self.request.user.available_repositories_set.filter(organization_id__in=self.organizations_ids).count()
+
     def get_context_data(self, **kwargs):
         """
         We want the available repositories for the user in organizations he
@@ -541,6 +563,9 @@ class ChooseRepositoryTabWatched(ChooseRepositoryTab):
     url_part = 'watched'
     title = 'Watched on Github'
     description = 'The list of repositories you watch on Github.'
+
+    def count(self):
+        return self.request.user.watched_repositories.count()
 
     def get_context_data(self, **kwargs):
         """
@@ -588,13 +613,18 @@ class ChooseRepositoryTabStarred(ChooseRepositoryTab):
     description = 'The list of repositories you starred on Github.'
     deferred_description = 'The list of repositories you starred on Github. May be long to retrieve.'
 
+    def count(self):
+        return self.request.user.starred_repositories.count()
+
     def get_context_data(self, **kwargs):
         """
         We want all the repositories the user starred, all in the same group
         """
         context = super(ChooseRepositoryTabStarred, self).get_context_data(**kwargs)
 
-        starred = self.order_repositories(self.request.user.starred_repositories.all())
+        starred = self.order_repositories(self.request.user.starred_repositories
+                                                           .select_related('owner')
+                                                           .all())
 
         if len(starred):
             context['groups'] = [{
@@ -628,13 +658,15 @@ class ChooseRepositoryView(TemplateView):
                         if j.status.hget() != STATUSES.DELAYED]:
             context['still_fetching'] = True
 
-        context['tabs'] = [
-            {
+        context['tabs'] = []
+        for tab in self.tabs:
+            tab_view = tab()
+            tab_view.inherit_from_view(self)
+            context['tabs'].append({
                 'class': tab,
-                'part': tab().get_for_start(self),
-            }
-            for tab in self.tabs
-        ]
+                'count': tab_view.count(),
+                'part': tab_view.render_for_start(),
+            })
 
         return context
 

@@ -34,7 +34,12 @@
     <div class="box-header">
         <ul class="nav nav-tabs nav-tabs-left">
             {% for tab in tabs %}
-                <li{% if forloop.first %} class="active"{% endif %} data-mode="{{ tab.class.slug }}"><a href="#choose-{{ tab.class.slug }}" data-toggle="tab">{{ tab.class.title }}</a></li>
+                <li{% if forloop.first %} class="active"{% endif %} data-mode="{{ tab.class.slug }}">
+                    <a href="#choose-{{ tab.class.slug }}" data-toggle="tab">
+                        {{ tab.class.title }}
+                        <span class="label label-{% if tab.count %}blue{% else %}gray{% endif %}">{{ tab.count }}</span>
+                    </a>
+                </li>
             {% endfor %}
         </ul>
     </div>
