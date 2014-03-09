@@ -6,5 +6,5 @@
     {% endwith %}
 </div>
 <ul class="unstyled chat-box timeline issue-activity">
-    {% include "front/repository/issues/include_commits_groups.html" with groups=current_issue.get_commits_per_day id_prefix="pr-comm-" %}
+    {% include "front/repository/issues/commits/include_commits_groups.html" with groups=current_issue.get_commits_per_day id_prefix="pr-comm-" %}
 </ul>

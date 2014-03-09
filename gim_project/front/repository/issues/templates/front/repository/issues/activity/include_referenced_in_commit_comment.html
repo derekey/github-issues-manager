@@ -1,4 +1,4 @@
-{% extends "front/repository/issues/include_base_comment.html" %}
+{% extends "front/repository/issues/activity/include_base_activity.html" %}
 {% load frontutils %}
 
 {% block node_class %}event event-referenced-in-commit{% endblock %}
@@ -19,7 +19,7 @@
                 Deleted commit <strong>{{ comment.commit_sha }}</strong>
             {% else %}
                 <div class="comment-commits">
-                    {% include "front/repository/issues/include_commits.html" with commits=commit|tolist id_prefix="ref-" %}
+                    {% include "front/repository/issues/commits/include_commits.html" with commits=commit|tolist id_prefix="ref-" %}
                 </div>
             {% endif %}
         {% endwith %}

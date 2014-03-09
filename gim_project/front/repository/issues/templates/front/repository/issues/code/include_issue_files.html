@@ -12,19 +12,18 @@
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"> </i></a>
                 <ul class="dropdown-menu pull-right files-navigator" role="menu" aria-label="Navigation options">
                     {% if current_issue.nb_changed_files > 1 %}
-                        <li class="horizontal-4 disabled"><a href='#'>Files:</a></li><!--
-                        --><li class="horizontal-4"><a data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files" href="#">Toggle</a></li><!--
-                        --><li class="horizontal-2 disabled"><a href="#" class="go-to-previous-file"><i class="icon-chevron-up" title="Previous file"> </i></a></li><!--
-                        --><li class="horizontal-2"><a href="#" class="go-to-next-file"><i class="icon-chevron-down" title="Next file"> </i></a></li>
+                        <li class="horizontal-4 disabled"><a href='#'>Files:</a></li>
+                        <li class="horizontal-4"><a data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files" href="#">Toggle</a></li>
+                        <li class="horizontal-2 disabled"><a href="#" class="go-to-previous-file"><i class="icon-chevron-up" title="Previous file"> </i></a></li>
+                        <li class="horizontal-2"><a href="#" class="go-to-next-file"><i class="icon-chevron-down" title="Next file"> </i></a></li>
                     {% endif %}
                     {% if current_issue.nb_changed_files > 1 and entry_points_dict|length%}
                         <li class="divider"></li>
                     {% endif %}
                     {% if entry_points_dict|length %}
-                        <li class="horizontal-4 disabled"><a href='#'>Comments:</a></li><!--
-                        --><li class="horizontal-4"><a data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file .pr-comments.collapse" title="Open/close all comments" href="#">Toggle</a></li><!--
-                        --><li class="horizontal-2"><a href="#" class="go-to-previous-file-comment"><i class="icon-chevron-up" title="Previous commented line"> </i></a></li><!--
-                        --><li class="horizontal-2"><a href="#" class="go-to-next-file-comment"><i class="icon-chevron-down" title="Next commented line"> </i></a></li>
+                        <li class="horizontal-4 disabled"><a href='#'>Comments:</a></li>
+                        <li class="horizontal-4"><a data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file .pr-comments.collapse" title="Open/close all comments" href="#">Toggle</a></li>
+                        <li class="horizontal-2"><a href="#" class="go-to-previous-file-comment"><i class="icon-chevron-up" title="Previous commented line"> </i></a></li><li class="horizontal-2"><a href="#" class="go-to-next-file-comment"><i class="icon-chevron-down" title="Next commented line"> </i></a></li>
                     {% endif %}
                  </ul>
             </div>
@@ -37,7 +36,7 @@
         {% for file in files %}
             <tr{% if forloop.first %} class="active"{% endif %} data-pos="{{ forloop.counter }}">
                 <td class="status-{{ file.status }}"><i class="icon-{% if file.status == 'added' %}plus{% elif file.status == 'removed'%}remove{% elif file.status == 'renamed' %}resize-horizontal{% elif file.status == 'modified' %}pencil{% else %}file{% endif %}"> </i></td>
-                <td title="{{ file.path }}"><i class="icon-angle-right"> </i><a class="path" href="#pr-file-{{ file.id }}-target">{{ file.path }}</a></td>
+                <td title="{{ file.path }}"><i class="icon-angle-right"> </i>&nbsp;<a class="path" href="#pr-file-{{ file.id }}-target">{{ file.path }}</a></td>
                 <td>
                     <ul class="unstyled">
                         <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ file.nb_additions }}</li>
@@ -74,7 +73,7 @@
             <div class="box-content collapse in" id="pr-file-{{ file.id }}-content">
                 {% if file.patch %}
                     <div class="box-section code-diff">
-                        {% include "front/repository/issues/include_diff.html" with parsed_diff=file.patch|parse_diff entry_points=entry_points_dict|dict_item:file.path path=file.path sha=file.tree %}
+                        {% include "front/repository/issues/code/include_diff.html" with parsed_diff=file.patch|parse_diff entry_points=entry_points_dict|dict_item:file.path path=file.path sha=file.tree %}
                     </div>
                 {% else %}
                     <div class="box-section no-diff">

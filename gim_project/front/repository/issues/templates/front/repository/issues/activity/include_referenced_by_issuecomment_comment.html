@@ -1,13 +1,13 @@
-{% extends "front/repository/issues/include_base_comment.html" %}
+{% extends "front/repository/issues/activity/include_base_activity.html" %}
 
-{% block node_class %}event event-referenced-by-pullrequestcomment{% endblock %}
+{% block node_class %}event event-referenced-by-issuecomment{% endblock %}
 
 {% block comment_info %}
     <span class="label label-purple">REFERENCED</span>
     <strong>{{ comment.user.username }}</strong>
     referenced this {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
     {% with related_comment=comment.related_object.issue %}
-        from a <strong>comment on commit in a pull request</strong>
+        from a <strong>comment on {% if related_issue.is_pull_request %}a pull request{% else %}an issue{% endif %}</strong>
     {% endwith %}
 {% endblock %}
 

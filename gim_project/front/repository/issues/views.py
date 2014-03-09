@@ -700,7 +700,7 @@ class FilesAjaxIssueView(SimpleAjaxIssueView):
     """
     Override SimpleAjaxIssueView to add comments in files (entry points)
     """
-    ajax_template_name = 'front/repository/issues/include_issue_files.html'
+    ajax_template_name = 'front/repository/issues/code/include_issue_files.html'
 
     def get_context_data(self, **kwargs):
         context = super(FilesAjaxIssueView, self).get_context_data(**kwargs)

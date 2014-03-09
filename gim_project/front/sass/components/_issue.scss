@@ -230,6 +230,9 @@ $file-list-width: 400px;
         &, &:hover {
             text-decoration: none;
         }
+        &.issue-edit-btn-title {
+            margin-left: 5px;
+        }
         &.issue-edit-btn-body {
             font-size: 18px;
             position: absolute;
@@ -526,6 +529,9 @@ $file-list-width: 400px;
     }
     .chat-box-entry {
         margin-left: 50px;
+        > .info .label {
+            margin-right: 4px;
+        }
         &.event {
             > .info {
                 color: #393939;
@@ -599,6 +605,9 @@ $file-list-width: 400px;
                 float: none;
                 &:first-of-type {
                     margin-bottom: 3px;
+                    li:first-of-type {
+                        margin-right: 3px;
+                    }
                 }
                 a.btn {
                     display: block;
@@ -787,6 +796,9 @@ $file-list-width: 400px;
         }
         td:last-of-type {
             text-align: right;
+            li {
+                margin-left: 4px;
+            }
         }
         tr.active {
             td:nth-child(2) i {
@@ -845,6 +857,7 @@ table.commits-list {
                 vertical-align: middle;
                 display: inline-block;
                 width: 80px;
+                margin-left: 3px;
             }
         }
         &.cell-message {

@@ -11,7 +11,7 @@
                 {% with entry_point=entry_points|dict_item:position %}
     </table>
 </div>
-{% include "front/repository/issues/include_pr_comments.html" with pr_comments=entry_point.comments.all classes="collapse in" %}
+{% include "front/repository/issues/comments/include_pr_comments.html" with pr_comments=entry_point.comments.all classes="collapse in" %}
 <div class="box-section code-diff">
     <table class="table table-normal diff" data-path="{{ path }}" data-sha="{{ sha }}">
             {% endwith %}
