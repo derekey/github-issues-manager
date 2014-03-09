@@ -31,8 +31,7 @@ $().ready(function() {
                 if (dropdown.hasClass('open')) {
                     dropdown.children('.dropdown-toggle').dropdown('toggle');
                 }
-                callback(e);
-                return false;
+                return callback.bind(this)(e);
             };
             return Ev.stop_event_decorate(decorator);
         }), // stop_event_decorate_dropdown
@@ -795,7 +794,14 @@ $().ready(function() {
         $modal_container: null,  // set in __init__
 
         get_url_for_ident: (function IssueDetail__get_url_for_ident (issue_ident) {
-            return '/' + issue_ident.repository + '/issues/' + issue_ident.number;
+            var number = issue_ident.number.toString(),
+                result = '/' + issue_ident.repository + '/issues/';
+            if (number.indexOf('pk-') == 0) {
+                result += '/created/' + number.substr(3);
+            } else {
+                result += number;
+            }
+            return result + '/';
         }), // get_url_for_ident
 
         on_issue_loaded: (function IssueDetail__on_issue_loaded ($node) {
@@ -864,7 +870,7 @@ $().ready(function() {
         }), // is_modal
 
         enhance_modal: (function IssueDetail__enhance_modal ($node) {
-            $node.find('.issue-nav ul').append('<li><a href="#" data-dismiss="modal"><i class="icon-remove"> </i> Close window</a></li>');
+            $node.find('.issue-nav ul').append('<li class="divider"></li><li><a href="#" data-dismiss="modal"><i class="icon-remove"> </i> Close window</a></li>');
         }), // enhance_modal
 
         get_container: (function IssueDetail__get_container (force_popup) {
@@ -1304,6 +1310,13 @@ $().ready(function() {
             return false;
         }), // view_on_github
 
+        refresh: (function IssueDetail__refresh (panel) {
+            var issue_ident = IssueDetail.get_issue_ident(panel.$node),
+                is_popup = IssueDetail.is_modal(panel.$node);
+            IssuesListIssue.open_issue(issue_ident, is_popup, true);
+            return false;
+        }), // refresh
+
         init: (function IssueDetail__init () {
             // init modal container
             IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1319,6 +1332,10 @@ $().ready(function() {
 
             jwerty.key('v', IssueDetail.on_current_panel_key_event('view_on_github'));
             jwerty.key('v', IssueDetail.on_main_issue_panel_key_event('view_on_github'));
+
+            jwerty.key('r', IssueDetail.on_current_panel_key_event('refresh'));
+            jwerty.key('r', IssueDetail.on_main_issue_panel_key_event('refresh'));
+            $document.on('click', '.refresh-issue', Ev.stop_event_decorate_dropdown(IssueDetail.on_current_panel_key_event('refresh')));
 
             // tabs activation
             jwerty.key('shift+d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
@@ -2211,8 +2228,8 @@ $().ready(function() {
             if ($form.data('disabled')) { return false; }
             IssueEditor.disable_form($form);
             $btn.addClass('loading');
-            var $container = $form.closest('.issue-container');
-            var issue_ident = IssueDetail.get_issue_ident($container);
+            var $container = $form.closest('.issue-container'),
+                issue_ident = IssueDetail.get_issue_ident($container),
                 is_popup = IssueDetail.is_modal($container);
             IssuesListIssue.open_issue(issue_ident, is_popup, true, true);
             if (is_popup) {

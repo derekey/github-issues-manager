@@ -11,7 +11,7 @@ from django.db import DatabaseError
 from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
 from django.shortcuts import render
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
 
 from limpyd_jobs import STATUSES
 
@@ -617,15 +617,42 @@ class IssueView(UserIssuesView):
 class CreatedIssueView(IssueView):
     url_name = 'issue.created'
 
+    def get(self, request, *args, **kwargs):
+        """
+        `dist-edit` delete the issue create by the user to replace it by the
+        one created on github that we fetched back, but it has a new PK, saved
+        in the job, so use it to get the new issue and redirect it back to its
+        final url.
+        Redirect to the final url too if with now have a number
+        """
+        try:
+            issue = self.get_current_issue()
+        except Issue.DoesNotExist:
+            # no more issue whis this pk, try to get the new created one
+            try:
+                job = IssueCreateJob.get(identifier=self.kwargs['issue_pk'])
+                issue = Issue.objects.get(pk=job.created_pk.hget())
+            except:
+                raise Http404
+            else:
+                return HttpResponsePermanentRedirect(issue.get_absolute_url())
+        else:
+            if issue.number:
+                return HttpResponsePermanentRedirect(issue.get_absolute_url())
+
+        return super(CreatedIssueView, self).get(request, *args, **kwargs)
+
     def get_current_issue(self):
         """
         Based on the informations from the url, try to return the wanted issue
         """
-        return self.repository.issues.select_related(
-                    'user',  'assignee', 'closed_by', 'milestone',
-                ).prefetch_related(
-                    'labels__label_type'
-                ).get(pk=self.kwargs['issue_pk'])
+        if not hasattr(self, '_issue'):
+            self._issue = self.repository.issues.select_related(
+                        'user',  'assignee', 'closed_by', 'milestone',
+                    ).prefetch_related(
+                        'labels__label_type'
+                    ).get(pk=self.kwargs['issue_pk'])
+        return self._issue
 
 
 class SimpleAjaxIssueView(IssueView):
