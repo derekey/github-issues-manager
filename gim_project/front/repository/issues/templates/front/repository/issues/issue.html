@@ -141,7 +141,7 @@
                     {% include "front/repository/issues/include_edit_buttons.html" %}
                 {% endif %}
             </div>
-        {% elif not current_issuer.number %}
+        {% elif not current_issue.number %}
             <div class="content issue-big-infos">
                 <p class="alert alert-warning">This issue is currently being pushed to github...</p>
             </div>
