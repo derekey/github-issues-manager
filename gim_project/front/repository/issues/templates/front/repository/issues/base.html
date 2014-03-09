@@ -15,7 +15,7 @@
 
 {% block main %}
 <div class="row-fluid" id="main-inner">
-    <nav id="issues-filters">
+    <nav id="issues-filters">{% spaceless %}
         <div class="primary-sidebar">
 
             <ul id="issues-filters-accordion" class="nav nav-collapse collapse nav-collapse-primary">
@@ -30,9 +30,7 @@
                             Creators
                             <i class="icon-caret-down"></i>
                             {% if issues_filter.objects.current_created_by %}
-                                    <span class="selection">
-                                        {{ issues_filter.objects.current_created_by }}
-                                    </span>
+                                    <span class="selection">{{ issues_filter.objects.current_created_by }}</span>
                                 </a>
                                 <a class="clear-filter" href="{{ root_issues_url }}{{ issues_filter.querystring }}" title="Clear this filter"><i class="icon-remove"> </i>
                             {% endif %}
@@ -47,24 +45,18 @@
                                 {% for username in issues_creators %}
                                     {% if issues_filter.objects.current_created_by == username %}
                                         <li class="creator active">
-                                            <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                                {{ username }}
-                                            </a>
+                                            <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ username }}</a>
                                         </li>
                                     {% else %}
                                         <li class="creator">
-                                            <a href="{{ current_repository|base_url_issues_filtered_by_created_by:username }}{{ issues_filter.querystring }}">
-                                                {{ username }}
-                                            </a>
+                                            <a href="{{ current_repository|base_url_issues_filtered_by_created_by:username }}{{ issues_filter.querystring }}">{{ username }}</a>
                                         </li>
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
                                 {% if issues_filter.objects.current_created_by %}
                                     <li class="creator active">
-                                        <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                            {{ issues_filter.objects.current_created_by }}
-                                        </a>
+                                        <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ issues_filter.objects.current_created_by }}</a>
                                     </li>
                                 {% endif %}
                                 <script type="text/javascript">
@@ -103,42 +95,30 @@
                     <ul id="filter-assigned" class="collapse">
                         {% if issues_filter.objects.current_assigned == 'none' %}
                             <li class="active">
-                                <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                    (&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)
-                                </a>
+                                <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">(&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)</a>
                             </li>
                         {% else %}
                             <li>
-                                <a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">
-                                    (&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)
-                                </a>
+                                <a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">(&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)</a>
                             </li>
                         {% endif %}
                         {% if issues_filter.objects.current_assigned == '*' %}
                             <li class="active">
-                                <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                    (&nbsp;Someone&nbsp;assigned&nbsp;)
-                                </a>
+                                <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">(&nbsp;Someone&nbsp;assigned&nbsp;)</a>
                             </li>
                         {% else %}
                             <li>
-                                <a href="{{ someone_assigned_filter_url }}{{ issues_filter.querystring }}">
-                                    (&nbsp;Someone&nbsp;assigned&nbsp;)
-                                </a>
+                                <a href="{{ someone_assigned_filter_url }}{{ issues_filter.querystring }}">(&nbsp;Someone&nbsp;assigned&nbsp;)</a>
                             </li>
                         {% endif %}
                         {% for username in issues_assigned %}
                             {% if issues_filter.objects.current_assigned == username %}
                                 <li class="active">
-                                    <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                        {{ username }}
-                                    </a>
+                                    <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ username }}</a>
                                 </li>
                             {% else %}
                                 <li>
-                                    <a href="{{ current_repository|base_url_issues_filtered_by_assigned:username }}{{ issues_filter.querystring }}">
-                                        {{ username }}
-                                    </a>
+                                    <a href="{{ current_repository|base_url_issues_filtered_by_assigned:username }}{{ issues_filter.querystring }}">{{ username }}</a>
                                 </li>
                             {% endif %}
                         {% endfor %}
@@ -153,9 +133,7 @@
                             Closed by
                             <i class="icon-caret-down"></i>
                             {% if issues_filter.objects.current_closed_by %}
-                                    <span class="selection">
-                                        {{ issues_filter.objects.current_closed_by }}
-                                    </span>
+                                    <span class="selection">{{ issues_filter.objects.current_closed_by }}</span>
                                 </a>
                                 <a class="clear-filter" href="{{ root_issues_url }}{{ issues_filter.querystring }}" title="Clear this filter"><i class="icon-remove"> </i>
                             {% endif %}
@@ -170,24 +148,18 @@
                                 {% for username in issues_closers %}
                                     {% if issues_filter.objects.current_closed_by == username %}
                                         <li class="closer active">
-                                            <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                                {{ username }}
-                                            </a>
+                                            <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ username }}</a>
                                         </li>
                                     {% else %}
                                         <li class="closer">
-                                            <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:username }}{{ issues_filter.querystring }}">
-                                                {{ username }}
-                                            </a>
+                                            <a href="{{ current_repository|base_url_issues_filtered_by_closed_by:username }}{{ issues_filter.querystring }}">{{ username }}</a>
                                         </li>
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
                                 {% if issues_filter.objects.current_closed_by %}
                                     <li class="closer active">
-                                        <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">
-                                            {{ issues_filter.objects.current_closed_by }}
-                                        </a>
+                                        <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ issues_filter.objects.current_closed_by }}</a>
                                     </li>
                                 {% endif %}
                                 <script type="text/javascript">
@@ -210,9 +182,7 @@
                         State
                         <i class="icon-caret-down"></i>
                         {% if issues_filter.objects.state %}
-                                <span class="selection">
-                                    {{ issues_filter.objects.state }}
-                                </span>
+                                <span class="selection">{{ issues_filter.objects.state }}</span>
                             </a>
                             <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "state" %}" title="Clear this filter"><i class="icon-remove"> </i>
                         {% endif %}
@@ -220,9 +190,7 @@
                     <ul id="filter-state" class="collapse">
                         {% for state in view.allowed_states %}
                             <li{% if issues_filter.parts.state == state %} class="active"{% endif %}>
-                                <a href="{{ current_issues_url }}{% toggle_in_querystring "state" state %}">
-                                    {{ state|capfirst }}
-                                </a>
+                                <a href="{{ current_issues_url }}{% toggle_in_querystring "state" state %}">{{ state|capfirst }}</a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -235,9 +203,7 @@
                         Pull-request
                         <i class="icon-caret-down"></i>
                         {% if issues_filter.parts.pr %}
-                                <span class="selection">
-                                    {{ issues_filter.parts.pr }}
-                                </span>
+                                <span class="selection">{{ issues_filter.parts.pr }}</span>
                             </a>
                             <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "pr" %}" title="Clear this filter"><i class="icon-remove"> </i>
                         {% endif %}
@@ -245,9 +211,7 @@
                     <ul id="filter-pr" class="collapse">
                         {% for pr in view.allowed_prs %}
                             <li{% if issues_filter.parts.pr == pr %} class="active"{% endif %}>
-                                <a href="{{ current_issues_url }}{% toggle_in_querystring "pr" pr %}">
-                                    {{ pr|capfirst }}
-                                </a>
+                                <a href="{{ current_issues_url }}{% toggle_in_querystring "pr" pr %}">{{ pr|capfirst }}</a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -275,9 +239,7 @@
                             </a>
                             <ul id="filter-milestone" class="collapse">
                                 <li{% if issues_filter.parts.milestone == "none" %} class="active"{% endif %}>
-                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">
-                                        (&nbsp;No&nbsp;milestones&nbsp;)
-                                    </a>
+                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">(&nbsp;No&nbsp;milestones&nbsp;)</a>
                                 </li>
                                 {% if milestones|length > 10 %}
                                     <li>
@@ -286,9 +248,7 @@
                                 {% endif %}
                                 {% for milestone in milestones %}
                                     <li class="milestone{% if issues_filter.objects.milestone.number == milestone.number %} active{% endif %}">
-                                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">
-                                            {{ milestone }}
-                                        </a>
+                                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -307,9 +267,7 @@
                                     <i class="icon-caret-down"></i>
                                     {% with current_label_type=issues_filter.objects.current_label_types|dict_item:label_type.id %}
                                         {% if current_label_type %}
-                                                <span class="selection">
-                                                    {{ current_label_type.typed_name }}
-                                                </span>
+                                                <span class="selection">{{ current_label_type.typed_name }}</span>
                                             </a>
                                             <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_type.name %}" title="Clear this filter"><i class="icon-remove"> </i>
                                         {% endif %}
@@ -340,16 +298,12 @@
                                 <i class="icon-caret-down"></i>
                                 {% if issues_filter.objects.current_labels %}
                                     {% if issues_filter.objects.current_labels|length == 1 and issues_filter.objects.current_labels.0 == 'none' %}
-                                            <span class="selection">
-                                                (&nbsp;No&nbsp;labels&nbsp;)
-                                            </span>
+                                            <span class="selection">(&nbsp;No&nbsp;labels&nbsp;)</span>
                                             </a>
                                         <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" %}" title="Clear this filter"><i class="icon-remove"> </i>
                                      {% else %}
                                         {% attributes_for_list issues_filter.objects.current_labels "name" as current_label_names %}
-                                            <span class="selection">
-                                                {{ current_label_names|join:", " }}
-                                            </span>
+                                            <span class="selection">{{ current_label_names|join:", " }}</span>
                                         </a>
                                         <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
                                     {% endif %}
@@ -357,9 +311,7 @@
                             </a>
                             <ul id="filter-labels" class="collapse filter-labels">
                                 <li{% if issues_filter.objects.current_labels|length == 1 and issues_filter.objects.current_labels.0 == 'none' %} class="active"{% endif %}>
-                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "labels" "none" %}">
-                                        (&nbsp;No&nbsp;labels&nbsp;)
-                                    </a>
+                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "labels" "none" %}">(&nbsp;No&nbsp;labels&nbsp;)</a>
                                 </li>
                                 {% if untyped_labels|length > 10 %}
                                     <li>
@@ -381,10 +333,10 @@
             </ul>
         </div>
 
-    </nav>
+    {% endspaceless %}</nav>
     <section id="issues-list-container" class="span5">
         {% if issues %}
-            <nav id="issues-list-options" class="navbar navbar-no-rounded">
+            <nav id="issues-list-options" class="navbar navbar-no-rounded">{% spaceless %}
                 <div class="navbar-inner">
                     <ul class="nav">
                         <li class="dropdown span4">
@@ -410,8 +362,8 @@
                                     <li class="divider"></li>
                                     <li class="horizontal-6{% if issues_filter.parts.direction == "asc" %} active{% endif %}">
                                         <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><i class="icon-chevron-down" title="Ascending order"> </i></a>
-                                    </li><!--
-                                    --><li class="horizontal-6{% if issues_filter.parts.direction == "desc" %} active{% endif %}">
+                                    </li>
+                                    <li class="horizontal-6{% if issues_filter.parts.direction == "desc" %} active{% endif %}">
                                         <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><i class="icon-chevron-up" title="Descending order"> </i></a>
                                     </li>
                                 {% endif %}
@@ -459,8 +411,8 @@
                                     <li class="divider"></li>
                                     <li class="horizontal-6{% if issues_filter.parts.group_by_direction == "asc" %} active{% endif %}">
                                         <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><i class="icon-chevron-down" title="Ascending order"> </i></a>
-                                    </li><!--
-                                    --><li class="horizontal-6{% if issues_filter.parts.group_by_direction == "desc" %} active{% endif %}">
+                                    </li>
+                                    <li class="horizontal-6{% if issues_filter.parts.group_by_direction == "desc" %} active{% endif %}">
                                         <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><i class="icon-chevron-up" title="Descending order"> </i></a>
                                     </li>
                                 {% endif %}
@@ -484,7 +436,7 @@
                         </li>
                     </ul>
                 </div>
-            </nav>
+            {% endspaceless %}</nav>
             {% include "front/include_quicksearch.html" with id="issues-list-search" class="issues-quicksearch" target="#issues-list .issue-item" content_data="search" placeholder="Filter by owner+number+title+milestone+labels" only %}
             <div id="issues-list" class='issues-list' data-quicksearch="#issues-list-search input">
                 {% if limit_reached %}
@@ -524,13 +476,7 @@
                             </a>
                             <ul class="unstyled box issues-group-issues">
                         {% endif %}
-                        {% for issue in group.list %}
-                            {# {% block one-issue %} #}
-                            {% issue_cache 0 issue_item issue.pk issue.saved_hash %}
-                                {% include "front/repository/issues/include_issue_item.html" with issue=issue %}
-                            {% endissue_cache %}
-                            {# {% endblock one-issue %} #}
-                        {% endfor %}
+                        {% for issue in group.list %}{# {% block one-issue %} #}{% issue_cache 0 issue_item issue.pk issue.saved_hash %}{% include "front/repository/issues/include_issue_item.html" with issue=issue %}{% endissue_cache %}{# {% endblock one-issue %} #}{% endfor %}
                         </ul>
                     </div>
                 {% endfor %}
@@ -550,7 +496,7 @@
 
 {% block modal-windows %}
     {{ block.super }}
-    <div id="shortcuts-window" class="modal hide fade" tabindex="-1">
+    <div id="shortcuts-window" class="modal hide fade" tabindex="-1">{% spaceless %}
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
             <h3>Shortcuts</h3>
@@ -621,5 +567,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    {% endspaceless %}</div>
 {% endblock modal-windows %}

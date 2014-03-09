@@ -19,7 +19,7 @@
     </div>
 {% endblock dashboard-header %}
 
-{% block dashboard-main %}
+{% block dashboard-main %}{% spaceless %}
     <div class="row-fluid">
         <div class="span10 offset1">
 
@@ -35,10 +35,7 @@
         <ul class="nav nav-tabs nav-tabs-left">
             {% for tab in tabs %}
                 <li{% if forloop.first %} class="active"{% endif %} data-mode="{{ tab.class.slug }}">
-                    <a href="#choose-{{ tab.class.slug }}" data-toggle="tab">
-                        {{ tab.class.title }}
-                        <span class="label label-{% if tab.count %}blue{% else %}gray{% endif %}">{{ tab.count }}</span>
-                    </a>
+                    <a href="#choose-{{ tab.class.slug }}" data-toggle="tab">{{ tab.class.title }}<span class="label label-{% if tab.count %}blue{% else %}gray{% endif %}">{{ tab.count }}</span></a>
                 </li>
             {% endfor %}
         </ul>
@@ -57,7 +54,7 @@
 
         </div>{# .span10 #}
     </div>{# .row-fluid #}
-{% endblock dashboard-main %}
+{% endspaceless %}{% endblock dashboard-main %}
 
 {% block js_footer %}
     {{ block.super }}

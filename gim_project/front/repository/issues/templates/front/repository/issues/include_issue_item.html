@@ -1,4 +1,4 @@
-{% load staticfiles querystring frontutils issues_tags %}
+{% load staticfiles querystring frontutils issues_tags %}{% spaceless %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
 {% with issue_labels=issue.labels.all %}<li id="issue-{{ issue.number }}" class="box-section news issue-item state-{{ issue.state }}" data-number="{{ issue.number }}" data-repository="{{ issue.repository.full_name }}" data-search="{{ issue.user.username }} #{{ issue.number }} {{ issue.title }}{% if issue.milestone %} {{ issue.milestone.title }}{% endif %}{% for label in issue_labels %}{% if label.label_type_id %} {{ label.label_type.name }}:{{ label.typed_name }}{% endif %}{% endfor %}{% for label in issue_labels %}{% if not label.label_type_id %} {{ label.name }}{% endif %}{% endfor %}">
     <div class="issue-item-header">
@@ -48,22 +48,22 @@
                 <i class="icon-comments-alt"> </i>{{ issue.total_comments_count }}
             </div>
         {% endif %}
-        <div class="issue-item-labels"><!--
+        <div class="issue-item-labels">
             {% for label in issue_labels %}
                 {% if label.label_type_id %}
                         {% attributes_for_list label.label_type.labels.all "name" as label_names %}
-                        --><a href="" class="js-filter-trigger" style="border-bottom-color: #{{ label.color }}" data-filter='labels:{{ label.name }}' data-type-name='{{ label.label_type.name }}'>
+                        <a href="" class="js-filter-trigger" style="border-bottom-color: #{{ label.color }}" data-filter='labels:{{ label.name }}' data-type-name='{{ label.label_type.name }}'>
                             <strong>{{ label.label_type.name }}:</strong> {{ label.typed_name }}
-                        </a><!--
+                        </a>
                 {% endif %}
             {% endfor %}
             {% for label in issue_labels %}
                 {% if not label.label_type_id %}
-                        --><a href="" class="js-filter-trigger" style="border-bottom: solid 3px #{{ label.color }}" data-filter='labels:{{ label.name }}'>
+                        <a href="" class="js-filter-trigger" style="border-bottom: solid 3px #{{ label.color }}" data-filter='labels:{{ label.name }}'>
                             {{ label.name }}
-                        </a><!--
+                        </a>
                 {% endif %}
             {% endfor %}
-        --></div>
+        </div>
     </div>
-</li>{% endwith %}
+</li>{% endwith %}{% endspaceless %}

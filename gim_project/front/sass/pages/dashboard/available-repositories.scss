@@ -7,6 +7,15 @@
     .nav-tabs .label {
         margin-left: 10px;
     }
+    @media (max-width: 1150px) {
+        .nav-tabs .label {
+            margin-left: 5px;
+        }
+        .nav-tabs > li > a {
+            padding-right: 3px;
+            padding-left: 3px;
+        }
+    }
     .tab-pane .area-top {
         border-top: 0;
         margin: 0;

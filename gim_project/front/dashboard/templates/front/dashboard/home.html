@@ -16,7 +16,7 @@
 
 {% block dashboard-main %}
 
-    <div class="row-fluid">
+    <div class="row-fluid">{% spaceless %}
         <div class="span6 dashboard-col">
             <div class="box col-part full-col" id="subscribed_repositories">
                 <div class="box-header">
@@ -71,9 +71,7 @@
                                 </ul>
                                   <div class="news-content">
                                     <div class="news-title">
-                                        <a href="{{ repository.get_absolute_url }}" title="View the repository '{{ repository }}'">
-                                            {{ repository.owner.username }}/<wbr />{{ repository.name }}
-                                        </a>
+                                        <a href="{{ repository.get_absolute_url }}" title="View the repository '{{ repository }}'">{{ repository.owner.username }}/<wbr />{{ repository.name }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -93,7 +91,7 @@
         <div class="span6 dashboard-col">
             {{ parts.activity|safe }}
         </div>{# .span6 #}
-    </div>{# .row-fluid #}
+    {% endspaceless %}</div>{# .row-fluid #}
 {% endblock dashboard-main %}d
 
 {% block js_footer %}

@@ -88,15 +88,7 @@
                 <td>&nbsp;</td>
             {% endif %}
             {# rights #}
-            <td>
-                {% if repo_name in available_repositories %}
-                    {% with available=available_repositories|dict_item:repo_name %}
-                        {{ available.get_permission_display }}
-                    {% endwith %}
-                {% else %}
-                    {{ AVAILABLE_PERMISSIONS.CHOICES_DICT.pull }}
-                {% endif %}
-            </td>
+            <td>{% if repo_name in available_repositories %}{% with available=available_repositories|dict_item:repo_name %}{{ available.get_permission_display }}{% endwith %}{% else %}{{ AVAILABLE_PERMISSIONS.CHOICES_DICT.pull }}{% endif %}</td>
         {% endif %}
         {# action #}
         {% if repo_name in waiting_subscriptions %}

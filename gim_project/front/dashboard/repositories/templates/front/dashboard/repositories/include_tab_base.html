@@ -1,4 +1,4 @@
-{% load staticfiles frontutils %}
+{% load staticfiles frontutils %}{% spaceless %}
 {% url "front:dashboard:repositories:add" as repository_add_url %}
 {% url "front:dashboard:repositories:remove" as repository_remove_url %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
@@ -20,4 +20,4 @@
     <script type="text/javascript">
         window.activate_quicksearches($('#tab-{{ tab.class.slug }}-search input.quicksearch'));
     </script>
-{% endif %}
+{% endif %}{% endspaceless %}

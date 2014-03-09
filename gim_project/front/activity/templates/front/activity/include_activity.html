@@ -1,4 +1,4 @@
-{% load frontutils staticfiles macros %}
+{% load frontutils staticfiles macros %}{% spaceless %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
 {% macro tags issue user %}
     {% if user == issue.repository.owner %}<span class="label label-success" title="{{ user.username }} is the project's owner">owner</span>{% endif %}
@@ -93,27 +93,27 @@
             </div>
             <p>
                 {% if entry.event == 'closed' %}
-                    Closed this {{ entry.issue.type }}
+                    <span>Closed this {{ entry.issue.type }}</span>
                 {% elif entry.event == 'merged' %}
-                    Merged this pull request
+                    <span>Merged this pull request</span>
                 {% elif entry.event == 'reopened' %}
-                    Reopened this {{ entry.issue.type }}
+                    <span>Reopened this {{ entry.issue.type }}</span>
                 {% elif entry.event == 'assigned' %}
-                    Was assigned to this {{ entry.issue.type }}
+                    <span>Was assigned to this {{ entry.issue.type }}</span>
                 {% elif entry.event == 'head_ref_deleted' %}
-                    Deleted the branch "{{ entry.issue.head_label }}"
+                    <span>Deleted the branch "{{ entry.issue.head_label }}"</span>
                 {% elif entry.event == 'head_ref_restored' %}
-                    Restored the branch "{{ entry.issue.head_label }}"
+                    <span>Restored the branch "{{ entry.issue.head_label }}"</span>
                 {% elif entry.event == 'referenced' and entry.commit_sha %}
-                    Referenced this issue from a commit
+                    <span>Referenced this issue from a commit</span>
                 {% elif entry.event == 'referenced_by_issue' %}
-                    Referenced this issue from an issue
+                    <span>Referenced this issue from an issue</span>
                 {% elif entry.event == 'referenced_by_issuecomment' %}
-                    Referenced this issue from a comment
+                    <span>Referenced this issue from a comment</span>
                 {% elif entry.event == 'referenced_by_pullrequestcomment' %}
-                    Referenced this issue from a code comment
+                    <span>Referenced this issue from a code comment</span>
                 {% elif entry.event == 'referenced_by_milestone' %}
-                    Referenced this issue from a milestone
+                    <span>Referenced this issue from a milestone</span>
                 {% else %}
                     {{ entry }}
                 {% endif %}
@@ -143,3 +143,4 @@
 {% if more_activity %}
     <div class="placeholder visible more{% if partial_activity and activity_args.min %} missing{% endif %} box-footer"><a href='#'><i class="icon-plus"> </i> Load {% if partial_activity and activity_args.min %}missing{% else %}more{% endif %}</a></div>
 {% endif %}
+{% endspaceless %}

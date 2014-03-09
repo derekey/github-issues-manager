@@ -6,7 +6,7 @@
 {% block body_attributes %} data-repository={{ current_repository.full_name }} data-repository-id={{ current_repository.id }}{% endblock %}
 {% block title %}{{ current_repository }} | {{ view.name }}{% endblock title %}
 
-{% block header_nav %}
+{% block header_nav %}{% spaceless %}
     <ul class="nav">
         <li class="dropdown">
             <a id="repository-switcher" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ current_repository }} <b class="caret"></b></a>
@@ -17,10 +17,7 @@
                 </li>
                 {% for group in groups %}
                     <li class="subscriptions-group">
-                        <strong>
-                            <img class="avatar-micro img-circle" src="{{ group.grouper.avatar_url|default:default_avatar }}" />
-                            {{ group.grouper.username }}
-                        </strong>
+                        <strong><img class="avatar-micro img-circle" src="{{ group.grouper.avatar_url|default:default_avatar }}" />{{ group.grouper.username }}</strong>
                         <ul class="unstyled">
                             {% for repository in group.list %}
                                 <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}"><span>{{ group.grouper.username }}/</span>{{ repository.name }}</a></li>
@@ -54,7 +51,7 @@
             <li class="add-issue-btn"><a role="menuitem" href="#" title="Create an issue on this repository"><i class="icon-plus"> </i> <span>Add issue</span></a></li>
         {% endif %}
     </ul>
-{% endblock header_nav %}
+{% endspaceless %}{% endblock header_nav %}
 
 {% block modal-windows %}
     {{ block.super }}

@@ -1,4 +1,4 @@
-{% load querystring frontutils issues_tags staticfiles %}
+{% load querystring frontutils issues_tags staticfiles %}{% spaceless %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
 {% if current_issue %}
     <nav class="issue-nav dropdown">
@@ -30,14 +30,10 @@
                 <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date:"DATETIME_FORMAT" }}</h5>
                 {% if current_issue.number %}
                     {% if current_issue.state == 'closed' %}
-                        <p class="state state-closed">
-                            Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url|default:default_avatar }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
-                        </p>
+                        <p class="state state-closed">Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url|default:default_avatar }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}</p>
                     {% else %}
                         {% if current_issue.updated_at and current_issue.created_at != current_issue.updated_at %}
-                            <p class="state state-open">
-                                Updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}
-                            </p>
+                            <p class="state state-open">Updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}</p>
                         {% endif %}
                     {% endif %}
                 {% endif %}
@@ -233,3 +229,4 @@
 {% else %}
     <p class="empty-area">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>
 {% endif %}
+{% endspaceless %}
