@@ -433,6 +433,10 @@ $file-list-width: 400px;
     }
 }
 #issue-create-modal {
+    .modal-body > .empty-area {
+        position: static;
+        margin: 0;
+    }
     .modal-header {
         position: relative;
     }
