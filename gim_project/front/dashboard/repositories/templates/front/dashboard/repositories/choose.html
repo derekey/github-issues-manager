@@ -23,6 +23,13 @@
     <div class="row-fluid">
         <div class="span10 offset1">
 
+{% if still_fetching %}
+    <div class="alert alert-info">
+        We're still fetching your available repositories, please refresh in a few seconds
+        <button type="button" class="close" title="Close" data-dismiss="alert">&times;</button>
+    </div>
+{% endif %}
+
 <div class="box" id="available-repositories">
     <div class="box-header">
         <ul class="nav nav-tabs nav-tabs-left">

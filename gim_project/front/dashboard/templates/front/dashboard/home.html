@@ -81,7 +81,10 @@
                         {% endwith %}
                         {% endfor %}
                     {% else %}
-                        <div class="empty-area">You didn't subscribe to any repositories !</div>
+                        <div class="empty-area">
+                            <p>You didn't subscribe to any repositories !</p>
+                            <p><a href="{% url "front:dashboard:repositories:choose" %}">Go to your subscriptions page !</a>
+                        </div>
                     {% endif %}
                 </div>{# .box-content #}
             </div>{# #subscribed_repositories.box #}

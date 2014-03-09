@@ -612,7 +612,13 @@ class ChooseRepositoryView(TemplateView):
     ]
 
     def get_context_data(self, **kwargs):
+        from core.tasks.githubuser import FetchAvailableRepositoriesJob
         context = super(ChooseRepositoryView, self).get_context_data(**kwargs)
+
+        if [j for j in FetchAvailableRepositoriesJob.collection(
+                            identifier=self.request.user.id, queued=1).instances()
+                        if j.status.hget() != STATUSES.DELAYED]:
+            context['still_fetching'] = True
 
         context['tabs'] = [
             {
