@@ -40,6 +40,8 @@ from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueCreateForm, IssueCreateFormFull,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
+LIMIT = 300
+
 
 class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
     name = 'Issues'
@@ -292,7 +294,9 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
             'qs_parts_for_ttags': issues_filter['parts'],
             'label_types': label_types,
         })
-        context['issues'] = self.finalize_issues(issues, context)
+
+        context['issues'], context['issues_count'], context['limit_reached'] = self.finalize_issues(issues, context)
+        context['MAX_ISSUES'] = LIMIT
 
         context['display_add_issue_btn'] = True
 
@@ -325,10 +329,17 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         Return a final list of issues usable in the view.
         Actually simply order ("group") by a label_type if asked
         """
-        issues_count = issues.count()
+        total_count = issues_count = issues.count()
 
         if not issues_count:
-            return []
+            return [], 0, False
+
+        if self.request.GET.get('limit') != 'no' and issues_count > LIMIT:
+            issues_count = LIMIT
+            issues = issues[:LIMIT]
+            limit_reached = True
+        else:
+            limit_reached = False
 
         try:
             issues = list(issues.all())
@@ -378,7 +389,7 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
                 if label_id in issues_dict:
                     issues += issues_dict[label_id]
 
-        return issues
+        return issues, total_count, limit_reached
 
 
 class UserIssuesView(IssuesView):

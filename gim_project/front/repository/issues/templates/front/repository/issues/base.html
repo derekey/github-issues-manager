@@ -487,6 +487,13 @@
             </nav>
             {% include "front/include_quicksearch.html" with id="issues-list-search" class="issues-quicksearch" target="#issues-list .issue-item" content_data="search" placeholder="Filter by owner+number+title+milestone+labels" only %}
             <div id="issues-list" class='issues-list' data-quicksearch="#issues-list-search input">
+                {% if limit_reached %}
+                    <div class="alert alert-warning">
+                        The current filter returned {{ issues_count }} issues but we only retrieved {{ MAX_ISSUES }} to avoid a slow rendering.
+                        <br />
+                        <a class="btn btn-mini btn-default" href="{{ current_issues_url }}{% replace_in_querystring "limit" "no" %}">Display the whole list.</a>
+                    </div>
+                {% endif %}
                 {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
                 {% for group in issues_groups %}
                     <div class='box issues-group'>

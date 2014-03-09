@@ -1,10 +1,22 @@
 .issues-list {
+    > .alert {
+        margin: 0;
+        padding-right: 14px;
+        .btn {
+            margin: 8px auto 0;
+            display: block;
+            max-width: 13em;
+        }
+        & + .box {
+            border-top-width: 1px;
+        }
+    }
     .box {
         margin-bottom: 0;
         @include border-radius(0);
-        border-top: 0;
-        border-left: 0;
-        border-right: 0;
+        border-top-width: 0;
+        border-left-width: 0;
+        border-right-width: 0;
     }
     .box-content {
         margin-bottom: -1px;
