@@ -1058,9 +1058,11 @@ class Repository(GithubObjectWithId):
     issues_fetched_at = models.DateTimeField(blank=True, null=True)
     issues_state_open_etag = models.CharField(max_length=64, blank=True, null=True)
     issues_state_closed_etag = models.CharField(max_length=64, blank=True, null=True)
+    issues_state_all_etag = models.CharField(max_length=64, blank=True, null=True)
     prs_fetched_at = models.DateTimeField(blank=True, null=True)
     prs_state_open_etag = models.CharField(max_length=64, blank=True, null=True)
     prs_state_closed_etag = models.CharField(max_length=64, blank=True, null=True)
+    prs_state_all_etag = models.CharField(max_length=64, blank=True, null=True)
     comments_fetched_at = models.DateTimeField(blank=True, null=True)
     comments_etag = models.CharField(max_length=64, blank=True, null=True)
     pr_comments_fetched_at = models.DateTimeField(blank=True, null=True)
@@ -1203,7 +1205,7 @@ class Repository(GithubObjectWithId):
             vary = {'state': (state, )}
             remove_missing = False
         else:
-            vary = {'state': ('open', 'closed')}
+            vary = {'state': ('all', )}
             remove_missing = True
 
         count = 0
