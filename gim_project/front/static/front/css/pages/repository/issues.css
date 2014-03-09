@@ -2043,10 +2043,6 @@ table.commits-list td.cell-sha {
 #shortcuts-window tr td:first-of-type {
   white-space: nowrap;
 }
-/* line 18, ../../../../../sass/modals/_shortcuts.scss */
-#shortcuts-window table {
-  margin-bottom: 10px;
-}
 
 /* line 1, ../../../../../sass/modals/_gotoissue.scss */
 #go-to-issue-window {
