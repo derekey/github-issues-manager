@@ -3,6 +3,9 @@
 @import "compass/css3/box-sizing";
 @import "compass/css3/transition";
 @import "mixins";
+@import "modal";
+@import "form_elements";
+@import "core-admin-forms-correct.scss";
 
 $stuck-width: "0.583333 * (100% - 160px) - #{$scrollbar-width}"; // 58.333% is col width, but fixed width is viewport so we remove the left col size (and the scrollbar)
 $top-border: 5px;
@@ -33,6 +36,7 @@ $file-list-width: 400px;
             h3 {
                 margin-top: 4px;
                 margin-left: 50px;
+                margin-right: 65px;
             }
             &.stuck {
                 top: $header-top + $top-border;
@@ -245,7 +249,7 @@ $file-list-width: 400px;
     .issue-edit-title {
         position: absolute;
         left: 130px;
-        right: 10px;
+        right: 75px;
         height: 35px;
         div.edit-buttons {
             position: absolute;
@@ -264,6 +268,10 @@ $file-list-width: 400px;
                 width: 100%;
                 @include border-radius(0);
             }
+        }
+        input {
+            font-family: inherit;
+            font-size: 14px;
         }
     } // .issue-edit-title
 
@@ -328,34 +336,6 @@ $file-list-width: 400px;
     }
     .issue-edit-labels {
         float: left;
-        .select2-container-multi .select2-choices {
-            padding: 0 4px 3px 0;
-            .select2-search-field {
-                padding: 4px 0px 0px 4px;
-                margin: 0;
-                input {
-                    margin: 0;
-                    padding: 0;
-                }
-            }
-            .select2-search-choice {
-                margin: 4px 0 0 4px;
-                @include border-radius(0);
-                background: transparent;
-                border: none;
-                padding: 0 0 0 18px;
-                span {
-                    @extend %issue-label;
-                    margin-left: -18px;
-                    padding-left: 18px;
-                    padding-right: 3px;
-                    line-height: 20px;
-                }
-            }
-            .select2-search-choice-close {
-                top: 5px;
-            }
-        }
         div.edit-field,
         div.edit-buttons {
             display: table-cell;
@@ -374,9 +354,98 @@ $file-list-width: 400px;
     }
 }
 .select2-labels {
+    .select2-results {
+        display: block;
+        > li li:not(.select2-selected) {
+            display: inline-block;
+            .select2-result-label {
+                padding-left: 5px !important;
+            }
+        }
+    }
     .select2-result-label span {
         @extend %issue-label;
     }
+}
+
+.edit-field-labels {
+    .select2-container-multi .select2-choices {
+        * {
+            @include box-sizing(content-box);
+        }
+        padding: 0 4px 3px 0;
+        .select2-search-field {
+            padding: 4px 0px 0px 4px;
+            margin: 0;
+            input {
+                margin: 0;
+                padding: 0;
+                height: 20px;
+            }
+        }
+        .select2-search-choice {
+            margin: 4px 0 0 4px;
+            @include border-radius(0);
+            background: transparent;
+            border: none;
+            padding: 0 0 0 18px;
+            span {
+                @extend %issue-label;
+                margin-left: -18px;
+                padding-left: 18px;
+                padding-right: 3px;
+                line-height: 20px;
+            }
+        }
+        .select2-search-choice-close {
+            top: 5px;
+        }
+    }
+}
+
+#issue-create-form {
+    input[type=submit] {
+        display: none;
+    }
+    .select2-container {
+        margin-bottom: 10px;
+        .select2-choice {
+            height: 29px;
+        }
+    }
+    .edit-field {
+        > input, > textarea {
+            color: #555;
+            font-size: 13px;
+            font-family: inherit;
+            padding: 4px 6px;
+            line-height: 20px;
+        }
+        > input {
+            height: 28px;
+        }
+        > textarea {
+            min-height: 180px;
+        }
+        &:last-of-type .select2-container {
+            margin-bottom: 0;
+        }
+    }
+}
+#issue-create-modal {
+    .modal-header {
+        position: relative;
+    }
+    .modal-footer {
+        button {
+            font-size: inherit;
+        }
+    }
+}
+.issue-create-nav {
+    position: absolute;
+    top: 4px;
+    right: 5px;
 }
 
 @media (min-width: 1023px) {
@@ -430,14 +499,19 @@ $file-list-width: 400px;
 
 // the toolbar of an issue is placed on the top right corner
 .issue-nav {
-    position: fixed;
+    position: absolute;
     right: 23px;
-    top: 52px;
+    top: 21px;
     z-index: 120;
     i {
         cursor: pointer;
         color: $body-text-color;
     }
+}
+
+.header-stuck .issue-nav {
+    top: 60px;
+    position: fixed;
 }
 
 .issue-activity {
@@ -822,16 +896,15 @@ table.commits-list {
     }
 }
 
-#modal-issue-view {
+#modal-issue-view, #modal-issue-created {
     .modal-body {
         padding: 0;
         @include border-radius(6px);
         background: $body-background-color;
-        .issue-nav {
-            @include calc(right, "50% - 260px");
-            @include calc(top, "10% + 10px");
-            .close {
-                margin-left: 10px;
+        .header-stuck {
+            .issue-nav {
+                @include calc(right, "50% - 260px");
+                @include calc(top, "10% + 9px");
             }
         }
         .stuck, {
@@ -865,9 +938,11 @@ table.commits-list {
     &.full-screen {
         .modal-body {
             height: 100%;
-            .issue-nav {
-                @include calc(right, "5% + 20px");
-                @include calc(top, "5% + 10px");
+            .header-stuck {
+                .issue-nav {
+                    @include calc(right, "5% + 20px");
+                    @include calc(top, "5% + 9px");
+                }
             }
             .stuck {
                 width: 90% !important;

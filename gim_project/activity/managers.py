@@ -47,7 +47,7 @@ class ActivityManager(object):
         Return the default queryset to load objects of the current code. It may
         be overriden in subclasses to add [select|prefetch]_related
         """
-        return cls.get_model().objects
+        return cls.get_model().objects.exclude(issue__number__isnull=True)
 
     @classmethod
     def load_object(cls, pk):
@@ -86,7 +86,7 @@ class ActivityManager(object):
         in the activity stream. It may be overriden in subclasses to exclude
         unwanted data.
         """
-        return getattr(issue, cls.related_name)
+        return getattr(issue, cls.related_name).exclude(issue__number__isnull=True)
 
     @classmethod
     def is_obj_valid(cls, issue, obj=None, obj_pk=None):
@@ -232,7 +232,12 @@ class ActivityManagerIEV(ActivityManager):
         mentionning/subscribing
         """
         qs = super(ActivityManagerIEV, cls).get_data_queryset(issue)
-        return qs.exclude(Q(event='referenced', commit_sha__isnull=True) | Q(event__in=('mentioned', 'subscribed')))
+        return qs.exclude(Q(issue__number__isnull=True)
+                          |
+                          Q(event='referenced', commit_sha__isnull=True)
+                          |
+                          Q(event__in=('mentioned', 'subscribed'))
+                        )
 
     @classmethod
     def get_load_queryset(cls):
@@ -284,7 +289,7 @@ class ActivityManagerPCI(ActivityManager):
         """
         Use our through table, we don't have related_name here
         """
-        return cls.model.objects.filter(issue=issue)
+        return cls.model.objects.exclude(issue__number__isnull=True).filter(issue=issue)
 
     @classmethod
     def get_load_queryset(cls):

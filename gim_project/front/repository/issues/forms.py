@@ -24,6 +24,11 @@ class IssueFormMixin(LinkedToRepositoryFormMixin):
     class Meta:
         model = Issue
 
+    def __init__(self, *args, **kwargs):
+        super(IssueFormMixin, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.help_text = None
+
     def save(self, commit=True):
         """
         Update the updated_at to create a new event at the correct time, but
@@ -61,31 +66,31 @@ class IssueStateForm(LinkedToUserFormMixin, IssueFormMixin):
         return super(IssueStateForm, self).save(commit)
 
 
-class IssueTitleForm(IssueFormMixin):
-    class Meta(IssueFormMixin.Meta):
-        fields = ['title']
-
+class IssueTitleFormPart(object):
     def __init__(self, *args, **kwargs):
-        super(IssueTitleForm, self).__init__(*args, **kwargs)
+        super(IssueTitleFormPart, self).__init__(*args, **kwargs)
         self.fields['title'].validators = [partial(validate_filled_string, name='title')]
-        self.fields['title'].widget = forms.TextInput()
+        self.fields['title'].widget = forms.TextInput(attrs={'placeholder': 'Title'})
 
 
-class IssueBodyForm(IssueFormMixin):
-    class Meta(IssueFormMixin.Meta):
-        fields = ['body']
+class IssueBodyFormPart(object):
+    def __init__(self, *args, **kwargs):
+        super(IssueBodyFormPart, self).__init__(*args, **kwargs)
+        self.fields['body'].widget.attrs.update({
+            'placeholder': 'Description',
+            'cols': None,
+            'rows': None,
+        })
 
     def save(self, commit=True):
         self.instance.body_html = None  # will be reset with data from github
-        return super(IssueBodyForm, self).save(commit)
+        return super(IssueBodyFormPart, self).save(commit)
 
 
-class IssueMilestoneForm(IssueFormMixin):
-    class Meta(IssueFormMixin.Meta):
-        fields = ['milestone']
+class IssueMilestoneFormPart(object):
 
     def __init__(self, *args, **kwargs):
-        super(IssueMilestoneForm, self).__init__(*args, **kwargs)
+        super(IssueMilestoneFormPart, self).__init__(*args, **kwargs)
         milestones = self.repository.milestones.all().order_by('-state', '-number')
         self.fields['milestone'].queryset = milestones
         self.fields['milestone'].widget.choices = self.get_milestones_choices(milestones)
@@ -114,12 +119,9 @@ class IssueMilestoneForm(IssueFormMixin):
         return [('', 'No milestone')] + list(data.items())
 
 
-class IssueAssigneeForm(IssueFormMixin):
-    class Meta(IssueFormMixin.Meta):
-        fields = ['assignee']
-
+class IssueAssigneeFormPart(object):
     def __init__(self, *args, **kwargs):
-        super(IssueAssigneeForm, self).__init__(*args, **kwargs)
+        super(IssueAssigneeFormPart, self).__init__(*args, **kwargs)
         collaborators = self.repository.collaborators.all()
         self.fields['assignee'].queryset = collaborators
         self.fields['assignee'].widget.choices = self.get_collaborators_choices(collaborators)
@@ -144,14 +146,11 @@ class IssueAssigneeForm(IssueFormMixin):
         return [('', 'No one assigned')] + [(u.id, u.username) for u in collaborators]
 
 
-class IssueLabelsForm(IssueFormMixin):
+class IssueLabelsFormPart(object):
     simple_label_name = 'Labels'
 
-    class Meta(IssueFormMixin.Meta):
-        fields = ['labels']
-
     def __init__(self, *args, **kwargs):
-        super(IssueLabelsForm, self).__init__(*args, **kwargs)
+        super(IssueLabelsFormPart, self).__init__(*args, **kwargs)
         labels = self.repository.labels.all().select_related('label_type')
         self.fields['labels'].required = False
         self.fields['labels'].queryset = labels
@@ -185,6 +184,54 @@ class IssueLabelsForm(IssueFormMixin):
         if self.simple_label_name in data:
             data[self.simple_label_name] = data.pop(self.simple_label_name)
         return [(k, sorted(v, key=lambda x: x[1].lower())) for k, v in data.items()]
+
+
+class IssueTitleForm(IssueTitleFormPart, IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['title']
+
+
+class IssueBodyForm(IssueBodyFormPart, IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['body']
+
+
+class IssueMilestoneForm(IssueMilestoneFormPart, IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['milestone']
+
+
+class IssueAssigneeForm(IssueAssigneeFormPart, IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['assignee']
+
+
+class IssueLabelsForm(IssueLabelsFormPart, IssueFormMixin):
+    class Meta(IssueFormMixin.Meta):
+        fields = ['labels']
+
+
+class IssueCreateForm(IssueTitleFormPart, IssueBodyFormPart,
+                      LinkedToUserFormMixin, IssueFormMixin):
+
+    class Meta(IssueFormMixin.Meta):
+        fields = ['title', 'body', ]
+
+    user_attribute = 'user'
+
+    def save(self, commit=True):
+        self.instance.state = 'open'
+        self.instance.comments_count = 0
+        self.instance.is_pull_request = False
+        self.instance.created_at = datetime.utcnow()
+        return super(IssueCreateForm, self).save(commit)
+
+
+class IssueCreateFormFull(IssueMilestoneFormPart, IssueAssigneeFormPart,
+                          IssueLabelsFormPart, IssueCreateForm):
+
+    class Meta(IssueCreateForm.Meta):
+        fields = ['title', 'body', 'milestone', 'assignee', 'labels']
 
 
 class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):

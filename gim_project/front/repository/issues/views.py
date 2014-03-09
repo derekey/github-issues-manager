@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from datetime import datetime
 import json
 from math import ceil
@@ -9,14 +11,17 @@ from django.db import DatabaseError
 from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
 from django.shortcuts import render
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
+
+from limpyd_jobs import STATUSES
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
                          PullRequestComment)
 from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
                               IssueEditBodyJob, IssueEditMilestoneJob,
-                              IssueEditAssigneeJob, IssueEditLabelsJob)
+                              IssueEditAssigneeJob, IssueEditLabelsJob,
+                              IssueCreateJob)
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
@@ -32,6 +37,7 @@ from front.repository.views import BaseRepositoryView
 from front.utils import make_querystring
 from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueMilestoneForm, IssueAssigneeForm, IssueLabelsForm,
+                    IssueCreateForm, IssueCreateFormFull,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
 
@@ -288,6 +294,8 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         })
         context['issues'] = self.finalize_issues(issues, context)
 
+        context['display_add_issue_btn'] = True
+
         return context
 
     def prepare_issues_filter_context(self, filter_context):
@@ -452,9 +460,9 @@ class IssueView(UserIssuesView):
     url_name = 'issue'
     ajax_template_name = 'front/repository/issues/issue.html'
 
-    def get_current_issue_for_context(self, context):
+    def get_current_issue(self):
         """
-        Based on the informations from the context and url, try to return
+        Based on the informations from the url, try to return
         the wanted issue
         """
         issue = None
@@ -544,7 +552,7 @@ class IssueView(UserIssuesView):
         current_issue_state = 'ok'
         current_issue = None
         try:
-            current_issue = self.get_current_issue_for_context(context)
+            current_issue = self.get_current_issue()
         except Issue.DoesNotExist:
             current_issue_state = 'notfound'
         else:
@@ -557,11 +565,12 @@ class IssueView(UserIssuesView):
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
             activity = current_issue.get_activity()
             involved = self.get_involved_people(current_issue, activity, context['collaborators_ids'])
-            if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
-                edit_level = 'full'
-            elif self.subscription.state == SUBSCRIPTION_STATES.READ\
-                                    and current_issue.user == self.request.user:
-                edit_level = 'self'
+            if current_issue.number:
+                if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
+                    edit_level = 'full'
+                elif self.subscription.state == SUBSCRIPTION_STATES.READ\
+                                        and current_issue.user == self.request.user:
+                    edit_level = 'self'
 
             if current_issue.is_pull_request:
                 context['entry_points_dict'] = self.get_entry_points_dict(current_issue)
@@ -605,6 +614,47 @@ class IssueView(UserIssuesView):
         return super(IssueView, self).get_template_names()
 
 
+class CreatedIssueView(IssueView):
+    url_name = 'issue.created'
+
+    def get(self, request, *args, **kwargs):
+        """
+        `dist-edit` delete the issue create by the user to replace it by the
+        one created on github that we fetched back, but it has a new PK, saved
+        in the job, so use it to get the new issue and redirect it back to its
+        final url.
+        Redirect to the final url too if with now have a number
+        """
+        try:
+            issue = self.get_current_issue()
+        except Issue.DoesNotExist:
+            # no more issue whis this pk, try to get the new created one
+            try:
+                job = IssueCreateJob.get(identifier=self.kwargs['issue_pk'])
+                issue = Issue.objects.get(pk=job.created_pk.hget())
+            except:
+                raise Http404
+            else:
+                return HttpResponsePermanentRedirect(issue.get_absolute_url())
+        else:
+            if issue.number:
+                return HttpResponsePermanentRedirect(issue.get_absolute_url())
+
+        return super(CreatedIssueView, self).get(request, *args, **kwargs)
+
+    def get_current_issue(self):
+        """
+        Based on the informations from the url, try to return the wanted issue
+        """
+        if not hasattr(self, '_issue'):
+            self._issue = self.repository.issues.select_related(
+                        'user',  'assignee', 'closed_by', 'milestone',
+                    ).prefetch_related(
+                        'labels__label_type'
+                    ).get(pk=self.kwargs['issue_pk'])
+        return self._issue
+
+
 class SimpleAjaxIssueView(IssueView):
     """
     A base class to fetch some parts of an issue via ajax.
@@ -628,7 +678,7 @@ class SimpleAjaxIssueView(IssueView):
         context = super(IssuesView, self).get_context_data(**kwargs)
 
         try:
-            context['current_issue'] = self.get_current_issue_for_context(context)
+            context['current_issue'] = self.get_current_issue()
         except Issue.DoesNotExist:
             raise Http404
 
@@ -831,6 +881,59 @@ class IssueEditLabels(IssueEditFieldMixin):
                 currently being updated (asked by <strong>%s</strong>), please
                 wait a few seconds and retry""" % (
                                     self.field, issue.type, issue.number, who)
+
+
+class IssueCreateView(LinkedToUserFormViewMixin, BaseIssueEditView, CreateView):
+    url_name = 'issue.create'
+    template_name = 'front/repository/issues/create.html'
+    ajax_only = False
+
+    def get_form_class(self):
+        """
+        Not the same form depending of the rights
+        """
+        if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
+            return IssueCreateFormFull
+        return IssueCreateForm
+
+    def get_success_url(self):
+        if self.object.number:
+            return super(IssueCreateView, self).get_success_url()
+        return self.object.get_created_url()
+
+    def form_valid(self, form):
+        """
+        Override the default behavior to add a job to create the issue on the
+        github side
+        """
+        response = super(IssueCreateView, self).form_valid(form)
+
+        # create the job
+        job = IssueCreateJob.add_job(self.object.pk,
+                               gh=self.request.user.get_connection())
+
+        # try to wait just a little for the job to be done
+        for i in range(0, 3):
+            sleep(0.1)  # wait a little, it may be fast
+            if job.status.hget() == STATUSES.SUCCESS:
+                self.object = Issue.objects.get(pk=job.created_pk.hget())
+                break
+
+        if self.object.number:
+            # if job done, it would have create the message itself
+            # and we want to be sure to redirect to the good url now that the
+            # issue was created
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            messages.success(self.request, self.get_success_user_message(self.object))
+            return response
+
+    def get_success_user_message(self, issue):
+        title = issue.title
+        if len(title) > 30:
+            title = title[:30] + u'…'
+        return u"""The %s "<strong>%s</strong>" will
+                be created shortly""" % (issue.type, title)
 
 
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):

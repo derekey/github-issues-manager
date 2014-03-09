@@ -37,7 +37,7 @@ class RepositoryDashboardPartView(DeferrableViewPart, SubscribedRepositoryViewMi
     def inherit_from_view(self, view):
         super(RepositoryDashboardPartView, self).inherit_from_view(view)
         self.object = self._repository = view.repository
-        self.subscription = view.subscription
+        self._subscription = view.subscription
 
     def get_object(self, queryset=None):
         if getattr(self, 'object', None):
@@ -228,6 +228,8 @@ class DashboardView(BaseRepositoryView):
             'labels': LabelsPart().get_as_part(self),
             'activity': ActivityPart().get_as_deferred(self),
         }
+
+        context['display_add_issue_btn'] = True
 
         return context
 

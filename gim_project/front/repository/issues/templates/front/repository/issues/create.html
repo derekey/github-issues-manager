@@ -1,0 +1,13 @@
+<form method="post" action="{{ current_repository.get_create_issue_url }}" id="issue-create-form" class="fill-up">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        {{ form.non_field_errors }}
+    {% endif %}
+    {% for field in form %}
+        {% if field.errors %}
+            {{ field.errors }}
+        {% endif %}
+        <div class="edit-field edit-field-{{ field.name }}">{{ field }}</div>
+    {% endfor %}
+    <input type='submit' name='submit' value='Create the issue' />
+</form>

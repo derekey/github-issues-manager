@@ -1875,7 +1875,7 @@ class Commit(WithRepositoryMixin, GithubObject):
 
 class Issue(WithRepositoryMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues')
-    number = models.PositiveIntegerField(db_index=True)
+    number = models.PositiveIntegerField(blank=True, null=True, db_index=True)
     title = models.TextField(db_index=True)
     body = models.TextField(blank=True, null=True)
     body_html = models.TextField(blank=True, null=True)
@@ -1941,8 +1941,21 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     github_format = '.full+json'
     github_edit_fields = {
-        'create': ('title', 'body', 'assignee__username', 'milestone__number', 'labels__name', ),
-        'update': ('title', 'body', 'assignee__username', 'state', 'milestone__number', 'labels__name', )
+        'create': (
+            'title',
+            'body',
+            ('assignee', 'assignee__username'),
+            ('milestone', 'milestone__number'),
+            ('labels', 'labels__name', )
+        ),
+        'create': (
+            'title',
+            'body',
+            'state',
+            ('assignee', 'assignee__username'),
+            ('milestone', 'milestone__number'),
+            ('labels', 'labels__name', )
+        ),
     }
 
     # fetch from repo + number because we can have PRs but no issues from github
@@ -1966,7 +1979,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         return self.repository.github_url + '/issues/%s' % self.number
 
     def __unicode__(self):
-        return u'#%d %s' % (self.number, self.title)
+        return u'#%s %s' % (self.number or '??', self.title)
 
     @property
     def github_callable_identifiers(self):

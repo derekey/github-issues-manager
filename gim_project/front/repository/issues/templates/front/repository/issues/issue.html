@@ -1,34 +1,44 @@
 {% load querystring frontutils issues_tags staticfiles %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
 {% if current_issue %}
-    <nav class="issue-nav">
-        <i class="icon-fullscreen resize-issue" title="Toggle fullscreen view"> </i>
+    <nav class="issue-nav dropdown">
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="icon-reorder"> </i></button>
+        <ul class="dropdown-menu pull-right" role="menu" aria-label="Issue menu">
+            <li><a href="#" class="refresh-issue"><i class="icon-refresh"> </i> Refresh issue</a></li>
+            <li class="divider"></li>
+            <li><a href="#" class="resize-issue"><i class="icon-fullscreen"> </i> Toggle full screen</a></li>
+            {% if current_issue.number %}
+                <li class="divider"></li>
+                <li><a href="{{ current_issue.github_url }}" target='_blank' class="view-on-github"><i class="icon-github"> </i> View on Github</a></li>
+            {% endif %}
+        </ul>
     </nav>
-    <article>
+    <article data-issue-id="{{ current_issue.pk }}" data-number="{{ current_issue.number|default_if_none:'' }}" data-repository="{{ current_issue.repository.full_name }}">
         <div class="area-top state-{{ current_issue.state }}">
             <header>
                 <div class="avatar">
                     <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url|default:default_avatar }}" alt="{{ current_issue.user.username }}" title="Created by {{ current_issue.user.username }}">
                 </div>
                 <h3>
-                    <a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github"><span class="text-{{ current_issue.state }}">#{{ current_issue.number }}</span>
-                    -
+                    {% if current_issue.number %}<a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github"><span class="text-{{ current_issue.state }}">#{{ current_issue.number }}</span> -{% endif %}
                     <span class="edit-place" data-field="title">{{ current_issue.title }}</span>
-                    </a>
+                    {% if current_issue.number %}</a>{% endif %}
                     {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'title' }}" class="issue-edit-btn issue-edit-btn-title btn-loading" data-field="title" title="Edit the title"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
                 </h3>
             </header>
             <section>
                 <h5>Created by {{ current_issue.user.username }} on {{ current_issue.created_at|date:"DATETIME_FORMAT" }}</h5>
-                {% if current_issue.state == 'closed' %}
-                    <p class="state state-closed">
-                        Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url|default:default_avatar }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
-                    </p>
-                {% else %}
-                    {% if current_issue.updated_at and current_issue.created_at != current_issue.updated_at %}
-                        <p class="state state-open">
-                            Updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}
+                {% if current_issue.number %}
+                    {% if current_issue.state == 'closed' %}
+                        <p class="state state-closed">
+                            Closed{% if current_issue.is_pull_request and current_issue.merged_at %}, and <strong>merged</strong>,{% endif %}{% if current_issue.closed_by %} by <img class="avatar-tiny img-circle" src="{{ current_issue.closed_by.avatar_url|default:default_avatar }}"> {{ current_issue.closed_by.username }}{% endif %} on {{ current_issue.closed_at|date:"DATETIME_FORMAT" }}{% if current_issues.updated_at > current_issue.closed_at %}, updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}{% endif %}
                         </p>
+                    {% else %}
+                        {% if current_issue.updated_at and current_issue.created_at != current_issue.updated_at %}
+                            <p class="state state-open">
+                                Updated on {{ current_issue.updated_at|date:"DATETIME_FORMAT" }}
+                            </p>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
                 {% if current_issue.is_pull_request %}<i class="icon-upload-alt issue-pull-request" title="It's a pull-request"> </i>{% endif %}
@@ -131,6 +141,10 @@
                     {% include "front/repository/issues/include_edit_buttons.html" %}
                 {% endif %}
             </div>
+        {% elif not current_issuer.number %}
+            <div class="content issue-big-infos">
+                <p class="alert alert-warning">This issue is currently being pushed to github...</p>
+            </div>
         {% endif %}
         {% if current_issue.is_pull_request %}
             <ul class="nav nav-tabs pr-tabs">
@@ -145,6 +159,7 @@
                 {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this {{ current_issue.type }} !{% endif %}
                 {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'body' }}" class="issue-edit-btn issue-edit-btn-body btn-loading" data-field="body" title="Edit the body"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
             </div>
+            {% if current_issue.number %}
             <aside>
                 <ul class="unstyled chat-box timeline issue-activity" id="issue-activity-{{ current_issue.number }}">
                     {% for event in current_issue_activity %}
@@ -187,6 +202,7 @@
                     {% include "front/repository/issues/include_comment_create.html" with use_current_user=True %}
                 </ul>
             </aside>
+            {% endif %}
         {% if current_issue.is_pull_request %}
             </div>
             <div class="tab-pane issue-commits" id="issue-{{ current_issue.number }}-commits" data-url="{{ current_issue.ajax_commits_url }}">

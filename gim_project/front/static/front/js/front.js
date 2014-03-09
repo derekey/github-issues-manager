@@ -31,8 +31,7 @@ $().ready(function() {
                 if (dropdown.hasClass('open')) {
                     dropdown.children('.dropdown-toggle').dropdown('toggle');
                 }
-                callback(e);
-                return false;
+                return callback.bind(this)(e);
             };
             return Ev.stop_event_decorate(decorator);
         }), // stop_event_decorate_dropdown
@@ -152,7 +151,11 @@ $().ready(function() {
         }
         var is_popup = !!(force_popup || container.$window);
         if (!url) { url = this.$link.attr('href'); }
-        if (!no_loading) { IssueDetail.set_container_loading(container); }
+        if (!no_loading) {
+            IssueDetail.set_container_loading(container);
+        } else {
+            IssueDetail.unset_issue_waypoints(container.$node);
+        }
         if (is_popup) {
             // open the popup with its loading spinner
             container.$window.modal("show");
@@ -758,13 +761,22 @@ $().ready(function() {
 
     IssueByNumber.init_events();
 
-    var toggle_full_screen_for_current_modal = (function toggle_full_screen_for_current_modal() {
+    var toggle_full_screen_for_current_modal = (function toggle_full_screen_for_current_modal(ev) {
         var $modal = $('.modal.in');
         if ($modal.length) {
+            if ($modal.length > 1) {
+                // get one with higher z-index
+                $modal = $($modal.sort(function(a, b) { return $(b).css('zIndex') - $(a).css('zIndex'); })[0]);
+            }
             $modal.toggleClass('full-screen');
+            if (IssueDetail.is_modal_an_IssueDetail($modal)) {
+                // continue to IssueDetail.toggle_full_screen if the modal is a IssueDetail
+                return true;
+            }
+            return false; // stop event propagation
         }
-        return false; // stop event propagation
     }); // toggle_full_screen_for_current_modal
+    jwerty.key('s', Ev.key_decorate(toggle_full_screen_for_current_modal));
 
     var on_help = (function on_help(e) {
         $('#show-shortcuts').click();
@@ -782,7 +794,14 @@ $().ready(function() {
         $modal_container: null,  // set in __init__
 
         get_url_for_ident: (function IssueDetail__get_url_for_ident (issue_ident) {
-            return '/' + issue_ident.repository + '/issues/' + issue_ident.number;
+            var number = issue_ident.number.toString(),
+                result = '/' + issue_ident.repository + '/issues/';
+            if (number.indexOf('pk-') == 0) {
+                result += '/created/' + number.substr(3);
+            } else {
+                result += number;
+            }
+            return result + '/';
         }), // get_url_for_ident
 
         on_issue_loaded: (function IssueDetail__on_issue_loaded ($node) {
@@ -804,12 +823,16 @@ $().ready(function() {
 
         set_issue_waypoints: (function IssueDetail__set_issue_waypoints ($node, is_modal) {
             var issue_ident = IssueDetail.get_issue_ident($node);
+            $node.removeClass('header-stuck');
             setTimeout(function() {
                 if (!IssueDetail.is_issue_ident_for_node($node, issue_ident)) { return; }
                 var $context = IssueDetail.get_scroll_context($node, is_modal);
                 $node.find(' > article > .area-top header').waypoint('sticky', {
                     context: $context,
-                    stuckClass: 'area-top stuck'
+                    stuckClass: 'area-top stuck',
+                    handler: function(direction) {
+                        $node.toggleClass('header-stuck', direction == 'down');
+                    }
                 });
                 var $tabs = $node.find('.pr-tabs');
                 if ($tabs.length) {
@@ -831,7 +854,7 @@ $().ready(function() {
                 $files_list_container.waypoint('sticky', {
                     context: $context,
                     wrapper: '<div class="sticky-wrapper files-list-sticky-wrapper" />',
-                      offset: 84  // 47 for stuck header height + 37 for stuck tabs height
+                    offset: 84  // 47 for stuck header height + 37 for stuck tabs height
                 });
             }
         }), // set_tab_files_issue_waypoints
@@ -847,7 +870,7 @@ $().ready(function() {
         }), // is_modal
 
         enhance_modal: (function IssueDetail__enhance_modal ($node) {
-            $node.find('.issue-nav').append('<button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>');
+            $node.find('.issue-nav ul').append('<li class="divider"></li><li><a href="#" data-dismiss="modal"><i class="icon-remove"> </i> Close window</a></li>');
         }), // enhance_modal
 
         get_container: (function IssueDetail__get_container (force_popup) {
@@ -889,6 +912,10 @@ $().ready(function() {
                 return false;
             }
             IssueDetail.set_issue_ident(container.$node, issue_ident);
+            if (container.$window && !container.$window.hasClass('in')) {
+                // open the popup with its loading spinner
+                container.$window.modal("show");
+            }
             return container;
         }), // get_container_waiting_for_issue
 
@@ -1197,11 +1224,18 @@ $().ready(function() {
 
         on_current_panel_key_event: (function IssueDetail__on_current_panel_key_event (method) {
             var decorator = function(e) {
-                if (PanelsSwpr.current_panel.obj != IssueDetail) { return; }
+                if (!PanelsSwpr.current_panel || PanelsSwpr.current_panel.obj != IssueDetail) { return; }
                 return IssueDetail[method](PanelsSwpr.current_panel);
             };
             return Ev.key_decorate(decorator);
         }), // on_current_panel_key_event
+
+        is_modal_an_IssueDetail: (function IssueDetail__is_modal_an_IssueDetail ($modal) {
+            var panel = PanelsSwpr.current_panel;
+            if (!panel || panel.obj != IssueDetail) { return false; }
+            if (!IssueDetail.is_modal(panel.$node)) { return false; }
+            return  (panel.$node.data('$modal')[0] == $modal[0]);
+        }), // is_modal_an_IssueDetail
 
         on_main_issue_panel_key_event: (function IssueDetail__on_main_issue_panel_key_event (method) {
             var decorator = function(e) {
@@ -1241,6 +1275,7 @@ $().ready(function() {
 
         on_modal_hidden: (function IssueDetail__on_modal_hidden () {
             var $modal = $(this);
+            IssueDetail.unset_issue_waypoints($modal.find('.issue-container'));
             PanelsSwpr.select_panel($modal.data('previous-panel'));
             $modal.data('$container').html('');
         }), // on_modal_hidden
@@ -1265,9 +1300,6 @@ $().ready(function() {
         }), // focus_search_input
 
         toggle_full_screen: (function IssueDetail__toggle_full_screen (panel) {
-            if (IssueDetail.is_modal(panel.$node)) {
-                toggle_full_screen_for_current_modal();
-            }
             panel.$node.toggleClass('big-issue');
             return false;
         }), // toggle_full_screen
@@ -1277,6 +1309,13 @@ $().ready(function() {
             window.open($link.attr('href'), '_blank');
             return false;
         }), // view_on_github
+
+        refresh: (function IssueDetail__refresh (panel) {
+            var issue_ident = IssueDetail.get_issue_ident(panel.$node),
+                is_popup = IssueDetail.is_modal(panel.$node);
+            IssuesListIssue.open_issue(issue_ident, is_popup, true);
+            return false;
+        }), // refresh
 
         init: (function IssueDetail__init () {
             // init modal container
@@ -1288,10 +1327,15 @@ $().ready(function() {
             // full screen mode
             jwerty.key('s', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
             jwerty.key('s', IssueDetail.on_main_issue_panel_key_event('toggle_full_screen'));
+            $document.on('click', '.resize-issue', Ev.stop_event_decorate_dropdown(toggle_full_screen_for_current_modal));
             $document.on('click', '.resize-issue', IssueDetail.on_current_panel_key_event('toggle_full_screen'));
 
             jwerty.key('v', IssueDetail.on_current_panel_key_event('view_on_github'));
             jwerty.key('v', IssueDetail.on_main_issue_panel_key_event('view_on_github'));
+
+            jwerty.key('r', IssueDetail.on_current_panel_key_event('refresh'));
+            jwerty.key('r', IssueDetail.on_main_issue_panel_key_event('refresh'));
+            $document.on('click', '.refresh-issue', Ev.stop_event_decorate_dropdown(IssueDetail.on_current_panel_key_event('refresh')));
 
             // tabs activation
             jwerty.key('shift+d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
@@ -1786,17 +1830,19 @@ $().ready(function() {
             }
         }), // focus_form
 
-        display_issue: (function IssueEditor__display_issue (html, context) {
-            var is_popup = context.$container.parents('.modal').length > 0;
+        display_issue: (function IssueEditor__display_issue (html, context, force_popup) {
+            var is_popup = force_popup || context.$node.parents('.modal').length > 0;
+                container = IssueDetail.get_container(is_popup);
+            IssueDetail.set_container_loading(container);
             IssueDetail.display_issue(html, context.issue_ident, is_popup);
         }), // display_issue
 
         get_form_context: (function IssueEditor__get_form_context ($form) {
-            var $container = $form.closest('.issue-container'),
+            var $node = $form.closest('.issue-container'),
             context = {
-                issue_ident: IssueDetail.get_issue_ident($container),
+                issue_ident: IssueDetail.get_issue_ident($node),
                 $form: $form,
-                $container: $container
+                $node: $node
             };
             return context;
         }), // get_form_context
@@ -1977,29 +2023,34 @@ $().ready(function() {
                 $link.removeClass('loading');
                 return false;
             }
-            var field = $link.data('field'),
+            var field = $link.data('field'), $form,
                 $placeholder = $link.closest('article').find('.edit-place[data-field=' + field + ']'),
-                method = 'on_issue_edit_' + field + '_ready';
+                method = 'issue_edit_' + field + '_insert_field_form';
             if (typeof IssueEditor[method] == 'undefined') {
-                method = 'on_issue_edit_default_ready';
+                method = 'issue_edit_default_insert_field_form';
             }
-            IssueEditor[method]($link, $placeholder, data);
+            $form = IssueEditor[method]($link, $placeholder, data);
+            method = 'issue_edit_' + field + '_field_prepare';
+            if (typeof IssueEditor[method] != 'undefined') {
+                IssueEditor[method]($form);
+            }
         }), // on_issue_edit_field_ready
 
-        on_issue_edit_default_ready: (function IssueEditor__on_issue_edit_default_ready ($link, $placeholder, data) {
+        issue_edit_default_insert_field_form: (function IssueEditor__issue_edit_default_insert_field_form ($link, $placeholder, data) {
             var $form = $(data);
             $link.remove();
             $placeholder.replaceWith($form);
             IssueEditor.focus_form($form, 50);
             return $form;
-        }), // on_issue_edit_default_ready
+        }), // issue_edit_default_insert_field_form
 
-        on_issue_edit_title_ready: (function IssueEditor__on_issue_edit_title_ready ($link, $placeholder, data) {
+        issue_edit_title_insert_field_form: (function IssueEditor__issue_edit_title_insert_field_form ($link, $placeholder, data) {
             var left = $placeholder.position().left, $form;
             $placeholder.parent().after($placeholder);
-            $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data);
+            $form = IssueEditor.issue_edit_default_insert_field_form($link, $placeholder, data);
             $form.css('left', left + 'px');
-        }), // on_issue_edit_title_ready
+            return $form;
+        }), // issue_edit_title_insert_field_form
 
         load_select2: (function IssueEditor__load_select2 (callback) {
             if (typeof $().select2 == 'undefined') {
@@ -2041,11 +2092,28 @@ $().ready(function() {
                 return true;
         }), // select2_matcher
 
-        on_issue_edit_milestone_ready: (function IssueEditor__on_issue_edit_milestone_ready ($link, $placeholder, data) {
+        select2_auto_open: (function IssueEditor__select2_auto_open ($select) {
+            // http://stackoverflow.com/a/22210140
+            $select.one('select2-focus', IssueEditor.on_select2_focus)
+                   .on("select2-blur", function () {
+                        $(this).one('select2-focus', IssueEditor.on_select2_focus)
+                    });
+        }), // select2_auto_open
+
+        on_select2_focus: (function IssueEditor__on_select2_focus () {
+           var select2 = $(this).data('select2');
+            setTimeout(function() {
+                if (!select2.opened()) {
+                    select2.open();
+                }
+            }, 0);
+        }), // on_select2_focus
+
+        issue_edit_milestone_field_prepare: (function IssueEditor__issue_edit_milestone_field_prepare ($form, dont_load_select2) {
+            var $select = $form.find('#id_milestone');
+            if (!$select.length) { return; }
             var callback = function() {
-                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
-                    $select = $form.find('select'),
-                    milestones_data = $select.data('milestones'),
+                var milestones_data = $select.data('milestones'),
                     format = function(state, include_title) {
                         if (state.children) {
                             return state.text.charAt(0).toUpperCase() + state.text.substring(1) + ' milestones';
@@ -2072,16 +2140,21 @@ $().ready(function() {
                     dropdownCssClass: 'select2-milestone',
                     matcher: IssueEditor.select2_matcher
                 });
+                IssueEditor.select2_auto_open($select);
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            IssueEditor.load_select2(callback);
-        }), // on_issue_edit_milestone_ready
+            if (dont_load_select2) {
+                callback();
+            } else {
+                IssueEditor.load_select2(callback);
+            }
+        }), // issue_edit_milestone_field_prepare
 
-        on_issue_edit_assignee_ready: (function IssueEditor__on_issue_edit_assignee_ready ($link, $placeholder, data) {
+        issue_edit_assignee_field_prepare: (function IssueEditor__issue_edit_assignee_field_prepare ($form, dont_load_select2) {
+            var $select = $form.find('#id_assignee');
+            if (!$select.length) { return; }
             var callback = function() {
-                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
-                    $select = $form.find('select'),
-                    collaborators_data = $select.data('collaborators'),
+                var collaborators_data = $select.data('collaborators'),
                     format = function(state, include_icon) {
                         var data = collaborators_data[state.id];
                         if (data) {
@@ -2102,16 +2175,21 @@ $().ready(function() {
                     dropdownCssClass: 'select2-assignee',
                     matcher: IssueEditor.select2_matcher
                 });
+                IssueEditor.select2_auto_open($select);
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            IssueEditor.load_select2(callback);
-        }), // on_issue_edit_assignee_ready
+            if (dont_load_select2) {
+                callback();
+            } else {
+                IssueEditor.load_select2(callback);
+            }
+        }), // issue_edit_assignee_field_prepare
 
-        on_issue_edit_labels_ready: (function IssueEditor__on_issue_edit_labels_ready ($link, $placeholder, data) {
+        issue_edit_labels_field_prepare: (function IssueEditor__issue_edit_labels_field_prepare ($form, dont_load_select2) {
+            var $select = $form.find('#id_labels');
+            if (!$select.length) { return; }
             var callback = function() {
-                var $form = IssueEditor.on_issue_edit_default_ready($link, $placeholder, data),
-                    $select = $form.find('select'),
-                    labels_data = $select.data('labels'),
+                var labels_data = $select.data('labels'),
                     format = function(state, include_type) {
                         if (state.children) {
                             return state.text;
@@ -2133,13 +2211,16 @@ $().ready(function() {
                     dropdownCssClass: 'select2-labels',
                     matcher: matcher,
                     closeOnSelect: false
-                }).on('select2-focus', function() {
-                    $select.select2('open');
                 });
+                IssueEditor.select2_auto_open($select);
                 $form.closest('.modal').removeAttr('tabindex');  // tabindex set to -1 bugs select2
             }
-            IssueEditor.load_select2(callback);
-        }), // on_issue_edit_labels_ready
+            if (dont_load_select2) {
+                callback();
+            } else {
+                IssueEditor.load_select2(callback);
+            }
+        }), // issue_edit_labels_field_prepare
 
         on_issue_edit_field_cancel_click: (function IssueEditor__on_issue_edit_field_cancel_click (ev) {
             var $btn = $(this),
@@ -2147,8 +2228,8 @@ $().ready(function() {
             if ($form.data('disabled')) { return false; }
             IssueEditor.disable_form($form);
             $btn.addClass('loading');
-            var $container = $form.closest('.issue-container');
-            var issue_ident = IssueDetail.get_issue_ident($container);
+            var $container = $form.closest('.issue-container'),
+                issue_ident = IssueDetail.get_issue_ident($container),
                 is_popup = IssueDetail.is_modal($container);
             IssuesListIssue.open_issue(issue_ident, is_popup, true, true);
             if (is_popup) {
@@ -2191,6 +2272,131 @@ $().ready(function() {
             alert('A problem prevented us to do your action !');
         }), // on_issue_edit_submit_fail
 
+        create: {
+            allowed_path_re: new RegExp('^/([\\w\\-\\.]+/[\\w\\-\\.]+)/(?:issues/|dashboard/$)'),
+            $modal: null,
+            $modal_body: null,
+            $modal_footer: null,
+            $modal_submit: null,
+            modal_issue_body: '<div class="modal-body"><div class="issue-container"></div></div>',
+            get_form: function() {
+                return $('#issue-create-form');
+            },
+
+            start: (function IssueEditor_create__start () {
+                if (!location.pathname.match(IssueEditor.create.allowed_path_re)) {
+                    return;
+                }
+                if ($('#milestone-edit-form:visible').length) {
+                    return;
+                }
+                if ($('#milestone-edit-form:visible').length) {
+                    return;
+                }
+                IssueEditor.create.$modal = $('#issue-create-modal');
+                if (IssueEditor.create.$modal.is(':visible')) {
+                    return;
+                }
+                IssueEditor.create.$modal_footer = IssueEditor.create.$modal.children('.modal-footer');
+                IssueEditor.create.$modal_footer.hide();
+                IssueEditor.create.$modal_body = IssueEditor.create.$modal.children('.modal-body');
+                IssueEditor.create.$modal_body.html('<p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>');
+                IssueEditor.create.$modal_submit = IssueEditor.create.$modal_footer.find('button.submit');
+                IssueEditor.create.$modal_submit.removeClass('loading');
+                IssueEditor.create.$modal.modal('show');
+                $.get(create_issue_url)
+                    .done(IssueEditor.create.on_load_done)
+                    .fail(IssueEditor.create.on_load_failed);
+                return false;
+            }), // start
+
+            on_load_done: (function IssueEditor_create__on_load_done (data) {
+                IssueEditor.create.$modal_body.html(data);
+                var $form = IssueEditor.create.get_form();
+                IssueEditor.create.update_form($form);
+                IssueEditor.focus_form($form, 250);
+                IssueEditor.create.$modal_footer.show();
+            }), // on_load_done
+
+            on_load_failed: (function($link) {
+                IssueEditor.create.$modal_body.html('<div class="alert alert-error">A problem prevented us to display the form</div>');
+            }), // on_load_failed
+
+            update_form: (function IssueEditor_create__update_form ($form) {
+                var select2_callback = function() {
+                    IssueEditor.issue_edit_milestone_field_prepare($form, true);
+                    IssueEditor.issue_edit_assignee_field_prepare($form, true);
+                    IssueEditor.issue_edit_labels_field_prepare($form, true);
+                };
+                IssueEditor.load_select2(select2_callback);
+            }), // update_form
+
+            on_form_submit: (function IssueEditor_create__on_form_submit (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                var $form = IssueEditor.create.get_form();
+                if ($form.data('disabled')) { return false; }
+                IssueEditor.disable_form($form);
+                IssueEditor.create.$modal_submit.addClass('loading');
+                IssueEditor.create.$modal_footer.find('.alert').remove();
+                $.post($form.attr('action'), $form.serialize())
+                    .done(IssueEditor.create.on_submit_done)
+                    .fail(IssueEditor.create.on_submit_failed);
+            }), // on_form_submit
+
+            on_submit_done: (function IssueEditor_create__on_submit_done (data) {
+                IssueEditor.create.$modal_body.scrollTop(0);
+                if (data.substr(0, 6) == '<form ') {
+                    // we have an error, the whole form is returned
+                    IssueEditor.create.get_form().replaceWith(data);
+                    var $form = IssueEditor.create.get_form();
+                    IssueEditor.enable_form($form);
+                    IssueEditor.focus_form($form, 250);
+                    IssueEditor.create.update_form($form);
+                    IssueEditor.create.$modal_submit.removeClass('loading');
+                } else {
+                    // no error, we display the issue
+                    IssueEditor.create.display_created_issue(data);
+                }
+            }), // on_submit_done
+
+            on_submit_failed: (function IssueEditor_create__on_submit_failed () {
+                var $form = IssueEditor.create.get_form();
+                IssueEditor.enable_form($form);
+                IssueEditor.focus_form($form, 250);
+                IssueEditor.create.$modal_submit.removeClass('loading');
+                IssueEditor.create.$modal_footer.prepend('<div class="alert alert-error">A problem prevented us to save the issue</div>');
+            }), // on_submit_failed
+
+            display_created_issue: (function IssueEditor_create__display_created_issue (html) {
+                var $html = $('<div/>').html(html),
+                    $article = $html.children('article:first-of-type'),
+                    number = $article.data('number'),
+                    context = {
+                        issue_ident: {
+                            repository: $article.data('repository'),
+                            number: number || 'pk-' + $article.data('issue-id')
+                        }
+                    },
+                    container = IssueDetail.get_container_waiting_for_issue(context.issue_ident, true, true);
+                IssueEditor.create.$modal.modal('hide');
+                context.$node = container.$node;
+                IssueEditor.display_issue($html.children(), context);
+            }), // display_created_issue
+
+            on_created_modal_hidden: (function IssueEditor_create__on_created_modal_hidden () {
+                var $modal = $(this);
+                setTimeout(function() { $modal.remove(); }, 50);
+            }), // on_created_modal_hidden
+
+            init: (function IssueEditor_create__init () {
+                jwerty.key('c', Ev.key_decorate(IssueEditor.create.start));
+                $('.add-issue-btn a').on('click', Ev.stop_event_decorate(IssueEditor.create.start));
+                $document.on('submit', '#issue-create-form', IssueEditor.create.on_form_submit);
+                $document.on('click', '#issue-create-modal .modal-footer button.submit', IssueEditor.create.on_form_submit);
+                $document.on('hidden.modal', '#modal-issue-created', IssueEditor.create.on_created_modal_hidden);
+            }), // IssueEditor_create__init
+        },
 
         init: (function IssueEditor__init () {
             $document.on('submit', '.issue-edit-state-form', IssueEditor.on_state_submit);
@@ -2203,6 +2409,8 @@ $().ready(function() {
             $document.on('click', '.comment-create-placeholder button', IssueEditor.on_comment_create_placeholder_click);
 
             $document.on('click', 'td.code span.label', IssueEditor.on_new_entry_point_click);
+
+            IssueEditor.create.init();
         }) // init
     }; // IssueEditor
     IssueEditor.init();

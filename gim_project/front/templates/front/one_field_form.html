@@ -2,7 +2,7 @@
     {% csrf_token %}
     {% for field in form %}
         {% if forloop.first %}
-            <div class="edit-field">{{ field }}</div>
+            <div class="edit-field edit-field-{{ field.name }}">{{ field }}</div>
         {% endif %}
     {% endfor %}
     <div class="edit-buttons">{% spaceless %}

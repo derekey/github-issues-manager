@@ -10,7 +10,7 @@
         {% if current_issue.nb_changed_files > 1 or entry_points_dict|length%}
             <div class="btn-group">
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"> </i></a>
-                <ul class="dropdown-menu pull-right files-navigator">
+                <ul class="dropdown-menu pull-right files-navigator" role="menu" aria-label="Navigation options">
                     {% if current_issue.nb_changed_files > 1 %}
                         <li class="horizontal-4 disabled"><a href='#'>Files:</a></li><!--
                         --><li class="horizontal-4"><a data-toggle="collapse" data-target="#issue-{{ current_issue.number }}-files .pr-file > .collapse" title="Open/close all files" href="#">Toggle</a></li><!--
