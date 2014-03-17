@@ -4,8 +4,8 @@
     {% if comment.github_status != GITHUB_STATUSES.FETCHED %}
         <span class="time">
             <span class="label label-{% if comment.github_status in GITHUB_STATUSES.ALL_WAITING %}warning{% else %}important{% endif %}">
-            {% if comment.github_status in GITHUB_STATUSES.ALL_WAITING %}<i class="icon-spinner icon-spin"> </i>{% endif %}
             {{ comment.get_github_status_display }}
+            {% if comment.github_status in GITHUB_STATUSES.ALL_WAITING %}<i class="icon-spinner icon-spin"> </i>{% endif %}
             </span>
         </span>
     {% else %}

@@ -40,6 +40,9 @@
                 font-size: inherit;
             }
         }
+        .info .name .label {
+            margin-right: 5px;
+        }
         .chat-box {
             & > li {
                 margin-top: 5px;
