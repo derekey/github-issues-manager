@@ -196,7 +196,7 @@ $().ready(function() {
             var url = IssueDetail.get_url_for_ident(issue_ident);
             issue = new IssuesListIssue({}, null);
             issue.set_issue_ident(issue_ident);
-            issue.get_html_and_display(url, force_popup);
+            issue.get_html_and_display(url, force_popup, force_load, no_loading);
         }
     }); // IssuesListIssue_open_issue
 
