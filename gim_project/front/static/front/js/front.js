@@ -1313,7 +1313,9 @@ $().ready(function() {
 
         view_on_github: (function IssueDetail__view_on_github (panel) {
             var $link = panel.$node.find('header h3 a').first();
-            window.open($link.attr('href'), '_blank');
+            if ($link.length) {
+                window.open($link.attr('href'), '_blank');
+            }
             return false;
         }), // view_on_github
 
