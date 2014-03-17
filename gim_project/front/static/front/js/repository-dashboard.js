@@ -6,7 +6,7 @@ $().ready(function() {
         __init__: function(id, change_selector) {
             this.id = id;
             this.selector = '#' + this.id;
-            this.change_selector = change_selector;
+            this.change_selector = this.selector + ' ' + change_selector;
             this.refresh();
             this.init_events();
         }, // __init__
@@ -45,7 +45,7 @@ $().ready(function() {
 
     var MilestonesDashboardWidget = DashboardWidget.$extend({
         __init__ : function() {
-            this.$super("milestones", 'input[name=show-closed-milestones], input[name=show-empty-milestones]');
+            this.$super("milestones", 'input[name^=show]');
         }, // __init__
         init_events: function() {
             this.$super();
@@ -57,7 +57,7 @@ $().ready(function() {
 
     var LabelsDashboardWidget = DashboardWidget.$extend({
         __init__ : function() {
-            this.$super("labels", 'input[name=show-empty-labels]');
+            this.$super("labels", 'input[name^=show]');
         } // __init__
     }); // LabelsDashboardWidget
 

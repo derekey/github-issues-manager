@@ -381,6 +381,7 @@ class DeferrableViewPart(object):
     def get_deferred_context_data(self, **kwargs):
         kwargs.update({
             'view': self,
+            'deferred': True,
             'defer_url': self.part_url,
             'auto_load': self.auto_load,
         })
@@ -391,7 +392,7 @@ class DeferrableViewPart(object):
 
     def get_as_deferred(self, main_view, **kwargs):
         self.inherit_from_view(main_view)
-        return self.render_deferred(*kwargs)
+        return self.render_deferred(**kwargs)
 
     def render_deferred(self, **kwargs):
         response = self.response_class(

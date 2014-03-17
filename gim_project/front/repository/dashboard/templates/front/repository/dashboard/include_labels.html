@@ -1,5 +1,5 @@
 {% load repository_tags %}
-<div class="box col-part deferrable" id="labels" data-url="{{ defer_url }}" data-params='["input[name=show-empty-labels]"]'>
+<div class="box col-part deferrable" id="labels" data-url="{{ defer_url }}" data-params='input[name^=show]'>
     {% with issues_url=current_repository|repository_view_url:'issues' %}
 
         <div class="box-header">

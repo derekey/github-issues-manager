@@ -18,7 +18,7 @@
         init: function() {
             this.$element = $(this.element);
             this.url = this.$element.data('url');
-            this.params = this.$element.data('params') || [];
+            this.params_selector = this.$element.data('params');
             this.listen();
             if (this.$element.hasClass('deferred') && this.$element.hasClass('auto')) {
                 this.$element.trigger('reload');
@@ -57,19 +57,15 @@
         },
         get_params: function() {
             var params = {};
-            for (var i = 0; i < this.params.length; i++) {
-                var selector = this.params[i],
-                    $node = this.$element.find(selector),
-                    node = $node.get(0);
-
+            this.$element.find(this.params_selector).each(function() {
+                var node = this;
                 if (node.type === 'checkbox' || node.type === 'radio') {
                     if (!node.checked) {
-                        continue;
+                        return;
                     }
                 }
-
-                params[node.name] = $node.val();
-            }
+                params[node.name] = $(node).val();
+            });
             return params;
         },
     });
