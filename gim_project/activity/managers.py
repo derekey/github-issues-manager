@@ -143,6 +143,8 @@ class ActivityManagerICE(ActivityManager):
 
     NAMES = {
         'mergeable_state': 'mergeable status',
+        'mergeable': 'mergeable status',
+        'label_type': 'labels',
     }
 
     @classmethod
@@ -198,9 +200,9 @@ class ActivityManagerICE(ActivityManager):
         """
         objs = list(super(ActivityManagerICE, cls).load_objects(pks))
         for obj in objs:
-            obj.updated_parts = [cls.NAMES.get(p.field, p.field)
+            obj.updated_parts = set([cls.NAMES.get(p.field, p.field)
                                     for p in obj.parts.all()
-                                    if p.field not in Issue.RENDERER_IGNORE_FIELDS]
+                                    if p.field not in Issue.RENDERER_IGNORE_FIELDS])
         return objs
 
 
