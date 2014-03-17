@@ -748,6 +748,19 @@ class IssueView(UserIssuesView):
 class CreatedIssueView(IssueView):
     url_name = 'issue.created'
 
+    def redirect_to_created_issue(self):
+        """
+        If the issue doesn't exists anymore, a new one may have been created by
+        dist_edit, so redirect to the new one
+        """
+        try:
+            job = IssueCreateJob.get(identifier=self.kwargs['issue_pk'])
+            issue = Issue.objects.get(pk=job.created_pk.hget())
+        except:
+            raise Http404
+        else:
+            return HttpResponsePermanentRedirect(issue.get_absolute_url())
+
     def get(self, request, *args, **kwargs):
         """
         `dist-edit` delete the issue create by the user to replace it by the
@@ -759,19 +772,17 @@ class CreatedIssueView(IssueView):
         try:
             issue = self.get_current_issue()
         except Issue.DoesNotExist:
-            # no more issue whis this pk, try to get the new created one
-            try:
-                job = IssueCreateJob.get(identifier=self.kwargs['issue_pk'])
-                issue = Issue.objects.get(pk=job.created_pk.hget())
-            except:
-                raise Http404
-            else:
-                return HttpResponsePermanentRedirect(issue.get_absolute_url())
+            # ok, deleted/recreated by dist_edit...
+            return self.redirect_to_created_issue()
         else:
             if issue.number:
                 return HttpResponsePermanentRedirect(issue.get_absolute_url())
 
-        return super(CreatedIssueView, self).get(request, *args, **kwargs)
+        try:
+            return super(CreatedIssueView, self).get(request, *args, **kwargs)
+        except Http404:
+            # existed just before, but not now, just deleted/recreated by dist_edit
+            return self.redirect_to_created_issue()
 
     def get_current_issue(self):
         """

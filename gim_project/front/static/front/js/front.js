@@ -804,7 +804,7 @@ $().ready(function() {
             var number = issue_ident.number.toString(),
                 result = '/' + issue_ident.repository + '/issues/';
             if (number.indexOf('pk-') == 0) {
-                result += '/created/' + number.substr(3);
+                result += 'created/' + number.substr(3);
             } else {
                 result += number;
             }
