@@ -8,7 +8,7 @@ from time import sleep
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
-from django.views.generic import UpdateView, CreateView
+from django.views.generic import UpdateView, CreateView, TemplateView
 from django.contrib import messages
 from django.shortcuts import render
 from django.http import Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
@@ -29,7 +29,9 @@ from subscriptions.models import SUBSCRIPTION_STATES
 from front.mixins.views import (WithQueryStringViewMixin,
                                 LinkedToRepositoryFormViewMixin,
                                 LinkedToIssueFormViewMixin,
-                                LinkedToUserFormViewMixin)
+                                LinkedToUserFormViewMixin,
+                                DeferrableViewPart,
+                                WithSubscribedRepositoryViewMixin)
 
 from front.models import GroupedCommits
 from front.repository.views import BaseRepositoryView
@@ -40,7 +42,109 @@ from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueCreateForm, IssueCreateFormFull,
                     IssueCommentCreateForm, PullRequestCommentCreateForm)
 
-LIMIT = 300
+LIMIT_ISSUES = 300
+LIMIT_USERS = 30
+
+
+class UserFilterPart(DeferrableViewPart, WithSubscribedRepositoryViewMixin, TemplateView):
+    auto_load = False
+    relation = None
+
+    def get_usernames(self):
+        qs = getattr(self.repository, self.relation).order_by()
+        return sorted(qs.values_list('username', flat=True), key=unicode.lower)
+
+    def count_usernames(self):
+        if not hasattr(self, '_count'):
+            self._count = getattr(self.repository, self.relation).count()
+        return self._count
+
+    @property
+    def part_url(self):
+        return reverse_lazy('front:repository:%s' % self.url_name,
+                            kwargs=self.repository.get_reverse_kwargs())
+
+    def get_context_data(self, **kwargs):
+        context = super(UserFilterPart, self).get_context_data(**kwargs)
+
+        usernames = self.get_usernames()
+
+        context.update({
+            'current_repository': self.repository,
+
+            'usernames': usernames,
+            'count': len(usernames),
+
+            'MAX_USERS': LIMIT_USERS,
+            'MIN_FOR_FILTER': 20,
+
+            'list_open': self.request.is_ajax(),
+        })
+
+        if self.request.is_ajax():
+            context['issues_filter'] = {
+                'querystring': self.request.GET.get('if.querystring'),
+                'objects': {
+                    'user_filter_type': self.request.GET.get('if.user_filter_type'),
+                },
+                'parts': {
+                    'username': self.request.GET.get('if.username'),
+                },
+            }
+
+        return context
+
+    def get_deferred_context_data(self, **kwargs):
+        context = super(UserFilterPart, self).get_deferred_context_data(**kwargs)
+        context.update({
+            'count': self.count_usernames(),
+            'MAX_USERS': LIMIT_USERS,
+        })
+        return context
+
+    def get_template_names(self):
+        if self.request.is_ajax():
+            return [self.list_template_name]
+        else:
+            return [self.template_name]
+
+    def inherit_from_view(self, view):
+        super(UserFilterPart, self).inherit_from_view(view)
+
+
+class IssuesFilterCreators(UserFilterPart):
+    relation = 'issues_creators'
+    url_name = 'issues.filter.creators'
+    template_name = 'front/repository/issues/filters/include_creators.html'
+    deferred_template_name = template_name
+    list_template_name = 'front/repository/issues/filters/include_creators_list.html'
+    title = 'Creators'
+
+
+class IssuesFilterAssigned(UserFilterPart):
+    relation = 'issues_assigned'
+    url_name = 'issues.filter.assigned'
+    template_name = 'front/repository/issues/filters/include_assigned.html'
+    deferred_template_name = template_name
+    list_template_name = 'front/repository/issues/filters/include_assigned_list.html'
+    title = 'Assignees'
+
+    def get_context_data(self, **kwargs):
+        context = super(IssuesFilterAssigned, self).get_context_data(**kwargs)
+        context.update({
+            'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', 'none'),
+            'someone_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '*'),
+        })
+        return context
+
+
+class IssuesFilterClosers(UserFilterPart):
+    relation = 'issues_closers'
+    url_name = 'issues.filter.closers'
+    template_name = 'front/repository/issues/filters/include_closers.html'
+    deferred_template_name = template_name
+    list_template_name = 'front/repository/issues/filters/include_closers_list.html'
+    title = 'Closed by'
 
 
 class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
@@ -262,10 +366,6 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         }
         return queryset, filter_context
 
-    def get_usernames(self, relation):
-        qs = getattr(self.repository, relation).order_by()
-        return sorted(qs.values_list('username', flat=True), key=unicode.lower)
-
     def get_context_data(self, **kwargs):
         """
         Set default content for the issue views
@@ -286,17 +386,37 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
             'root_issues_url': issues_url,
             'current_issues_url': issues_url,
             'issues_filter': issues_filter,
-            'issues_creators': self.get_usernames('issues_creators'),
-            'issues_assigned': self.get_usernames('issues_assigned'),
-            'issues_closers': self.get_usernames('issues_closers'),
             'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', 'none'),
             'someone_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '*'),
             'qs_parts_for_ttags': issues_filter['parts'],
             'label_types': label_types,
         })
 
+        for user_filter_view in (IssuesFilterCreators, IssuesFilterAssigned, IssuesFilterClosers):
+            view = user_filter_view()
+            view.inherit_from_view(self)
+            count = view.count_usernames()
+            context[view.relation] = {
+                'count': count
+            }
+            if count:
+                part_kwargs = {
+                    'issues_filter': issues_filter,
+                    'root_issues_url': issues_url,
+                }
+                if view.relation == 'issues_assigned':
+                    part_kwargs.update({
+                        'no_assigned_filter_url': context['no_assigned_filter_url'],
+                        'someone_assigned_filter_url': context['someone_assigned_filter_url'],
+                    })
+                context[view.relation]['view'] = view
+                if count > LIMIT_USERS:
+                    context[view.relation]['part'] = view.render_deferred(**part_kwargs)
+                else:
+                    context[view.relation]['part'] = view.render_part(**part_kwargs)
+
         context['issues'], context['issues_count'], context['limit_reached'] = self.finalize_issues(issues, context)
-        context['MAX_ISSUES'] = LIMIT
+        context['MAX_ISSUES'] = LIMIT_ISSUES
 
         context['display_add_issue_btn'] = True
 
@@ -334,9 +454,9 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         if not issues_count:
             return [], 0, False
 
-        if self.request.GET.get('limit') != 'no' and issues_count > LIMIT:
-            issues_count = LIMIT
-            issues = issues[:LIMIT]
+        if self.request.GET.get('limit') != 'no' and issues_count > LIMIT_ISSUES:
+            issues_count = LIMIT_ISSUES
+            issues = issues[:LIMIT_ISSUES]
             limit_reached = True
         else:
             limit_reached = False

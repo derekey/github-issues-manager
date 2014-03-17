@@ -118,6 +118,11 @@ body#repository_issues #main-inner {
             border-bottom: solid 1px transparent;
         }
     }
+    .deferred {
+        li {
+            padding: 0 5px 0 20px;
+        }
+    }
     .quicksearch-widget {
         // quicksearch widgets for filters use the full width (minus 5px on each side)
         margin: 5px 10px;

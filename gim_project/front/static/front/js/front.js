@@ -689,20 +689,27 @@ $().ready(function() {
     IssuesList.init_all();
 
     var IssuesFilters = {
-        init_users: function(user_type, user_class, filter_name) {
-            if (typeof IssuesFiltersUsers === 'undefined' || typeof IssuesFiltersUsers[user_type] === 'undefined' ) { return; }
-            var all_html = [], i, username, url;
-            for (i = 0; i < IssuesFiltersUsers[user_type].list.length; i++) {
-                username = IssuesFiltersUsers[user_type].list[i];
-                url = IssuesFiltersUsers[user_type].url.replace('%(username)s', username);
-                all_html.push('<li class="' + user_class + '"><a href="' + url + '">' + username + '</a></li>');
+        on_filter_shown: (function IssuesFilters__on_filter_shown (ev) {
+            var $collapse = $(ev.target);
+            if ($collapse.hasClass('deferred')) {
+                $collapse.trigger('reload');
+                ev.stopPropagation();
+            } else {
+                IssuesFilters.focus_quicksearch_filter($collapse);
             }
-            delete IssuesFiltersUsers[user_type];
-            document.getElementById('filter-' + filter_name).insertAdjacentHTML('beforeend', all_html.join(''));
-        },
+        }), // on_filter_shown
+        on_deferrable_loaded: (function IssuesFilters__on_deferrable_loaded (ev) {
+            IssuesFilters.focus_quicksearch_filter($(ev.target));
+        }), // on_deferrable_loaded
+        focus_quicksearch_filter: (function IssuesFilters__focus_quicksearch_filter ($filter_node) {
+            $filter_node.find('input.quicksearch').focus();
+        }), // focus_quicksearch_filter
         init: function() {
-            IssuesFilters.init_users('creators', 'creator', 'created_by');
-            IssuesFilters.init_users('closers', 'closer', 'closed_by');
+            var $filters = $('#issues-filters');
+            if ($filters.length) {
+                $filters.find('.collapse').on('shown.collapse', IssuesFilters.on_filter_shown);
+                $filters.on('reloaded', IssuesFilters.on_deferrable_loaded);
+            }
         }
     };
     IssuesFilters.init();

@@ -1,0 +1,24 @@
+{% load querystring frontutils issues_tags %}{% spaceless %}
+<ul id="filter-{{ view.relation }}" class="collapse{% if list_open %} in{% endif %}">
+    {% if count > MIN_FOR_FILTER %}
+        <li>
+            {% include "front/include_quicksearch.html" with id="filter-issues-creators" target="#filter-"|add:view.relation|add:" li.creator" only %}
+        </li>
+    {% endif %}
+    {% for username in usernames %}
+        {% if issues_filter.objects.user_filter_type == 'created_by' and issues_filter.parts.username == username %}
+            <li class="creator active">
+                <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">{{ username }}</a>
+            </li>
+        {% else %}
+            <li class="creator">
+                <a href="{{ current_repository|base_url_issues_filtered_by_created_by:username }}{{ issues_filter.querystring }}">{{ username }}</a>
+            </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% if view.request.is_ajax and count > MIN_FOR_FILTER %}
+    <script type="text/javascript">
+        window.activate_quicksearches($('#filter-issues-creators input.quicksearch'));
+    </script>
+{% endif %}{% endspaceless %}
