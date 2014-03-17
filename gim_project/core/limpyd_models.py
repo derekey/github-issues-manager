@@ -19,7 +19,7 @@ class Token(lmodel.RedisModel):
     token = lfields.InstanceHashField(unique=True)
 
     rate_limit_remaining = lfields.StringField()  # expirable field
-    rate_limit_limit = lfields.InstanceHashField()  # hom much by hour
+    rate_limit_limit = lfields.InstanceHashField()  # how much by hour
     rate_limit_reset = lfields.InstanceHashField()  # same as ttl(rate_limit_remaining)
     scopes = lfields.SetField(indexable=True)  # list of scopes for this token
     valid_scopes = lfields.InstanceHashField(indexable=True)  # if scopes are valid
@@ -141,7 +141,7 @@ class Token(lmodel.RedisModel):
     def reset_flags(self):
         """
         Will reset the flags of this token (actually only "available")
-        If the token objectis not in a good state to be reset, a task to reset
+        If the token object is not in a good state to be reset, a task to reset
         it later will be asked.
         Return False if the reset was not successful and need to be done later
         """
@@ -150,6 +150,9 @@ class Token(lmodel.RedisModel):
             return False
 
         self.rate_limit_reset.hset(0)
+        # set the remaining to the max to let this token be fetched first when
+        # sorting by rate_limit_remaining
+        self.rate_limit_remaining.set(self.rate_limit_limit.hget() or 5000)
 
         # set the token available again only if it has valid scopes
         if self.valid_scopes.hget() == '1':
