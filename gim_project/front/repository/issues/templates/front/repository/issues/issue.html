@@ -117,7 +117,10 @@
                     <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
                     {% if current_issue.pr_fetched_at %}
                         <div class="pr-merge-status">
-                            {% include "front/repository/issues/include_issue_big_infos.html" %}
+                            {% if current_issue.state == 'open' or not current_issue.merged %}
+                                {# cannot reopen a merged-closed issue #}
+                                {% include "front/repository/issues/include_issue_big_infos.html" %}
+                            {% endif %}
                             {% if current_issue.state == 'open' %}
                                 {% if current_issue.is_mergeable %}
                                     <div class="alert alert-success"><strong>Can be merged</strong></div>
