@@ -143,7 +143,7 @@ class _Repository(models.Model):
                 if event['type'] not in EVENTS.values():
                     continue
                 if min_date and not force and event_date < min_date:
-                    # not readched the min date, continue until a good one
+                    # not reached the min date, continue until a good one
                     continue
                 try:
                     if event['type'] == 'IssuesEvent':
@@ -151,25 +151,31 @@ class _Repository(models.Model):
                                                            fetch_issue=False)
                         if issue:
                             issues_to_fetch.add(issue.number)
+
                     elif event['type'] == 'IssueCommentEvent':
                         event['payload']['comment']['issue'] = event['payload']['issue']
                         comment = event_manager.event_issue_comment(event['payload']['comment'],
                                                                      fetch_issue=False)
                         if comment:
                             issues_to_fetch.add(comment.issue.number)
+
                     elif event['type'] == 'PullRequestEvent':
                         issue = event_manager.event_pull_request(event['payload']['pull_request'],
                                                                  fetch_issue=False)
                         if issue:
                             issues_to_fetch.add(issue.number)
+
                     elif event['type'] == 'PullRequestReviewCommentEvent':
                         comment = event_manager.event_pull_request_review_comment(event['payload']['comment'],
                                                                                   fetch_issue=False)
                         if comment:
                             issues_to_fetch.add(comment.issue.number)
 
+                    elif event['type'] == 'PushEvent':
+                        numbers = event_manager.event_push(event['payload'], fetch_issue=False)
+                        issues_to_fetch.update(numbers)
+
                 except Exception:
-                    raise
                     # we don't care if we cannot manage an event, the full repos
                     # will be fetched soon...
                     pass
@@ -405,8 +411,11 @@ class EventManager(object):
                     is_pull_request=True
                 ).values_list('number', flat=True))
 
-        for number in numbers:
-            self.fetch_issue(number)
+        if fetch_issue:
+            for number in numbers:
+                self.fetch_issue(number)
+
+        return numbers
 
 
 from .tasks import *
