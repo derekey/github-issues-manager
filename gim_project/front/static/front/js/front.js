@@ -2316,6 +2316,7 @@ $().ready(function() {
                 $.get(create_issue_url)
                     .done(IssueEditor.create.on_load_done)
                     .fail(IssueEditor.create.on_load_failed);
+                IssueEditor.create.$modal_footer.find('.alert').remove();
                 return false;
             }), // start
 
