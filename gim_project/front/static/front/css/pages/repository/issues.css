@@ -271,64 +271,65 @@ p.state-closed {
   font-size: inherit;
   color: #bbb;
   width: auto;
+  margin: 0 1px 0 2px;
 }
-/* line 140, ../../../../../sass/components/_issues.scss */
+/* line 141, ../../../../../sass/components/_issues.scss */
 .issue-item .news-content {
   margin-right: 5px;
 }
-/* line 143, ../../../../../sass/components/_issues.scss */
+/* line 144, ../../../../../sass/components/_issues.scss */
 .issue-item .news-title {
   font-size: 14px;
   margin-bottom: 5px;
 }
-/* line 146, ../../../../../sass/components/_issues.scss */
+/* line 147, ../../../../../sass/components/_issues.scss */
 .issue-item .news-title .label {
   margin-left: 3px;
 }
-/* line 150, ../../../../../sass/components/_issues.scss */
+/* line 151, ../../../../../sass/components/_issues.scss */
 .issue-item .avatar {
   margin-bottom: 5px;
 }
-/* line 153, ../../../../../sass/components/_issues.scss */
+/* line 154, ../../../../../sass/components/_issues.scss */
 .issue-item .issue-link {
   outline: none !important;
   text-decoration: none !important;
 }
-/* line 157, ../../../../../sass/components/_issues.scss */
+/* line 158, ../../../../../sass/components/_issues.scss */
 .issue-item .issue-item-footer {
   overflow: auto;
 }
-/* line 160, ../../../../../sass/components/_issues.scss */
+/* line 161, ../../../../../sass/components/_issues.scss */
 .issue-item .issue-item-footer.with-labels {
   clear: both;
 }
-/* line 163, ../../../../../sass/components/_issues.scss */
+/* line 164, ../../../../../sass/components/_issues.scss */
 .issue-item .issue-item-comments-count {
   float: right;
   margin-right: 5px;
   line-height: 24px;
   cursor: default;
 }
-/* line 169, ../../../../../sass/components/_issues.scss */
+/* line 170, ../../../../../sass/components/_issues.scss */
 .issue-item .issue-item-assignee {
   float: right;
   margin-right: 5px;
 }
-/* line 174, ../../../../../sass/components/_issues.scss */
+/* line 175, ../../../../../sass/components/_issues.scss */
 .issue-item .issue-item-labels {
   padding-right: 5px;
 }
 
-/* line 180, ../../../../../sass/components/_issues.scss */
+/* line 181, ../../../../../sass/components/_issues.scss */
 .issues-list.without-details .issue-item:after {
   width: 3px;
 }
 
-/* line 183, ../../../../../sass/components/_issues.scss */
+/* line 184, ../../../../../sass/components/_issues.scss */
 .box-section.issue-item {
   padding-left: 13px;
 }
-/* line 185, ../../../../../sass/components/_issues.scss */
+/* line 186, ../../../../../sass/components/_issues.scss */
 .box-section.issue-item.active {
   padding-left: 8px;
   border-left: solid #7bc8d7 5px;
@@ -336,12 +337,12 @@ p.state-closed {
   border-top-color: #f0fcff;
 }
 
-/* line 195, ../../../../../sass/components/_issues.scss */
+/* line 196, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch {
   margin: 0;
   padding: 0;
 }
-/* line 198, ../../../../../sass/components/_issues.scss */
+/* line 199, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch label {
   margin: 0;
   padding: 0;
@@ -351,7 +352,7 @@ p.state-closed {
   height: 28px;
   background: white;
 }
-/* line 207, ../../../../../sass/components/_issues.scss */
+/* line 208, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .add-on, .issues-quicksearch input, .issues-quicksearch .btn {
   border: 0;
   -webkit-border-radius: 0;
@@ -362,14 +363,14 @@ p.state-closed {
   position: absolute;
   top: 0;
 }
-/* line 213, ../../../../../sass/components/_issues.scss */
+/* line 214, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .add-on {
   border-right: solid 1px #d4d4d4;
   left: 0;
   width: 16px;
   z-index: 10;
 }
-/* line 219, ../../../../../sass/components/_issues.scss */
+/* line 220, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch input {
   display: block;
   width: 100%;
@@ -384,7 +385,7 @@ p.state-closed {
   height: 28px;
   z-index: 20;
 }
-/* line 231, ../../../../../sass/components/_issues.scss */
+/* line 232, ../../../../../sass/components/_issues.scss */
 .issues-quicksearch .btn {
   border-left: solid 1px #d4d4d4;
   right: 0;
