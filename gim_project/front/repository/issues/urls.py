@@ -12,9 +12,9 @@ urlpatterns = patterns('',
     url(r'^$', IssuesView.as_view(), name=IssuesView.url_name),
 
     # deferrable filters
-    url(r'^/filter/creators/', IssuesFilterCreators.as_view(), name=IssuesFilterCreators.url_name),
-    url(r'^/filter/assigned/', IssuesFilterAssigned.as_view(), name=IssuesFilterAssigned.url_name),
-    url(r'^/filter/closers/', IssuesFilterClosers.as_view(), name=IssuesFilterClosers.url_name),
+    url(r'^filter/creators/', IssuesFilterCreators.as_view(), name=IssuesFilterCreators.url_name),
+    url(r'^filter/assigned/', IssuesFilterAssigned.as_view(), name=IssuesFilterAssigned.url_name),
+    url(r'^filter/closers/', IssuesFilterClosers.as_view(), name=IssuesFilterClosers.url_name),
     url(r'^(?P<user_filter_type>(?:assigned|created_by|closed_by))/(?P<username>[^/]+)/$', UserIssuesView.as_view(), name=UserIssuesView.url_name),
 
     # issue view
