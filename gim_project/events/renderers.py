@@ -51,7 +51,7 @@ class IssueRenderer(Renderer):
 
         if mode == 'html':
             diff = HtmlDiff.diff(old['body'], new['body'], n=2, css=False)
-            return '<span>Body has changed:</span>' + diff
+            return '<span>Description has changed:</span>' + diff
 
         raise NotImplementedError()
 

@@ -145,6 +145,7 @@ class ActivityManagerICE(ActivityManager):
         'mergeable_state': 'mergeable status',
         'mergeable': 'mergeable status',
         'label_type': 'labels',
+        'body': 'description',
     }
 
     @classmethod
