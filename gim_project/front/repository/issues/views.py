@@ -748,16 +748,20 @@ class IssueView(UserIssuesView):
 class CreatedIssueView(IssueView):
     url_name = 'issue.created'
 
-    def redirect_to_created_issue(self):
+    def redirect_to_created_issue(self, wait_if_failure=0):
         """
         If the issue doesn't exists anymore, a new one may have been created by
-        dist_edit, so redirect to the new one
+        dist_edit, so redirect to the new one. Wait a little if no issue found.
         """
         try:
             job = IssueCreateJob.get(identifier=self.kwargs['issue_pk'])
             issue = Issue.objects.get(pk=job.created_pk.hget())
         except:
-            raise Http404
+            if wait_if_failure:
+                sleep(0.1)
+                return self.redirect_to_created_issue(wait_if_failure-0.1)
+            else:
+                raise Http404
         else:
             return HttpResponsePermanentRedirect(issue.get_absolute_url())
 
@@ -773,7 +777,7 @@ class CreatedIssueView(IssueView):
             issue = self.get_current_issue()
         except Issue.DoesNotExist:
             # ok, deleted/recreated by dist_edit...
-            return self.redirect_to_created_issue()
+            return self.redirect_to_created_issue(wait_if_failure=0.3)
         else:
             if issue.number:
                 return HttpResponsePermanentRedirect(issue.get_absolute_url())
@@ -782,7 +786,7 @@ class CreatedIssueView(IssueView):
             return super(CreatedIssueView, self).get(request, *args, **kwargs)
         except Http404:
             # existed just before, but not now, just deleted/recreated by dist_edit
-            return self.redirect_to_created_issue()
+            return self.redirect_to_created_issue(wait_if_failure=0.3)
 
     def get_current_issue(self):
         """
