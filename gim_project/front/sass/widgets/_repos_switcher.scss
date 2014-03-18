@@ -24,6 +24,9 @@
                 margin-right: 2px;
                 a {
                     padding: 0 2px;
+                    &:focus {
+                        text-decoration: underline;
+                    }
                     > span {
                         display: none;
                     }

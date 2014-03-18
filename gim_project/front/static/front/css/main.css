@@ -415,19 +415,23 @@ blockquote p:last-child {
   padding: 0 2px;
 }
 /* line 27, ../../../sass/widgets/_repos_switcher.scss */
+#repository-switcher-content > li > ul > li a:focus {
+  text-decoration: underline;
+}
+/* line 30, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li a > span {
   display: none;
 }
-/* line 31, ../../../sass/widgets/_repos_switcher.scss */
+/* line 34, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li:after {
   content: "•";
   padding-left: 4px;
 }
-/* line 36, ../../../sass/widgets/_repos_switcher.scss */
+/* line 39, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li.active:after {
   padding-left: 6px;
 }
-/* line 39, ../../../sass/widgets/_repos_switcher.scss */
+/* line 42, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li.active a {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -435,48 +439,48 @@ blockquote p:last-child {
   -o-border-radius: 4px;
   border-radius: 4px;
 }
-/* line 43, ../../../sass/widgets/_repos_switcher.scss */
+/* line 46, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li > ul > li:last-of-type:after {
   display: none;
 }
-/* line 48, ../../../sass/widgets/_repos_switcher.scss */
+/* line 51, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content > li:last-of-type {
   text-align: center;
 }
-/* line 52, ../../../sass/widgets/_repos_switcher.scss */
+/* line 55, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content .divider {
   height: 2px;
   margin: 4px 1px;
 }
 
-/* line 58, ../../../sass/widgets/_repos_switcher.scss */
+/* line 61, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter {
   margin-bottom: 7px;
   margin-top: -1px;
 }
-/* line 61, ../../../sass/widgets/_repos_switcher.scss */
+/* line 64, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter label {
   display: block;
   overflow: hidden;
   text-align: center;
 }
-/* line 66, ../../../sass/widgets/_repos_switcher.scss */
+/* line 69, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter span.add-on, #repository-switcher-filter a {
   width: 18px;
 }
-/* line 69, ../../../sass/widgets/_repos_switcher.scss */
+/* line 72, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter span.add-on {
   -moz-border-radius-topleft: 6px;
   -webkit-border-top-left-radius: 6px;
   border-top-left-radius: 6px;
 }
-/* line 72, ../../../sass/widgets/_repos_switcher.scss */
+/* line 75, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter a {
   -moz-border-radius-topright: 6px;
   -webkit-border-top-right-radius: 6px;
   border-top-right-radius: 6px;
 }
-/* line 75, ../../../sass/widgets/_repos_switcher.scss */
+/* line 78, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-filter input {
   width: -moz-calc(100% - 72px - 12px) ;
   width: -o-calc(100% - 72px - 12px) ;
