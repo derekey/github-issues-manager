@@ -74,7 +74,7 @@ class IssueRenderer(Renderer):
         if 'mergeable_state' in new:
             mergeable_state = (' (reason: %s)' if mode == 'text' else ' (reason: <strong>%s</strong>)') % new['mergeable_state']
 
-        if old and old['mergeable'] is False:
+        if old:
             title = 'Now mergeable' if new['mergeable'] else 'Not mergeable anymore'
         else:
             title = 'Mergeable' if new['mergeable'] else 'Not mergeable'
@@ -102,7 +102,7 @@ class IssueRenderer(Renderer):
                         'Mergeable' if new['mergeable'] else 'Not mergeable',
                         new['mergeable_state'])
 
-        if old.get('mergeable_state'):
+        if old.get('mergeable_state') != 'unknown':
             title += (' (was %s)' if mode == 'text' else ' (was: <strong>%s</strong>)') % old['mergeable_state']
 
         return title

@@ -653,14 +653,15 @@ class IssueManager(WithRepositoryManager):
 
         # when we fetch lists, mergeable status are not set, so we remove them from
         # fields to update to avoid losing previous values
-        if 'mergeable' in fields and fields['mergeable'] is None:
-            fields.pop('mergeable')
-        if 'mergeable_state' in fields and fields['mergeable_state'] in (None, 'unknown'):
-            fields.pop('mergeable_state')
+        # if 'mergeable' in fields['simple']:
+        if 'mergeable' in fields['simple'] and fields['simple']['mergeable'] is None:
+            del fields['simple']['mergeable']
+        if 'mergeable_state' in fields['simple'] and fields['simple']['mergeable_state'] in (None, 'unknown'):
+            del fields['simple']['mergeable_state']
 
         # idem for "merged"
-        if 'merged' in fields and fields['merged'] is None:
-            fields.pop('merged')
+        if 'merged' in fields['simple'] and fields['simple']['merged'] is None:
+            del fields['simple']['merged']
 
         return fields
 
