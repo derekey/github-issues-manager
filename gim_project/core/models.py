@@ -1046,6 +1046,7 @@ class Repository(GithubObjectWithId):
     private = models.BooleanField(default=False)
     is_fork = models.BooleanField(default=False)
     has_issues = models.BooleanField(default=False)
+    default_branch = models.TextField(blank=True, null=True)
 
     first_fetch_done = models.BooleanField(default=False)
     collaborators_fetched_at = models.DateTimeField(blank=True, null=True)
@@ -1086,7 +1087,7 @@ class Repository(GithubObjectWithId):
         'events_url', 'comments_url', 'html_url', 'compare_url', 'open_issues', 'watchers',
         'git_url', 'forks_count', 'merges_url', 'ssh_url', 'blobs_url', 'master_branch', 'forks',
         'permissions', 'open_issues_count', 'languages_url', 'language', 'collaborators_url', 'url',
-        'created_at', 'archive_url', 'pushed_at', 'default_branch', 'teams_url', 'trees_url',
+        'created_at', 'archive_url', 'pushed_at', 'teams_url', 'trees_url',
         'branches_url', 'subscribers_url', 'stargazers_url', )
 
     class Meta:

@@ -404,7 +404,11 @@ class EventManager(object):
         if 'ref' not in payload:
             return None
 
-        label = ':%s' % payload['ref'][11:]  # remove "refs/heads/"
+        branch = payload['ref'][11:]  # remove "refs/heads/"
+        if branch == self.repository.default_branch:
+            return set()
+
+        label = ':%s' % branch
 
         numbers = set(self.repository.issues.filter(
                      models.Q(head_label__endswith=label) | models.Q(base_label__endswith=label),
