@@ -1,4 +1,4 @@
-{% load querystring frontutils issues_tags staticfiles %}{% spaceless %}
+{% load querystring frontutils spaceless_except_pre issues_tags staticfiles %}{% spaceless_except_pre %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
 {% if current_issue %}
     <nav class="issue-nav dropdown">
@@ -232,4 +232,4 @@
 {% else %}
     <p class="empty-area">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>
 {% endif %}
-{% endspaceless %}
+{% endspaceless_except_pre %}

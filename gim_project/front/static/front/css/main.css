@@ -380,6 +380,301 @@ blockquote p:last-child {
   color: #555;
 }
 
+/* line 43, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .c, .issue-comment .highlight .c {
+  color: #999988;
+  font-style: italic;
+}
+/* line 48, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .err, .issue-comment .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+/* line 53, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .k, .issue-comment .highlight .k {
+  font-weight: bold;
+}
+/* line 57, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .o, .issue-comment .highlight .o {
+  font-weight: bold;
+}
+/* line 61, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .cm, .issue-comment .highlight .cm {
+  color: #999988;
+  font-style: italic;
+}
+/* line 66, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .cp, .issue-comment .highlight .cp {
+  color: #999999;
+  font-weight: bold;
+}
+/* line 71, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .c1, .issue-comment .highlight .c1 {
+  color: #999988;
+  font-style: italic;
+}
+/* line 76, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .cs, .issue-comment .highlight .cs {
+  color: #999999;
+  font-weight: bold;
+  font-style: italic;
+}
+/* line 82, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gd, .issue-comment .highlight .gd {
+  color: #000000;
+  background-color: #ffdddd;
+}
+/* line 87, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gd .x, .issue-comment .highlight .gd .x {
+  color: #000000;
+  background-color: #ffaaaa;
+}
+/* line 92, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ge, .issue-comment .highlight .ge {
+  font-style: italic;
+}
+/* line 96, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gr, .issue-comment .highlight .gr {
+  color: #aa0000;
+}
+/* line 100, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gh, .issue-comment .highlight .gh {
+  color: #999999;
+}
+/* line 104, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gi, .issue-comment .highlight .gi {
+  color: #000000;
+  background-color: #ddffdd;
+}
+/* line 109, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gi .x, .issue-comment .highlight .gi .x {
+  color: #000000;
+  background-color: #aaffaa;
+}
+/* line 114, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .go, .issue-comment .highlight .go {
+  color: #888888;
+}
+/* line 118, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gp, .issue-comment .highlight .gp {
+  color: #555555;
+}
+/* line 122, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gs, .issue-comment .highlight .gs {
+  font-weight: bold;
+}
+/* line 126, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gu, .issue-comment .highlight .gu {
+  color: #800080;
+  font-weight: bold;
+}
+/* line 131, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gt, .issue-comment .highlight .gt {
+  color: #aa0000;
+}
+/* line 135, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kc, .issue-comment .highlight .kc {
+  font-weight: bold;
+}
+/* line 139, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kd, .issue-comment .highlight .kd {
+  font-weight: bold;
+}
+/* line 143, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kn, .issue-comment .highlight .kn {
+  font-weight: bold;
+}
+/* line 147, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kp, .issue-comment .highlight .kp {
+  font-weight: bold;
+}
+/* line 151, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kr, .issue-comment .highlight .kr {
+  font-weight: bold;
+}
+/* line 155, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kt, .issue-comment .highlight .kt {
+  color: #445588;
+  font-weight: bold;
+}
+/* line 160, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .m, .issue-comment .highlight .m {
+  color: #009999;
+}
+/* line 164, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .s, .issue-comment .highlight .s {
+  color: #dd1144;
+}
+/* line 168, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .n, .issue-comment .highlight .n {
+  color: #333333;
+}
+/* line 172, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .na, .issue-comment .highlight .na {
+  color: teal;
+}
+/* line 176, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nb, .issue-comment .highlight .nb {
+  color: #0086b3;
+}
+/* line 180, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nc, .issue-comment .highlight .nc {
+  color: #445588;
+  font-weight: bold;
+}
+/* line 185, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .no, .issue-comment .highlight .no {
+  color: teal;
+}
+/* line 189, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ni, .issue-comment .highlight .ni {
+  color: purple;
+}
+/* line 193, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ne, .issue-comment .highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+/* line 198, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nf, .issue-comment .highlight .nf {
+  color: #990000;
+  font-weight: bold;
+}
+/* line 203, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nn, .issue-comment .highlight .nn {
+  color: #555555;
+}
+/* line 207, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nt, .issue-comment .highlight .nt {
+  color: navy;
+}
+/* line 211, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nv, .issue-comment .highlight .nv {
+  color: teal;
+}
+/* line 215, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ow, .issue-comment .highlight .ow {
+  font-weight: bold;
+}
+/* line 219, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .w, .issue-comment .highlight .w {
+  color: #bbbbbb;
+}
+/* line 223, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .mf, .issue-comment .highlight .mf {
+  color: #009999;
+}
+/* line 227, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .mh, .issue-comment .highlight .mh {
+  color: #009999;
+}
+/* line 231, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .mi, .issue-comment .highlight .mi {
+  color: #009999;
+}
+/* line 235, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .mo, .issue-comment .highlight .mo {
+  color: #009999;
+}
+/* line 239, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sb, .issue-comment .highlight .sb {
+  color: #dd1144;
+}
+/* line 243, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sc, .issue-comment .highlight .sc {
+  color: #dd1144;
+}
+/* line 247, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sd, .issue-comment .highlight .sd {
+  color: #dd1144;
+}
+/* line 251, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .s2, .issue-comment .highlight .s2 {
+  color: #dd1144;
+}
+/* line 255, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .se, .issue-comment .highlight .se {
+  color: #dd1144;
+}
+/* line 259, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sh, .issue-comment .highlight .sh {
+  color: #dd1144;
+}
+/* line 263, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .si, .issue-comment .highlight .si {
+  color: #dd1144;
+}
+/* line 267, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sx, .issue-comment .highlight .sx {
+  color: #dd1144;
+}
+/* line 271, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sr, .issue-comment .highlight .sr {
+  color: #009926;
+}
+/* line 275, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .s1, .issue-comment .highlight .s1 {
+  color: #dd1144;
+}
+/* line 279, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ss, .issue-comment .highlight .ss {
+  color: #990073;
+}
+/* line 283, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .bp, .issue-comment .highlight .bp {
+  color: #999999;
+}
+/* line 287, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .vc, .issue-comment .highlight .vc {
+  color: teal;
+}
+/* line 291, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .vg, .issue-comment .highlight .vg {
+  color: teal;
+}
+/* line 295, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .vi, .issue-comment .highlight .vi {
+  color: teal;
+}
+/* line 299, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .il, .issue-comment .highlight .il {
+  color: #009999;
+}
+/* line 303, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gc, .issue-comment .highlight .gc {
+  color: #999;
+  background-color: #eaf2f5;
+}
+/* line 308, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-csharp .highlight .k, .issue-comment .type-csharp .highlight .k {
+  color: blue;
+}
+/* line 312, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-csharp .highlight .kt, .issue-comment .type-csharp .highlight .kt {
+  color: blue;
+}
+/* line 316, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-csharp .highlight .nf, .issue-comment .type-csharp .highlight .nf {
+  color: #000000;
+  font-weight: normal;
+}
+/* line 321, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-csharp .highlight .nc, .issue-comment .type-csharp .highlight .nc {
+  color: #2b91af;
+}
+/* line 325, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-csharp .highlight .nn, .issue-comment .type-csharp .highlight .nn {
+  color: black;
+}
+/* line 329, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-csharp .highlight .s, .issue-comment .type-csharp .highlight .s {
+  color: #a31515;
+}
+/* line 333, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-csharp .highlight .sc, .issue-comment .type-csharp .highlight .sc {
+  color: #a31515;
+}
+
 /* line 4, ../../../sass/widgets/_repos_switcher.scss */
 #repository-switcher-content {
   padding-top: 0;
