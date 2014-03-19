@@ -14,7 +14,7 @@ __all__ = [
 import json
 import time
 
-from async_messages import message_users, constants
+from async_messages import message_users, constants, messages
 
 from limpyd import fields
 from limpyd_jobs import STATUSES
