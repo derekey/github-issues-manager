@@ -14,12 +14,12 @@ __all__ = [
 import json
 import time
 
-from async_messages import messages
+from async_messages import message_users, constants
 
 from limpyd import fields
 from limpyd_jobs import STATUSES
 
-from core.models import Issue, Repository
+from core.models import Issue, Repository, GithubUser
 from core.ghpool import ApiError, ApiNotFoundError
 
 from .base import DjangoModelJob, Job
@@ -32,6 +32,7 @@ class FetchIssueByNumber(Job):
     queue_name = 'fetch-issue-by-number'
     deleted = fields.InstanceHashField()
     force_fetch = fields.InstanceHashField()  # will only force the issue/pr api call
+    users_to_inform = fields.SetField()
 
     permission = 'read'
 
@@ -56,6 +57,13 @@ class FetchIssueByNumber(Job):
 
         repository = self.repository
 
+        users_to_inform = self.users_to_inform.smembers()
+        if users_to_inform:
+            try:
+                users_to_inform = GithubUser.objects.filter(id__in=users_to_inform)
+            except GithubUser.DoesNotExist:
+                users_to_inform = []
+
         try:
             issue = repository.issues.get(number=issue_number)
         except Issue.DoesNotExist:
@@ -78,11 +86,28 @@ class FetchIssueByNumber(Job):
                 issue.fetch(gh)
             except ApiNotFoundError:
                 # ok the issue doesn't exist anymore, delete id
+                if users_to_inform:
+                    message_users(users_to_inform,
+                        'The %s <strong>#%d</strong> from <strong>%s</strong> you asked to fetch from Github doesn\'t exist anymore!' % (
+                            issue.type, issue.number, issue.repository.full_name),
+                        constants.ERROR)
                 issue.delete()
                 self.deleted.hset(1)
                 return False
             else:
+                if users_to_inform:
+                    message_users(users_to_inform,
+                        'The %s <strong>#%d</strong> from <strong>%s</strong> you asked to fetch from Github couldn\'t be fetched!' % (
+                            issue.type, issue.number, issue.repository.full_name),
+                        constants.ERROR)
+
                 raise e
+        else:
+            if users_to_inform:
+                message_users(users_to_inform,
+                    'The %s <strong>#%d</strong> from <strong>%s</strong> you asked to fetch from Github was updated' % (
+                        issue.type, issue.number, issue.repository.full_name),
+                    constants.SUCCESS)
 
         return True
 

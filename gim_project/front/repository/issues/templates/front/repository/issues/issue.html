@@ -5,6 +5,9 @@
         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="icon-reorder"> </i></button>
         <ul class="dropdown-menu pull-right" role="menu" aria-label="Issue menu">
             <li><a href="#" class="refresh-issue"><i class="icon-refresh"> </i> Refresh issue</a></li>
+            {% if current_issue.number %}
+                <li><a href="#" class="force-refresh-issue"><i class="icon-refresh"> </i> Update from github</a></li>
+            {% endif %}
             <li class="divider"></li>
             <li><a href="#" class="resize-issue"><i class="icon-fullscreen"> </i> Toggle full screen</a></li>
             {% if current_issue.number %}

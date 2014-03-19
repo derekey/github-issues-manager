@@ -12,7 +12,7 @@
     {% block extra_css %}{% endblock %}
     {% static 'front/img/default-avatar.png' as default_avatar %}
 </head>
-<body id="{% block body_id %}{% endblock %}" class="{% block body_classes %}{% endblock %}"{% block body_attributes %}{% endblock %} data-base-datetime="{{ utcnow|date:'r' }}">
+<body id="{% block body_id %}{% endblock %}" class="{% block body_classes %}{% endblock %}"{% block body_attributes %}{% endblock %} data-base-datetime="{{ utcnow|date:'r' }}" data-csrf="{{ csrf_token }}">
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container-fluid">

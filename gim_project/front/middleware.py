@@ -6,8 +6,7 @@ from django.utils.encoding import smart_text
 
 class AddMessagesToAjaxResponseMiddleware(object):
     def process_response(self, request, response):
-        if request.is_ajax() and isinstance(response, TemplateResponse):
-
+        if request.is_ajax() and isinstance(response, TemplateResponse) and response.template_name[0] != 'front/messages.html':
             messages_html = render_to_string('front/messages.html',
                                              {'messages': get_messages(request)})
 

@@ -1326,6 +1326,21 @@ $().ready(function() {
             return false;
         }), // refresh
 
+        force_refresh: (function IssueDetail__force_refresh (panel) {
+            var issue_ident = IssueDetail.get_issue_ident(panel.$node),
+                number = issue_ident.number.toString();
+            if (number.indexOf('pk-') == -1) {
+                $.ajax({
+                    url: '/' + issue_ident.repository + '/issues/ask-fetch/' + number + '/',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': $body.data('csrf'),
+                    }
+                })
+            }
+            return false;
+        }), // force_refresh
+
         init: (function IssueDetail__init () {
             // init modal container
             IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1345,6 +1360,10 @@ $().ready(function() {
             jwerty.key('r', IssueDetail.on_current_panel_key_event('refresh'));
             jwerty.key('r', IssueDetail.on_main_issue_panel_key_event('refresh'));
             $document.on('click', '.refresh-issue', Ev.stop_event_decorate_dropdown(IssueDetail.on_current_panel_key_event('refresh')));
+
+            jwerty.key('shift+r', IssueDetail.on_current_panel_key_event('force_refresh'));
+            jwerty.key('shift+r', IssueDetail.on_main_issue_panel_key_event('force_refresh'));
+            $document.on('click', '.force-refresh-issue', Ev.stop_event_decorate_dropdown(IssueDetail.on_current_panel_key_event('force_refresh')));
 
             // tabs activation
             jwerty.key('shift+d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));

@@ -21,7 +21,7 @@ from core.models import (Issue, GithubUser, LabelType, Milestone,
 from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
                               IssueEditBodyJob, IssueEditMilestoneJob,
                               IssueEditAssigneeJob, IssueEditLabelsJob,
-                              IssueCreateJob)
+                              IssueCreateJob, FetchIssueByNumber)
 from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
@@ -31,7 +31,8 @@ from front.mixins.views import (WithQueryStringViewMixin,
                                 LinkedToIssueFormViewMixin,
                                 LinkedToUserFormViewMixin,
                                 DeferrableViewPart,
-                                WithSubscribedRepositoryViewMixin)
+                                WithSubscribedRepositoryViewMixin,
+                                WithAjaxRestrictionViewMixin)
 
 from front.models import GroupedCommits
 from front.repository.views import BaseRepositoryView
@@ -743,6 +744,75 @@ class IssueView(UserIssuesView):
         if self.request.is_ajax():
             self.template_name = self.ajax_template_name
         return super(IssueView, self).get_template_names()
+
+
+class AskFetchIssueView(WithAjaxRestrictionViewMixin, IssueView):
+    url_name = 'issue.ask-fetch'
+    ajax_only = True
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        """
+        Get the issue and add a new job to fetch it
+        """
+        try:
+            issue = self.get_current_issue()
+        except Exception:
+            messages.error(self.request,
+                'The issue from <strong>%s</strong> you asked to fetch from Github could doesn\'t exist anymore!' % (
+                    self.repository))
+        else:
+            self.add_job(issue)
+
+        return self.render_to_response(context={})
+
+    def add_job(self, issue):
+        """
+        Add a job to fetch the issue and inform the current user
+        """
+        identifier = '%s#%s' % (self.repository.id, issue.number)
+        user_pk_str = str(self.request.user.id)
+        users_to_inform = set(user_pk_str)
+        tries = 0
+        while True:
+            # add a job to fetch the issue, informing
+            job = FetchIssueByNumber.add_job(
+                    identifier=identifier,
+                    priority=5,  # higher priority
+                    gh=self.request.user.get_connection(),
+                    users_to_inform=users_to_inform,
+            )
+            # we may already have this job queued
+            if user_pk_str in job.users_to_inform.smembers():
+                # if it has already the correct user to inform, we're good
+                break
+            else:
+                # the job doesn't have the correct user to inform
+                if tries >= 10:
+                    # we made enough tries, stop now
+                    messages.error(self.request,
+                        'The %s <strong>#%d</strong> from <strong>%s</strong> you asked to fetch from Github couldn\'t be fetched!' % (
+                            issue.type, issue.number, self.repository.full_name))
+                    return
+                # ok let's cancel this job and try again
+                tries += 1
+                job.status.hset('c')
+                job.queued.delete()
+                # adding users we already have to inform to the new job
+                existing_users = job.users_to_inform.lmembers()
+                if existing_users:
+                    users_to_inform.update(existing_users)
+
+        # ok the job was added, tell to the user...
+        messages.success(self.request,
+            'The %s <strong>#%d</strong> from <strong>%s</strong> you asked to fetch from Github will be updated soon' % (
+                issue.type, issue.number, self.repository.full_name))
+
+    def get_template_names(self):
+        """
+        We'll only display messages to the user
+        """
+        return ['front/messages.html']
 
 
 class CreatedIssueView(IssueView):

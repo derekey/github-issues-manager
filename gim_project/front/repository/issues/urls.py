@@ -4,7 +4,7 @@ from .views import (IssuesView, IssueView, UserIssuesView, CreatedIssueView,
                     SimpleAjaxIssueView, FilesAjaxIssueView,
                     IssueEditState, IssueEditTitle, IssueEditBody,
                     IssueEditMilestone, IssueEditAssignee, IssueEditLabels,
-                    IssueCreateView,
+                    IssueCreateView, AskFetchIssueView,
                     IssueCommentCreate, PullRequestCommentCreate,
                     IssuesFilterCreators, IssuesFilterAssigned, IssuesFilterClosers)
 
@@ -33,6 +33,7 @@ urlpatterns = patterns('',
     url(r'^(?P<issue_number>\d+)/edit/labels/$', IssueEditLabels.as_view(), name=IssueEditLabels.url_name),
     url(r'^create/$', IssueCreateView.as_view(), name=IssueCreateView.url_name),
     url(r'^created/(?P<issue_pk>\d+)/$', CreatedIssueView.as_view(), name=CreatedIssueView.url_name),
+    url(r'^ask-fetch/(?P<issue_number>\d+)/$', AskFetchIssueView.as_view(), name=AskFetchIssueView.url_name),
 
     url(r'^(?P<issue_number>\d+)/comment/add/$', IssueCommentCreate.as_view(), name=IssueCommentCreate.url_name),
     url(r'^(?P<issue_number>\d+)/code-comment/add/$', PullRequestCommentCreate.as_view(), name=PullRequestCommentCreate.url_name),
