@@ -827,7 +827,7 @@ class CreatedIssueView(IssueView):
             job = IssueCreateJob.get(identifier=self.kwargs['issue_pk'])
             issue = Issue.objects.get(pk=job.created_pk.hget())
         except:
-            if wait_if_failure:
+            if wait_if_failure > 0:
                 sleep(0.1)
                 return self.redirect_to_created_issue(wait_if_failure-0.1)
             else:
