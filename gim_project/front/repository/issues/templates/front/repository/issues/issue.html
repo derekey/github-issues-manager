@@ -54,7 +54,7 @@
                 {% if current_issue.assignee or current_issue_edit_level == 'full' %}
                     <div class="issue-assignee{% if not current_issue.assignee %} no-assignee{% endif %} edit-place" data-field="assignee">
                         {% if current_issue.assignee %}
-                            <i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" /> Assigned to <strong>{{ current_issue.assignee.username }}</strong>
+                            <i class="icon-hand-right"> </i>&nbsp;<img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" /> Assigned to <strong>{{ current_issue.assignee.username }}</strong>
                         {% else %}
                             <i class="icon-hand-right"> </i> No one assigned
                         {% endif %}
