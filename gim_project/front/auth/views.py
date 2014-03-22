@@ -59,7 +59,7 @@ class ConfirmView(BaseGithubAuthView):
         del self.request.session['github-auth-state']
 
         state = self.request.GET.get('state', None)
-        if state != attended_state:
+        if state.strip() != attended_state.strip():
             return False, "Unexpected request, please retry"
 
         # get code
