@@ -247,7 +247,7 @@ class LabelsEditor(BaseRepositoryView):
 
         context.update({
             'label_types': self.repository.label_types.all().prefetch_related('labels'),
-            'labels_without_type': self.repository.labels.ready().order_by('lower_name').filter(label_type__isnull=True),
+            'labels_without_type': self.repository.labels.order_by('lower_name').filter(label_type__isnull=True),
             'all_labels': self.repository.labels.ready().order_by('lower_name').values_list('name', flat=True),
             'label_type_include_template': self.label_type_include_template,
         })
@@ -357,7 +357,7 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
             'error': False
         }
 
-        labels = self.repository.labels.ready().order_by('lower_name')
+        labels = self.repository.labels.order_by('lower_name')
 
         matching_labels = []
         has_order = True
