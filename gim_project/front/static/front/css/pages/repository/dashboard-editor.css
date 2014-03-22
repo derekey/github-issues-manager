@@ -559,8 +559,8 @@ div.selector span {
 .label-type .labels li.new-label {
   padding: 0px;
   border: medium none;
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 3px;
+  margin-bottom: 4px;
 }
 /* line 110, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label > a.btn {
