@@ -1,3 +1,4 @@
+from django.template.defaultfilters import urlencode
 
 
 def make_querystring(qs_parts):
@@ -9,9 +10,9 @@ def make_querystring(qs_parts):
     parts = []
     for key, value in qs_parts.items():
         if isinstance(value, list):
-            parts.append((key, ','.join(value)))
+            parts.append((key, ','.join(map(urlencode, value))))
         else:
-            parts.append((key, value))
+            parts.append((key, urlencode(value)))
 
     qs = '&'.join('%s=%s' % part for part in parts)
 
