@@ -111,7 +111,8 @@ class LabelTypeEditForm(LinkedToRepositoryFormMixin):
             self.instance.edit_details = {'format_string': self.cleaned_data['format_string']}
 
         elif self.instance.edit_mode == LABELTYPE_EDITMODE.LIST:
-            self.instance.edit_details = {'labels_list': self.cleaned_data['labels_list']}
+            labels = ','.join(sorted(self.cleaned_data['labels_list'].split(','), key=unicode.lower))
+            self.instance.edit_details = {'labels_list': labels}
 
         return super(LabelTypeEditForm, self).save(*args, **kwargs)
 

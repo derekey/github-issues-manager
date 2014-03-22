@@ -247,8 +247,8 @@ class LabelsEditor(BaseRepositoryView):
 
         context.update({
             'label_types': self.repository.label_types.all().prefetch_related('labels'),
-            'labels_without_type': self.repository.labels.ready().filter(label_type__isnull=True),
-            'all_labels': self.repository.labels.ready().order_by('name').values_list('name', flat=True),
+            'labels_without_type': self.repository.labels.ready().order_by('lower_name').filter(label_type__isnull=True),
+            'all_labels': self.repository.labels.ready().order_by('lower_name').values_list('name', flat=True),
             'label_type_include_template': self.label_type_include_template,
         })
 
@@ -357,7 +357,7 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
             'error': False
         }
 
-        labels = self.repository.labels.ready().order_by('name')
+        labels = self.repository.labels.ready().order_by('lower_name')
 
         matching_labels = []
         has_order = True
@@ -368,6 +368,7 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
                 label_data = {
                     'name': label.name,
                     'typed_name': typed_name,
+                    'lower_typed_name': label.lower_typed_name,
                     'color': label.color,
                 }
                 if order is None:
@@ -377,7 +378,7 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
 
                 matching_labels.append(label_data)
 
-        matching_labels.sort(key=itemgetter('order' if has_order else 'typed_name'))
+        matching_labels.sort(key=itemgetter('order' if has_order else 'lower_typed_name'))
 
         context['matching_labels'] = matching_labels
 

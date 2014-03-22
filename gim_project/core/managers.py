@@ -39,12 +39,7 @@ class GithubObjectManager(models.Manager):
         To use instead of "all" when needed
         """
         return self.get_query_set().exclude(
-                github_status__in=(
-                            self.model.GITHUB_STATUS_CHOICES.WAITING_DELETE,
-                            self.model.GITHUB_STATUS_CHOICES.WAITING_CREATE,
-                            self.model.GITHUB_STATUS_CHOICES.ERROR_CREATE
-                            )
-                )
+                        github_status__in=self.model.GITHUB_STATUS_NOT_READY)
 
     def get_github_callable(self, gh, identifiers):
         """

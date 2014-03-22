@@ -51,6 +51,12 @@ GITHUB_STATUS_CHOICES.ALL_ERRORS = (GITHUB_STATUS_CHOICES.ERROR_CREATE,
                                     GITHUB_STATUS_CHOICES.ERROR_DELETE,
                                     GITHUB_STATUS_CHOICES.ERROR_FETCHED)
 
+GITHUB_STATUS_NOT_READY = (
+    GITHUB_STATUS_CHOICES.WAITING_DELETE,
+    GITHUB_STATUS_CHOICES.WAITING_CREATE,
+    GITHUB_STATUS_CHOICES.ERROR_CREATE
+)
+
 
 class GithubObject(models.Model):
     fetched_at = models.DateTimeField(null=True, blank=True)
@@ -62,6 +68,7 @@ class GithubObject(models.Model):
     objects = GithubObjectManager()
 
     GITHUB_STATUS_CHOICES = GITHUB_STATUS_CHOICES
+    GITHUB_STATUS_NOT_READY = GITHUB_STATUS_NOT_READY
 
     github_matching = {}
     github_ignore = ()
@@ -413,7 +420,7 @@ class GithubObject(models.Model):
         existing_queryset = instance_field
         if filter_queryset:
             existing_queryset = instance_field.filter(filter_queryset)
-        existing_ids = set(existing_queryset.values_list('id', flat=True))
+        existing_ids = set(existing_queryset.order_by().values_list('id', flat=True))
         fetched_ids = set(ids or [])
 
         # if some relations are not here, remove them
@@ -538,7 +545,7 @@ class GithubObject(models.Model):
                     relation = getattr(self, field_name)
                     if is_m2m or not direct:
                         # we have a many to many relationship
-                        data[key] = list(relation.values_list(subfield_name, flat=True))
+                        data[key] = list(relation.order_by().values_list(subfield_name, flat=True))
                     else:
                         # we have a foreignkey
                         data[key] = None if not relation else getattr(relation, subfield_name)
@@ -1627,7 +1634,8 @@ class LabelType(models.Model):
             validators.RegexValidator(re.compile('^(?!.*\(\?P<order>(?!\\\d\+\))).*$'), 'If an order is present, it must math a number: the exact part must be: "(?P<order>\d+)"', 'invalid-order'),
         ]
     )
-    name = models.CharField(max_length=250, db_index=True)
+    name = models.CharField(max_length=250)
+    lower_name = models.CharField(max_length=250, db_index=True)
     edit_mode = models.PositiveSmallIntegerField(choices=LABELTYPE_EDITMODE.CHOICES, default=LABELTYPE_EDITMODE.REGEX)
     edit_details = JSONField(blank=True, null=True)
 
@@ -1638,7 +1646,7 @@ class LabelType(models.Model):
         unique_together = (
             ('repository', 'name'),
         )
-        ordering = ('name', )
+        ordering = ('lower_name', )
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -1664,6 +1672,7 @@ class LabelType(models.Model):
         Check validity, save the label-type, and apply label-type search for
         all labels of the repository
         """
+        self.lower_name = self.name.lower()
 
         # validate that the regex is ok
         self.clean_fields()
@@ -1699,10 +1708,12 @@ class LabelType(models.Model):
 class Label(WithRepositoryMixin, GithubObject):
     repository = models.ForeignKey(Repository, related_name='labels')
     name = models.TextField()
+    lower_name = models.TextField(db_index=True)
     color = models.CharField(max_length=6)
     api_url = models.TextField(blank=True, null=True)
     label_type = models.ForeignKey(LabelType, related_name='labels', blank=True, null=True, on_delete=models.SET_NULL)
     typed_name = models.TextField(db_index=True)
+    lower_typed_name = models.TextField(db_index=True)
     order = models.IntegerField(blank=True, null=True)
 
     objects = WithRepositoryManager()
@@ -1726,7 +1737,7 @@ class Label(WithRepositoryMixin, GithubObject):
         index_together = (
             ('repository', 'label_type', 'order'),
         )
-        ordering = ('label_type', 'order', 'typed_name', )
+        ordering = ('label_type', 'order', 'lower_typed_name', 'lower_name')
 
     @property
     def github_url(self):
@@ -1765,6 +1776,9 @@ class Label(WithRepositoryMixin, GithubObject):
             self.label_type, self.typed_name, self.order = label_type_infos
         else:
             self.label_type, self.typed_name, self.order = None, self.name, None
+
+        self.lower_name = self.name.lower()
+        self.lower_typed_name = None if self.typed_name is None else self.typed_name.lower()
 
         if kwargs.get('update_fields', None) is not None:
             kwargs['update_fields'] += ['label_type', 'typed_name', 'order']

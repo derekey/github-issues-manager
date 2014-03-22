@@ -151,7 +151,7 @@ class IssueLabelsFormPart(object):
 
     def __init__(self, *args, **kwargs):
         super(IssueLabelsFormPart, self).__init__(*args, **kwargs)
-        labels = self.repository.labels.all().select_related('label_type')
+        labels = self.repository.labels.select_related('label_type')
         self.fields['labels'].required = False
         self.fields['labels'].queryset = labels
         self.fields['labels'].widget.choices = self.get_labels_choices(labels)
@@ -183,7 +183,7 @@ class IssueLabelsFormPart(object):
         # move Others at the end
         if self.simple_label_name in data:
             data[self.simple_label_name] = data.pop(self.simple_label_name)
-        return [(k, sorted(v, key=lambda x: x[1].lower())) for k, v in data.items()]
+        return data.items()
 
 
 class IssueTitleForm(IssueTitleFormPart, IssueFormMixin):

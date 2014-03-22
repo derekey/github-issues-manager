@@ -83,7 +83,8 @@ class ChangeTracker(object):
 
                 @property
                 def get_m2m_ids(self):
-                    return list(getattr(self, m2m_field).values_list('id', flat=True))
+                    return list(getattr(self, m2m_field).order_by()
+                                                        .values_list('id', flat=True))
                 setattr(cls.model, field, get_m2m_ids)
 
                 # we need to check for m2m updates
@@ -105,7 +106,9 @@ class ChangeTracker(object):
 
                         # reverse mode, the pk_set is from "cls.model" linked to the instance
                         if reverse:
-                            pk_set = set(cls.model.objects.filter(**{m2m_field: instance}).values_list('pk', flat=True))
+                            pk_set = set(cls.model.objects.filter(**{m2m_field: instance})
+                                                          .order_by()
+                                                          .values_list('pk', flat=True))
                             instance._m2m_dirty_fields[self_name] = pk_set
 
                         # direct mode, the pk_set are related objects accessible via field
@@ -423,7 +426,7 @@ class IssueTracker(ChangeTracker):
         if not diff['added'] and not diff['removed']:
             return []
 
-        # get all added/removed labels from DB in one uery with label type
+        # get all added/removed labels from DB in one query with label type
         labels_by_id = Label.objects.select_related('label_type').in_bulk(
                                         diff['added'].union(diff['removed']))
 

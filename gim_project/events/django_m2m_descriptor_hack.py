@@ -30,7 +30,8 @@ def m2m_replace(self, *new_objs):
                     self.source_field_name: self._fk_val
                 }).exclude(**{
                     '%s__in' % self.target_field_name: obj_ids
-                }).values_list(self.target_field_name, flat=True)
+                }).order_by(
+                ).values_list(self.target_field_name, flat=True)
 
     self._remove_items(self.source_field_name, self.target_field_name, *to_remove)
     self.add(*new_objs)
