@@ -815,7 +815,9 @@ $().ready(function() {
             var is_modal = IssueDetail.is_modal($node);
             if (is_modal) {
                 // focusing $node doesn't FUCKING work
-                $node.find('header h3 a').focus();
+                setTimeout(function() {
+                    $node.find('header h3 a').focus();
+                }, 250);
             }
             // set waypoints
             IssueDetail.set_issue_waypoints($node, is_modal);
