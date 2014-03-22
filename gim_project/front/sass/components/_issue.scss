@@ -339,14 +339,25 @@ $file-list-width: 400px;
         }
     }
     .issue-edit-labels {
-        float: left;
+        display: block !important;
+        position: relative;
+        overflow: auto;
         div.edit-field,
         div.edit-buttons {
-            display: table-cell;
             vertical-align: top;
         }
+        div.edit-field {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 72px;
+        }
         div.edit-buttons {
-            white-space: nowrap;
+            float: right;
+        }
+        ~ div.issue-footer-infos {
+            display: block;
+            margin-top: 7px;
         }
     }
 
@@ -359,6 +370,7 @@ $file-list-width: 400px;
 }
 .select2-labels {
     .select2-results {
+        max-height: 400px;
         display: block;
         > li li:not(.select2-selected) {
             display: inline-block;
@@ -377,7 +389,7 @@ $file-list-width: 400px;
         * {
             @include box-sizing(content-box);
         }
-        padding: 0 4px 3px 0;
+        padding: 0 4px 1px 0;
         .select2-search-field {
             padding: 4px 0px 0px 4px;
             margin: 0;
@@ -388,11 +400,11 @@ $file-list-width: 400px;
             }
         }
         .select2-search-choice {
-            margin: 4px 0 0 4px;
+            margin: 2px 0 0 4px;
             @include border-radius(0);
             background: transparent;
-            border: none;
-            padding: 0 0 0 18px;
+            border: none !important;
+            padding: 0 0 0 18px !important;
             span {
                 @extend %issue-label;
                 margin-left: -18px;
