@@ -207,7 +207,10 @@ class Job(LimpydJob):
                 # check the first available gh
                 if permission == 'self':
                     if args:
-                        token = Token.get(token=args['access_token'])
+                        try:
+                            token = Token.get(token=args['access_token'])
+                        except Token.DoesNotExist:
+                            token = Token.get(username=args['username'])
                 elif repository:
                     token = Token.get_one_for_repository(repository.pk, permission, available=False, sort_by='rate_limit_reset')
                 else:

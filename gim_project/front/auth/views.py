@@ -1,14 +1,16 @@
 import base64
 from random import random
 
-
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.core.urlresolvers import reverse, reverse_lazy, resolve
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 
+from limpyd_jobs import STATUSES
+
 from core.ghpool import Connection
+from core.limpyd_models import Token
 from core.models import GithubUser
 from core.tasks.githubuser import FetchAvailableRepositoriesJob
 
@@ -115,10 +117,21 @@ class ConfirmView(BaseGithubAuthView):
         # and finally login
         login(self.request, user)
 
-        # add a job to fetch available repositories
-        FetchAvailableRepositoriesJob.add_job(user.id, inform_user=1)
+        # set its username to the token
+        user.token_object.username.hset(user.username)
 
-        return True, "Authentication successful, we are currently fetching repositories you can subscribe to (ones you own, collaborate to, or in your organizations)"
+        # remove other tokens for this username
+        for user_token in list(Token.collection(username=user.username).instances()):
+            if user_token.token.hget() != token:
+                user_token.delete()
+
+        # add a job to fetch available repositories
+        job = FetchAvailableRepositoriesJob.add_job(user.id, inform_user=1)
+
+        if job.status == STATUSES.DELAYED:
+            return True, "Authentication successful, welcome back!"
+        else:
+            return True, "Authentication successful, we are currently fetching repositories you can subscribe to (ones you own, collaborate to, or in your organizations)"
 
     def get_redirect_url(self):
         auth_valid, message = self.complete_auth()
