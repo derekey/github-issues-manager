@@ -10,7 +10,6 @@ from django.contrib import messages
 from limpyd_jobs import STATUSES
 
 from core.ghpool import Connection
-from core.limpyd_models import Token
 from core.models import GithubUser
 from core.tasks.githubuser import FetchAvailableRepositoriesJob
 
@@ -121,6 +120,7 @@ class ConfirmView(BaseGithubAuthView):
         user.token_object.username.hset(user.username)
 
         # remove other tokens for this username
+        from core.limpyd_models import Token
         for user_token in list(Token.collection(username=user.username).instances()):
             if user_token.token.hget() != token:
                 user_token.delete()
