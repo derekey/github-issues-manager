@@ -26,7 +26,8 @@ class IssueCommentJob(DjangoModelJob):
 class CommentEditJob(IssueCommentJob):
     abstract = True
 
-    mode = fields.InstanceHashField()
+    mode = fields.InstanceHashField(indexable=True)
+    created_pk = fields.InstanceHashField(indexable=True)
 
     def run(self, queue):
         """
@@ -49,7 +50,9 @@ class CommentEditJob(IssueCommentJob):
             if mode == 'delete':
                 comment.dist_delete(gh)
             else:
-                comment.dist_edit(mode=mode, gh=gh)
+                comment = comment.dist_edit(mode=mode, gh=gh)
+                if mode == 'create':
+                    self.created_pk.hset(comment.pk)
 
         except ApiError, e:
             message = None

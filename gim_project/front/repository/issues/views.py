@@ -1169,17 +1169,48 @@ class BaseIssueCommentView(WithAjaxRestrictionViewMixin, DependsOnIssueViewMixin
 
         return context
 
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        pk = self.kwargs['comment_pk']
+        object = None
+
+        try:
+            object = queryset.get(pk=pk)
+        except self.model.DoesNotExist:
+            # maybe the object was deleted and recreated by dist_edit
+            try:
+                job = self.job_model.get(identifier=pk, mode='create')
+            except self.job_model.DoesNotExist:
+                pass
+            else:
+                to_wait = 0.3
+                while to_wait > 0:
+                    created_pk = job.created_pk.hget()
+                    if created_pk:
+                        object = queryset.get(pk=created_pk)
+                        break
+                    sleep(0.1)
+
+        if not object:
+            raise Http404("No comment found matching the query")
+
+        return object
+
 
 class IssueCommentView(BaseIssueCommentView):
     url_name = 'issue.comment'
     model = IssueComment
     template_name = 'front/repository/issues/comments/include_comment_alone.html'
+    job_model = IssueCommentEditJob
 
 
 class PullRequestCommentView(BaseIssueCommentView):
     url_name = 'issue.pr_comment'
     model = PullRequestComment
     template_name = 'front/repository/issues/comments/include_pr_comment_alone.html'
+    job_model = PullRequestCommentEditJob
 
     def get_context_data(self, **kwargs):
         context = super(PullRequestCommentView, self).get_context_data(**kwargs)
