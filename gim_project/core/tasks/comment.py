@@ -82,7 +82,8 @@ class CommentEditJob(IssueCommentJob):
             comment.issue.type, comment.issue.number, comment.repository.full_name, mode)
         messages.success(self.gh_user, message)
 
-        comment.issue.fetch_all(gh)
+        from core.tasks.issue import FetchIssueByNumber
+        FetchIssueByNumber.add_job('%s#%s' % (comment.repository_id, comment.issue.number), gh=gh)
 
         return None
 
