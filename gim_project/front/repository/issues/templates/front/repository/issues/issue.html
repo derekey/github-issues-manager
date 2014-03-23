@@ -91,7 +91,7 @@
                         <div>
                             {% if current_issue.total_comments_count %}
                                 <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
-                                    <i class="icon-comments-alt"> </i>{{ current_issue.total_comments_count }}
+                                    <i class="icon-comments-alt"> </i> {{ current_issue.total_comments_count }}
                                 </a>
                             {% endif %}
                             {% if current_issue_involved|length > 1 %}
