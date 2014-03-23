@@ -505,6 +505,20 @@ class _IssueComment(models.Model):
     def html_content(self):
         return html_content(self)
 
+    def get_reverse_kwargs(self):
+        """
+        Return the kwargs to use for "reverse"
+        """
+        return {
+            'owner_username': self.repository.owner.username,
+            'repository_name': self.repository.name,
+            'issue_number': self.issue.number,
+            'comment_pk': self.pk,
+        }
+
+    def get_absolute_url(self):
+        return reverse_lazy('front:repository:issue.comment', kwargs=self.get_reverse_kwargs())
+
 contribute_to_model(_IssueComment, core_models.IssueComment)
 
 
@@ -515,6 +529,20 @@ class _PullRequestComment(models.Model):
     @property
     def html_content(self):
         return html_content(self)
+
+    def get_reverse_kwargs(self):
+        """
+        Return the kwargs to use for "reverse"
+        """
+        return {
+            'owner_username': self.repository.owner.username,
+            'repository_name': self.repository.name,
+            'issue_number': self.issue.number,
+            'comment_pk': self.pk,
+        }
+
+    def get_absolute_url(self):
+        return reverse_lazy('front:repository:issue.pr_comment', kwargs=self.get_reverse_kwargs())
 
 contribute_to_model(_PullRequestComment, core_models.PullRequestComment)
 

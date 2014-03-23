@@ -1,4 +1,7 @@
 {% extends "front/repository/issues/activity/include_base_activity.html" %}
+{% load frontutils %}
+
+{% block node_data %}data-type="{{ comment|model }}" data-pk="{{ comment.pk }}"{% endblock %}
 
 {% block comment_date %}
     {% if comment.github_status != GITHUB_STATUSES.FETCHED %}

@@ -3,8 +3,6 @@
         {% for pr_comment in pr_comments %}
             {% include "front/repository/issues/comments/include_comment.html" with comment=pr_comment %}
         {% endfor %}
-        <li class="comment-create-placeholder" data-entry-point-id="{{ entry_point.id }}">
-            <button class="btn btn-blue btn-small">Add a comment</button>
-        </li>
+        {% include "front/repository/issues/comments/include_pr_comment_create.html" %}
     </ul>
 </div>

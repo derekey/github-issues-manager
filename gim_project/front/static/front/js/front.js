@@ -1944,8 +1944,7 @@ $().ready(function() {
         }), // on_comment_create_submit
 
         on_comment_create_submit_done: (function IssueEditor__on_comment_create_submit_done (data) {
-            this.$form.find('button').removeClass('loading');
-            IssueEditor.display_issue(data, this);
+            this.$form.closest('li').replaceWith(data);
         }), // on_comment_create_submit_done
 
         on_comment_create_submit_failed: (function IssueEditor__on_comment_create_submit_failed () {

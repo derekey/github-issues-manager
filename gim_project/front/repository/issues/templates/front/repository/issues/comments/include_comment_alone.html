@@ -1,0 +1,4 @@
+{% include "front/repository/issues/comments/include_comment.html" %}
+{% if view.request.GET.include_form %}
+    {% include "front/repository/issues/comments/include_comment_create.html" %}
+{% endif %}

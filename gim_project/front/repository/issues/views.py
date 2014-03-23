@@ -8,7 +8,7 @@ from time import sleep
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
-from django.views.generic import UpdateView, CreateView, TemplateView
+from django.views.generic import UpdateView, CreateView, TemplateView, DetailView
 from django.contrib import messages
 from django.shortcuts import render
 from django.http import Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
@@ -32,7 +32,8 @@ from front.mixins.views import (WithQueryStringViewMixin,
                                 LinkedToUserFormViewMixin,
                                 DeferrableViewPart,
                                 WithSubscribedRepositoryViewMixin,
-                                WithAjaxRestrictionViewMixin)
+                                WithAjaxRestrictionViewMixin,
+                                DependsOnIssueViewMixin)
 
 from front.models import GroupedCommits
 from front.repository.views import BaseRepositoryView
@@ -1152,11 +1153,52 @@ class IssueCreateView(LinkedToUserFormViewMixin, BaseIssueEditView, CreateView):
                 be created shortly""" % (issue.type, title)
 
 
+class BaseIssueCommentView(WithAjaxRestrictionViewMixin, DependsOnIssueViewMixin, DetailView):
+    context_object_name = 'comment'
+    pk_url_kwarg = 'comment_pk'
+    http_method_names = ['get']
+    ajax_only = True
+
+    def get_context_data(self, **kwargs):
+        context = super(BaseIssueCommentView, self).get_context_data(**kwargs)
+
+        context.update({
+            'use_current_user': False,
+            'collaborators_ids': self.repository.collaborators.all().values_list('id', flat=True),
+        })
+
+        return context
+
+
+class IssueCommentView(BaseIssueCommentView):
+    url_name = 'issue.comment'
+    model = IssueComment
+    template_name = 'front/repository/issues/comments/include_comment_alone.html'
+
+
+class PullRequestCommentView(BaseIssueCommentView):
+    url_name = 'issue.pr_comment'
+    model = PullRequestComment
+    template_name = 'front/repository/issues/comments/include_pr_comment_alone.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PullRequestCommentView, self).get_context_data(**kwargs)
+
+        context.update({
+            'entry_point': self.object.entry_point,
+        })
+
+        return context
+
+
 class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):
     job_model = None
+    ajax_only = True
+    http_method_names = ['post']
 
     def get_success_url(self):
-        return self.issue.get_absolute_url()
+        url = super(BaseCommentCreateView, self).get_success_url()
+        return url + '?include_form=1'
 
     def form_valid(self, form):
         """
