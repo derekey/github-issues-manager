@@ -1165,6 +1165,7 @@ class BaseIssueCommentView(WithAjaxRestrictionViewMixin, DependsOnIssueViewMixin
         context.update({
             'use_current_user': False,
             'collaborators_ids': self.repository.collaborators.all().values_list('id', flat=True),
+            'include_create_form': self.request.GET.get('include_form', False),
         })
 
         return context
@@ -1202,14 +1203,14 @@ class BaseIssueCommentView(WithAjaxRestrictionViewMixin, DependsOnIssueViewMixin
 class IssueCommentView(BaseIssueCommentView):
     url_name = 'issue.comment'
     model = IssueComment
-    template_name = 'front/repository/issues/comments/include_comment_alone.html'
+    template_name = 'front/repository/issues/comments/include_issue_comment.html'
     job_model = IssueCommentEditJob
 
 
 class PullRequestCommentView(BaseIssueCommentView):
     url_name = 'issue.pr_comment'
     model = PullRequestComment
-    template_name = 'front/repository/issues/comments/include_pr_comment_alone.html'
+    template_name = 'front/repository/issues/comments/include_pr_comment.html'
     job_model = PullRequestCommentEditJob
 
     def get_context_data(self, **kwargs):

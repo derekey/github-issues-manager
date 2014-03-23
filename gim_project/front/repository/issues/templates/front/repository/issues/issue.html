@@ -198,10 +198,10 @@
                         {% elif event.get_parts %}{# Event #}
                             {% include "front/repository/issues/activity/include_change_event.html" %}
                         {% else %}{# IssueComment #}
-                            {% include "front/repository/issues/comments/include_comment.html" with comment=event %}
+                            {% include "front/repository/issues/comments/include_issue_comment.html" with comment=event include_create_form=False %}
                         {% endif %}
                     {% endfor %}
-                    {% include "front/repository/issues/comments/include_comment_create.html" with use_current_user=True %}
+                    {% include "front/repository/issues/comments/include_issue_comment_create.html" with use_current_user=True %}
                 </ul>
             </aside>
             {% endif %}
