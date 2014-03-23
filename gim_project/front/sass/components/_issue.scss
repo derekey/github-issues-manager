@@ -347,13 +347,15 @@ $file-list-width: 400px;
             vertical-align: top;
         }
         div.edit-field {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 72px;
+            @include calc(width, '100% - 72px');
+            select {
+                width: 100%;
+            }
         }
         div.edit-buttons {
-            float: right;
+            position: absolute;
+            top: 0;
+            right: 0;
         }
         ~ div.issue-footer-infos {
             display: block;
