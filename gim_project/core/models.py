@@ -575,7 +575,8 @@ class GithubObject(models.Model):
         # update the object on our side
         return self.__class__.objects.create_or_update_from_dict(
                                                             data=result,
-                                                            defaults=defaults)
+                                                            defaults=defaults,
+                                                            force_update=True)
 
 
 class GithubObjectWithId(GithubObject):
