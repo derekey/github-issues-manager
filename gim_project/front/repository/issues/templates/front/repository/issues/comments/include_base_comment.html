@@ -12,6 +12,14 @@
             </span>
         </span>
     {% else %}
+        {% if current_issue_edit_level or comment.user == view.request.user %}
+            <nav class="comment-nav dropdown">
+                <button class="btn btn-default btn-mini dropdown-toggle" data-toggle="dropdown"><i class="icon-reorder"> </i></button>
+                <ul class="dropdown-menu pull-right" role="menu" aria-label="Comment menu">
+                    <li><a href="{{ comment.get_edit_url }}" class="comment-edit-btn" title="Edit this comment"><i class="icon-edit"> </i> Edit this comment</a></li>
+                </ul>
+            </nav>
+        {% endif %}
         {{ block.super }}
     {% endif %}
 {% endblock comment_date %}

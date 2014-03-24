@@ -519,6 +519,12 @@ class _IssueComment(models.Model):
     def get_absolute_url(self):
         return reverse_lazy('front:repository:issue.comment', kwargs=self.get_reverse_kwargs())
 
+    def get_edit_url(self):
+        return reverse_lazy('front:repository:issue.comment.edit', kwargs=self.get_reverse_kwargs())
+
+    def get_delete_url(self):
+        return reverse_lazy('front:repository:issue.comment.delete', kwargs=self.get_reverse_kwargs())
+
 contribute_to_model(_IssueComment, core_models.IssueComment)
 
 
@@ -543,6 +549,12 @@ class _PullRequestComment(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('front:repository:issue.pr_comment', kwargs=self.get_reverse_kwargs())
+
+    def get_edit_url(self):
+        return reverse_lazy('front:repository:issue.pr_comment.edit', kwargs=self.get_reverse_kwargs())
+
+    def get_delete_url(self):
+        return reverse_lazy('front:repository:issue.pr_comment.delete', kwargs=self.get_reverse_kwargs())
 
 contribute_to_model(_PullRequestComment, core_models.PullRequestComment)
 

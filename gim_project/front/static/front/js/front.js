@@ -1923,8 +1923,8 @@ $().ready(function() {
             alert('A problem prevented us to do your action !');
         }), // on_state_submit_failed
 
-        /* CREATE COMMENT */
-        on_comment_create_submit: (function IssueEditor__on_comment_create_submit (ev) {
+        /* POST COMMENT */
+        on_comment_submit: (function IssueEditor__on_comment_submit (ev) {
             var $form = $(this),
                 context = IssueEditor.handle_form($form, ev);
             if (context === false) { return false; }
@@ -1939,22 +1939,45 @@ $().ready(function() {
                 return false;
             }
 
-            IssueEditor.post_form($form, context, IssueEditor.on_comment_create_submit_done,
-                                                  IssueEditor.on_comment_create_submit_failed);
-        }), // on_comment_create_submit
+            IssueEditor.post_form($form, context, IssueEditor.on_comment_submit_done,
+                                                  IssueEditor.on_comment_submit_failed);
+        }), // on_comment_submit
 
-        on_comment_create_submit_done: (function IssueEditor__on_comment_create_submit_done (data) {
+        on_comment_submit_done: (function IssueEditor__on_comment_submit_done (data) {
             this.$form.closest('li').replaceWith(data);
-        }), // on_comment_create_submit_done
+        }), // on_comment_submit_done
 
-        on_comment_create_submit_failed: (function IssueEditor__on_comment_create_submit_failed () {
+        on_comment_submit_failed: (function IssueEditor__on_comment_submit_failed () {
             IssueEditor.enable_form(this.$form);
             this.$form.find('.alert').remove();
             var $textarea = this.$form.find('textarea');
             $textarea.after('<div class="alert alert-error">We were unable to post your comment</div>');
             this.$form.find('button').removeClass('loading');
             $textarea.focus();
-        }), // on_comment_create_submit_failed
+        }), // on_comment_submit_failed
+
+        on_comment_edit_click: (function IssueEditor__on_comment_edit_click (ev) {
+            var $link = $(this),
+                $comment_node = $link.closest('li.issue-comment');
+            IssueEditor.disable_comment($comment_node);
+            $.get($link.attr('href'))
+                .done($.proxy(IssueEditor.on_comment_edit_loaded, $comment_node))
+                .fail($.proxy(IssueEditor.on_comment_edit_load_failed, $comment_node));
+            return false;
+        }), // on_comment_edit_click
+
+        disable_comment: (function IssueEditor__disable_comment ($comment_node) {
+
+        }), // disable_comment
+
+        on_comment_edit_loaded: (function IssueEditor__on_comment_edit_loaded (data) {
+            var $comment_node = this;
+            $comment_node.replaceWith(data);
+        }), // on_comment_edit_loaded
+
+        on_comment_edit_load_failed: (function IssueEditor__on_comment_edit_load_failed (data) {
+            alert('Unable to load the comment edit form!')
+        }), // on_comment_edit_load_failed
 
         // CREATE THE PR-COMMENT FORM
         on_comment_create_placeholder_click: (function IssueEditor__on_comment_create_placeholder_click (ev) {
@@ -2435,8 +2458,12 @@ $().ready(function() {
             $document.on('click', 'form.issue-edit-field button.btn-cancel', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_cancel_click));
             $document.on('submit', 'form.issue-edit-field', Ev.stop_event_decorate(IssueEditor.on_issue_edit_field_submit));
 
-            $document.on('submit', '.comment-create-form', IssueEditor.on_comment_create_submit);
             $document.on('click', '.comment-create-placeholder button', IssueEditor.on_comment_create_placeholder_click);
+
+            $document.on('submit', '.comment-form', IssueEditor.on_comment_submit);
+
+            $document.on('click', '.comment-edit-btn', Ev.stop_event_decorate(IssueEditor.on_comment_edit_click));
+            $document.on('click', '.comment-delete-btn', Ev.stop_event_decorate(IssueEditor.on_comment_delete_click));
 
             $document.on('click', 'td.code span.label', IssueEditor.on_new_entry_point_click);
 

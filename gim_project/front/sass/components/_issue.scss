@@ -652,7 +652,7 @@ $file-list-width: 400px;
         margin: -5px -10px;
     }
 
-    .comment-create-form {
+    .comment-form {
         margin: 5px 0;
         textarea {
             width: 100%;
@@ -712,6 +712,11 @@ $file-list-width: 400px;
                 word-wrap: break-word;
             }
         }
+    }
+
+    .comment-nav {
+        float: right;
+        margin: -2px -5px -1px 7px;
     }
 
 }

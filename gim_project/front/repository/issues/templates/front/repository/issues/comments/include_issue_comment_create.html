@@ -17,7 +17,7 @@
 {% endblock comment_info %}
 
 {% block comment_inner_body %}
-    <form class="comment-create-form" data-number="{{ current_issue.number }}" data-repository="{{ current_issue.repository.full_name }}" method="post" action="{{ current_issue.issue_comment_create_url }}"{% if current_issue.is_pull_request %} data-pr-url="{{ current_issue.pr_comment_create_url }}"{% endif %}>
+    <form class="comment-form comment-create-form" data-number="{{ current_issue.number }}" data-repository="{{ current_issue.repository.full_name }}" method="post" action="{{ current_issue.issue_comment_create_url }}"{% if current_issue.is_pull_request %} data-pr-url="{{ current_issue.pr_comment_create_url }}"{% endif %}>
         {% csrf_token %}
         <div><textarea name="body" placeholder="Leave a comment..."></textarea></div>
         <button class="btn btn-blue btn-loading">Add a comment <i class='icon-spinner icon-spin'> </i></button>

@@ -5,8 +5,9 @@ from .views import (IssuesView, IssueView, UserIssuesView, CreatedIssueView,
                     IssueEditState, IssueEditTitle, IssueEditBody,
                     IssueEditMilestone, IssueEditAssignee, IssueEditLabels,
                     IssueCreateView, AskFetchIssueView,
-                    IssueCommentCreate, PullRequestCommentCreate,
+                    IssueCommentCreateView, PullRequestCommentCreateView,
                     IssueCommentView, PullRequestCommentView,
+                    IssueCommentEditView, PullRequestCommentEditView,
                     IssuesFilterCreators, IssuesFilterAssigned, IssuesFilterClosers)
 
 urlpatterns = patterns('',
@@ -36,8 +37,11 @@ urlpatterns = patterns('',
     url(r'^created/(?P<issue_pk>\d+)/$', CreatedIssueView.as_view(), name=CreatedIssueView.url_name),
     url(r'^ask-fetch/(?P<issue_number>\d+)/$', AskFetchIssueView.as_view(), name=AskFetchIssueView.url_name),
 
+    url(r'^(?P<issue_number>\d+)/comment/add/$', IssueCommentCreateView.as_view(), name=IssueCommentCreateView.url_name),
     url(r'^(?P<issue_number>\d+)/comment/(?P<comment_pk>\d+)/$', IssueCommentView.as_view(), name=IssueCommentView.url_name),
-    url(r'^(?P<issue_number>\d+)/comment/add/$', IssueCommentCreate.as_view(), name=IssueCommentCreate.url_name),
+    url(r'^(?P<issue_number>\d+)/comment/(?P<comment_pk>\d+)/edit/$', IssueCommentEditView.as_view(), name=IssueCommentEditView.url_name),
+
+    url(r'^(?P<issue_number>\d+)/code-comment/add/$', PullRequestCommentCreateView.as_view(), name=PullRequestCommentCreateView.url_name),
     url(r'^(?P<issue_number>\d+)/code-comment/(?P<comment_pk>\d+)/$', PullRequestCommentView.as_view(), name=PullRequestCommentView.url_name),
-    url(r'^(?P<issue_number>\d+)/code-comment/add/$', PullRequestCommentCreate.as_view(), name=PullRequestCommentCreate.url_name),
+    url(r'^(?P<issue_number>\d+)/code-comment/(?P<comment_pk>\d+)/edit/$', PullRequestCommentEditView.as_view(), name=PullRequestCommentEditView.url_name),
 )

@@ -42,7 +42,8 @@ from front.utils import make_querystring
 from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueMilestoneForm, IssueAssigneeForm, IssueLabelsForm,
                     IssueCreateForm, IssueCreateFormFull,
-                    IssueCommentCreateForm, PullRequestCommentCreateForm)
+                    IssueCommentCreateForm, PullRequestCommentCreateForm,
+                    IssueCommentEditForm, PullRequestCommentEditForm)
 
 LIMIT_ISSUES = 300
 LIMIT_USERS = 30
@@ -1223,45 +1224,57 @@ class PullRequestCommentView(BaseIssueCommentView):
         return context
 
 
-class BaseCommentCreateView(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin, CreateView):
-    job_model = None
-    ajax_only = True
-    http_method_names = ['post']
+class IssueCommentEditMixin(object):
+    model = IssueComment
+    job_model = IssueCommentEditJob
 
-    def get_success_url(self):
-        url = super(BaseCommentCreateView, self).get_success_url()
-        return url + '?include_form=1'
+
+class PullRequestCommentEditMixin(object):
+    model = PullRequestComment
+    job_model = PullRequestCommentEditJob
+
+
+class BaseCommentEditMixin(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin):
+    ajax_only = True
+    http_method_names = ['get', 'post']
+    edit_mode = None
 
     def form_valid(self, form):
         """
         Override the default behavior to add a job to create the comment on the
         github side
         """
-        response = super(BaseCommentCreateView, self).form_valid(form)
+        response = super(BaseCommentEditMixin, self).form_valid(form)
 
         self.job_model.add_job(self.object.pk,
-                               mode='create',
+                               mode=self.edit_mode,
                                gh=self.request.user.get_connection())
 
         messages.success(self.request,
-            u'Your comment on the %s <strong>#%d</strong> will be created shortly' % (
-                                            self.issue.type, self.issue.number))
+            u'Your comment on the %s <strong>#%d</strong> will be %s shortly' % (
+                                self.issue.type, self.issue.number, self.verb))
 
         return response
 
 
-class IssueCommentCreate(BaseCommentCreateView):
+class BaseCommentCreateView(BaseCommentEditMixin, CreateView):
+    edit_mode = 'create'
+    verb = 'created'
+    http_method_names = ['post']
+
+    def get_success_url(self):
+        url = super(BaseCommentCreateView, self).get_success_url()
+        return url + '?include_form=1'
+
+
+class IssueCommentCreateView(IssueCommentEditMixin, BaseCommentCreateView):
     url_name = 'issue.comment.create'
     form_class = IssueCommentCreateForm
-    model = IssueComment
-    job_model = IssueCommentEditJob
 
 
-class PullRequestCommentCreate(BaseCommentCreateView):
+class PullRequestCommentCreateView(PullRequestCommentEditMixin, BaseCommentCreateView):
     url_name = 'issue.pr_comment.create'
     form_class = PullRequestCommentCreateForm
-    model = PullRequestComment
-    job_model = PullRequestCommentEditJob
 
     def get_entry_point(self):
         if 'entry_point_id' in self.request.POST:
@@ -1310,9 +1323,27 @@ class PullRequestCommentCreate(BaseCommentCreateView):
             self.get_entry_point()
         except Exception:
             return self.http_method_not_allowed(self.request)
-        return super(PullRequestCommentCreate, self).post(*args, **kwargs)
+        return super(PullRequestCommentCreateView, self).post(*args, **kwargs)
 
     def get_form_kwargs(self):
-        kwargs = super(PullRequestCommentCreate, self).get_form_kwargs()
+        kwargs = super(PullRequestCommentCreateView, self).get_form_kwargs()
         kwargs['entry_point'] = self.entry_point
         return kwargs
+
+
+class BaseCommentEditView(BaseCommentEditMixin, UpdateView):
+    edit_mode = 'update'
+    verb = 'updated'
+    context_object_name = 'comment'
+    pk_url_kwarg = 'comment_pk'
+    template_name = 'front/repository/issues/comments/include_comment_edit.html'
+
+
+class IssueCommentEditView(IssueCommentEditMixin, BaseCommentEditView):
+    url_name = 'issue.comment.edit'
+    form_class = IssueCommentEditForm
+
+
+class PullRequestCommentEditView(PullRequestCommentEditMixin, BaseCommentEditView):
+    url_name = 'issue.pr_comment.edit'
+    form_class = PullRequestCommentEditForm

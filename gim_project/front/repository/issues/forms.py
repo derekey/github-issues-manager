@@ -9,7 +9,7 @@ from django.conf import settings
 from django.template.defaultfilters import date as convert_date
 from django.utils.html import escape
 
-from core.models import Issue, IssueComment, PullRequestComment
+from core.models import Issue, IssueComment, PullRequestComment, GITHUB_STATUS_CHOICES
 
 from front.mixins.forms import (LinkedToUserFormMixin, LinkedToIssueFormMixin,
                                 LinkedToRepositoryFormMixin)
@@ -234,27 +234,41 @@ class IssueCreateFormFull(IssueMilestoneFormPart, IssueAssigneeFormPart,
         fields = ['title', 'body', 'milestone', 'assignee', 'labels']
 
 
-class BaseCommentCreateForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):
+class BaseCommentEditForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):
     class Meta:
         fields = ['body', ]
 
     def __init__(self, *args, **kwargs):
-        super(BaseCommentCreateForm, self).__init__(*args, **kwargs)
+        super(BaseCommentEditForm, self).__init__(*args, **kwargs)
         self.fields['body'].validators = [validate_filled_string]
         self.fields['body'].required = True
 
     def save(self, commit=True):
-        self.instance.created_at = self.instance.updated_at = datetime.utcnow()
-        return super(BaseCommentCreateForm, self).save(commit)
+        if self.instance.pk:
+            self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_UPDATE
+        else:
+            self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_CREATE
+        self.instance.body_html = None
+        self.instance.updated_at = datetime.utcnow()
+        if not self.instance.created_at:
+            self.instance.created_at = self.instance.updated_at
+        return super(BaseCommentEditForm, self).save(commit)
 
 
-class IssueCommentCreateForm(BaseCommentCreateForm):
-    class Meta(BaseCommentCreateForm.Meta):
+class IssueCommentCreateForm(BaseCommentEditForm):
+    class Meta(BaseCommentEditForm.Meta):
         model = IssueComment
 
 
-class PullRequestCommentCreateForm(BaseCommentCreateForm):
-    class Meta(BaseCommentCreateForm.Meta):
+class IssueCommentEditForm(BaseCommentEditForm):
+    user_attribute = None
+
+    class Meta(BaseCommentEditForm.Meta):
+        model = IssueComment
+
+
+class PullRequestCommentCreateForm(BaseCommentEditForm):
+    class Meta(BaseCommentEditForm.Meta):
         model = PullRequestComment
 
     def __init__(self, *args, **kwargs):
@@ -262,3 +276,10 @@ class PullRequestCommentCreateForm(BaseCommentCreateForm):
         super(PullRequestCommentCreateForm, self).__init__(*args, **kwargs)
         if not self.instance.entry_point_id:
             self.instance.entry_point = self.entry_point
+
+
+class PullRequestCommentEditForm(BaseCommentEditForm):
+    user_attribute = None
+
+    class Meta(BaseCommentEditForm.Meta):
+        model = PullRequestComment
