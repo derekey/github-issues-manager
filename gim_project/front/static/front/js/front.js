@@ -1951,7 +1951,7 @@ $().ready(function() {
             IssueEditor.enable_form(this.$form);
             this.$form.find('.alert').remove();
             var $textarea = this.$form.find('textarea');
-            $textarea.after('<div class="alert alert-error">We were unable to post your comment</div>');
+            $textarea.after('<div class="alert alert-error">We were unable to post this comment</div>');
             this.$form.find('button').removeClass('loading');
             $textarea.focus();
         }), // on_comment_submit_failed

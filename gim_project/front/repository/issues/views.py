@@ -1338,6 +1338,16 @@ class BaseCommentEditView(BaseCommentEditMixin, UpdateView):
     pk_url_kwarg = 'comment_pk'
     template_name = 'front/repository/issues/comments/include_comment_edit.html'
 
+    def get_object(self, queryset=None):
+        """
+        Early check that the user has enough rights to edit this comment
+        """
+        obj = super(BaseCommentEditView, self).get_object(queryset)
+        if self.subscription.state not in SUBSCRIPTION_STATES.WRITE_RIGHTS:
+            if obj.user != self.request.user:
+                raise Http404
+        return obj
+
 
 class IssueCommentEditView(IssueCommentEditMixin, BaseCommentEditView):
     url_name = 'issue.comment.edit'
