@@ -2048,6 +2048,53 @@ $().ready(function() {
 
         }), // on_new_entry_point_click
 
+        // CANCEL COMMENTS
+        on_comment_create_cancel_click: (function IssueEditor__on_comment_create_cancel_click (ev) {
+            var $li = $(this).closest('li.issue-comment');
+
+            IssueEditor.disable_form($li.find('form'));
+
+            // it's an answer to a previous PR comment
+            var $placeholder = $li.prev('.comment-create-placeholder');
+            if ($placeholder.length) {
+                $li.remove();
+                $placeholder.show();
+                return false;
+            }
+
+            // its a new pr entry point
+            var $pr_parent = $li.parent().parent();
+            if ($pr_parent.hasClass('pr-comments')) {
+                var $prev = $pr_parent.prev();
+                var $next = $pr_parent.next();
+                $pr_parent.remove();
+                if ($next.length) {
+                    // combine the two block
+                    $prev.find('> table > tbody').append($next.find('> table > tbody > tr'));
+                    $next.remove();
+                }
+                return false;
+            }
+
+            // its the bottom comment form
+            $li.find('textarea').val('');
+            return false;
+        }), //on_comment_create_cancel_click
+
+        on_comment_edit_cancel_click: (function IssueEditor__on_comment_edit_cancel_click (ev) {
+            var $li = $(this).closest('li.issue-comment');
+
+            IssueEditor.disable_form($li.find('form'));
+
+            $.get($li.data('url'))
+                .done(function(data) {
+                    $li.replaceWith(data);
+                })
+                .fail(function() {
+                    alert('Unable to retrieve the original comment')
+                });
+        }), // on_comment_edit_cancel_click
+
         // EDIT ISSUES FIELDS, ONE BY ONE
         on_issue_edit_field_click: (function IssueEditor__on_issue_edit_field_click (ev) {
             var $link = $(this);
@@ -2461,6 +2508,9 @@ $().ready(function() {
             $document.on('click', '.comment-create-placeholder button', IssueEditor.on_comment_create_placeholder_click);
 
             $document.on('submit', '.comment-form', IssueEditor.on_comment_submit);
+
+            $document.on('click', '.comment-create-form button[type=button]', IssueEditor.on_comment_create_cancel_click);
+            $document.on('click', '.comment-edit-form button[type=button]', IssueEditor.on_comment_edit_cancel_click);
 
             $document.on('click', '.comment-edit-btn', Ev.stop_event_decorate(IssueEditor.on_comment_edit_click));
             $document.on('click', '.comment-delete-btn', Ev.stop_event_decorate(IssueEditor.on_comment_delete_click));

@@ -11,6 +11,13 @@
     <form class="comment-form comment-edit-form"  method="post" action="{{ comment.get_edit_url }}">
         {% csrf_token %}
         <div>{{ form.body }}</div>
-        <button class="btn btn-blue btn-loading">Update this comment <i class='icon-spinner icon-spin'> </i></button>
+        <div class="row-fluid auto-align">
+            <div class="span6">
+                <button class="btn btn-default" type="button">Cancel</button>
+            </div>
+            <div class="span6">
+                <button class="btn btn-blue submit btn-loading">Update this comment <i class='icon-spinner icon-spin'> </i></button>
+            </div>
+        </div>
     </form>
 {% endblock comment_inner_body %}
