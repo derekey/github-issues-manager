@@ -73,15 +73,17 @@
             </div>
             <p>Commented code on this pull request</p>
         {% elif model == 'Issue_commits' %}
+            {% with author_name=entry.commit.author.username|default:entry.commit.author_name %}
             <div class="avatar"><img class="avatar-small" src="{{ entry.commit.author.avatar_url|default:default_avatar }}" /></div>
             <div class="info">
                 <span class="name">
-                    <strong>{{ entry.commit.author }}</strong>
+                    <strong>{{ author_name }}</strong>
                     {% usemacro tags entry.issue entry.commit.author %}
                 </span>
                 {% usemacro datetime entry.commit.authored_at %}
             </div>
             <p>Has a commit added to this pull request</p>
+            {% endwith %}
         {% elif model == 'IssueEvent' %}
             <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
             <div class="info">
