@@ -8,6 +8,7 @@ from .views import (IssuesView, IssueView, UserIssuesView, CreatedIssueView,
                     IssueCommentCreateView, PullRequestCommentCreateView,
                     IssueCommentView, PullRequestCommentView,
                     IssueCommentEditView, PullRequestCommentEditView,
+                    IssueCommentDeleteView, PullRequestCommentDeleteView,
                     IssuesFilterCreators, IssuesFilterAssigned, IssuesFilterClosers)
 
 urlpatterns = patterns('',
@@ -40,8 +41,10 @@ urlpatterns = patterns('',
     url(r'^(?P<issue_number>\d+)/comment/add/$', IssueCommentCreateView.as_view(), name=IssueCommentCreateView.url_name),
     url(r'^(?P<issue_number>\d+)/comment/(?P<comment_pk>\d+)/$', IssueCommentView.as_view(), name=IssueCommentView.url_name),
     url(r'^(?P<issue_number>\d+)/comment/(?P<comment_pk>\d+)/edit/$', IssueCommentEditView.as_view(), name=IssueCommentEditView.url_name),
+    url(r'^(?P<issue_number>\d+)/comment/(?P<comment_pk>\d+)/delete/$', IssueCommentDeleteView.as_view(), name=IssueCommentDeleteView.url_name),
 
     url(r'^(?P<issue_number>\d+)/code-comment/add/$', PullRequestCommentCreateView.as_view(), name=PullRequestCommentCreateView.url_name),
     url(r'^(?P<issue_number>\d+)/code-comment/(?P<comment_pk>\d+)/$', PullRequestCommentView.as_view(), name=PullRequestCommentView.url_name),
     url(r'^(?P<issue_number>\d+)/code-comment/(?P<comment_pk>\d+)/edit/$', PullRequestCommentEditView.as_view(), name=PullRequestCommentEditView.url_name),
+    url(r'^(?P<issue_number>\d+)/code-comment/(?P<comment_pk>\d+)/delete/$', PullRequestCommentDeleteView.as_view(), name=PullRequestCommentDeleteView.url_name),
 )

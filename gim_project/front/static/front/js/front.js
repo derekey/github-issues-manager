@@ -1931,7 +1931,7 @@ $().ready(function() {
 
             var $textarea = $form.find('textarea');
 
-            if (!$textarea.val().trim()) {
+            if ($textarea.length && !$textarea.val().trim()) {
                 $textarea.after('<div class="alert alert-error">You must enter a comment</div>');
                 $form.find('button').removeClass('loading');
                 IssueEditor.enable_form($form);
@@ -1959,25 +1959,39 @@ $().ready(function() {
         on_comment_edit_click: (function IssueEditor__on_comment_edit_click (ev) {
             var $link = $(this),
                 $comment_node = $link.closest('li.issue-comment');
-            IssueEditor.disable_comment($comment_node);
+            if ($link.parent().hasClass('disabled')) { return false; }
+            IssueEditor.disable_comment($comment_node, $link);
             $.get($link.attr('href'))
-                .done($.proxy(IssueEditor.on_comment_edit_loaded, $comment_node))
-                .fail($.proxy(IssueEditor.on_comment_edit_load_failed, $comment_node));
+                .done($.proxy(IssueEditor.on_comment_edit_or_delete_loaded, {$comment_node: $comment_node}))
+                .fail($.proxy(IssueEditor.on_comment_edit_or_delete_load_failed, {$comment_node: $comment_node, text: 'edit'}));
             return false;
         }), // on_comment_edit_click
 
-        disable_comment: (function IssueEditor__disable_comment ($comment_node) {
+        on_comment_delete_click: (function IssueEditor__on_comment_delete_click (ev) {
+            var $link = $(this),
+                $comment_node = $link.closest('li.issue-comment');
+            if ($link.parent().hasClass('disabled')) { return false; }
+            IssueEditor.disable_comment($comment_node, $link);
+            $.get($link.attr('href'))
+                .done($.proxy(IssueEditor.on_comment_edit_or_delete_loaded, {$comment_node: $comment_node}))
+                .fail($.proxy(IssueEditor.on_comment_edit_or_delete_load_failed, {$comment_node: $comment_node, text: 'delete confirmation'}));
+            return false;
+        }), // on_comment_delete_click
 
+        disable_comment: (function IssueEditor__disable_comment ($comment_node, $link) {
+            $link.addClass('loading');
+            $comment_node.find('.dropdown-menu li').addClass('disabled');
         }), // disable_comment
 
-        on_comment_edit_loaded: (function IssueEditor__on_comment_edit_loaded (data) {
-            var $comment_node = this;
-            $comment_node.replaceWith(data);
-        }), // on_comment_edit_loaded
+        on_comment_edit_or_delete_loaded: (function IssueEditor__on_comment_edit_or_delete_loaded (data) {
+            this.$comment_node.replaceWith(data);
+        }), // on_comment_edit_or_delete_loaded
 
-        on_comment_edit_load_failed: (function IssueEditor__on_comment_edit_load_failed (data) {
-            alert('Unable to load the comment edit form!')
-        }), // on_comment_edit_load_failed
+        on_comment_edit_or_delete_load_failed: (function IssueEditor__on_comment_edit_or_delete_load_failed () {
+            this.$comment_node.find('.dropdown-menu li.disabled').removeClass('disabled');
+            this.$comment_node.find('a.btn-loading.loading').removeClass('loading');
+            alert('Unable to load the ' + this.text + ' form!')
+        }), // on_comment_edit_or_delete_load_failed
 
         // CREATE THE PR-COMMENT FORM
         on_comment_create_placeholder_click: (function IssueEditor__on_comment_create_placeholder_click (ev) {
@@ -2081,7 +2095,7 @@ $().ready(function() {
             return false;
         }), //on_comment_create_cancel_click
 
-        on_comment_edit_cancel_click: (function IssueEditor__on_comment_edit_cancel_click (ev) {
+        on_comment_edit_or_delete_cancel_click: (function IssueEditor__on_comment_edit_or_delete_cancel_click (ev) {
             var $li = $(this).closest('li.issue-comment');
 
             IssueEditor.disable_form($li.find('form'));
@@ -2093,7 +2107,7 @@ $().ready(function() {
                 .fail(function() {
                     alert('Unable to retrieve the original comment')
                 });
-        }), // on_comment_edit_cancel_click
+        }), // on_comment_edit_or_delete_cancel_click
 
         // EDIT ISSUES FIELDS, ONE BY ONE
         on_issue_edit_field_click: (function IssueEditor__on_issue_edit_field_click (ev) {
@@ -2510,7 +2524,7 @@ $().ready(function() {
             $document.on('submit', '.comment-form', IssueEditor.on_comment_submit);
 
             $document.on('click', '.comment-create-form button[type=button]', IssueEditor.on_comment_create_cancel_click);
-            $document.on('click', '.comment-edit-form button[type=button]', IssueEditor.on_comment_edit_cancel_click);
+            $document.on('click', '.comment-edit-form button[type=button], .comment-delete-form button[type=button]', IssueEditor.on_comment_edit_or_delete_cancel_click);
 
             $document.on('click', '.comment-edit-btn', Ev.stop_event_decorate(IssueEditor.on_comment_edit_click));
             $document.on('click', '.comment-delete-btn', Ev.stop_event_decorate(IssueEditor.on_comment_delete_click));

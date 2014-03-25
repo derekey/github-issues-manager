@@ -667,6 +667,13 @@ $file-list-width: 400px;
         }
     }
 
+    .comment-delete-form {
+        .auto-align {
+            padding-bottom: 10px;
+            border-bottom: solid 1px $box-border-color;
+        }
+    }
+
     .comment-create-placeholder {
         margin-left: 50px;
         margin-bottom: 15px;
@@ -716,6 +723,12 @@ $file-list-width: 400px;
     .comment-nav {
         float: right;
         margin: -2px -5px -1px 7px;
+        a.loading {
+            i.icon-edit, i.icon-remove {
+                display: none;
+            }
+        }
+
     }
 
 }

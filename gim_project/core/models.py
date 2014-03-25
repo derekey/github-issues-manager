@@ -36,7 +36,7 @@ class MinDateRaised(Exception):
 GITHUB_STATUS_CHOICES = Choices(
     ('WAITING_CREATE', 1, u'Awaiting creation'),
     ('WAITING_UPDATE', 2, u'Awaiting update'),
-    ('WAITING_DELETE', 3, u'Awaiting delete'),
+    ('WAITING_DELETE', 3, u'Awaiting deletion'),
     ('FETCHED', 10, u'Fetched'),
     ('ERROR_CREATE', 21, u'Error while creating'),
     ('ERROR_UPDATE', 22, u'Error while updating'),

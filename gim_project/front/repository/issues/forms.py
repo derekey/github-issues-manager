@@ -283,3 +283,26 @@ class PullRequestCommentEditForm(BaseCommentEditForm):
 
     class Meta(BaseCommentEditForm.Meta):
         model = PullRequestComment
+
+
+class BaseCommentDeleteForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):
+    class Meta:
+        fields = []
+
+    def save(self, commit=True):
+        self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_DELETE
+        return super(BaseCommentDeleteForm, self).save(commit)
+
+
+class IssueCommentDeleteForm(BaseCommentDeleteForm):
+    user_attribute = None
+
+    class Meta(BaseCommentDeleteForm.Meta):
+        model = IssueComment
+
+
+class PullRequestCommentDeleteForm(BaseCommentDeleteForm):
+    user_attribute = None
+
+    class Meta(BaseCommentDeleteForm.Meta):
+        model = PullRequestComment

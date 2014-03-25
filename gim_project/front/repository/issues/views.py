@@ -8,7 +8,8 @@ from time import sleep
 from django.core.urlresolvers import reverse_lazy
 from django.utils.datastructures import SortedDict
 from django.db import DatabaseError
-from django.views.generic import UpdateView, CreateView, TemplateView, DetailView
+from django.views.generic import (UpdateView, CreateView, TemplateView,
+                                  DetailView, DeleteView)
 from django.contrib import messages
 from django.shortcuts import render
 from django.http import Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
@@ -43,7 +44,8 @@ from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueMilestoneForm, IssueAssigneeForm, IssueLabelsForm,
                     IssueCreateForm, IssueCreateFormFull,
                     IssueCommentCreateForm, PullRequestCommentCreateForm,
-                    IssueCommentEditForm, PullRequestCommentEditForm)
+                    IssueCommentEditForm, PullRequestCommentEditForm,
+                    IssueCommentDeleteForm, PullRequestCommentDeleteForm)
 
 LIMIT_ISSUES = 300
 LIMIT_USERS = 30
@@ -1331,22 +1333,25 @@ class PullRequestCommentCreateView(PullRequestCommentEditMixin, BaseCommentCreat
         return kwargs
 
 
-class BaseCommentEditView(BaseCommentEditMixin, UpdateView):
-    edit_mode = 'update'
-    verb = 'updated'
-    context_object_name = 'comment'
-    pk_url_kwarg = 'comment_pk'
-    template_name = 'front/repository/issues/comments/include_comment_edit.html'
+class CommentCheckRightsMixin(object):
 
     def get_object(self, queryset=None):
         """
         Early check that the user has enough rights to edit this comment
         """
-        obj = super(BaseCommentEditView, self).get_object(queryset)
+        obj = super(CommentCheckRightsMixin, self).get_object(queryset)
         if self.subscription.state not in SUBSCRIPTION_STATES.WRITE_RIGHTS:
             if obj.user != self.request.user:
                 raise Http404
         return obj
+
+
+class BaseCommentEditView(CommentCheckRightsMixin, BaseCommentEditMixin, UpdateView):
+    edit_mode = 'update'
+    verb = 'updated'
+    context_object_name = 'comment'
+    pk_url_kwarg = 'comment_pk'
+    template_name = 'front/repository/issues/comments/include_comment_edit.html'
 
 
 class IssueCommentEditView(IssueCommentEditMixin, BaseCommentEditView):
@@ -1357,3 +1362,19 @@ class IssueCommentEditView(IssueCommentEditMixin, BaseCommentEditView):
 class PullRequestCommentEditView(PullRequestCommentEditMixin, BaseCommentEditView):
     url_name = 'issue.pr_comment.edit'
     form_class = PullRequestCommentEditForm
+
+
+class BaseCommentDeleteView(BaseCommentEditView):
+    edit_mode = 'delete'
+    verb = 'deleted'
+    template_name = 'front/repository/issues/comments/include_comment_delete.html'
+
+
+class IssueCommentDeleteView(IssueCommentEditMixin, BaseCommentDeleteView):
+    url_name = 'issue.comment.delete'
+    form_class = IssueCommentDeleteForm
+
+
+class PullRequestCommentDeleteView(PullRequestCommentEditMixin, BaseCommentDeleteView):
+    url_name = 'issue.pr_comment.delete'
+    form_class = PullRequestCommentDeleteForm

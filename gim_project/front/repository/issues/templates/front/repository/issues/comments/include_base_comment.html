@@ -16,7 +16,8 @@
             <nav class="comment-nav dropdown">
                 <button class="btn btn-default btn-mini dropdown-toggle" data-toggle="dropdown"><i class="icon-reorder"> </i></button>
                 <ul class="dropdown-menu pull-right" role="menu" aria-label="Comment menu">
-                    <li><a href="{{ comment.get_edit_url }}" class="comment-edit-btn" title="Edit this comment"><i class="icon-edit"> </i> Edit this comment</a></li>
+                    <li><a href="{{ comment.get_edit_url }}" class="comment-edit-btn btn-loading" title="Edit this comment"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i> Edit this comment</a></li>
+                    <li><a href="{{ comment.get_delete_url }}" class="comment-delete-btn btn-loading" title="Delete this comment"><i class="icon-remove"> </i><i class='icon-spinner icon-spin'> </i> Delete this comment</a></li>
                 </ul>
             </nav>
         {% endif %}
