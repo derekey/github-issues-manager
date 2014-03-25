@@ -17,7 +17,7 @@
                 </li>
                 {% for group in groups %}
                     <li class="subscriptions-group">
-                        <strong><img class="avatar-micro img-circle" src="{{ group.grouper.avatar_url|default:default_avatar }}" />{{ group.grouper.username }}</strong>
+                        <strong><img class="avatar-micro img-circle" src="{{ group.grouper.avatar_url|default:default_avatar }}" /> {{ group.grouper.username }}</strong>
                         <ul class="unstyled">
                             {% for repository in group.list %}
                                 <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}"><span>{{ group.grouper.username }}/</span>{{ repository.name }}</a></li>
