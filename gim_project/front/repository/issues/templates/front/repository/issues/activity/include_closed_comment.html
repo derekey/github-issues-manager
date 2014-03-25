@@ -14,7 +14,7 @@
 {% if comment.commit_sha and comment.related_object %}
     <div class="content">
         <div class="comment-commits">
-            {% include "front/repository/issues/commits/include_commits.html" with commits=comment.related_object|tolist id_prefix="ref-" %}
+            {% include "front/repository/issues/commits/include_commits.html" with commits=comment.related_object|tolist id_prefix="ref-" repository_source=current_issue.repository %}
         </div>
     </div>
 {% endif %}
