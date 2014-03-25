@@ -2517,18 +2517,27 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
 
     def save(self, *args, **kwargs):
         """
-        Create the related Commit object if the event is a reference to a commit.
-        Commit will later be fetched by a worker to get its message.
+        Check for the related Commit object if the event is a reference to a
+        commit. If not found, a job is created to search it later
         """
+        needs_comit = False
+
         if self.commit_sha and not self.related_object_id:
-            self.related_object, created = Commit.objects.get_or_create(
-                repository=self.repository,
-                sha=self.commit_sha,
-                defaults={
-                    'authored_at': self.created_at,
-                    'author': self.user,
-                })
+
+            try:
+                self.related_object = Commit.objects.get(
+                    authored_at=self.created_at,
+                    sha=self.commit_sha,
+                    author=self.user
+                )
+            except Commit.DoesNotExist:
+                needs_comit = True
+
         super(IssueEvent, self).save(*args, **kwargs)
+
+        if needs_comit:
+            from core.tasks.event import SearchReferenceCommit
+            SearchReferenceCommit.add_job(self.id, delayed_for=60)
 
 
 class PullRequestFile(WithIssueMixin, GithubObject):
