@@ -1,3 +1,4 @@
+
 from datetime import datetime, timedelta
 from functools import partial
 from collections import OrderedDict
@@ -21,6 +22,8 @@ def validate_filled_string(value, name='comment'):
 
 
 class IssueFormMixin(LinkedToRepositoryFormMixin):
+    change_updated_at = 'exact'  # 'fuzzy' / None
+
     class Meta:
         model = Issue
 
@@ -31,12 +34,20 @@ class IssueFormMixin(LinkedToRepositoryFormMixin):
 
     def save(self, commit=True):
         """
-        Update the updated_at to create a new event at the correct time, but
-        slightly in the past to be sure to retrieve correct data from github
+        Update the updated_at to create a new event at the correct time.
+        The real update time from github will be saved via dist_edit which
+        does a forced update.
         """
-        now = datetime.utcnow() - timedelta(seconds=10)
-        if not self.instance.updated_at or now > self.instance.updated_at:
-            self.instance.updated_at = now
+        if self.change_updated_at is not None:
+            now = datetime.utcnow()
+            if not self.instance.updated_at:
+                self.instance.updated_at = now
+            elif self.change_updated_at == 'fuzzy':
+                if now > self.instance.updated_at + timedelta(seconds=120):
+                    self.instance.updated_at = now
+            else:  # 'exact'
+                if now > self.instance.updated_at:
+                    self.instance.updated_at = now
         return super(IssueFormMixin, self).save(commit)
 
 
@@ -197,16 +208,19 @@ class IssueBodyForm(IssueBodyFormPart, IssueFormMixin):
 
 
 class IssueMilestoneForm(IssueMilestoneFormPart, IssueFormMixin):
+    change_updated_at = 'fuzzy'
     class Meta(IssueFormMixin.Meta):
         fields = ['milestone']
 
 
 class IssueAssigneeForm(IssueAssigneeFormPart, IssueFormMixin):
+    change_updated_at = 'fuzzy'
     class Meta(IssueFormMixin.Meta):
         fields = ['assignee']
 
 
 class IssueLabelsForm(IssueLabelsFormPart, IssueFormMixin):
+    change_updated_at = 'fuzzy'
     class Meta(IssueFormMixin.Meta):
         fields = ['labels']
 

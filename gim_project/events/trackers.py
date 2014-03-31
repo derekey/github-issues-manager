@@ -94,40 +94,46 @@ class ChangeTracker(object):
                     # if reverse: instance is related object, pk_set are from cls.model
                     # if not: instance is from cls.model, pk_set are related objects
 
+                    is_replace_mode = getattr(instance, '_signal_replace_mode', {}).get(model, False)
+                    if is_replace_mode and action not in ('pre_replace', 'post_replace'):
+                        # in replace mode, ignore the add, remove, clear...
+                        return
+
                     # prepare...
                     self_name = cls.model._meta.module_name
-                    if action in ('pre_clear', 'post_clear'):
+                    if action in ('pre_clear', 'post_clear', 'pre_replace', 'post_replace'):
                         if not hasattr(instance, '_m2m_dirty_fields'):
                             instance._m2m_dirty_fields = {}
 
-                    # in pre_clear mode, we node to compute ourself the "pk_set" which is none, to know
-                    # which values to remove in post_clear
-                    if action == 'pre_clear':
+                    # in pre_clear/pre_replace mode, we node to get the current
+                    # existing values to know which values to remove in post_*
+                    if action in ('pre_clear', 'pre_replace'):
 
-                        # reverse mode, the pk_set is from "cls.model" linked to the instance
+                        # reverse mode, the existing are from "cls.model" linked to the instance
                         if reverse:
-                            pk_set = set(cls.model.objects.filter(**{m2m_field: instance})
+                            existing = set(cls.model.objects.filter(**{m2m_field: instance})
                                                           .order_by()
                                                           .values_list('pk', flat=True))
-                            instance._m2m_dirty_fields[self_name] = pk_set
+                            instance._m2m_dirty_fields[self_name] = existing
 
-                        # direct mode, the pk_set are related objects accessible via field
+                        # direct mode, the existing are related objects accessible via field
                         else:
-                            pk_set = set(getattr(instance, field))  # get_m2m_ids directly gives us pks
-                            instance._m2m_dirty_fields[field] = pk_set
+                            existing = set(getattr(instance, field))  # get_m2m_ids directly gives us pks
+                            instance._m2m_dirty_fields[field] = existing
 
                         return
 
-                    to_add, to_remove = set(), set()
+                    operations = []
 
                     # in post_add/remove mode, we know which one to add/remove
                     if action in ('post_add', 'post_remove'):
                         if not pk_set:
                             return
 
+                        to_add, to_remove = set(), set()
                         the_set = to_add if action == 'post_add' else to_remove
 
-                        # in reverse mode, the instance is to obj to add/remove,
+                        # in reverse mode, the instance is the obj to add/remove,
                         # and the updated objects are cls.model from pk_set
                         if reverse:
                             objs = cls.model.objects.filter(pk__in=pk_set)
@@ -139,33 +145,61 @@ class ChangeTracker(object):
                             objs = [instance]
                             the_set.update(pk_set)
 
+                        if the_set:
+                            operations.append((objs, to_add, to_remove))
+
                     # in post_clear mode, we need to retrieve pk_set saved in pre_clear
                     # then we work like for pre_remove
                     elif action == 'post_clear':
+                        to_remove = set()
                         if reverse:
-                            pk_set = instance._m2m_dirty_fields.pop(self_name, set())
-                            objs = cls.model.objects.filter(pk__in=pk_set)
+                            existing = instance._m2m_dirty_fields.pop(self_name, set())
+                            objs = cls.model.objects.filter(pk__in=existing)
                             to_remove.add(instance.id)
                         else:
-                            pk_set = instance._m2m_dirty_fields.pop(field, set())
+                            existing = instance._m2m_dirty_fields.pop(field, set())
                             objs = [instance]
-                            to_remove.update(pk_set)
+                            to_remove.update(existing)
+
+                        if to_remove:
+                            operations.append((objs, set(), to_remove))
+
+                    elif action == 'post_replace':
+                        if reverse:
+                            existing = instance._m2m_dirty_fields.pop(self_name, set())
+                            removed_from_objs = existing - pk_set
+                            added_to_objs = pk_set - existing
+
+                            if removed_from_objs:
+                                operations.append((removed_from_objs, set(), set([instance.id])))
+                            if added_to_objs:
+                                operations.append((added_to_objs, set([instance.id]), set()))
+
+                        else:
+                            existing = instance._m2m_dirty_fields.pop(field, set())
+                            objs = [instance]
+                            to_remove = existing - pk_set
+                            to_add = pk_set - existing
+
+                            if to_remove or to_add:
+                                operations.append((objs, to_add, to_remove))
 
                     else:
                         # ignore other modes than [pre|post]_clear and post_[add|remove]
                         return
 
                     # so, trigger update event for all objects
-                    for obj in objs:
-                        # initiate saving dirty_fields, but we now have the definitive
-                        # values here
-                        cls._instance_post_init(obj)
-                        # so we update the dirty_field entry by adding the ones to remove, and remove the ones to add
-                        # so the tracker, by comparing from DB, will not the difference
-                        current = set(obj._dirty_fields.get(field, []))
-                        obj._dirty_fields[field] = list(current.union(to_remove) - to_add)
-                        # now trigger the post_save to view the difference and create events
-                        cls._instance_post_save(obj)
+                    for objs, to_add, to_remove in operations:
+                        for obj in objs:
+                            # initiate saving dirty_fields, but we now have the definitive
+                            # values here
+                            cls._instance_post_init(obj)
+                            # so we update the dirty_field entry by adding the ones to remove, and remove the ones to add
+                            # so the tracker, by comparing from DB, will see the difference
+                            current = set(obj._dirty_fields.get(field, []))
+                            obj._dirty_fields[field] = list(current.union(to_remove) - to_add)
+                            # now trigger the post_save to view the difference and create events
+                            cls._instance_post_save(obj)
 
                 m2m_changed.connect(_instance_m2m_changed, sender=through, weak=False)
 
@@ -420,6 +454,8 @@ class IssueTracker(ChangeTracker):
         diff = {
             'added': set(new).difference(old),
             'removed': set(old).difference(new),
+            'before': set(old),
+            'after': set(new),
         }
 
         # seems that nothing changed...
@@ -428,7 +464,7 @@ class IssueTracker(ChangeTracker):
 
         # get all added/removed labels from DB in one query with label type
         labels_by_id = Label.objects.select_related('label_type').in_bulk(
-                                        diff['added'].union(diff['removed']))
+                                            diff['before'] | diff['after'])
 
         # regroup added/removed labels by type
         # by_type = {
@@ -461,6 +497,9 @@ class IssueTracker(ChangeTracker):
             if type is None:
                 continue
 
+            if not modes.get('added') and not modes.get('removed'):
+                continue
+
             result.append({
                 'field': 'label_type',
                 'new_value': {
@@ -468,14 +507,17 @@ class IssueTracker(ChangeTracker):
                         'id': type.id,
                         'name': type.name,
                     },
-                    'labels': modes.get('added', []),
+                    'labels': modes.get('after', []),
+                    'added': modes.get('added', []),
+                    'removed': modes.get('removed', []),
                 },
                 'old_value': {
                     'label_type': {
                         'id': type.id,
                         'name': type.name,
                     },
-                    'labels': modes.get('removed', []),
+                    'labels': modes.get('before', []),
+
                 },
             })
 

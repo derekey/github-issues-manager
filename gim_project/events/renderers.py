@@ -191,19 +191,38 @@ class IssueRenderer(Renderer):
 
     def render_part_label_type(self, part, mode):
         new, old = part.new_value, part.old_value
+        if new['labels'] == old['labels']:
+            return None
+
+        added = new.get('added')
+        removed = new.get('removed')
 
         params = {'type': self.helper_strong(new['label_type']['name'], mode, quote_if_text=False)}
 
         if new['labels'] and old['labels']:
-            title = '%(type)s was set to %(added)s (previously %(removed)s)'
+            title = '%(type)s was set to %(after)s ('
+            if len(new['labels']) == len(old['labels']) == 1:
+                title += 'previously %(before)s'
+            else:
+                if added:
+                    title += 'added %(added)s'
+                if removed:
+                    if added:
+                        title += ', '
+                    title += 'removed %(removed)s'
+            title += ')'
         elif new['labels']:
-            title = '%(type)s was set to %(added)s'
+            title = '%(type)s was set to %(after)s'
         else:
-            title = '%(type)s was unset (previously %(removed)s)'
+            title = '%(type)s was unset (previously %(before)s)'
 
         if new['labels']:
-            params['added'] = self.helper_render_labels(new['labels'], mode)
+            params['after'] = self.helper_render_labels(new['labels'], mode)
         if old['labels']:
-            params['removed'] = self.helper_render_labels(old['labels'], mode)
+            params['before'] = self.helper_render_labels(old['labels'], mode)
+        if added:
+            params['added'] = self.helper_render_labels(added, mode)
+        if removed:
+            params['removed'] = self.helper_render_labels(removed, mode)
 
         return title % params

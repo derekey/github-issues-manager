@@ -4,6 +4,7 @@ The problem is that this generate "clear" then "add" m2m_changed signals and
 so we are not able to track the updates.
 """
 from django.db import router
+from django.db.models import signals
 from django.db.models.fields.related import (
     ManyRelatedObjectsDescriptor,
     ReverseManyRelatedObjectsDescriptor,
@@ -33,8 +34,22 @@ def m2m_replace(self, *new_objs):
                 }).order_by(
                 ).values_list(self.target_field_name, flat=True)
 
-    self._remove_items(self.source_field_name, self.target_field_name, *to_remove)
+    if not hasattr(self.instance, '_signal_replace_mode'):
+        self.instance._signal_replace_mode = {}
+    self.instance._signal_replace_mode[self.model] = True
+
+    signals.m2m_changed.send(sender=self.through, action='pre_replace',
+        instance=self.instance, reverse=self.reverse,
+        model=self.model, pk_set=obj_ids, using=db)
+
+    self.remove(*to_remove)
     self.add(*new_objs)
+
+    signals.m2m_changed.send(sender=self.through, action='post_replace',
+        instance=self.instance, reverse=self.reverse,
+        model=self.model, pk_set=obj_ids, using=db)
+
+    self.instance._signal_replace_mode[self.model] = False
 
 
 def m2m_descriptor__set__(self, instance, value):
