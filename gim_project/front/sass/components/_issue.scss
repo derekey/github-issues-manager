@@ -540,6 +540,15 @@ $file-list-width: 400px;
     .time {
         color: #949494 !important;
         font-weight: normal;
+        i {
+            margin-right: 3px;
+        }
+    }
+    a.time:hover {
+        text-decoration: none;
+        span {
+            text-decoration: underline;
+        }
     }
     .chat-box-entry {
         margin-left: 50px;

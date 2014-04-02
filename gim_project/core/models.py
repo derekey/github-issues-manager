@@ -2435,7 +2435,7 @@ class PullRequestComment(WithIssueMixin, GithubObjectWithId):
     @property
     def github_url(self):
         return self.repository.github_url + '/pull/%s#discussion_r%s' % (
-                                                    self.number, self.github_id)
+                                                    self.issue.number, self.github_id)
 
     def __unicode__(self):
         return u'on PR #%d' % (self.issue.number if self.issue else '?')
