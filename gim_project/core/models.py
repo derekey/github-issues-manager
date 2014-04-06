@@ -1644,9 +1644,6 @@ class LabelType(models.Model):
 
     class Meta:
         verbose_name = u'Group'
-        unique_together = (
-            ('repository', 'name'),
-        )
         ordering = ('lower_name', )
 
     def __unicode__(self):
