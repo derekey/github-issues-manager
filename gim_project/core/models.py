@@ -1844,7 +1844,7 @@ class Milestone(WithRepositoryMixin, GithubObjectWithId):
 class Commit(WithRepositoryMixin, GithubObject):
     repository = models.ForeignKey(Repository, related_name='commits')
     author = models.ForeignKey(GithubUser, related_name='commits_authored', blank=True, null=True)
-    committer = models.ForeignKey(GithubUser, related_name='commits__commited', blank=True, null=True)
+    committer = models.ForeignKey(GithubUser, related_name='commits_commited', blank=True, null=True)
     sha = models.CharField(max_length=40, db_index=True)
     message = models.TextField(blank=True, null=True)
     author_name = models.TextField(blank=True, null=True)
