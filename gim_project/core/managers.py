@@ -274,38 +274,18 @@ class GithubObjectManager(models.Manager):
             setattr(obj, fetched_at_field, datetime.utcnow())
             obj.github_status = obj.GITHUB_STATUS_CHOICES.FETCHED
 
-            try:
-                # force update or insert to avoid a exists() call in db
-                if to_create:
-                    save_params = {'force_insert': True}
-                else:
-                    save_params = {
-                        'force_update': True,
-                        # only save updated fields
-                        'update_fields': updated_fields + [fetched_at_field,
-                                                           'github_status'],
-                    }
+            # force update or insert to avoid a exists() call in db
+            if to_create:
+                save_params = {'force_insert': True}
+            else:
+                save_params = {
+                    'force_update': True,
+                    # only save updated fields
+                    'update_fields': updated_fields + [fetched_at_field,
+                                                       'github_status'],
+                }
 
-                obj.save(**save_params)
-
-            except IntegrityError, e:  # e is useful for debugging ;)
-                # We could have an integrity error if we tried to create an
-                # object that has been created elsewhere during the process
-                # So we check if we really have an object now, and retry the
-                # whole set/save process.
-                # If we already have an object in db, or if we haven't but there
-                # is still no object, it's a real IntegrityError that we don't
-                # want to skip
-                if to_create:
-                    obj, already_saved = self.get_from_identifiers(fields, saved_objects=saved_objects)
-                    if obj:
-                        if already_saved:
-                            return obj, True
-                        return _create_or_update(obj)
-                    else:
-                        raise
-                else:
-                    raise
+            obj.save(**save_params)
 
             return obj, False
 
