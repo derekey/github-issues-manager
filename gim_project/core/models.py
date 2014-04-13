@@ -2257,7 +2257,7 @@ class WithIssueMixin(WithRepositoryMixin):
             if not defaults:
                 defaults = {}
             defaults.setdefault('fk', {})['issue'] = self.issue
-            defaults.setdefault('related', {}).setdefault('*', {}).setdefaults('fk', {})['issue'] = self.issue
+            defaults.setdefault('related', {}).setdefault('*', {}).setdefault('fk', {})['issue'] = self.issue
 
         return super(WithIssueMixin, self).fetch(gh, defaults,
                                                force_fetch=force_fetch,
