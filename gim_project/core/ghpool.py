@@ -139,7 +139,7 @@ def prepare_fetch_headers(if_modified_since=None, if_none_match=None, github_for
     with Accept, If-Modified-Since and If-None-Match
     """
     headers = {
-        'Accept': 'application/vnd.github%s' % (github_format or '+json')
+        'Accept': 'application/vnd.github.v3%s' % (github_format or '+json')
     }
     if if_modified_since:
         headers['If-Modified-Since'] = if_modified_since.replace(tzinfo=UTC).strftime('%a, %d %b %Y %H:%M:%S GMT')
