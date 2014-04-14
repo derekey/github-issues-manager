@@ -19,12 +19,15 @@
     <article data-issue-id="{{ current_issue.pk }}" data-number="{{ current_issue.number|default_if_none:'' }}" data-repository="{{ current_issue.repository.full_name }}">
         <div class="area-top state-{{ current_issue.state }}">
             <header>
+                <div class="btn btn-default repository-name">{{ current_issue.repository.full_name }}</div>
                 <div class="avatar">
                     <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url|default:default_avatar }}" alt="{{ current_issue.user.username }}" title="Created by {{ current_issue.user.username }}">
                 </div>
                 <h3>
                     {% if current_issue.number %}<a href="{{ current_issue.github_url }}" target="_blank" title="View this issue on Github"><span class="text-{{ current_issue.state }}">#{{ current_issue.number }}</span> -{% endif %}
-                    <span class="edit-place" data-field="title">{{ current_issue.title }}</span>
+                    <span class="edit-place" data-field="title">
+                        {{ current_issue.title }}
+                    </span>
                     {% if current_issue.number %}</a>{% endif %}
                     {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'title' }}" class="issue-edit-btn issue-edit-btn-title btn-loading" data-field="title" title="Edit the title"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
                 </h3>

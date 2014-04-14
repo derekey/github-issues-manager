@@ -9,10 +9,12 @@
 
 $stuck-width: "0.583333 * (100% - 160px) - #{$scrollbar-width}"; // 58.333% is col width, but fixed width is viewport so we remove the left col size (and the scrollbar)
 $top-border: 5px;
+$header-top-padding: 10px;
 $header-stuck-height: 47px;
 $tabs-stuck-height: 37px;
 $files-min-stuck-height: 49px;
 $file-list-width: 400px;
+$repo-name-height: 20px;
 
 .issue-container {
     .stuck {
@@ -26,9 +28,22 @@ $file-list-width: 400px;
     > article > .area-top {
         @include box-shadow(rgba(black, 0.07) 0 1px 1px -1px );
         header {
+
             overflow: auto;
             padding-top: 2px;
             padding-bottom: 1px;
+            .repository-name {
+                text-align: center;
+                margin: 0px;
+                font-size: 14px;
+                height: $repo-name-height;
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                display: none;
+            }
             .avatar {
                 @include avatar-small-container;
                 float: left;
@@ -50,7 +65,7 @@ $file-list-width: 400px;
                     margin-right: 25px;
                 }
                 &:hover {
-                    max-height: none;
+                    max-height: none !important;
                     h3 {
                         overflow: visible;
                         white-space: normal;
@@ -79,6 +94,23 @@ $file-list-width: 400px;
         padding-bottom: 5px;
         min-height: 95px;
         margin-bottom: 0;
+    }
+    &.with-repository {
+        > article > .area-top {
+            header {
+                padding-top: 2px + $repo-name-height;
+                .repository-name {
+                    display: block;
+                }
+                &.stuck {
+                    max-height: $header-stuck-height + $repo-name-height + $header-top-padding;
+                    padding-top: 2px + $repo-name-height + $header-top-padding;
+                }
+            }
+        }
+        .issue-nav {
+            top: 41px;
+        }
     }
     .issue-pull-request {
         position: absolute;
@@ -530,9 +562,16 @@ $file-list-width: 400px;
     }
 }
 
-.header-stuck .issue-nav {
-    top: 60px;
-    position: fixed;
+.header-stuck {
+    .issue-nav {
+        top: 60px;
+        position: fixed;
+    }
+    &.with-repository {
+        .issue-nav {
+            top: 60px + $repo-name-height + $header-top-padding;
+        }
+    }
 }
 
 .issue-activity {
@@ -779,6 +818,9 @@ $file-list-width: 400px;
         }
     }
 }
+.with-repository .pr-tabs.stuck {
+    top: $header-top + $top-border + $header-stuck-height + $repo-name-height + $header-top-padding;
+}
 .issue-discussion {
     .issue-body {
         margin-top: 0;
@@ -884,6 +926,10 @@ $file-list-width: 400px;
     }
 }
 
+.with-repository .issue-files .pr-files-list-container.stuck {
+    top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
+}
+
 table.commits-list {
     td {
         line-height: 22px;
@@ -965,6 +1011,11 @@ table.commits-list {
                 @include calc(right, "50% - 260px");
                 @include calc(top, "10% + 9px");
             }
+            &.with-repository {
+                .issue-nav {
+                    @include calc(top, "10% + #{9px + $repo-name-height + $header-top-padding}");
+                }
+            }
         }
         .stuck, {
             width: 560px - $scrollbar-width; // width of the modal
@@ -984,8 +1035,18 @@ table.commits-list {
         .pr-tabs.stuck {
             margin-top: $header-stuck-height;
         }
+        .with-repository {
+            .pr-tabs.stuck {
+                margin-top: $header-stuck-height + $repo-name-height + $header-top-padding;
+            }
+        }
         .pr-files-list-container.stuck {
             margin-top: $header-stuck-height + $tabs-stuck-height;
+        }
+        .with-repository {
+            .pr-files-list-container.stuck {
+                margin-top: $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
+            }
         }
         .sticky-wrapper > * {
             top: 10%; // to avoid transition from 0 in chrome, should do nothing on static non-stuck item
@@ -1001,6 +1062,11 @@ table.commits-list {
                 .issue-nav {
                     @include calc(right, "5% + 20px");
                     @include calc(top, "5% + 9px");
+                }
+                &.with-repository {
+                    .issue-nav {
+                        @include calc(top, "5% + #{9px + $repo-name-height + $header-top-padding}");
+                    }
                 }
             }
             .stuck {

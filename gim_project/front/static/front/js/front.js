@@ -811,14 +811,16 @@ $().ready(function() {
             return result + '/';
         }), // get_url_for_ident
 
-        on_issue_loaded: (function IssueDetail__on_issue_loaded ($node) {
+        on_issue_loaded: (function IssueDetail__on_issue_loaded ($node, focus_modal) {
             var is_modal = IssueDetail.is_modal($node);
-            if (is_modal) {
+            if (is_modal && focus_modal) {
                 // focusing $node doesn't FUCKING work
                 setTimeout(function() {
                     $node.find('header h3 a').focus();
                 }, 250);
             }
+            // display the repository name if needed
+            $node.toggleClass('with-repository', $node.data('repository') != main_repository);
             // set waypoints
             IssueDetail.set_issue_waypoints($node, is_modal);
         }), // on_issue_loaded
@@ -829,6 +831,10 @@ $().ready(function() {
             }
             return is_modal ? $node.parent() : $node;
         }), // get_scroll_context
+
+        get_repository_name_height: (function IssueDetail__get_repository_name_height ($node) {
+            return $node.hasClass('with-repository') ? 30 : 0;
+        }), // get_repository_name_height
 
         set_issue_waypoints: (function IssueDetail__set_issue_waypoints ($node, is_modal) {
             var issue_ident = IssueDetail.get_issue_ident($node);
@@ -848,7 +854,7 @@ $().ready(function() {
                     $tabs.waypoint('sticky', {
                         context: $context,
                         stuckClass: 'area-top stuck',
-                        offset: 47  // stuck header height
+                        offset: 47 + IssueDetail.get_repository_name_height($node) // stuck header height
                     })
                 }
             }, 500);
@@ -863,7 +869,7 @@ $().ready(function() {
                 $files_list_container.waypoint('sticky', {
                     context: $context,
                     wrapper: '<div class="sticky-wrapper files-list-sticky-wrapper" />',
-                    offset: 84  // 47 for stuck header height + 37 for stuck tabs height
+                    offset: 47 + 37 + IssueDetail.get_repository_name_height($node)  // 47 for stuck header height + 37 for stuck tabs height
                 });
             }
         }), // set_tab_files_issue_waypoints
@@ -941,7 +947,7 @@ $().ready(function() {
             var container = IssueDetail.get_container(force_popup);
             if (!this.is_issue_ident_for_node(container.$node, issue_ident)) { return; }
             IssueDetail.fill_container(container, html);
-            IssueDetail.on_issue_loaded(container.$node);
+            IssueDetail.on_issue_loaded(container.$node, true);
             if (container.after) {
                 container.after(container.$node);
             }
@@ -1381,7 +1387,7 @@ $().ready(function() {
 
             // waypoints for loaded issue
             if (IssueDetail.$main_container.data('number')) {
-                IssueDetail.set_issue_waypoints(IssueDetail.$main_container);
+                IssueDetail.on_issue_loaded(IssueDetail.$main_container, false);
             }
 
             // files list summary
