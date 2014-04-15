@@ -92,6 +92,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 
 # Make this unique, and don't share it with anybody.
 
@@ -291,8 +292,9 @@ CACHES = {
         'LOCATION': '%s:%d:%d' % (
                 conf.get('CACHE_DEFAULT_HOST', 'localhost'),
                 conf.get('CACHE_DEFAULT_PORT', 6379),
-                conf.get('CACHE_DEFAULT_DB', 2),
+                conf.get('CACHE_DEFAULT_DB', 1),
             ),
+        'TIMEOUT': 30*24*60*60,  # 30 days
         'OPTIONS': {
             'CLIENT_CLASS': 'redis_cache.client.DefaultClient',
             'PARSER_CLASS': 'redis.connection.HiredisParser',

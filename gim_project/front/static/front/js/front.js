@@ -2181,7 +2181,7 @@ $().ready(function() {
                         }
                     };
                 $.ajax({
-                    url: static_base_url + 'front/css/select.2.css',
+                    url: select2_statics.css,
                     dataType: 'text',
                     cache: true,
                     success: function(data) {
@@ -2190,7 +2190,7 @@ $().ready(function() {
                     }
                 });
                 $.ajax({
-                    url: static_base_url + 'front/js/select.2.js',
+                    url: select2_statics.js,
                     dataType: 'script',
                     cache: true,
                     success: on_one_done

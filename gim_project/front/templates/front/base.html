@@ -51,7 +51,7 @@
         {% block main %}{% endblock main %}
     </main>
     <script type="text/javascript">
-        var static_base_url = "{{ STATIC_URL }}";
+        var select2_statics = {css: '{% static "front/css/select.2.css" %}', js: '{% static "front/js/select.2.js" %}'};
         var default_avatar = "{{ default_avatar }}";
     </script>
     <script src="{% static "front/js/ago.js" %}" type="text/javascript"></script>
