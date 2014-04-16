@@ -488,6 +488,9 @@ $repo-name-height: 20px;
     }
     .modal-header {
         position: relative;
+        & > h6 > span {
+            font-style: italic;
+        }
     }
     .modal-footer {
         button {

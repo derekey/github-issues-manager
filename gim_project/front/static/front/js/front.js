@@ -2397,6 +2397,7 @@ $().ready(function() {
             $modal_body: null,
             $modal_footer: null,
             $modal_submit: null,
+            $modal_repository_placeholder: null,
             modal_issue_body: '<div class="modal-body"><div class="issue-container"></div></div>',
             get_form: function() {
                 return $('#issue-create-form');
@@ -2412,15 +2413,12 @@ $().ready(function() {
                 if ($('#milestone-edit-form:visible').length) {
                     return;
                 }
-                IssueEditor.create.$modal = $('#issue-create-modal');
                 if (IssueEditor.create.$modal.is(':visible')) {
                     return;
                 }
-                IssueEditor.create.$modal_footer = IssueEditor.create.$modal.children('.modal-footer');
+                IssueEditor.create.$modal_repository_placeholder.text(main_repository);
                 IssueEditor.create.$modal_footer.hide();
-                IssueEditor.create.$modal_body = IssueEditor.create.$modal.children('.modal-body');
                 IssueEditor.create.$modal_body.html('<p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>');
-                IssueEditor.create.$modal_submit = IssueEditor.create.$modal_footer.find('button.submit');
                 IssueEditor.create.$modal_submit.removeClass('loading');
                 IssueEditor.create.$modal.modal('show');
                 $.get(create_issue_url)
@@ -2510,6 +2508,12 @@ $().ready(function() {
             }), // on_created_modal_hidden
 
             init: (function IssueEditor_create__init () {
+                IssueEditor.create.$modal = $('#issue-create-modal');
+                IssueEditor.create.$modal_repository_placeholder = IssueEditor.create.$modal.find('.modal-header > h6 > span');
+                IssueEditor.create.$modal_footer = IssueEditor.create.$modal.children('.modal-footer');
+                IssueEditor.create.$modal_body = IssueEditor.create.$modal.children('.modal-body');
+                IssueEditor.create.$modal_submit = IssueEditor.create.$modal_footer.find('button.submit');
+
                 jwerty.key('c', Ev.key_decorate(IssueEditor.create.start));
                 $('.add-issue-btn a').on('click', Ev.stop_event_decorate(IssueEditor.create.start));
                 $document.on('submit', '#issue-create-form', IssueEditor.create.on_form_submit);
