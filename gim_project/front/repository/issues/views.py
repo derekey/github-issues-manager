@@ -803,7 +803,7 @@ class AskFetchIssueView(WithAjaxRestrictionViewMixin, IssueView):
                 job.status.hset('c')
                 job.queued.delete()
                 # adding users we already have to inform to the new job
-                existing_users = job.users_to_inform.lmembers()
+                existing_users = job.users_to_inform.smembers()
                 if existing_users:
                     users_to_inform.update(existing_users)
 
