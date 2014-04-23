@@ -116,11 +116,14 @@ ol, ul {
 // - center for the other
 .row-fluid.auto-align > [class*="span"] {
     text-align: center;
+    margin: 0;
     &:first-child {
-        text-align: left;
+        text-align: right;
+        float: right;
     }
     &:last-child {
-        text-align: right;
+        text-align: left;
+        float: left;
     }
 }
 

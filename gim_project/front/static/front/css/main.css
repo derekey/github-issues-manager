@@ -5062,72 +5062,75 @@ ol.errorlist, ul.errorlist {
 /* line 117, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"] {
   text-align: center;
+  margin: 0;
 }
-/* line 119, ../../../sass/main.scss */
+/* line 120, ../../../sass/main.scss */
 .row-fluid.auto-align > [class*="span"]:first-child {
-  text-align: left;
-}
-/* line 122, ../../../sass/main.scss */
-.row-fluid.auto-align > [class*="span"]:last-child {
   text-align: right;
+  float: right;
+}
+/* line 124, ../../../sass/main.scss */
+.row-fluid.auto-align > [class*="span"]:last-child {
+  text-align: left;
+  float: left;
 }
 
-/* line 130, ../../../sass/main.scss */
+/* line 133, ../../../sass/main.scss */
 .btn-loading i.icon-spinner, .btn-loading i.icon-spin {
   display: none !important;
 }
-/* line 134, ../../../sass/main.scss */
+/* line 137, ../../../sass/main.scss */
 .btn-loading.loading i.icon-spinner, .btn-loading.loading i.icon-spin {
   display: inline-block !important;
 }
 
-/* line 140, ../../../sass/main.scss */
+/* line 143, ../../../sass/main.scss */
 .one-field-form {
   display: inline-block;
   position: relative;
   margin: 0;
   padding: 0;
 }
-/* line 145, ../../../sass/main.scss */
+/* line 148, ../../../sass/main.scss */
 .one-field-form > div {
   display: inline-block;
 }
-/* line 147, ../../../sass/main.scss */
+/* line 150, ../../../sass/main.scss */
 .one-field-form > div input, .one-field-form > div select, .one-field-form > div textarea {
   margin: 0;
 }
-/* line 151, ../../../sass/main.scss */
+/* line 154, ../../../sass/main.scss */
 .one-field-form button {
   width: 30px;
   font-size: 14px;
   margin-left: 10px;
 }
-/* line 155, ../../../sass/main.scss */
+/* line 158, ../../../sass/main.scss */
 .one-field-form button i {
   font-size: inherit;
   float: none;
   margin: 0;
 }
-/* line 161, ../../../sass/main.scss */
+/* line 164, ../../../sass/main.scss */
 .one-field-form button.btn-save i {
   color: white;
 }
-/* line 166, ../../../sass/main.scss */
+/* line 169, ../../../sass/main.scss */
 .one-field-form button.loading i:first-of-type {
   display: none;
 }
 
-/* line 174, ../../../sass/main.scss */
+/* line 177, ../../../sass/main.scss */
 .active-panel {
   border-top: solid 5px #7bc8d7 !important;
 }
 
-/* line 179, ../../../sass/main.scss */
+/* line 182, ../../../sass/main.scss */
 .sparkline-graph {
   line-height: 1px !important;
 }
 
-/* line 185, ../../../sass/main.scss */
+/* line 188, ../../../sass/main.scss */
 .add-issue-btn a {
   margin-left: 20px;
 }
