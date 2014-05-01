@@ -2522,12 +2522,12 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         if self.commit_sha and not self.related_object_id:
 
             try:
-                self.related_object = Commit.objects.get(
-                    authored_at=self.created_at,
+                self.related_object = Commit.objects.filter(
+                    authored_at__lte=self.created_at,
                     sha=self.commit_sha,
                     author=self.user
-                )
-            except Commit.DoesNotExist:
+                ).order_by('-authored_at')[0]
+            except IndexError:
                 needs_comit = True
 
         super(IssueEvent, self).save(*args, **kwargs)

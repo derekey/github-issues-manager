@@ -47,12 +47,12 @@ class SearchReferenceCommit(EventJob):
 
         try:
             # try to find the matching commit
-            event.related_object = Commit.objects.get(
-                authored_at=event.created_at,
+            event.related_object = Commit.objects.filter(
+                authored_at__lte=event.created_at,
                 sha=event.commit_sha,
                 author=event.user
-            )
-        except Commit.DoesNotExist:
+            ).order_by('-authored_at')[0]
+        except IndexError:
             # the commit was not found
 
             tries = int(self.nb_tries.hget() or 0)
