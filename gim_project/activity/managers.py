@@ -7,6 +7,7 @@ from django.db.models import Q
 from limpyd_jobs.utils import import_class
 
 from events.models import EventPart
+from events.renderers import IssueRendererCollapsableTitleAndBody
 
 from core.models import Issue
 
@@ -157,7 +158,7 @@ class ActivityManagerICE(ActivityManager):
         return EventPart.objects.filter(
                 event__issue_id=issue.id,
             ).exclude(
-                field__in=issue.RENDERER_IGNORE_FIELDS
+                field__in=issue.RENDERER_IGNORE_FIELDS | set(['assignee'])
             )
 
     @classmethod
@@ -201,9 +202,11 @@ class ActivityManagerICE(ActivityManager):
         """
         objs = list(super(ActivityManagerICE, cls).load_objects(pks))
         for obj in objs:
+            obj.renderer_ignore_fields = Issue.RENDERER_IGNORE_FIELDS | set(['assignee'])
             obj.updated_parts = set([cls.NAMES.get(p.field, p.field)
                                     for p in obj.parts.all()
-                                    if p.field not in Issue.RENDERER_IGNORE_FIELDS])
+                                    if p.field not in obj.renderer_ignore_fields])
+            obj._renderer = IssueRendererCollapsableTitleAndBody(obj)
         return objs
 
 

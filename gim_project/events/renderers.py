@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from front.diff import HtmlDiff, HtmlDiffWithoutControl
 
@@ -102,7 +103,7 @@ class IssueRenderer(Renderer):
                         'Mergeable' if new['mergeable'] else 'Not mergeable',
                         new['mergeable_state'])
 
-        if old.get('mergeable_state') != 'unknown':
+        if (old.get('mergeable_state') or 'unknown') != 'unknown':
             title += (' (was %s)' if mode == 'text' else ' (was: <strong>%s</strong>)') % old['mergeable_state']
 
         return title
@@ -200,17 +201,19 @@ class IssueRenderer(Renderer):
         params = {'type': self.helper_strong(new['label_type']['name'], mode, quote_if_text=False)}
 
         if new['labels'] and old['labels']:
-            title = '%(type)s was set to %(after)s ('
+            title = '%(type)s was set to %(after)s'
+            changed = ''
             if len(new['labels']) == len(old['labels']) == 1:
-                title += 'previously %(before)s'
+                changed += 'previously %(before)s'
             else:
                 if added:
-                    title += 'added %(added)s'
+                    changed += 'added %(added)s'
                 if removed:
                     if added:
-                        title += ', '
-                    title += 'removed %(removed)s'
-            title += ')'
+                        changed += ', '
+                    changed += 'removed %(removed)s'
+            if changed:
+                title += ' (' + changed + ')'
         elif new['labels']:
             title = '%(type)s was set to %(after)s'
         else:
@@ -226,3 +229,26 @@ class IssueRenderer(Renderer):
             params['removed'] = self.helper_render_labels(removed, mode)
 
         return title % params
+
+
+class IssueRendererCollapsableTitleAndBody(IssueRenderer):
+
+    def render_part_title(self, part, mode):
+        new, old = part.new_value, part.old_value
+
+        if mode == 'html':
+            diff = HtmlDiffWithoutControl.diff(old['title'], new['title'], n=0, css=False)
+            collaspe_id = u'part-' + str(part.id)
+            return u'<span class="collapsible">Title has changed</span><span data-toggle="collapse" data-target="#' + collaspe_id + u'" title="Toggle diff">…</span><div class="collapse" id="' + collaspe_id + u'">' + diff + u'</div>'
+
+        return super(IssueRendererCollapsableTitleAndBody, self).render_part_title(part, mode)
+
+    def render_part_body(self, part, mode):
+        new, old = part.new_value, part.old_value
+
+        if mode == 'html':
+            diff = HtmlDiff.diff(old['body'], new['body'], n=2, css=False)
+            collaspe_id = u'part-' + str(part.id)
+            return u'<span class="collapsible">Description has changed</span><span data-toggle="collapse" data-target="#' + collaspe_id + u'" title="Toggle diff">…</span><div class="collapse" id="' + collaspe_id + u'">' + diff + u'</div>'
+
+        return super(IssueRendererCollapsableTitleAndBody, self).render_part_body(part, mode)

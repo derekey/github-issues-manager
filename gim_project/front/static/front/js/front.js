@@ -1714,7 +1714,11 @@ $().ready(function() {
     var MarkdownManager = {
         re: new RegExp('https?://github.com/([\\w\\-\\.]+/[\\w\\-\\.]+)/(?:issue|pull)s?/(\\d+)'),
         toggle_email_reply: function() {
-            $(this).parent().next('.email-hidden-reply').toggle();
+            var $reply = $(this).parent().next('.email-hidden-reply');
+            if (!$reply.hasClass('collapse')) {
+                $reply.addClass('collapse').show();
+            }
+            $reply.collapse('toggle');
             return false;
         }, // toggle_email_reply
         activate_email_reply_toggle: function() {
@@ -2568,7 +2572,7 @@ $().ready(function() {
     var Activity = {
         selectors: {
             main: '.activity-feed',
-            issue_link: '.box-section > h3 > a',
+            issue_link: '.box-section > h3 > a, a.referenced_issue',
             buttons: {
                 refresh: '.timeline-refresh',
                 more: '.placeholder.more a'
@@ -2587,7 +2591,7 @@ $().ready(function() {
 
         on_issue_link_click: (function Activity__on_issue_link_click () {
             var $link = $(this),
-                $block = $link.closest('.box-section'),
+                $block = $link.data('number') ? $link : $link.closest('.box-section'),
                 issue = new IssuesListIssue({}, null);
             issue.set_issue_ident({
                 number: $block.data('number'),
@@ -2828,6 +2832,11 @@ $().ready(function() {
         }) // init
     }; // Activity
     Activity.init();
+
+    // if there is a collapse inside another, we don't want fixed heights, so always remove them
+    $document.on('shown.collapse', '.collapse', function() {
+        $(this).css('height', 'auto');
+    });
 
 });
 

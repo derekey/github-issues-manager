@@ -5,15 +5,19 @@
 {% block comment_info %}
     <span class="label label-purple">REFERENCED</span>
     <strong>{{ comment.user.username }}</strong>
-    referenced this {% if comment.issue.is_pull_request %}pull request{% else %}issue{% endif %}
+    referenced this {{ comment.issue.type }}
     {% with related_issue=comment.related_object %}
-        from {% if related_issue.is_pull_request %}a <strong>pull request{% else %}an <strong>issue{% endif %}</strong>
+        from {% if related_issue and related_issue.is_pull_request %}a <strong>pull request{% else %}an <strong>issue{% endif %}</strong>
     {% endwith %}
 {% endblock %}
 
 {% block comment_inner_body %}
     {% with related_issue=comment.related_object %}
-        <span class="label label-{% if related_issue.state == 'closed' %}red{% else %}green{% endif %}">{{ related_issue.state }}</span>
-        <a href="{{ comment.github_url }}" target='_blank'>#{{ related_issue.number }} - <strong>{{ related_issue.title }}</strong></a>
+        {% if related_issue %}
+            <span class="label label-{% if related_issue.state == 'closed' %}red{% else %}green{% endif %}">{{ related_issue.state }}</span>
+            <a href="{{ comment.github_url }}" target='_blank'>#{{ related_issue.number }} - <strong>{{ related_issue.title }}</strong></a>
+        {% else %}
+            (unable to find the issue)
+        {% endif %}
     {% endwith %}
 {% endblock%}

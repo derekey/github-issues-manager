@@ -732,44 +732,6 @@ $repo-name-height: 20px;
 
     .change-event .box-content {
         margin: 5px 10px;
-        &:last-of-type {
-            .part-body, .part-title {
-                margin-bottom: -6px;
-            }
-        }
-    }
-
-    .part-labels, .part-label_type {
-        ul {
-            @extend %issue-labels;
-            display: inline-block;
-            margin-top: 0;
-            li {
-                margin-top: 0;
-            }
-            padding-right: 0;
-        }
-        & > span {
-            float: left;
-            margin-right: 5px;
-        }
-    }
-    .part-body, .part-title {
-        & > span {
-            display: block;
-            margin: 5px 10px;
-        }
-        margin: 0 -10px;
-        table.diff {
-            font-size: 12px;
-            border-top: solid 1px #D8D8D8;
-            border-bottom: solid 1px #D8D8D8;
-            table-layout: fixed;
-            tbody tr {
-                white-space: pre-wrap;
-                word-wrap: break-word;
-            }
-        }
     }
 
     .comment-nav {
@@ -963,15 +925,9 @@ table.commits-list {
                 }
             }
             > span[data-toggle=collapse] {
+                @extend %toggle;
                 float: right;
                 display: block;
-                height: 12px;
-                @include border-radius(1px);
-                background: #ddd;
-                line-height: 6px;
-                font-size: 12px;
-                font-weight: bold;
-                padding: 1px 3px;
                 margin: 6px 6px 2px 2px;
             }
         }

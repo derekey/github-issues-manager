@@ -360,7 +360,7 @@ blockquote p:last-child {
 .email-hidden-toggle a {
   display: inline-block;
   height: 12px;
-  padding: 0px 9px;
+  padding: 1px 3px;
   -webkit-border-radius: 1px;
   -moz-border-radius: 1px;
   -ms-border-radius: 1px;

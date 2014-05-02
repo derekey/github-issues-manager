@@ -40,6 +40,9 @@
                 font-size: inherit;
             }
         }
+        .info {
+            margin-bottom: 5px;
+        }
         .info .name .label {
             margin-right: 5px;
         }
@@ -49,6 +52,17 @@
                 margin-bottom: 5px;
                 & > p {
                     margin: 0;
+                    & > span[data-toggle=collapse] {
+                        @extend %toggle;
+                        margin-left: 5px;
+                        position: relative;
+                        top: -2px;
+                    }
+                }
+                & > blockquote {
+                    margin-top: 4px;
+                    margin-bottom: 2px;
+                    padding-left: 7px;
                 }
             }
         }
