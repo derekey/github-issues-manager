@@ -96,15 +96,17 @@
             </div>
             <p>Has a commit added to this pull request:</p>
             <blockquote>
-                <a href="{{ entry.commit.github_url }}" target='_blank' title='View on Github'>
-                    {% if entry.commit.message %}
-                        "<strong>{{ entry.commit.splitted_message.0 }}</strong>" -
+                {% with commit=entry.commit|copy_fks_from:entry %}
+                    <a href="{{ commit.github_url }}" target='_blank' title='View on Github'>
+                        {% if commit.message %}
+                            "<strong>{{ commit.splitted_message.0 }}</strong>" -
+                        {% endif %}
+                        <em>{{ commit.sha|short_sha }}</em>
+                    </a>
+                    {% if commit.deleted %}
+                        (deleted or in another repository)
                     {% endif %}
-                    <em>{{ entry.commit.sha|short_sha }}</em>
-                </a>
-                {% if entry.commit.deleted %}
-                    (deleted or in another repository)
-                {% endif %}
+                {% endwith %}
             </blockquote>
             {% endwith %}
         {% elif model == 'IssueEvent' %}
@@ -131,7 +133,7 @@
             {% elif entry.event == 'referenced' and entry.commit_sha %}
                 <p>Referenced this {{ entry.issue.type }} from a commit:</p>
                 <blockquote>
-                {% with commit=entry.related_object %}
+                {% with commit=entry.related_object|copy_fks_from:entry %}
                     {% if commit %}
                         <a href="{{ commit.github_url }}" target='_blank' title='View on Github'>
                             {% if commit.message %}
@@ -149,7 +151,7 @@
                 </blockquote>
             {% elif entry.event == 'referenced_by_issue' %}
                 <p>Referenced this {{ entry.issue.type }} from
-                {% with related_issue=entry.related_object %}
+                {% with related_issue=entry.related_object|copy_fks_from:entry.issue %}
                     {% if related_issue %}
                         {% if related_issue.is_pull_request %}a pull request{% else %}an issue{% endif %}:</p>
                         <blockquote>
@@ -166,7 +168,7 @@
                 {% elif entry.event == 'referenced_by_pullrequestcomment' %}
                     a code comment on
                 {% endif %}
-                {% with related_issue=entry.related_object.issue %}
+                {% with related_issue=entry.related_object.issue|copy_fks_from:entry.issue %}
                     {% if related_issue %}
                         {% if related_issue.is_pull_request %}a pull request{% else %}an issue{% endif %}:</p>
                         <blockquote>
@@ -178,7 +180,7 @@
                 {% endwith %}
             {% elif entry.event == 'referenced_by_milestone' %}
                 <p>Referenced this issue from a milestone:</p>
-                {% with milestone=entry.related_object %}
+                {% with milestone=entry.related_object|copy_fks_from:entry.issue %}
                     {% if milestone %}
                         <blockquote>
                             <a href="{{ milestone.github_url }}" target='_blank' title="View on Github"><strong>{{ milestone.title }}</strong></a>

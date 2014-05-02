@@ -192,7 +192,7 @@ class ActivityManagerICE(ActivityManager):
         Prefetch issue, repository, and parts of events
         """
         qs = super(ActivityManagerICE, cls).get_load_queryset()
-        return qs.select_related('issue__user', 'repository__owner'
+        return qs.select_related('issue__user', 'issue__repository__owner'
                                                     ).prefetch_related('parts')
 
     @classmethod
@@ -222,7 +222,7 @@ class ActivityManagerICO(ActivityManager):
         Prefetch issue, repository, and author of the comment
         """
         qs = super(ActivityManagerICO, cls).get_load_queryset()
-        return qs.select_related('issue__user', 'repository__owner', 'user')
+        return qs.select_related('issue__user', 'issue__repository__owner', 'user')
 
 
 class ActivityManagerIEV(ActivityManager):
@@ -251,7 +251,7 @@ class ActivityManagerIEV(ActivityManager):
         Prefetch issue, repository, and author of the event
         """
         qs = super(ActivityManagerIEV, cls).get_load_queryset()
-        return qs.select_related('issue__user', 'repository__owner', 'user')
+        return qs.select_related('issue__user', 'issue__repository__owner', 'user')
 
 
 class ActivityManagerPCO(ActivityManager):
@@ -267,7 +267,7 @@ class ActivityManagerPCO(ActivityManager):
         Prefetch issue, repository, and author of the comment
         """
         qs = super(ActivityManagerPCO, cls).get_load_queryset()
-        return qs.select_related('issue__user', 'repository__owner', 'user')
+        return qs.select_related('issue__user', 'issue__repository__owner', 'user')
 
 
 class ActivityManagerPCI(ActivityManager):

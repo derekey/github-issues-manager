@@ -255,3 +255,33 @@ def import_debug(context):
 @register.filter
 def model(obj):
     return obj._meta.object_name
+
+
+@register.filter
+def copy_fks_from(to_obj, from_obj):
+    """
+    To avoid requests for objects we may already have in `from_obj` that may be
+    needed on `to_obj`, copy them between the two.
+    The return the "filtered" object
+    """
+    # import debug
+    if not to_obj or not from_obj:
+        return None
+
+    def copy_fk(field, to_obj, from_obj):
+        id_attr = '%s_id' % field
+        cache_attr = '_%s_cache' % field
+        if not hasattr(to_obj, id_attr) or not hasattr(from_obj, id_attr):
+            return False
+        if getattr(to_obj, id_attr) != getattr(from_obj, id_attr):
+            return False
+        if not hasattr(from_obj, cache_attr):
+            return False
+        setattr(to_obj, cache_attr, getattr(from_obj, cache_attr))
+        return True
+
+    copy_fk('issue', to_obj, from_obj)
+    if not copy_fk('repository', to_obj, from_obj) and hasattr(from_obj, '_issue_cache'):
+        copy_fk('repository', to_obj, from_obj._issue_cache)
+
+    return to_obj
