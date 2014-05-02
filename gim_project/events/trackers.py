@@ -83,8 +83,7 @@ class ChangeTracker(object):
 
                 @property
                 def get_m2m_ids(self):
-                    return list(getattr(self, m2m_field).order_by()
-                                                        .values_list('id', flat=True))
+                    return getattr(self, m2m_field).order_by().values_list('id', flat=True)
                 setattr(cls.model, field, get_m2m_ids)
 
                 # we need to check for m2m updates
