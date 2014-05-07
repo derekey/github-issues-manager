@@ -2,12 +2,12 @@ import re
 
 
 class ActivityViewMixin(object):
-    RE_VALIDATE_SCORE = re.compile(r'^\d{14}\.0$')
+    RE_VALIDATE_SCORE = re.compile(r'^\d{14}\.\d+$')
     partial_template_name = 'front/activity/include_activity.html'
 
     @classmethod
     def _validate_score(cls, score):
-        if score and len(score) == 16 and cls.RE_VALIDATE_SCORE.match(score):
+        if score and cls.RE_VALIDATE_SCORE.match(score):
             return score
         return None
 
