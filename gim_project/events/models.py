@@ -95,11 +95,10 @@ class Event(models.Model):
 
             return result % params
 
-    def add_bulk_parts(self, parts):
-        EventPart.objects.bulk_create([
-            EventPart(event=self, **part)
-                for part in parts
-        ])
+    def add_parts(self, parts):
+        # do not use bulk_create as it does not trigger signals
+        for part in parts:
+            EventPart.objects.create(event=self, **part)
 
 
 class EventPart(models.Model):

@@ -108,19 +108,19 @@ m2m_changed.connect(update_activity_for_commits, sender=Issue.commits.through, w
 
 
 def update_activity_for_event_part(sender, instance, created, **kwargs):
-    if not instance.issue_id:
+    if not instance.event_id or not instance.event.issue_id:
         return
     # first check for fields we want to ignore
     if instance.field in Issue.RENDERER_IGNORE_FIELDS and instance.event.is_update:
         return
     # only if the event can be saved in the activity stream
-    manager = ActivityManager.get_for_model_instance(instance)
-    if not manager.is_obj_valid(instance.issue, instance):
+    manager = ActivityManager.get_for_model_instance(instance.event)
+    if not manager.is_obj_valid(instance.event.issue, instance.event):
         return
     instance.event.issue.activity.add_entry(instance.event)
     instance.event.issue.ask_for_activity_update()
 
-post_save.connect(update_activity_for_fk_link, sender=EventPart, weak=False,
+post_save.connect(update_activity_for_event_part, sender=EventPart, weak=False,
                   dispatch_uid='update_activity_for_event_part')
 
 

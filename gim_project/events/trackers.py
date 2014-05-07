@@ -63,7 +63,7 @@ class ChangeTracker(object):
                 }]
 
             if parts:
-                event.add_bulk_parts(parts)
+                event.add_parts(parts)
                 parts_count += len(parts)
 
         return parts_count > 0
@@ -278,7 +278,7 @@ class IssueTracker(ChangeTracker):
         parts.extend(cls.event_part_for_labels__ids(instance, instance.labels__ids, []))
 
         if parts:
-            event.add_bulk_parts(parts)
+            event.add_parts(parts)
 
         instance.repository.counters.update_from_created_issue(instance)
 
