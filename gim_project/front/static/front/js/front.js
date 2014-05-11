@@ -2080,9 +2080,11 @@ $().ready(function() {
 
         // CANCEL COMMENTS
         on_comment_create_cancel_click: (function IssueEditor__on_comment_create_cancel_click (ev) {
-            var $li = $(this).closest('li.issue-comment');
+            var $button = $(this),
+                $li = $button.closest('li.issue-comment'),
+                $form = $li.find('form');
 
-            IssueEditor.disable_form($li.find('form'));
+            IssueEditor.disable_form($form);
 
             // it's an answer to a previous PR comment
             var $placeholder = $li.prev('.comment-create-placeholder');
@@ -2108,6 +2110,7 @@ $().ready(function() {
 
             // its the bottom comment form
             $li.find('textarea').val('');
+            IssueEditor.enable_form($form);
             return false;
         }), //on_comment_create_cancel_click
 
