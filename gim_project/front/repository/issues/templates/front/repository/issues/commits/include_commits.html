@@ -23,7 +23,7 @@
                     {% endwith %}
                 {% endif %}
             </td>
-            <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank'>{{ commit.sha|short_sha }}</a></td>
+            <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank' title="View commit on Github">{{ commit.sha|short_sha }}</a></td>
         </tr>
     {% endfor %}
 </table>
