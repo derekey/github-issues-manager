@@ -1,4 +1,4 @@
-<div id="modal-issue-view" class="modal hide fade"{% if current_issue %} data-number="{{ current_issue.number }}" data-repository="{{ current_issue.repository.full_name }}"{% endif %} tabindex="-1">
+<div id="modal-issue-view" class="modal hide fade" data-keyboard="false"{% if current_issue %} data-number="{{ current_issue.number }}" data-repository="{{ current_issue.repository.full_name }}"{% endif %} tabindex="-1">
     <div class="modal-body">
         <div class="issue-container"></div>
     </div>

@@ -76,6 +76,12 @@ $().ready(function() {
     };
 
 
+    // globally manage escape key to close modal
+    $document.on('keyup.dismiss.modal', Ev.key_decorate(function(ev) {
+        ev.which == 27 && $('.modal.in').modal('hide');
+    }));
+
+
     var IssuesListIssue = (function IssuesListIssue__constructor (node, issues_list_group) {
         this.group = issues_list_group;
 
