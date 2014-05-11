@@ -43,7 +43,8 @@
                             {% endif %}
                         </div>
                         {% if current_repository|can_user_write:user %}<a class="edit-link btn btn-mini btn-blue btn-loading" href="{{ milestone.get_edit_url }}">Edit <i class='icon-spinner icon-spin'> </i></a>{% endif %}
-                        {% if milestone.issues_count %}<a class="all-issues-link" href="{{ issues_url }}?milestone={{ milestone.number }}">View all issues</a>{% endif %}
+                        {% if milestone.issues_count %}<a class="issues-link" href="{{ issues_url }}?milestone={{ milestone.number }}">View all issues</a>{% endif %}
+                        {% if milestone.open_issues_count %}<a class="issues-link" href="{{ issues_url }}?milestone={{ milestone.number }}&amp;state=open">View open issues</a>{% endif %}
                         <blockquote id="milestone-{{ milestone.id}}-details" class="collapse">
                             {% if milestone.description %}
                                 <p>{{ milestone.html_content|safe }}</p>

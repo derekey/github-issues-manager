@@ -54,7 +54,7 @@ $counters-small-height: 154px;
             bottom: 0;
         }
         & > .date,
-        & > .all-issues-link,
+        & > .issues-link,
         & > .edit-link {
             float: right;
             font-style: italic;
@@ -62,8 +62,8 @@ $counters-small-height: 154px;
             @include transition(opacity 0.35s);
             margin-top: -10px;
         }
-        & > .edit-link {
-            margin-left: 1em;
+        & > .issues-link {
+            margin-right: 1em;
         }
         & > div.progress {
             clear: both;
@@ -95,7 +95,7 @@ $counters-small-height: 154px;
 
             &:not(.collapsed) {
                 & ~ .date,
-                & ~ .all-issues-link,
+                & ~ .issues-link,
                 & ~ .edit-link {
                     opacity: 1;
                     margin-bottom: 10px;

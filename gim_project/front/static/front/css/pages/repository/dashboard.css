@@ -3183,7 +3183,7 @@ div.selector span {
   padding-bottom: 0;
 }
 /* line 58, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > .date, #milestones .box-section > .all-issues-link, #milestones .box-section > .edit-link {
+#milestones .box-section > .date, #milestones .box-section > .issues-link, #milestones .box-section > .edit-link {
   float: right;
   font-style: italic;
   opacity: 0;
@@ -3194,8 +3194,8 @@ div.selector span {
   margin-top: -10px;
 }
 /* line 65, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > .edit-link {
-  margin-left: 1em;
+#milestones .box-section > .issues-link {
+  margin-right: 1em;
 }
 /* line 68, ../../../../../sass/pages/repository/dashboard.scss */
 #milestones .box-section > div.progress {
@@ -3237,7 +3237,7 @@ div.selector span {
   line-height: normal;
 }
 /* line 99, ../../../../../sass/pages/repository/dashboard.scss */
-#milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .date, #milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .all-issues-link, #milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .edit-link {
+#milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .date, #milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .issues-link, #milestones .box-section > a[data-toggle=collapse]:not(.collapsed) ~ .edit-link {
   opacity: 1;
   margin-bottom: 10px;
 }
