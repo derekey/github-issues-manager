@@ -29,7 +29,7 @@
             <div class="box-section code-diff">
                 {% include "front/repository/issues/code/include_diff.html" with parsed_diff=entry_point.diff_hunk|parse_diff:True entry_points=None path=entry_point.path sha=entry_point.original_commit_sha %}
             </div>
-            {% include "front/repository/issues/comments/include_pr_comments.html" with pr_comments=entry_point.comments.all classes="" %}
+            {% include "front/repository/issues/comments/include_pr_comments.html" with pr_comments=entry_point.comments.all classes="" with_link_to_diff=entry_point.position %}
         </div>
     </div>
 </li>

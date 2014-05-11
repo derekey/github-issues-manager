@@ -1207,23 +1207,26 @@ $().ready(function() {
         load_tab: (function IssueDetail__load_tab (ev) {
             var $tab = $(ev.target),
                 $target = $($tab.attr('href')),
-                $node = $tab.closest('.issue-container');
+                tab_type = $target.data('tab'),
+                $node = $tab.closest('.issue-container'),
+                is_empty = !!$target.children('.empty-area').length;
             // load content if not already available
-            if ($target.children('.empty-area').length) {
+            if (is_empty) {
                 $.ajax({
                     url: $target.data('url'),
                     success: function(data) {
                         $target.html(data);
-                        if ($target.hasClass('issue-files')) {
+                        if (tab_type == 'issue-files') {
                             IssueDetail.on_files_list_loaded($node, $target);
                         }
+                        $node.trigger('loaded.tab.' + tab_type);
                     },
                     error: function() {
                         $target.children('.empty-area').html('Loading failed :(');
                     }
                 });
             } else {
-                if ($target.hasClass('issue-files')) {
+                if (tab_type == 'issue-files') {
                     IssueDetail.on_files_list_loaded($node, $target);
                 }
             }
@@ -1240,6 +1243,9 @@ $().ready(function() {
                          - $tabs_holder.height()
                          - 3 // adjust
                 $context.scrollTop(position);
+            }
+            if (!is_empty) {
+                $node.trigger('loaded.tab.' + tab_type);
             }
         }), // load_tab
 
@@ -1355,6 +1361,21 @@ $().ready(function() {
             return false;
         }), // force_refresh
 
+        on_link_to_diff_comment: (function IssueDetail__on_link_to_diff_comment () {
+            var $link = $(this),
+                url = $link.closest('.issue-comment').data('url'),
+                $node = $link.closest('.issue-container');
+            $node.one('loaded.tab.issue-files', function() {
+                var $comment_node = $node.find('.issue-files .issue-comment[data-url="' + url + '"]');
+                if ($comment_node.length) {
+                    IssueDetail.scroll_in_files_list($node, $comment_node, 0);
+                } else {
+                    alert('This comment is not linked to active code anymore');
+                }
+            });
+            IssueDetail.select_files_tab(PanelsSwpr.current_panel);
+        }), // on_link_to_diff_comment
+
         init: (function IssueDetail__init () {
             // init modal container
             IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1385,6 +1406,9 @@ $().ready(function() {
             jwerty.key('shift+f', IssueDetail.on_current_panel_key_event('select_files_tab'));
             $document.on('shown.tab', '.pr-tabs a', IssueDetail.load_tab);
 
+            // link from PR comment in "discussion" tab to same entry in "files changed" tab
+            $document.on('click', '.go-to-diff-link', Ev.stop_event_decorate(IssueDetail.on_link_to_diff_comment));
+
             // modal events
             if (IssueDetail.$modal.length) {
                 IssueDetail.$modal.on('shown.modal', IssueDetail.on_modal_shown);
@@ -1402,7 +1426,7 @@ $().ready(function() {
             $document.on('mouseenter', '.pr-file', IssueDetail.on_file_mouseenter);
             jwerty.key('f', IssueDetail.on_files_list_key_event('focus_search_input'));
             jwerty.key('t', IssueDetail.on_files_list_key_event('toggle_files_list'));
-            // files list navugation
+            // files list navigation
             $document.on('click', 'li:not(.disabled) a.go-to-previous-file', Ev.stop_event_decorate(IssueDetail.go_to_previous_file));
             $document.on('click', 'li:not(.disabled) a.go-to-next-file', Ev.stop_event_decorate(IssueDetail.go_to_next_file));
             $document.on('quicksearch.after', '.files-filter input.quicksearch', IssueDetail.on_files_filter_done);

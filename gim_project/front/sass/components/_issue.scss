@@ -719,6 +719,7 @@ $repo-name-height: 20px;
     .pr-entry-point, .pr-file {
         div.collapse.in {
             height: auto !important;
+            overflow: visible;
         }
     }
     .comment-commits {

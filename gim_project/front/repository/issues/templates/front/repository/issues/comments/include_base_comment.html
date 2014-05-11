@@ -18,6 +18,19 @@
                 <ul class="dropdown-menu pull-right" role="menu" aria-label="Comment menu">
                     <li><a href="{{ comment.get_edit_url }}" class="comment-edit-btn btn-loading" title="Edit this comment"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i> Edit this comment</a></li>
                     <li><a href="{{ comment.get_delete_url }}" class="comment-delete-btn btn-loading" title="Delete this comment"><i class="icon-remove"> </i><i class='icon-spinner icon-spin'> </i> Delete this comment</a></li>
+                    {% if comment.github_status not in GITHUB_STATUSES.ALL_WAITING %}
+                        {% with github_url=comment.github_url %}
+                            {% if with_link_to_diff or github_url %}
+                                <li class="divider"></li>
+                                {% if github_url %}
+                                    <li><a href="{{ github_url }}" target="_blank"><i class="icon-github"> </i> View on Github</a></li>
+                                {% endif %}
+                                {% if with_link_to_diff %}
+                                    <li><a href='#' class="go-to-diff-link"><i class="icon-eye-open"> </i> View in "Files changed" tab</a></li>
+                                {% endif %}
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
                 </ul>
             </nav>
         {% endif %}

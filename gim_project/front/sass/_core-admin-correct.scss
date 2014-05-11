@@ -53,7 +53,7 @@
                 @include std-bg(#e5e5e5 0%, lighten(#e5e5e5, 3));
             }
         }
-        a > i:first-child:last-child {
+        a > i:first-child {
             color: inherit;
         }
     }

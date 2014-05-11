@@ -158,7 +158,7 @@
                 <li class="pr-files-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed</a></li>
             </ul>
             <div class="tab-content">
-                <div class="tab-pane active issue-discussion" id="issue-{{ current_issue.number }}-discussion">
+                <div class="tab-pane active issue-discussion" data-tab="issue-discussion" id="issue-{{ current_issue.number }}-discussion">
         {% endif %}
             <div class="content issue-body{% if not current_issue.body %} empty{% endif %} edit-place" data-field="body">
                 {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this {{ current_issue.type }} !{% endif %}
@@ -210,7 +210,7 @@
             {% endif %}
         {% if current_issue.is_pull_request %}
             </div>
-            <div class="tab-pane issue-commits" id="issue-{{ current_issue.number }}-commits" data-url="{{ current_issue.ajax_commits_url }}">
+            <div class="tab-pane issue-commits" data-tab="issue-commits" id="issue-{{ current_issue.number }}-commits" data-url="{{ current_issue.ajax_commits_url }}">
                 {% if current_issue.nb_commits > 10 %}
                     <div class="content empty">
                         Loading commits...
@@ -220,7 +220,7 @@
                     {% include "front/repository/issues/commits/include_issue_commits.html" %}
                 {% endif %}
             </div>
-            <div class="tab-pane issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
+            <div class="tab-pane issue-files" data-tab="issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
                 {% if current_issue.nb_additions|add:current_issue.nb_deletions > 300 or current_issue.nb_changed_files > 10 %}
                     <div class="content empty">
                         Loading {% if current_issue.nb_additions|add:current_issue.nb_deletions > 500 or current_issue.nb_changed_files > 20 %} big{% endif %}diff...

@@ -4678,7 +4678,7 @@ hr.divider + .padded, hr.divider + .vpadded, li.divider + .padded, li.divider + 
   background-image: linear-gradient(top, #e5e5e5 0%, #ededed);
 }
 /* line 56, ../../../sass/_core-admin-correct.scss */
-.dropdown-menu li a > i:first-child:last-child {
+.dropdown-menu li a > i:first-child {
   color: inherit;
 }
 
