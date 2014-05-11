@@ -422,6 +422,7 @@ $repo-name-height: 20px;
         * {
             @include box-sizing(content-box);
         }
+        min-height: 27px;
         padding: 0 4px 1px 0;
         .select2-search-field {
             padding: 4px 0px 0px 4px;

@@ -1320,13 +1320,15 @@ the specific language governing permissions and limitations under the Apache Lic
                         // check whether the event occurred inside the select2 control (the control itself was clicked, for example) and therefore it should stay in focus
                         // or outside of the select2 control (another control should now be activated)
 
-                        if ($.contains(self.container[0], elementFromPoint[0])) {
+                        var is_search_choice_close_btn = elementFromPoint.hasClass('select2-search-choice-close');
+                        if ($.contains(self.container[0], elementFromPoint[0]) && !is_search_choice_close_btn) {
                             // the event was on the current select2 control so just put it in focus
                             // (we do not pass to the select2 control the actual event (e.g. `mousedown`) since that will cause the dropdown to open again
+                            // except if it's a button to remove a previous choise)
                             self.close({focus:true});
                         } else {
                             self.close({focus:false});
-                            // the event was on a control outside of the select2 control
+                            // the event was on a control outside of the select2 control, or a button to remove a previous choice
 
                             // fire blur
                             self.opts.element.trigger($.Event("select2-blur"));
@@ -2913,8 +2915,13 @@ the specific language governing permissions and limitations under the Apache Lic
                   $(e.target).closest(".select2-search-choice").fadeOut('fast', this.bind(function(){
                       this.unselect($(e.target));
                       this.selection.find(".select2-search-choice-focus").removeClass("select2-search-choice-focus");
+                      var is_opened = this.opened();
                       this.close();
-                      this.focusSearch();
+                      if (is_opened) {
+                        this.open();
+                      } else {
+                        this.focusSearch();
+                      }
                   })).dequeue();
                   killEvent(e);
               })).on("focus", this.bind(function () {
