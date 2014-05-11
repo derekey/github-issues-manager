@@ -19,7 +19,7 @@ class Event(models.Model):
     issue = models.ForeignKey(Issue)
     created_at = models.DateTimeField(db_index=True)
     title = models.TextField()
-    is_update = models.BooleanField()
+    is_update = models.BooleanField(default=False)
 
     related_content_type = models.ForeignKey(ContentType, blank=True, null=True)
     related_object_id = models.PositiveIntegerField(blank=True, null=True, db_index=True)
