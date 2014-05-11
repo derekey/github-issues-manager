@@ -1,4 +1,5 @@
 
+import logging
 import re
 from datetime import datetime
 from time import sleep
@@ -11,6 +12,9 @@ from .ghpool import Connection, ApiError
 MODE_CREATE = set(('create', ))
 MODE_UPDATE = set(('update', ))
 MODE_ALL = set(('create', 'update'))
+
+
+logger = logging.getLogger('django')
 
 
 class SavedObjects(dict):
@@ -285,7 +289,11 @@ class GithubObjectManager(models.Manager):
                                                        'github_status'],
                 }
 
-            obj.save(**save_params)
+            try:
+                obj.save(**save_params)
+            except IntegrityError, e:
+                logger.error('Integrity error [%s] when saving object %s: %s', e, obj.__class__, vars(obj))
+                raise
 
             return obj, False
 
