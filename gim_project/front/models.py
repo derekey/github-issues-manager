@@ -370,16 +370,26 @@ class _Issue(models.Model):
 
         for event in change_events:
             event.renderer_ignore_fields = self.RENDERER_IGNORE_FIELDS
-        types = [
-            list(self.comments.select_related('user', 'repository__owner')),
-            list(self.events.exclude(event='referenced', commit_sha__isnull=True)
-                            .select_related('user', 'repository__owner')),
-            change_events,
-        ]
-        if self.is_pull_request:
-            types.append(self.all_entry_points)
+            event.activity_order = event.created_at
 
-        activity = sorted(sum(types, []), key=attrgetter('created_at'))
+        comments = list(self.comments.select_related('user', 'repository__owner'))
+        for comment in comments:
+            comment.activity_order = comment.created_at
+
+        events = list(self.events.exclude(event='referenced', commit_sha__isnull=True)
+                                        .select_related('user', 'repository__owner'))
+        for event in events:
+            event.activity_order = event.created_at
+
+        activity = change_events + comments + events
+
+        if self.is_pull_request:
+            for entry_point in self.all_entry_points:
+                entry_point.activity_order = list(entry_point.comments.all())[-1].created_at
+
+            activity += self.all_entry_points
+
+        activity.sort(key=attrgetter('activity_order'))
 
         if self.is_pull_request:
             activity = GroupedCommits.add_commits_in_activity(self.all_commits, activity)
@@ -419,7 +429,7 @@ class GroupedCommits(list):
         for entry in activity:
 
             # add in a group all commits before the entry
-            while len(commits) and commits[0].authored_at < entry.created_at:
+            while len(commits) and commits[0].authored_at < entry.activity_order:
                 if current_group is None:
                     current_group = cls()
                 current_group.append(commits.pop(0))

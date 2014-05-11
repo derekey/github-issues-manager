@@ -3,18 +3,19 @@
     <div class="box pr-entry-point">
         <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
             <div class="title">
-                {% if entry_point.position %}
-                    <strong>{{ entry_point.user.username }}</strong> started a discussion in a diff
-                {% else %}
-                    <strong>{{ entry_point.user.username }}</strong> discussed an <strong>outdated</strong> diff
-                {% endif %}
+                <strong>{{ entry_point.user.username }}</strong> started a discussion in a{% if not entry_point.position %}n <strong>outdated</strong>{% endif %} diff
                 <span>{{ entry_point.path }}</span>
             </div>
             <ul class="box-toolbar">
                 {% with entry_point_comments_count=entry_point.comments.all|length %}
                     <li class="comments-count" title="{{ entry_point.nb_comments }} comment{{ entry_point.nb_comments|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point.nb_comments }}</li>
                 {% endwith %}
-                <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ entry_point.created_at|ago }}</li>
+                {% if not entry_point.updated_at or entry_point.created_at == entry_point.updated_at %}
+                    <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i>{{ entry_point.created_at|ago }}</li>
+                {% else %}
+                    <li class="time" title="Created on {{ entry_point.created_at|date:"DATETIME_FORMAT" }}, updated on  {{ entry_point.activity_order|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i>{{ entry_point.created_at|ago:True }}<i class="icon-caret-right"></i>{{ entry_point.activity_order|ago:True }}
+                    </li>
+                {% endif %}
                 {% with github_file_url=entry_point.github_url %}
                     {% if github_file_url %}
                         <li class="link">

@@ -592,6 +592,12 @@ $repo-name-height: 20px;
             text-decoration: underline;
         }
     }
+    > li > .box .box-toolbar > li {
+        margin-left: 10px;
+        &:first-child {
+            margin-left: 5px;
+        }
+    }
     .chat-box-entry {
         margin-left: 50px;
         > .info .label {
@@ -626,9 +632,12 @@ $repo-name-height: 20px;
     }
     .pr-entry-point {
         & > .box-header {
+            position: relative;
+            min-height: 65px;
             .title {
                 font-size: 13px;
                 font-weight: normal;
+                margin-right: 160px;
                 > span {
                     display: block;
                 }
@@ -636,6 +645,10 @@ $repo-name-height: 20px;
             .box-toolbar {
                 font-weight: normal;
                 color: #949494;
+                float: none;
+                position: absolute;
+                top: 2px;
+                right: 5px;
                 li.link {
                     float: none;
                     clear: both;
@@ -645,8 +658,17 @@ $repo-name-height: 20px;
                     display: block;
                 }
             }
+            .comments-count {
+                padding-right: 5px;
+            }
             .time {
                 margin-left: 5px;
+                i.icon-caret-right {
+                    font-size: 11px;
+                    color: #bbb;
+                    width: auto;
+                    margin: 0px 4px;
+                }
             }
         }
         & > .box-content.collapse.in {
