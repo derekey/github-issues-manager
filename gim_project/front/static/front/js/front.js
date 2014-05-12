@@ -1368,7 +1368,12 @@ $().ready(function() {
             $node.one('loaded.tab.issue-files', function() {
                 var $comment_node = $node.find('.issue-files .issue-comment[data-url="' + url + '"]');
                 if ($comment_node.length) {
-                    IssueDetail.scroll_in_files_list($node, $comment_node, 0);
+                    var relative_position = 0;
+                    if (IssueDetail.is_modal($node)) {
+                        var $container = $comment_node.closest('.pr-comments');
+                        relative_position = -$container.position().top - 20;
+                    }
+                    IssueDetail.scroll_in_files_list($node, $comment_node, relative_position-5);
                 } else {
                     alert('This comment is not linked to active code anymore');
                 }
