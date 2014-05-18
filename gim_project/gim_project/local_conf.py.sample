@@ -17,6 +17,7 @@ conf = {
     # 'DB_PASSWORD': '',
     # 'DB_HOST': '',
     # 'DB_PORT': '',
+    # 'DB_CONN_MAX_AGE': 0,
 
     # 'LIMPYD_DB_HOST': 'localhost',
     # 'LIMPYD_DB_PORT': 6379,

@@ -283,6 +283,7 @@ DATABASES = {  # default to a sqlite db "gim.db"
         'PASSWORD': conf.get('DB_PASSWORD', ''),
         'HOST': conf.get('DB_HOST', ''),
         'PORT': conf.get('DB_PORT', ''),
+        'CONN_MAX_AGE': conf.get('DB_CONN_MAX_AGE', 0),
     }
 }
 
