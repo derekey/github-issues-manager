@@ -64,7 +64,7 @@ class SearchReferenceCommit(EventJob):
             else:
                 # we'll try again...
                 self.status.hset(STATUSES.DELAYED)
-                self.delayed_until.hset(compute_delayed_until(delayed_for=60*(tries+1)))
+                self.delayed_until.hset(compute_delayed_until(delayed_for=60*tries))
                 self.nb_tries.hincrby(1)
             return False
 

@@ -2533,8 +2533,10 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         super(IssueEvent, self).save(*args, **kwargs)
 
         if needs_comit:
+            from core.tasks.commit import FetchCommitBySha
+            FetchCommitBySha.add_job('%s#%s' % (self.repository_id, self.commit_sha))
             from core.tasks.event import SearchReferenceCommit
-            SearchReferenceCommit.add_job(self.id, delayed_for=60)
+            SearchReferenceCommit.add_job(self.id, delayed_for=30)
 
 
 class PullRequestFile(WithIssueMixin, GithubObject):
