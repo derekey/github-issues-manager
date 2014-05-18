@@ -78,6 +78,7 @@
     position: relative;
     min-height: 80px;
     color: $body-text-color;
+    cursor: pointer;
 
     // the header with : pull-request flag, milestone, and time
     .issue-item-header {
