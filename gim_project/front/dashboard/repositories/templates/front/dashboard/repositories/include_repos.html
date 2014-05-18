@@ -1,6 +1,6 @@
 {% load frontutils %}{%spaceless%}
 {% with org=group.name|default_if_none:'_' %}
-<thead data-org="{{ org }}" class="group-{{ org }}">
+<thead data-org="{{ org }}" class="group-{{ org }}" data-toggle="collapse" data-target="#tbody-{{ tab_slug }}-{{ org }}" title="Click to hide/show this list">
     <tr>
         <td>
             {% if group.name == '__others__' %}
@@ -21,7 +21,7 @@
         <td>Action</td>
     </tr>
 </thead>
-<tbody>
+<tbody id="tbody-{{ tab_slug }}-{{ org }}" class="collapse in">
 {% for repository in group.repositories %}
 {% with repo_name=repository.full_name %}
     <tr data-repo="{{ repo_name }}" class="{% nospaces %}

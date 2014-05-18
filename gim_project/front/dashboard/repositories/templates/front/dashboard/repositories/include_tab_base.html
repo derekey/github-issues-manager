@@ -10,7 +10,7 @@
 {% if groups|length %}
     <table class="table table-normal repos">
     {% for group in groups %}
-        {% include "front/dashboard/repositories/include_repos.html" %}
+        {% include "front/dashboard/repositories/include_repos.html" with tab_slug=tab.class.slug %}
     {% endfor %}
     </table>
 {% else %}
