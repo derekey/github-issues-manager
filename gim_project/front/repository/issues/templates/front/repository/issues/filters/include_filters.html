@@ -1,7 +1,7 @@
 {% load querystring frontutils issues_tags %}{% spaceless %}
 <ul id="issues-filters-accordion" class="nav nav-collapse collapse nav-collapse-primary">
 
-    <li><a href="{{ root_issues_url }}?state=open"><i class="icon-remove"> </i> Clear filters</a></li>
+    <li class='clear-all-filters'><a href="{{ root_issues_url }}?state=open"><i class="icon-remove"> </i> Clear filters</a></li>
 
     {# List of issues creators #}
     {% if issues_creators.count %}
@@ -21,7 +21,7 @@
     {# The open/close states #}
     <li class="accordion-group dark-nav">
         <span class="glow"></span>
-        <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-state">
+        <a class="accordion-toggle collapsed{% if issues_filter.objects.state %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-state">
             State
             <i class="icon-caret-down"></i>
             {% if issues_filter.objects.state %}
@@ -42,7 +42,7 @@
     {# The two pull-requests states #}
     <li class="accordion-group dark-nav">
         <span class="glow"></span>
-        <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-pr">
+        <a class="accordion-toggle collapsed{% if issues_filter.parts.pr %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-pr">
             Pull-request
             <i class="icon-caret-down"></i>
             {% if issues_filter.parts.pr %}
@@ -65,7 +65,7 @@
         {% if milestones|length %}
             <li class="accordion-group dark-nav">
                 <span class="glow"></span>
-                <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-milestone">
+                <a class="accordion-toggle collapsed{% if issues_filter.objects.milestone %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-milestone">
                     Milestone
                     <i class="icon-caret-down"></i>
                     {% if issues_filter.objects.milestone %}
@@ -105,17 +105,17 @@
             {% if label_type_labels|length %}
                 <li class="accordion-group dark-nav">
                     <span class="glow"></span>
-                    <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-label-type-{{ label_type.id }}">
-                        {{ label_type.name }}
-                        <i class="icon-caret-down"></i>
-                        {% with current_label_type=issues_filter.objects.current_label_types|dict_item:label_type.id %}
-                            {% if current_label_type %}
-                                    <span class="selection">{{ current_label_type.typed_name }}</span>
-                                </a>
-                                <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_type.name %}" title="Clear this filter"><i class="icon-remove"> </i>
-                            {% endif %}
-                        {% endwith %}
-                    </a>
+                    {% with current_label_type=issues_filter.objects.current_label_types|dict_item:label_type.id %}
+                        <a class="accordion-toggle collapsed{% if current_label_type %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-label-type-{{ label_type.id }}">
+                            {{ label_type.name }}
+                            <i class="icon-caret-down"></i>
+                                {% if current_label_type %}
+                                        <span class="selection">{{ current_label_type.typed_name }}</span>
+                                    </a>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_type.name %}" title="Clear this filter"><i class="icon-remove"> </i>
+                                {% endif %}
+                        </a>
+                    {% endwith %}
                     <ul id="filter-label-type-{{ label_type.id }}" class="collapse filter-labels">
                         {% attributes_for_list label_type_labels "name" as label_names %}
                         {% for label in label_type_labels %}
@@ -136,7 +136,7 @@
         {% if untyped_labels|length %}
             <li class="accordion-group dark-nav">
                 <span class="glow"></span>
-                <a class="accordion-toggle collapsed " data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-labels">
+                <a class="accordion-toggle collapsed{% if issues_filter.objects.current_labels %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-labels">
                     Labels
                     <i class="icon-caret-down"></i>
                     {% if issues_filter.objects.current_labels %}
