@@ -1120,7 +1120,7 @@ class Repository(GithubObjectWithId):
         """
         Shortcut to return a queryset for untyped labels of the repository
         """
-        return self.labels.ready().filter(label_type__isnull=True)
+        return self.labels.ready().filter(label_type_id__isnull=True)
 
     def _distinct_users(self, relation):
         return GithubUser.objects.filter(**{
@@ -1283,7 +1283,7 @@ class Repository(GithubObjectWithId):
             return 0, 0, 0, 0
 
         qs = self.issues.filter(state='closed',
-                                closed_by__isnull=True,
+                                closed_by_id__isnull=True,
                                 closed_by_fetched=False
                                )
 

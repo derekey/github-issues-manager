@@ -298,7 +298,7 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
             filter_objects['milestone'] = milestone
             if milestone == 'none':
                 qs_filters['milestone'] = 'none'
-                query_filters['milestone__isnull'] = True
+                query_filters['milestone_id__isnull'] = True
             else:
                 qs_filters['milestone'] = '%s' % milestone.number
                 query_filters['milestone__number'] = milestone.number
@@ -561,9 +561,9 @@ class UserIssuesView(IssuesView):
             filter_field = self.user_filter_types_matching[user_filter_type]
             filter_context['qs_filters']['username'] = user
             if user == 'none':
-                queryset = queryset.filter(**{'%s__isnull' % filter_field: True})
+                queryset = queryset.filter(**{'%s_id__isnull' % filter_field: True})
             elif user == '*' and user_filter_type == 'assigned':
-                queryset = queryset.filter(**{'%s__isnull' % filter_field: False})
+                queryset = queryset.filter(**{'%s_id__isnull' % filter_field: False})
             else:
                 filter_context['qs_filters']['username'] = user.username
                 queryset = queryset.filter(**{filter_field: user.id})

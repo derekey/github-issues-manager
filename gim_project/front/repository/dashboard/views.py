@@ -65,8 +65,8 @@ class MilestonesPart(RepositoryDashboardPartView):
             issues = milestone.issues.ready()
 
             if milestone.issues_count:
-                milestone.non_assigned_issues_count = issues.filter(state='open', assignee__isnull=True).count()
-                milestone.assigned_issues_count = issues.filter(state='open', assignee__isnull=False).count()
+                milestone.non_assigned_issues_count = issues.filter(state='open', assignee_id__isnull=True).count()
+                milestone.assigned_issues_count = issues.filter(state='open', assignee_id__isnull=False).count()
                 milestone.open_issues_count = milestone.non_assigned_issues_count + milestone.assigned_issues_count
                 milestone.closed_issues_count = milestone.issues_count - milestone.open_issues_count
 
@@ -111,7 +111,7 @@ class CountersPart(RepositoryDashboardPartView):
 
         # count non assigned/prs only if we have issues (no issues = no non-assigned)
         if counters['all']:
-            counters['all_na'] = base_filter.filter(assignee__isnull=True).count()
+            counters['all_na'] = base_filter.filter(assignee_id__isnull=True).count()
             counters['all_prs'] = base_filter.filter(is_pull_request=True).count()
         else:
             counters['all_na'] = counters['all_prs'] = 0
@@ -247,7 +247,7 @@ class LabelsEditor(BaseRepositoryView):
 
         context.update({
             'label_types': self.repository.label_types.all().prefetch_related('labels'),
-            'labels_without_type': self.repository.labels.order_by('lower_name').filter(label_type__isnull=True),
+            'labels_without_type': self.repository.labels.order_by('lower_name').filter(label_type_id__isnull=True),
             'all_labels': self.repository.labels.ready().order_by('lower_name').values_list('name', flat=True),
             'label_type_include_template': self.label_type_include_template,
         })
