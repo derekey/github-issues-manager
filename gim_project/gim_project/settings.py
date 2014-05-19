@@ -145,7 +145,6 @@ AUTH_USER_MODEL = 'core.GithubUser'
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -204,7 +203,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
-
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # A sample logging configuration. The only tangible logging
