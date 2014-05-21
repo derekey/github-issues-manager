@@ -146,6 +146,8 @@ def update_user_related_stuff(username, gh=None, dry_run=False):
 
     u = GithubUser.objects.get(username=username)
 
+    issues_fetched = set()
+
     repositories = u.owned_repositories.all()
     if len(repositories):
         print('Owned repostories: %s' % ', '.join(['[%s] %s' % (r.id, r.full_name) for r in repositories]))
@@ -192,10 +194,13 @@ def update_user_related_stuff(username, gh=None, dry_run=False):
             print('%s issues: %s' % (name, ', '.join(['[%s] %s:%s' % (i.id, i.repository.full_name, i.number) for i in issues])))
             if not dry_run:
                 for i in issues:
+                    if i.id in issues_fetched:
+                        continue
                     try:
                         i.fetch_all(gh=gh, force_fetch=True)
                     except Exception as e:
                         print('Failure while updating issue %s: %s' % (i.id, e))
+                    issues_fetched.add(i.id)
                 issues = getattr(u, field).all()
                 if len(issues):
                     print('STILL %s issues: %s' % (name, ', '.join(['[%s] %s:%s' % (i.id, i.repository.full_name, i.number) for i in issues])))
@@ -206,10 +211,13 @@ def update_user_related_stuff(username, gh=None, dry_run=False):
             print('%s comments: %s' % (name, ', '.join(['[%s] %s:%s' % (c.id, c.repository.full_name, c.issue.number) for c in comments])))
             if not dry_run:
                 for c in comments:
+                    if c.issue_id in issues_fetched:
+                        continue
                     try:
                         c.issue.fetch_all(gh=gh, force_fetch=True)
                     except Exception as e:
                         print('Failure while updating issue %s for comment %s: %s' % (c.issue.id, c.id, e))
+                    issues_fetched.add(c.issue_id)
                 comments = getattr(u, field).all()
                 if len(comments):
                     print('STILL %s comments: %s' % (name, ', '.join(['[%s] %s:%s' % (c.id, c.repository.full_name, c.issue.number) for c in comments])))
@@ -232,10 +240,13 @@ def update_user_related_stuff(username, gh=None, dry_run=False):
         print('Issue events: %s' % ', '.join(['[%s] %s:%s' % (e.id, e.repository.full_name, e.issue.number) for e in events]))
         if not dry_run:
             for ev in events:
+                if ev.issue_id in issues_fetched:
+                    continue
                 try:
                     ev.issue.fetch_all(gh=gh, force_fetch=True)
                 except Exception as e:
                     print('Failure while updating issue %s for event %s: %s' % (ev.issue.id, ev.id, e))
+                issues_fetched.add(ev.issue_id)
             events = u.issues_events.all()
             if len(events):
                 print('STILL Issue events: %s' % ', '.join(['[%s] %s:%s' % (e.id, e.repository.full_name, e.issue.number) for e in events]))
