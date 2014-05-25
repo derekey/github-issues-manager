@@ -126,7 +126,7 @@
                         <li{% if current_label_for_label_type == '__none__' %} class="active"{% endif %}>
                             <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" unset remove_values=label_names %}">(&nbsp;Not set&nbsp;)</a>
                         </li>
-                        {% if untyped_labels|length > 10 %}
+                        {% if label_type_labels|length > 10 %}
                             <li>
                                 {% include "front/include_quicksearch.html" with id="filter-label-type-"|add:label_type.id target="#filter-label-type-"|add:label_type.id|add:" li.typed_label" only %}
                             </li>
