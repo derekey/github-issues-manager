@@ -137,8 +137,8 @@ class IssuesFilterAssigned(UserFilterPart):
     def get_context_data(self, **kwargs):
         context = super(IssuesFilterAssigned, self).get_context_data(**kwargs)
         context.update({
-            'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', 'none'),
-            'someone_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '*'),
+            'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '__none__'),
+            'someone_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '__any__'),
         })
         return context
 
@@ -189,7 +189,7 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
     def _get_milestone(self, qs_parts):
         """
         Return the valid milestone to use, or None.
-        A valid milestone can be "none" or a real Milestone object, based on a
+        A valid milestone can be '__none__' or a real Milestone object, based on a
         milestone number found in the querystring
         """
         milestone_number = qs_parts.get('milestone', None)
@@ -201,24 +201,41 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
                     pass
                 else:
                     return milestone
-            elif milestone_number == 'none':
-                return 'none'
+            elif milestone_number == '__none__':
+                return '__none__'
         return None
 
     def _get_labels(self, qs_parts):
         """
-        Return the list of valid labels to use. The result is a list of Label
+        Return a tuple with two lists:
+        - the list of canceled types (tuples of (id, name))
+        - the list of valid labels to use. The result is a list of Label
         objects, based on names found on the querystring
         """
         label_names = qs_parts.get('labels', None)
+        if label_names:
+            if not isinstance(label_names, list):
+                label_names = [label_names]
+            label_names = [l for l in label_names if l]
         if not label_names:
-            return None
-        if not isinstance(label_names, list):
-            label_names = [label_names]
-        label_names = [l for l in label_names if l]
-        if len(label_names) == 1 and label_names[0] == 'none':
-            return label_names
-        return list(self.repository.labels.ready().filter(name__in=label_names))
+            return (None, None)
+
+        canceled_types = set()
+        real_label_names = set()
+
+        for label_name in label_names:
+            if label_name.endswith(':__none__'):
+                canceled_types.add(label_name[:-9])
+            else:
+                real_label_names.add(label_name)
+
+        qs = self.repository.labels.ready().filter(name__in=real_label_names)
+        if canceled_types:
+            canceled_types = list(self.repository.label_types.filter(name__in=canceled_types)
+                                                             .values_list('id', 'name'))
+            qs = qs.exclude(label_type_id__in=([t[0] for t in canceled_types]))
+
+        return canceled_types, list(qs.prefetch_related('label_type'))
 
     def _get_group_by(self, qs_parts):
         """
@@ -296,8 +313,8 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         milestone = self._get_milestone(qs_parts)
         if milestone is not None:
             filter_objects['milestone'] = milestone
-            if milestone == 'none':
-                qs_filters['milestone'] = 'none'
+            if milestone == '__none__':
+                qs_filters['milestone'] = '__none__'
                 query_filters['milestone_id__isnull'] = True
             else:
                 qs_filters['milestone'] = '%s' % milestone.number
@@ -307,25 +324,27 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         queryset = self.repository.issues.ready().filter(**query_filters)
 
         # now filter by labels
-        labels = self._get_labels(qs_parts)
+        label_types_to_ignore, labels = self._get_labels(qs_parts)
+        if label_types_to_ignore or labels:
+            qs_filters['labels'] = []
+            filter_objects['current_label_types'] = {}
+
+        if label_types_to_ignore:
+            queryset = queryset.exclude(labels__label_type_id__in=[t[0] for t in label_types_to_ignore])
+            # we can set, and not update, as we are first to touch this
+            qs_filters['labels'] = ['%s:__none__' % t[1] for t in label_types_to_ignore]
+            filter_objects['current_label_types'] = {t[0]: '__none__' for t in label_types_to_ignore}
+
         if labels:
             filter_objects['labels'] = labels
-            filter_objects['current_label_types'] = {}
             filter_objects['current_labels'] = []
-            qs_filters['labels'] = []
-            if len(labels) == 1 and labels[0] == 'none':
-                label = labels[0]
-                qs_filters['labels'].append(label)
-                filter_objects['current_labels'].append(label)
-                queryset = queryset.filter(labels__isnull=True)
-            else:
-                for label in labels:
-                    qs_filters['labels'].append(label.name)
-                    if label.label_type_id and label.label_type_id not in filter_objects['current_label_types']:
-                        filter_objects['current_label_types'][label.label_type_id] = label
-                    elif not label.label_type_id:
-                        filter_objects['current_labels'].append(label)
-                    queryset = queryset.filter(labels=label.id)
+            for label in labels:
+                qs_filters['labels'].append(label.name)
+                if label.label_type_id and label.label_type_id not in filter_objects['current_label_types']:
+                    filter_objects['current_label_types'][label.label_type_id] = label
+                elif not label.label_type_id:
+                    filter_objects['current_labels'].append(label)
+                queryset = queryset.filter(labels=label.id)
 
         # prepare order, by group then asked ordering
         order_by = []
@@ -391,8 +410,8 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
             'root_issues_url': issues_url,
             'current_issues_url': issues_url,
             'issues_filter': issues_filter,
-            'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', 'none'),
-            'someone_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '*'),
+            'no_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '__none__'),
+            'someone_assigned_filter_url': self.repository.get_issues_user_filter_url_for_username('assigned', '__any__'),
             'qs_parts_for_ttags': issues_filter['parts'],
             'label_types': label_types,
         })
@@ -526,16 +545,16 @@ class UserIssuesView(IssuesView):
     def _get_user_filter(self, qs_parts):
         """
         Return the user filter type used, and the user to filter on. The user
-        can be either the string "none", or a GithubUser object
+        can be either the string '__none__', or a GithubUser object
         """
         filter_type = self.kwargs.get('user_filter_type', qs_parts.get('user_filter_type', None))
         username = self.kwargs.get('username', qs_parts.get('username', None))
 
         if username and filter_type in self.user_filter_types:
-            if username == 'none':
-                return filter_type, 'none'
-            elif username == '*' and filter_type == 'assigned':
-                return filter_type, '*'
+            if username == '__none__':
+                return filter_type, '__none__'
+            elif username == '__any__' and filter_type == 'assigned':
+                return filter_type, '__any__'
             try:
                 user = GithubUser.objects.get(username=username)
             except GithubUser.DoesNotExist:
@@ -560,9 +579,9 @@ class UserIssuesView(IssuesView):
             filter_context['qs_filters']['user_filter_type'] = user_filter_type
             filter_field = self.user_filter_types_matching[user_filter_type]
             filter_context['qs_filters']['username'] = user
-            if user == 'none':
+            if user == '__none__':
                 queryset = queryset.filter(**{'%s_id__isnull' % filter_field: True})
-            elif user == '*' and user_filter_type == 'assigned':
+            elif user == '__any__' and user_filter_type == 'assigned':
                 queryset = queryset.filter(**{'%s_id__isnull' % filter_field: False})
             else:
                 filter_context['qs_filters']['username'] = user.username

@@ -70,7 +70,7 @@
                     <i class="icon-caret-down"></i>
                     {% if issues_filter.objects.milestone %}
                             <span class="selection">
-                                {% if issues_filter.objects.milestone == 'none' %}
+                                {% if issues_filter.objects.milestone == '__none__' %}
                                     (&nbsp;No&nbsp;milestones&nbsp;)
                                 {% else %}
                                     {{ issues_filter.objects.milestone }}
@@ -81,8 +81,8 @@
                     {% endif %}
                 </a>
                 <ul id="filter-milestone" class="collapse">
-                    <li{% if issues_filter.parts.milestone == "none" %} class="active"{% endif %}>
-                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "none" %}">(&nbsp;No&nbsp;milestones&nbsp;)</a>
+                    <li{% if issues_filter.parts.milestone == "__none__" %} class="active"{% endif %}>
+                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "__none__" %}">(&nbsp;No&nbsp;milestones&nbsp;)</a>
                     </li>
                     {% if milestones|length > 10 %}
                         <li>
@@ -103,22 +103,30 @@
     {% for label_type in label_types %}
         {% with label_type.labels.ready as label_type_labels %}
             {% if label_type_labels|length %}
+                {% attributes_for_list label_type_labels "name" as label_names %}
+                {% with unset=label_type.name|add:":__none__" %}{% with label_names=label_names|append:unset current_label_for_label_type=issues_filter.objects.current_label_types|dict_item:label_type.id %}
                 <li class="accordion-group dark-nav">
                     <span class="glow"></span>
-                    {% with current_label_type=issues_filter.objects.current_label_types|dict_item:label_type.id %}
-                        <a class="accordion-toggle collapsed{% if current_label_type %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-label-type-{{ label_type.id }}">
-                            {{ label_type.name }}
-                            <i class="icon-caret-down"></i>
-                                {% if current_label_type %}
-                                        <span class="selection">{{ current_label_type.typed_name }}</span>
-                                    </a>
-                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_type.name %}" title="Clear this filter"><i class="icon-remove"> </i>
+                    <a class="accordion-toggle collapsed{% if current_label_for_label_type %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-label-type-{{ label_type.id }}">
+                        {{ label_type.name }}
+                        <i class="icon-caret-down"></i>
+                            {% if current_label_for_label_type %}
+                                {% if current_label_for_label_type == '__none__' %}
+                                        <span class="selection">(&nbsp;Not set&nbsp;)</span>
+                                        </a>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" unset remove_values=label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
+                                {% else %}
+                                        <span class="selection">{{ current_label_for_label_type.typed_name }}</span>
+                                        </a>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_for_label_type.name  %}" title="Clear this filter"><i class="icon-remove"> </i>
                                 {% endif %}
-                        </a>
-                    {% endwith %}
+                            {% endif %}
+                    </a>
                     <ul id="filter-label-type-{{ label_type.id }}" class="collapse filter-labels">
-                        {% attributes_for_list label_type_labels "name" as label_names %}
-                        {% if untyped_labels|length > 10 %}
+                        <li{% if current_label_for_label_type == '__none__' %} class="active"{% endif %}>
+                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" unset remove_values=label_names %}">(&nbsp;Not set&nbsp;)</a>
+                        </li>
+                        {% if label_type_labels|length > 10 %}
                             <li>
                                 {% include "front/include_quicksearch.html" with id="filter-label-type-"|add:label_type.id target="#filter-label-type-"|add:label_type.id|add:" li.typed_label" only %}
                             </li>
@@ -132,6 +140,7 @@
                         {% endfor %}
                     </ul>
                 </li>
+                {% endwith %}{% endwith %}
             {% endif %}
         {% endwith %}
     {% endfor %}
@@ -145,22 +154,13 @@
                     Labels
                     <i class="icon-caret-down"></i>
                     {% if issues_filter.objects.current_labels %}
-                        {% if issues_filter.objects.current_labels|length == 1 and issues_filter.objects.current_labels.0 == 'none' %}
-                                <span class="selection">(&nbsp;No&nbsp;labels&nbsp;)</span>
-                                </a>
-                            <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" %}" title="Clear this filter"><i class="icon-remove"> </i>
-                         {% else %}
-                            {% attributes_for_list issues_filter.objects.current_labels "name" as current_label_names %}
-                                <span class="selection">{{ current_label_names|join:", " }}</span>
-                            </a>
-                            <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
-                        {% endif %}
+                        {% attributes_for_list issues_filter.objects.current_labels "name" as current_label_names %}
+                            <span class="selection">{{ current_label_names|join:", " }}</span>
+                        </a>
+                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
                     {% endif %}
                 </a>
                 <ul id="filter-labels" class="collapse filter-labels">
-                    <li{% if issues_filter.objects.current_labels|length == 1 and issues_filter.objects.current_labels.0 == 'none' %} class="active"{% endif %}>
-                        <a href="{{ current_issues_url }}{% toggle_in_querystring "labels" "none" %}">(&nbsp;No&nbsp;labels&nbsp;)</a>
-                    </li>
                     {% if untyped_labels|length > 10 %}
                         <li>
                             {% include "front/include_quicksearch.html" with id="filter-labels" target="#filter-labels li.untyped_label" only %}

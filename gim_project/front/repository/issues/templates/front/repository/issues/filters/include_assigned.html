@@ -7,9 +7,9 @@
 
         {% if issues_filter.objects.user_filter_type == 'assigned' and issues_filter.parts.username %}
                 <span class="selection">
-                    {% if issues_filter.parts.username == 'none' %}
+                    {% if issues_filter.parts.username == '__none__' %}
                         (&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)
-                    {% elif issues_filter.parts.username == '*' %}
+                    {% elif issues_filter.parts.username == '__any__' %}
                         (&nbsp;Someone&nbsp;assigned&nbsp;)
                     {% else %}
                         {{ issues_filter.parts.username }}

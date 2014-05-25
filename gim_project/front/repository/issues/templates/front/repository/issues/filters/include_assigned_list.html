@@ -1,6 +1,6 @@
 {% load querystring frontutils issues_tags %}{% spaceless %}
 <ul id="filter-{{ view.relation }}" class="collapse{% if list_open %} in{% endif %}">
-    {% if issues_filter.objects.user_filter_type == 'assigned' and issues_filter.parts.username == 'none' %}
+    {% if issues_filter.objects.user_filter_type == 'assigned' and issues_filter.parts.username == '__none__' %}
         <li class="active">
             <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">(&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)</a>
         </li>
@@ -9,7 +9,7 @@
             <a href="{{ no_assigned_filter_url }}{{ issues_filter.querystring }}">(&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)</a>
         </li>
     {% endif %}
-    {% if issues_filter.objects.user_filter_type == 'assigned' and issues_filter.parts.username == '*' %}
+    {% if issues_filter.objects.user_filter_type == 'assigned' and issues_filter.parts.username == '__any__' %}
         <li class="active">
             <a href="{{ root_issues_url }}{{ issues_filter.querystring }}">(&nbsp;Someone&nbsp;assigned&nbsp;)</a>
         </li>

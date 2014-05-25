@@ -192,6 +192,11 @@ def tolist(value):
     return [value]
 
 
+@register.filter
+def append(alist, item):
+    return alist + [item]
+
+
 DIFF_LINE_TYPES = {
     '@': 'comment',
     '+': 'added',
