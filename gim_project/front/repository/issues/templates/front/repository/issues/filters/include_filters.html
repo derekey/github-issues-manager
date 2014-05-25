@@ -118,8 +118,13 @@
                     {% endwith %}
                     <ul id="filter-label-type-{{ label_type.id }}" class="collapse filter-labels">
                         {% attributes_for_list label_type_labels "name" as label_names %}
+                        {% if untyped_labels|length > 10 %}
+                            <li>
+                                {% include "front/include_quicksearch.html" with id="filter-label-type-"|add:label_type.id target="#filter-label-type-"|add:label_type.id|add:" li.typed_label" only %}
+                            </li>
+                        {% endif %}
                         {% for label in label_type_labels %}
-                            <li{% if label.name in issues_filter.parts.labels %} class="active"{% endif %}>
+                            <li class="typed_label{% if label.name in issues_filter.parts.labels %} active{% endif %}">
                                 <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="{{ label.name }}">
                                     <span style="border-bottom-color: #{{ label.color }}">{{ label.typed_name }}</span>
                                 </a>
