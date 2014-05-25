@@ -38,7 +38,7 @@ class ChangeTracker(object):
             changed_fields = instance.changed_fields()
             if changed_fields:
                 event = cls.add_changed_event(instance, changed_fields)
-                if not cls.add_changed_parts(instance, changed_fields, event):
+                if not cls.add_changed_parts(instance, changed_fields, event) and not event.parts.count():
                     event.delete()
 
         return event
