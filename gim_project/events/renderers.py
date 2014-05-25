@@ -176,14 +176,17 @@ class IssueRenderer(Renderer):
 
     def render_part_labels(self, part, mode):
         new, old = part.new_value, part.old_value
+        tag = ('', '') if mode == 'text' else ('<span>', '</span>')
         if new and new.get('labels'):
-            title = '<span>Added label%(plural)s:</span> %(labels)s'
+            title = '%(tag0)sAdded label%(plural)s:%(tag1)s %(labels)s'
             labels = new['labels']
         else:
-            title = '<span>Removed label%(plural)s:</span> %(labels)s'
+            title = '%(tag0)sRemoved label%(plural)s:%(tag1)s %(labels)s'
             labels = old['labels']
 
         params = {
+            'tag0': tag[0],
+            'tag1': tag[1],
             'labels': self.helper_render_labels(labels, mode),
             'plural': 's' if len(labels) > 1 else '',
         }
