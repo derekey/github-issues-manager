@@ -8,6 +8,7 @@
     <meta name="author" content='Stéphane "Twidi" Angel'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{% static "front/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "front/css/font-awesome.min.css" %}" rel="stylesheet">
     <link href="{% static "front/css/main.css" %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
     {% static 'front/img/default-avatar.png' as default_avatar %}
@@ -31,13 +32,13 @@
                                 </span>
                             </a>
                             <ul class="dropdown-menu" role="menu" aria-label="Main accesses">
-                                <li><a href="{% url "front:dashboard:home" %}"><i class="icon-dashboard"> </i> Your dashboard</a></li>
+                                <li><a href="{% url "front:dashboard:home" %}"><i class="fa fa-tachometer fa-fw"> </i> Your dashboard</a></li>
                                 <li class="divider"></li>
-                                <li><a href="{% url "front:auth:logout" %}"><i class="icon-signout"> </i> Logout</a></li>
+                                <li><a href="{% url "front:auth:logout" %}"><i class="fa fa-sign-out fa-fw"> </i> Logout</a></li>
                             </ul>
                         </li>
                     {% else %}
-                        <li class="login"><a href="{% url "front:auth:login" %}"><i class="icon-github"> </i> Login with Github</a></li>
+                        <li class="login"><a href="{% url "front:auth:login" %}"><i class="fa fa-github fa-fw"> </i> Login with Github</a></li>
                     {% endif %}
                 </ul>
             </div>

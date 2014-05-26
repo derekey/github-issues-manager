@@ -34,7 +34,7 @@
                                 {% if issues_filter.parts.sort %}
                                     <span class="selection">
                                         {{ issues_filter.parts.sort|capfirst }}
-                                        <i class="icon-chevron-{% if issues_filter.parts.direction == "asc" %}down{% else %}up{% endif %}" title="{% if issues_filter.parts.direction == "asc" %}Ascending order{% else %}Descending order{% endif %}"> </i>
+                                        <i class="fa fa-chevron-{% if issues_filter.parts.direction == "asc" %}down{% else %}up{% endif %}" title="{% if issues_filter.parts.direction == "asc" %}Ascending order{% else %}Descending order{% endif %}"> </i>
                                     </span>
                                 {% endif %}
                             </a>
@@ -47,10 +47,10 @@
                                 {% if issues_filter.parts.sort %}
                                     <li class="divider"></li>
                                     <li class="horizontal-6{% if issues_filter.parts.direction == "asc" %} active{% endif %}">
-                                        <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><i class="icon-chevron-down" title="Ascending order"> </i></a>
+                                        <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><i class="fa fa-chevron-down" title="Ascending order"> </i></a>
                                     </li>
                                     <li class="horizontal-6{% if issues_filter.parts.direction == "desc" %} active{% endif %}">
-                                        <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><i class="icon-chevron-up" title="Descending order"> </i></a>
+                                        <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><i class="fa fa-chevron-up" title="Descending order"> </i></a>
                                     </li>
                                 {% endif %}
                             </ul>
@@ -69,7 +69,7 @@
                                         {% else %}
                                             {{ issues_filter.objects.group_by|capfirst }}
                                         {% endif %}
-                                        <i class="icon-chevron-{% if issues_filter.parts.group_by_direction == "asc" %}down{% else %}up{% endif %}" title="{% if issues_filter.parts.group_by_direction == "asc" %}Ascending order{% else %}Descending order{% endif %}"> </i>
+                                        <i class="fa fa-chevron-{% if issues_filter.parts.group_by_direction == "asc" %}down{% else %}up{% endif %}" title="{% if issues_filter.parts.group_by_direction == "asc" %}Ascending order{% else %}Descending order{% endif %}"> </i>
                                     {% else %}
                                         No group by
                                     {% endif %}
@@ -96,10 +96,10 @@
                                 {% if issues_filter.parts.group_by %}
                                     <li class="divider"></li>
                                     <li class="horizontal-6{% if issues_filter.parts.group_by_direction == "asc" %} active{% endif %}">
-                                        <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><i class="icon-chevron-down" title="Ascending order"> </i></a>
+                                        <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><i class="fa fa-chevron-down" title="Ascending order"> </i></a>
                                     </li>
                                     <li class="horizontal-6{% if issues_filter.parts.group_by_direction == "desc" %} active{% endif %}">
-                                        <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><i class="icon-chevron-up" title="Descending order"> </i></a>
+                                        <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><i class="fa fa-chevron-up" title="Descending order"> </i></a>
                                     </li>
                                 {% endif %}
                             </ul>
@@ -192,7 +192,7 @@
                 <div class="span6">
                     <h4>On the issue detail view</h4>
                     <table class="table table-condensed">
-                        <tr><td><span class="label label-inverse">CTRL + <i class="icon-arrow-left icon-white"> </i></span></td><td>Focus the list of issues</td></tr>
+                        <tr><td><span class="label label-inverse">CTRL + <i class="fa fa-arrow-left"> </i></span></td><td>Focus the list of issues</td></tr>
                         <tr><td><span class="label label-inverse">s</span></td><td>Toggle the fullscreen view</td></tr>
                         <tr><td><span class="label label-inverse">r</span></td><td>Refresh issue</td></tr>
                         <tr><td><span class="label label-inverse">SHIFT + r</span></td><td>Reload the issue from Github</td></tr>
@@ -223,30 +223,30 @@
                         <tr><td><span class="label label-inverse">d</span></td><td>Toggle details for issues</td></tr>
                         <tr><td><span class="label label-inverse">f</span></td><td>Focus the filter input</td></tr>
                         <tr><td><span class="label label-inverse">CTRL + u</span></td><td>Clear the search input</td></tr>
-                        <tr><td><span class="label label-inverse">CTRL + <i class="icon-arrow-right icon-white"> </i></span></td><td>Focus the detail view</td></tr>
+                        <tr><td><span class="label label-inverse">CTRL + <i class="fa fa-arrow-right"> </i></span></td><td>Focus the detail view</td></tr>
                     </table>
                     <h4>On issues in the issues list</h4>
                     <table class="table table-condensed">
                         <tr>
-                            <td><span class="label label-inverse">n</span>, <span class="label label-inverse">j</span> or <span class="label label-inverse"><i class="icon-arrow-down icon-white"> </i></span></td><td>Focus the next issue</td>
+                            <td><span class="label label-inverse">n</span>, <span class="label label-inverse">j</span> or <span class="label label-inverse"><i class="fa fa-arrow-down"> </i></span></td><td>Focus the next issue</td>
                         </tr>
                         <tr>
-                            <td><span class="label label-inverse">p</span>, <span class="label label-inverse">k</span> or <span class="label label-inverse"><i class="icon-arrow-up icon-white"> </i></span></td><td>Focus the previous issue</td>
+                            <td><span class="label label-inverse">p</span>, <span class="label label-inverse">k</span> or <span class="label label-inverse"><i class="fa fa-arrow-up"> </i></span></td><td>Focus the previous issue</td>
                         </tr>
                         <tr><td><span class="label label-inverse">HOME</span></td><td>Focus the first issue of the current group</td></tr>
                         <tr><td><span class="label label-inverse">END</span></td><td>Focus the last issue of the current group</td></tr>
-                        <tr><td><span class="label label-inverse">c</span> or <span class="label label-inverse"><i class="icon-arrow-left icon-white"> </i></span></td><td>Close the current group</td></tr>
+                        <tr><td><span class="label label-inverse">c</span> or <span class="label label-inverse"><i class="fa fa-arrow-left"> </i></span></td><td>Close the current group</td></tr>
                     </table>
                     <h4>On Groups in the issues list</h4>
                     <table class="table table-condensed">
                         <tr>
-                            <td><span class="label label-inverse">n</span>, <span class="label label-inverse">j</span> or <span class="label label-inverse"><i class="icon-arrow-up icon-white"> </i></span></td><td>Focus the next item (group or issue) in the list</td>
+                            <td><span class="label label-inverse">n</span>, <span class="label label-inverse">j</span> or <span class="label label-inverse"><i class="fa fa-arrow-up"> </i></span></td><td>Focus the next item (group or issue) in the list</td>
                         </tr>
                         <tr>
-                            <td><span class="label label-inverse">p</span>, <span class="label label-inverse">k</span> or <span class="label label-inverse"><i class="icon-arrow-down icon-white"> </i></span></td><td>Focus the previous item (group or issue) in the list</td>
+                            <td><span class="label label-inverse">p</span>, <span class="label label-inverse">k</span> or <span class="label label-inverse"><i class="fa fa-arrow-down"> </i></span></td><td>Focus the previous item (group or issue) in the list</td>
                         </tr>
-                        <tr><td><span class="label label-inverse">o</span> or <span class="label label-inverse"><i class="icon-arrow-right icon-white"> </i></span></td><td>Open the group</td></tr>
-                        <tr><td><span class="label label-inverse">c</span> or <span class="label label-inverse"><i class="icon-arrow-left icon-white"> </i></span></td><td>Close the group</td></tr>
+                        <tr><td><span class="label label-inverse">o</span> or <span class="label label-inverse"><i class="fa fa-arrow-right"> </i></span></td><td>Open the group</td></tr>
+                        <tr><td><span class="label label-inverse">c</span> or <span class="label label-inverse"><i class="fa fa-arrow-left"> </i></span></td><td>Close the group</td></tr>
                         <tr><td><span class="label label-inverse">t</span></td><td>Toggle the group</td></tr>
                         <tr><td><span class="label label-inverse">HOME</span></td><td>Focus the first group</td></tr>
                         <tr><td><span class="label label-inverse">END</span></td><td>Focus the last group</td></tr>

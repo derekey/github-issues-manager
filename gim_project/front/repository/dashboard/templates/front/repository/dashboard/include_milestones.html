@@ -4,13 +4,13 @@
         <span class="title">Milestones</span>
         <ul class="box-toolbar">
             <li class="toolbar-link">
-                <a href="#" class="dropdown" data-toggle="dropdown"><i class="icon-cog"></i></a>
+                <a href="#" class="dropdown" data-toggle="dropdown"><i class="fa fa-bars"></i></a>
                 <ul class="dropdown-menu" role="menu" aria-label="Options">
                     <li class="with-checkbox"><a href="#"><label title="Check to also see closed milestones"><input name="show-closed-milestones" type="checkbox" value="1"{% if show_closed_milestones%} checked="checked"{% endif %}/> <span>Show closed</span></label></a></li>
                     <li class="with-checkbox"><a href="#"><label title="Check to also see empty milestones (ones without issues)"><input name="show-empty-milestones" type="checkbox" value="1"{% if show_empty_milestones%} checked="checked"{% endif %}/> <span>Show empty</span></label></a></li>
                     {% if current_repository|can_user_write:user %}
                         <li class="divider"></li>
-                        <li><a href="{{ milestone_create_url }}" class="edit-link btn-loading">Create a milestone <i class='icon-spinner icon-spin'> </i></a></li>
+                        <li><a href="{{ milestone_create_url }}" class="edit-link btn-loading">Create a milestone <i class='fa fa-spinner fa-spin'> </i></a></li>
                     {% endif %}
                 </ul>
             </li>
@@ -21,7 +21,7 @@
             {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:'*' non_assigned_url=current_repository|base_url_issues_filtered_by_assigned:'none' issues_url=current_repository|repository_view_url:'issues' %}
                 {% for milestone in milestones %}
                     <div class="box-section">
-                        <a href="#" title="[{{ milestone.state|capfirst }}] Click to view details" data-toggle="collapse" data-target="#milestone-{{ milestone.id}}-details" data-parent="#milestones" class="collapsed"><h3><i class="icon-tasks text-{{ milestone.state }}" title="{{ milestone.state|capfirst }} milestone"> </i> {{ milestone.title }}</h3></a>
+                        <a href="#" title="[{{ milestone.state|capfirst }}] Click to view details" data-toggle="collapse" data-target="#milestone-{{ milestone.id}}-details" data-parent="#milestones" class="collapsed"><h3><i class="fa fa-tasks text-{{ milestone.state }}" title="{{ milestone.state|capfirst }} milestone"> </i> {{ milestone.title }}</h3></a>
                         <span class="date">{% if milestone.due_on %}Due on {{ milestone.due_on|date }}{% else %}No due date{% endif %}</span>
                         <div class="progress"{% if not milestone.issues_count %} title="No issues"{% endif %}>
                             {% if milestone.issues_count %}
@@ -42,7 +42,7 @@
                                 {% endif %}
                             {% endif %}
                         </div>
-                        {% if current_repository|can_user_write:user %}<a class="edit-link btn btn-mini btn-blue btn-loading" href="{{ milestone.get_edit_url }}">Edit <i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                        {% if current_repository|can_user_write:user %}<a class="edit-link btn btn-mini btn-blue btn-loading" href="{{ milestone.get_edit_url }}">Edit <i class='fa fa-spinner fa-spin'> </i></a>{% endif %}
                         {% if milestone.issues_count %}<a class="issues-link" href="{{ issues_url }}?milestone={{ milestone.number }}">View all issues</a>{% endif %}
                         {% if milestone.open_issues_count %}<a class="issues-link" href="{{ issues_url }}?milestone={{ milestone.number }}&amp;state=open">View open issues</a>{% endif %}
                         <blockquote id="milestone-{{ milestone.id}}-details" class="collapse">

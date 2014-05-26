@@ -8,12 +8,12 @@
             </div>
             <ul class="box-toolbar">
                 {% with entry_point_comments_count=entry_point.comments.all|length %}
-                    <li class="comments-count" title="{{ entry_point.nb_comments }} comment{{ entry_point.nb_comments|pluralize }}" ><i class="icon-comments-alt"> </i>{{ entry_point.nb_comments }}</li>
+                    <li class="comments-count" title="{{ entry_point.nb_comments }} comment{{ entry_point.nb_comments|pluralize }}" ><i class="fa fa-comments-o"> </i>{{ entry_point.nb_comments }}</li>
                 {% endwith %}
                 {% if not entry_point.updated_at or entry_point.created_at == entry_point.updated_at %}
-                    <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i>{{ entry_point.created_at|ago }}</li>
+                    <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i>{{ entry_point.created_at|ago }}</li>
                 {% else %}
-                    <li class="time" title="Created on {{ entry_point.created_at|date:"DATETIME_FORMAT" }}, updated on  {{ entry_point.activity_order|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i>{{ entry_point.created_at|ago:True }}<i class="icon-caret-right"></i>{{ entry_point.activity_order|ago:True }}
+                    <li class="time" title="Created on {{ entry_point.created_at|date:"DATETIME_FORMAT" }}, updated on  {{ entry_point.activity_order|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i>{{ entry_point.created_at|ago:True }}<i class="fa fa-caret-right"></i>{{ entry_point.activity_order|ago:True }}
                     </li>
                 {% endif %}
                 {% with github_file_url=entry_point.github_url %}

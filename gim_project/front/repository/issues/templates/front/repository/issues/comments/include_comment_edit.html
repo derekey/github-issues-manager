@@ -4,7 +4,7 @@
 {% block node_class %}comment-edit-container{% endblock %}
 
 {% block comment_date %}
-    <span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ comment.created_at|ago }}</span>
+    <span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i> {{ comment.created_at|ago }}</span>
 {% endblock %}
 
 {% block comment_inner_body %}
@@ -13,7 +13,7 @@
         <div>{{ form.body }}</div>
         <div class="row-fluid auto-align">
             <div class="span6">
-                <button class="btn btn-blue submit btn-loading">Update this comment <i class='icon-spinner icon-spin'> </i></button>
+                <button class="btn btn-blue submit btn-loading">Update this comment <i class='fa fa-spinner fa-spin'> </i></button>
             </div>
             <div class="span6">
                 <button class="btn btn-default" type="button">Cancel</button>

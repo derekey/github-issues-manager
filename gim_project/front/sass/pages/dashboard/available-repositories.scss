@@ -58,7 +58,7 @@
         }
         a {
             color: inherit;
-            & .icon-external-link {
+            & .fa-external-link {
                 color: #ccc;
                 position: relative;
                 top: 1px;
@@ -102,7 +102,7 @@
         &.toggle-form, &.repository-input {
             button.btn-loading {
                 &.loading {
-                    i.icon-remove, i.icon-plus {
+                    i.fa-times, i.fa-plus {
                         display: none;
                     }
                 }

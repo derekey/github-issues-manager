@@ -1,9 +1,9 @@
 <div class="control-group quicksearch-widget{% if class %} {{ class }}{% endif %}"{% if id %} id="{{ id }}"{% endif %}{% if title %} title="{{ title }}"{% endif %}>
     <div class="controls">
         <label class="input-prepend input-append">
-            <span class="add-on"><i class="icon-search"></i></span>
+            <span class="add-on"><i class="fa fa-search"></i></span>
             <input type="text" class="quicksearch" data-target="{{ target }}"{% if content %} data-content="{{ content }}"{% endif %}{% if content_data %} data-content-data="{{ content_data }}"{% endif %} placeholder="{{ placeholder|default:'Filter' }}"/>
-            <a class="btn btn-default" href="" title="Clear input"><i class="icon-remove"></i></a>
+            <a class="btn btn-default" href="" title="Clear input"><i class="fa fa-times"></i></a>
         </label>
     </div>
 </div>

@@ -10,11 +10,11 @@
 
 {% block dashboard-header %}
     <form action="{% url "front:dashboard:repositories:ask-fetch" %}" method="post" id="ask-fetch">
-        <button type="submit" class="btn btn-large btn-blue btn-loading">Update available repositories <i class='icon-spinner icon-spin'> </i></button>
+        <button type="submit" class="btn btn-large btn-blue btn-loading">Update available repositories <i class='fa fa-spinner fa-spin'> </i></button>
         <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
     </form>
     <div class="header">
-        <h3><i class="icon-ok-sign"> </i> Manage your subscriptions</h3>
+        <h3><i class="fa fa-check-circle"> </i> Manage your subscriptions</h3>
         <h5>Choose for which repositories you want to manage issues.</h5>
     </div>
 {% endblock dashboard-header %}

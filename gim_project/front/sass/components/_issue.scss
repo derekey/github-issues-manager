@@ -257,7 +257,7 @@ $repo-name-height: 20px;
             font-size: inherit;
             font-weight: inherit;
         }
-        &.loading i.icon-edit {
+        &.loading i.fa-edit {
             display: none;
         }
         &, &:hover {
@@ -541,7 +541,7 @@ $repo-name-height: 20px;
             cursor: default;
             position: absolute;
             top: 14px;
-            i.icon-sort {
+            i.fa-sort {
                 display: none;
             }
         }
@@ -661,10 +661,13 @@ $repo-name-height: 20px;
             }
             .comments-count {
                 padding-right: 5px;
+                i {
+                    margin-right: 2px;
+                }
             }
             .time {
                 margin-left: 5px;
-                i.icon-caret-right {
+                i.fa-caret-right {
                     font-size: 11px;
                     color: #bbb;
                     width: auto;
@@ -762,7 +765,7 @@ $repo-name-height: 20px;
         float: right;
         margin: -2px -5px -1px 7px;
         a.loading {
-            i.icon-edit, i.icon-remove {
+            i.fa-edit, i.fa-times {
                 display: none;
             }
         }

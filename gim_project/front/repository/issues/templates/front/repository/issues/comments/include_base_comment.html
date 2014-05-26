@@ -8,25 +8,25 @@
         <span class="time">
             <span class="label label-{% if comment.github_status in GITHUB_STATUSES.ALL_WAITING %}warning{% else %}important{% endif %}">
             {{ comment.get_github_status_display }}
-            {% if comment.github_status in GITHUB_STATUSES.ALL_WAITING %}<i class="icon-spinner icon-spin"> </i>{% endif %}
+            {% if comment.github_status in GITHUB_STATUSES.ALL_WAITING %}<i class="fa fa-spinner fa-spin"> </i>{% endif %}
             </span>
         </span>
     {% else %}
         {% if current_issue_edit_level or comment.user == view.request.user %}
             <nav class="comment-nav dropdown">
-                <button class="btn btn-default btn-mini dropdown-toggle" data-toggle="dropdown"><i class="icon-reorder"> </i></button>
+                <button class="btn btn-default btn-mini dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"> </i></button>
                 <ul class="dropdown-menu pull-right" role="menu" aria-label="Comment menu">
-                    <li><a href="{{ comment.get_edit_url }}" class="comment-edit-btn btn-loading" title="Edit this comment"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i> Edit this comment</a></li>
-                    <li><a href="{{ comment.get_delete_url }}" class="comment-delete-btn btn-loading" title="Delete this comment"><i class="icon-remove"> </i><i class='icon-spinner icon-spin'> </i> Delete this comment</a></li>
+                    <li><a href="{{ comment.get_edit_url }}" class="comment-edit-btn btn-loading" title="Edit this comment"><i class="fa fa-edit fa-fw"> </i><i class='fa fa-spinner fa-spin' fa-fw> </i> Edit this comment</a></li>
+                    <li><a href="{{ comment.get_delete_url }}" class="comment-delete-btn btn-loading" title="Delete this comment"><i class="fa fa-times fa-fw"> </i><i class='fa fa-spinner fa-spin fa-fw'> </i> Delete this comment</a></li>
                     {% if comment.github_status not in GITHUB_STATUSES.ALL_WAITING %}
                         {% with github_url=comment.github_url %}
                             {% if with_link_to_diff or github_url %}
                                 <li class="divider"></li>
                                 {% if github_url %}
-                                    <li><a href="{{ github_url }}" target="_blank"><i class="icon-github"> </i> View on Github</a></li>
+                                    <li><a href="{{ github_url }}" target="_blank"><i class="fa fa-github fa-fw"> </i> View on Github</a></li>
                                 {% endif %}
                                 {% if with_link_to_diff %}
-                                    <li><a href='#' class="go-to-diff-link"><i class="icon-eye-open"> </i> View in "Files changed" tab</a></li>
+                                    <li><a href='#' class="go-to-diff-link"><i class="fa fa-eye fa-fw"> </i> View in "Files changed" tab</a></li>
                                 {% endif %}
                             {% endif %}
                         {% endwith %}

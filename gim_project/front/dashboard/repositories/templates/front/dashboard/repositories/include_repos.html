@@ -4,9 +4,9 @@
     <tr>
         <td>
             {% if group.name == '__others__' %}
-                <i class="icon-group"> </i> Other's repositories
+                <i class="fa fa-users"> </i> Other's repositories
             {% elif group.name == '__starred__' %}
-                <i class="icon-star"> </i> Starred repositories
+                <i class="fa fa-star"> </i> Starred repositories
             {% elif group.name %}
                 <img class="avatar-micro img-circle" src="{% if group.organization %}{{ group.organization.avatar_url|default:default_avatar }}{% else %}{{ default_avatar }}{% endif %}" /> {{ group.name }}
             {% else %}
@@ -46,23 +46,23 @@
         {# Repository name #}
         <td>{% if repository.owner != user and repository.owner != group.organization%}<img class="avatar-micro img-circle" src="{{ repository.owner.avatar_url|default:default_avatar }}" />{% endif %}
             {% if repo_name in subscribed_repositories %}<a href="{{ repository.get_absolute_url }}" title="View this repository">{% endif %}{{ repository.owner.username }}/<strong>{{ repository.name }}</strong>{% if repo_name in subscribed_repositories %}</a>{% endif %}
-            <a href="{{ repository.github_url }}" title="View on github" target='_blank'><i class="icon-external-link"> </i></a>
+            <a href="{{ repository.github_url }}" title="View on github" target='_blank'><i class="fa fa-external-link"> </i></a>
         </td>
         {# subscription #}
         {% if repo_name in subscribed_repositories %}
             {% with subscription=subscribed_repositories|dict_item:repo_name %}
-                <td><i class="icon-ok"> </i>&nbsp;<span class="smaller">({{ subscription.get_state_display|lower }})</span></td>
+                <td><i class="fa fa-check"> </i>&nbsp;<span class="smaller">({{ subscription.get_state_display|lower }})</span></td>
             {% endwith %}
         {% elif repo_name in waiting_subscriptions %}
             {% with subscription=waiting_subscriptions|dict_item:repo_name %}
-                <td><i class="icon-spinner icon-spin"> </i>&nbsp;<span class="smaller">({{ subscription.get_state_display|lower }})</span></td>
+                <td><i class="fa fa-spinner fa-spin"> </i>&nbsp;<span class="smaller">({{ subscription.get_state_display|lower }})</span></td>
             {% endwith %}
         {% else %}
             <td>&nbsp;</td>
         {% endif %}
         {# owned ? #}
         {% if repository.owner == user %}
-            <td title="You are the owner of this repository"><i class="icon-user"> </i></td>
+            <td title="You are the owner of this repository"><i class="fa fa-user"> </i></td>
         {% else %}
             <td>&nbsp;</td>
         {% endif %}
@@ -71,19 +71,19 @@
         {% else %}
             {# private ? #}
             {% if repository.private %}
-                <td title="This repository is private"><i class="icon-eye-close"> </i></td>
+                <td title="This repository is private"><i class="fa fa-eye-slash"> </i></td>
             {% else %}
                 <td>&nbsp;</td>
             {% endif %}
             {# infos #}
             {% if repository.has_issues %}
-                <td title="Issues enabled"><i class="icon-file-alt"> </i></td>
+                <td title="Issues enabled"><i class="fa fa-file-oalt"> </i></td>
             {% else %}
-                <td title="Issues disabled"><i class="icon-ban-circle"> </i></td>
+                <td title="Issues disabled"><i class="fa fa-ban"> </i></td>
             {% endif %}
-            <td title="Pull requests enabled"><i class="icon-upload-alt"> </i></td>
+            <td title="Pull requests enabled"><i class="fa fa-upload"> </i></td>
             {% if repository.is_fork %}
-                <td title="It's a fork"><i class="icon-random"> </i></td>
+                <td title="It's a fork"><i class="fa fa-random"> </i></td>
             {% else %}
                 <td>&nbsp;</td>
             {% endif %}
@@ -98,13 +98,13 @@
                         <form action="{{ repository_add_url }}" method="post" class="toggle-form">
                             <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                             <input id="id_name" name="name" type="hidden" value="{{ repo_name }}" />
-                            <button type="submit" class="btn btn-mini btn-green btn-loading" title="Subscribe to this repository again"><i class="icon-plus"> </i><i class='icon-spinner icon-spin'> </i></button>
+                            <button type="submit" class="btn btn-mini btn-green btn-loading" title="Subscribe to this repository again"><i class="fa fa-plus"> </i><i class='fa fa-spinner fa-spin'> </i></button>
                         </form>
                     {% endif %}
                     <form action="{{ repository_remove_url }}" method="post" class="toggle-form">
                         <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                         <input id="id_name" name="name" type="hidden" value="{{ repo_name }}" />
-                        <button type="submit" class="btn btn-mini btn-red btn-loading" title="Cancel your subscription to this repository"><i class="icon-remove"> </i><i class='icon-spinner icon-spin'> </i></button>
+                        <button type="submit" class="btn btn-mini btn-red btn-loading" title="Cancel your subscription to this repository"><i class="fa fa-times"> </i><i class='fa fa-spinner fa-spin'> </i></button>
                     </form>
                 {% endwith %}
             </td>
@@ -114,7 +114,7 @@
                     <form action="{{ repository_remove_url }}" method="post" class="toggle-form">
                         <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                         <input id="id_name" name="name" type="hidden" value="{{ repo_name }}" />
-                        <button type="submit" class="btn btn-mini btn-red btn-loading" title="Cancel your subscription to this repository"><i class="icon-remove"> </i><i class='icon-spinner icon-spin'> </i></button>
+                        <button type="submit" class="btn btn-mini btn-red btn-loading" title="Cancel your subscription to this repository"><i class="fa fa-times"> </i><i class='fa fa-spinner fa-spin'> </i></button>
                     </form>
                 {% endwith %}
             </td>
@@ -123,7 +123,7 @@
                 <form action="{{ repository_add_url }}" method="post" class="toggle-form">
                     <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
                     <input id="id_name" name="name" type="hidden" value="{{ repo_name }}" />
-                    <button type="submit" class="btn btn-mini btn-green btn-loading" title="Subscribe to this repository"><i class="icon-plus"> </i><i class='icon-spinner icon-spin'> </i></button>
+                    <button type="submit" class="btn btn-mini btn-green btn-loading" title="Subscribe to this repository"><i class="fa fa-plus"> </i><i class='fa fa-spinner fa-spin'> </i></button>
                 </form>
             </td>
         {% endif %}

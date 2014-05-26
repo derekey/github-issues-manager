@@ -6,27 +6,27 @@
             <span title="Created on {{ issue.created_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.created_at|date:'r' }}">{{ issue.created_at|ago:True }}</span>
             {% if issue.state == 'closed' %}
                 {% if issues.updated_at > issue.closed_at %}
-                    <i class="icon-caret-right"> </i> <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date:"DATETIME_FORMAT" }}, updated on {{ issue.updated_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.updated_at|date:'r' }}">{{ issue.updated_at|ago:True }}</span>
+                    <i class="fa fa-caret-right"> </i> <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date:"DATETIME_FORMAT" }}, updated on {{ issue.updated_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.updated_at|date:'r' }}">{{ issue.updated_at|ago:True }}</span>
                 {% else %}
-                    <i class="icon-caret-right"> </i> <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.closed_at|date:'r' }}">{{ issue.closed_at|ago:True }}</span>
+                    <i class="fa fa-caret-right"> </i> <span title="Closed{% if issue.closed_by %} by {{ issue.closed_by.username }}{% endif %} on {{ issue.closed_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.closed_at|date:'r' }}">{{ issue.closed_at|ago:True }}</span>
                 {% endif %}
             {% else %}
                 {% if issue.updated_at and issue.created_at != issue.updated_at %}
-                    <i class="icon-caret-right"> </i> <span title="Updated on {{ issue.updated_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.updated_at|date:'r' }}">{{ issue.updated_at|ago:True }}</span>
+                    <i class="fa fa-caret-right"> </i> <span title="Updated on {{ issue.updated_at|date:"DATETIME_FORMAT" }}" class="ago ago-short" data-datetime="{{ issue.updated_at|date:'r' }}">{{ issue.updated_at|ago:True }}</span>
                 {% endif %}
             {% endif %}
         </div>
         {% if issue.is_pull_request %}
             <div class="issue-item-pull-request">
                 <a href="" title="It's a pull request" class="js-filter-trigger" data-filter='pr:yes'>
-                    <i class="icon-upload-alt"> </i>
+                    <i class="fa fa-upload"> </i>
                 </a>
             </div>
         {% endif %}
         {% if issue.milestone %}
             <div class="issue-item-milestone">
                 <a href="" class="js-filter-trigger" data-filter='milestone:{{ issue.milestone.number }}'>
-                    <i class="icon-tasks text-{{ issue.milestone.state }}" title="{{ issue.milestone.state|capfirst }} milestone{% if issue.milestone.state == 'open' and issue.milestone.due_on %}, due on {{ issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </i> {{ issue.milestone.title }}
+                    <i class="fa fa-tasks text-{{ issue.milestone.state }}" title="{{ issue.milestone.state|capfirst }} milestone{% if issue.milestone.state == 'open' and issue.milestone.due_on %}, due on {{ issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </i> {{ issue.milestone.title }}
                 </a>
             </div>
         {% endif %}
@@ -41,11 +41,11 @@
     </div>
     <div class="issue-item-footer{% if issue_labels %} with-labels{% endif %}">
         {% if issue.assignee %}
-                <a href="" title="Assigned to {{ issue.assignee.username }}" class="issue-item-assignee js-filter-trigger" data-filter='assigned:{{ issue.assignee.username }}'><i class="icon-hand-right"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url|default:default_avatar }}"></a>
+                <a href="" title="Assigned to {{ issue.assignee.username }}" class="issue-item-assignee js-filter-trigger" data-filter='assigned:{{ issue.assignee.username }}'><i class="fa fa-hand-o-right"> </i><img class="avatar-tiny img-circle" src="{{ issue.assignee.avatar_url|default:default_avatar }}"></a>
         {% endif %}
         {% if issue.total_comments_count %}
             <div class="issue-item-comments-count" title="{{ issue.total_comments_count }} comment{{ issue.total_comments_count|pluralize }}">
-                <i class="icon-comments-alt"> </i>{{ issue.total_comments_count }}
+                <i class="fa fa-comments-o"> </i>{{ issue.total_comments_count }}
             </div>
         {% endif %}
         <div class="issue-item-labels">
