@@ -2,7 +2,7 @@
 {% block top-addon %}
 <form action="{{ repository_add_url }}" method="post" class="repository-input">
     <input id="id_name" name="name" type="text" placeholder="Add a repository by entering github url, or name/repository (or choose one in a tab)" />
-    <button type="submit" class="btn btn-green btn-loading" title="Subscribe to this repository"><i class="icon-plus"> </i><i class='icon-spinner icon-spin'> </i></button>
+    <button type="submit" class="btn btn-green btn-loading" title="Subscribe to this repository"><i class="fa fa-plus"> </i><i class='fa fa-spinner fa-spin'> </i></button>
     <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
 </form>
 {% endblock %}

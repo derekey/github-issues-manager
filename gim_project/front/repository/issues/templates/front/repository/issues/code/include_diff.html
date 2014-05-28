@@ -4,7 +4,7 @@
             <tr class="{{ class }}" data-position="{{ position }}">
                 <td class="line-number" data-line-number="{{ old }}"><span>{{ old }}</span></td>
                 <td class="line-number" data-line-number="{{ new }}"><span>{{ new }}</span></td>
-                <td class="code">{% if class != 'comment' %}<span class="label label-blue btn-comment" title="Comment this line"><i class="icon-comment"></i></span>{% endif %}{{ code }}</td>
+                <td class="code">{% if class != 'comment' %}<span class="label label-blue btn-comment" title="Comment this line"><i class="fa fa-comment"></i></span>{% endif %}{{ code }}</td>
             </tr>
             {% endspaceless %}
             {% if entry_points and position in entry_points %}

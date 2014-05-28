@@ -4,7 +4,7 @@
 {% block node_class %}comment-delete-container{% endblock %}
 
 {% block comment_date %}
-    <span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="icon-time"></i> {{ comment.created_at|ago }}</span>
+    <span class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i> {{ comment.created_at|ago }}</span>
 {% endblock %}
 
 {% block comment_inner_body %}
@@ -12,7 +12,7 @@
         {% csrf_token %}
         <div class="row-fluid auto-align">
             <div class="span8">
-                <button class="btn btn-red btn-loading">Confirm deletion of this comment <i class='icon-spinner icon-spin'> </i></button>
+                <button class="btn btn-red btn-loading">Confirm deletion of this comment <i class='fa fa-spinner fa-spin'> </i></button>
             </div>
             <div class="span4">
                 <button class="btn btn-default" type="button">Cancel</button>

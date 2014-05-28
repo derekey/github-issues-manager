@@ -894,7 +894,7 @@ $().ready(function() {
         }), // is_modal
 
         enhance_modal: (function IssueDetail__enhance_modal ($node) {
-            $node.find('.issue-nav ul').append('<li class="divider"></li><li><a href="#" data-dismiss="modal"><i class="icon-remove"> </i> Close window</a></li>');
+            $node.find('.issue-nav ul').append('<li class="divider"></li><li><a href="#" data-dismiss="modal"><i class="fa fa-times fa-fw"> </i> Close window</a></li>');
         }), // enhance_modal
 
         get_container: (function IssueDetail__get_container (force_popup) {
@@ -972,7 +972,7 @@ $().ready(function() {
 
         set_container_loading: (function IssueDetail__set_container_loading (container) {
             IssueDetail.unset_issue_waypoints(container.$node);
-            IssueDetail.fill_container(container, '<p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>');
+            IssueDetail.fill_container(container, '<p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>');
         }), // set_container_loading
 
         select_tab: (function IssueDetail__select_tab (panel, type) {
@@ -2284,7 +2284,7 @@ $().ready(function() {
                         }
                         var data = milestones_data[state.id];
                         if (data) {
-                            var result = '<i class="icon-tasks text-' + data.state + '"> </i> <strong>' + (data.title.length > 25 ? data.title.substring(0, 20) + '…' : data.title);
+                            var result = '<i class="fa fa-tasks text-' + data.state + '"> </i> <strong>' + (data.title.length > 25 ? data.title.substring(0, 20) + '…' : data.title);
                             if (include_title) {
                                 var title = data.state.charAt(0).toUpperCase() + data.state.substring(1) + ' milestone';
                                 if (data.state == 'open' && data.due_on) {
@@ -2294,7 +2294,7 @@ $().ready(function() {
                             }
                             return result;
                         } else {
-                            return '<i class="icon-tasks"> </i> No milestone';
+                            return '<i class="fa fa-tasks"> </i> No milestone';
                         }
                     };
                 $select.select2({
@@ -2328,7 +2328,7 @@ $().ready(function() {
                             result = 'No one assigned';
                         }
                         if (include_icon) {
-                            result = '<i class="icon-hand-right"> </i> ' + result;
+                            result = '<i class="fa fa-hand-o-right"> </i> ' + result;
                         }
                         return result;
                     };
@@ -2463,7 +2463,7 @@ $().ready(function() {
                 }
                 IssueEditor.create.$modal_repository_placeholder.text(main_repository);
                 IssueEditor.create.$modal_footer.hide();
-                IssueEditor.create.$modal_body.html('<p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>');
+                IssueEditor.create.$modal_body.html('<p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>');
                 IssueEditor.create.$modal_submit.removeClass('loading');
                 IssueEditor.create.$modal.modal('show');
                 $.get(create_issue_url)
@@ -2726,29 +2726,29 @@ $().ready(function() {
         placeholders: {
             nothing: {
                 message: 'Nothing new',
-                icon: 'icon-eye-close',
+                icon: 'fa fa-eye-slash',
                 delay: 1000
             },
             error: {
                 message: 'Error while loading',
-                icon: 'icon-remove-sign',
+                icon: 'fa fa-times-circle',
                 delay: 3000
             },
             loading: {
                 message: 'Loading',
-                icon: 'icon-spinner icon-spin',
+                icon: 'fa fa-spinner fa-spin',
                 delay: -1
             },
             more: {
                 message: 'Load more',
-                icon: 'icon-plus',
+                icon: 'fa fa-plus',
                 delay: -1,
                 classes: 'box-footer',
                 link: '#'
             },
             missing: {
                 message: 'Load missing',
-                icon: 'icon-plus',
+                icon: 'fa fa-plus',
                 delay: -1,
                 classes: 'more box-footer',
                 link: '#'

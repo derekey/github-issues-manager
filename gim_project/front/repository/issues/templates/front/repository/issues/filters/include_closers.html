@@ -3,11 +3,11 @@
     <span class="glow"></span>
     <a class="accordion-toggle collapsed{% if issues_filter.objects.user_filter_type == 'closed_by' and issues_filter.parts.username %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-{{ view.relation }}">
         Closed by
-        <i class="icon-caret-down"></i>
+        <i class="fa fa-caret-down"></i>
         {% if issues_filter.objects.user_filter_type == 'closed_by' and issues_filter.parts.username %}
                 <span class="selection">{{ issues_filter.parts.username }}</span>
             </a>
-            <a class="clear-filter" href="{{ root_issues_url }}{{ issues_filter.querystring }}" title="Clear this filter"><i class="icon-remove"> </i>
+            <a class="clear-filter" href="{{ root_issues_url }}{{ issues_filter.querystring }}" title="Clear this filter"><i class="fa fa-times"> </i>
         {% endif %}
     </a>
     {% if deferred %}

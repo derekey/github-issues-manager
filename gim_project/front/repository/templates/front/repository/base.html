@@ -36,11 +36,11 @@
                 <li{% if main_view.is_current %} class="active"{% endif %}>
                     <a role="menuitem" href="{{ main_view.url }}{% if main_view.qs %}?{{ main_view.qs }}{% endif %}" title="{{ main_view.title }}">
                         {% if main_view.url_name == 'dashboard' %}
-                            <i class="icon-dashboard"> </i>
+                            <i class="fa fa-tachometer fa-fw"> </i>
                         {% elif main_view.url_name == 'issues' %}
-                            <i class="icon-sitemap"> </i>
+                            <i class="fa fa-sitemap fa-fw"> </i>
                         {% elif main_view.url_name == 'board' %}
-                            <i class="icon-columns"> </i>
+                            <i class="fa fa-columns fa-fw"> </i>
                         {% endif %}
                         <span> {{ main_view.title }}</span>
                     </a>
@@ -48,7 +48,7 @@
         {% endif %}
         {% endfor %}
         {% if display_add_issue_btn %}
-            <li class="add-issue-btn"><a role="menuitem" href="#" title="Create an issue on this repository"><i class="icon-plus"> </i> <span>Add issue</span></a></li>
+            <li class="add-issue-btn"><a role="menuitem" href="#" title="Create an issue on this repository"><i class="fa fa-plus fa-fw"> </i> <span>Add issue</span></a></li>
         {% endif %}
     </ul>
 {% endspaceless %}{% endblock header_nav %}
@@ -74,11 +74,11 @@
     <div id="issue-create-modal" class="modal fancy hide fade" data-keyboard="false" data-backdrop="static">
         <div class="modal-header">
             <nav class="issue-create-nav dropdown">
-                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="icon-reorder"> </i></button>
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"> </i></button>
                 <ul class="dropdown-menu pull-right" role="menu" aria-label="Issue menu">
-                    <li><a href="#" class="resize-issue"><i class="icon-fullscreen"> </i> Toggle full screen</a></li>
+                    <li><a href="#" class="resize-issue"><i class="fa fa-arrows-alt fa-fw"> </i> Toggle full screen</a></li>
                     <li class="divider"></li>
-                    <li><a href="#" data-dismiss="modal"><i class="icon-remove"> </i> Close window</a></li>
+                    <li><a href="#" data-dismiss="modal"><i class="fa fa-times fa-fw"> </i> Close window</a></li>
                 </ul>
             </nav>
             <h6>New issue on <span></span></h6>
@@ -87,7 +87,7 @@
         <div class="modal-footer">
             <div class="row-fluid auto-align">
                 <div class="span6">
-                    <button class="btn btn-blue submit btn-loading">Create the issue <i class='icon-spinner icon-spin'> </i></button>
+                    <button class="btn btn-blue submit btn-loading">Create the issue <i class='fa fa-spinner fa-spin'> </i></button>
                 </div>
                 <div class="span6">
                     <button class="btn btn-default" data-dismiss="modal">Cancel</button>

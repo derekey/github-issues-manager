@@ -69,7 +69,7 @@
   color: inherit;
 }
 /* line 61, ../../../../../sass/pages/dashboard/available-repositories.scss */
-#available-repositories td a .icon-external-link {
+#available-repositories td a .fa-external-link {
   color: #ccc;
   position: relative;
   top: 1px;
@@ -116,7 +116,7 @@
   height: 22px;
 }
 /* line 105, ../../../../../sass/pages/dashboard/available-repositories.scss */
-#available-repositories form.toggle-form button.btn-loading.loading i.icon-remove, #available-repositories form.toggle-form button.btn-loading.loading i.icon-plus, #available-repositories form.repository-input button.btn-loading.loading i.icon-remove, #available-repositories form.repository-input button.btn-loading.loading i.icon-plus {
+#available-repositories form.toggle-form button.btn-loading.loading i.fa-times, #available-repositories form.toggle-form button.btn-loading.loading i.fa-plus, #available-repositories form.repository-input button.btn-loading.loading i.fa-times, #available-repositories form.repository-input button.btn-loading.loading i.fa-plus {
   display: none;
 }
 

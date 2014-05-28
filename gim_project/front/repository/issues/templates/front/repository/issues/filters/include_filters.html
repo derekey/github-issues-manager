@@ -1,7 +1,7 @@
 {% load querystring frontutils issues_tags %}{% spaceless %}
 <ul id="issues-filters-accordion" class="nav nav-collapse collapse nav-collapse-primary">
 
-    <li class='clear-all-filters'><a href="{{ root_issues_url }}?state=open"><i class="icon-remove"> </i> Clear filters</a></li>
+    <li class='clear-all-filters'><a href="{{ root_issues_url }}?state=open"><i class="fa fa-times"> </i> Clear filters</a></li>
 
     {# List of issues creators #}
     {% if issues_creators.count %}
@@ -23,11 +23,11 @@
         <span class="glow"></span>
         <a class="accordion-toggle collapsed{% if issues_filter.objects.state %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-state">
             State
-            <i class="icon-caret-down"></i>
+            <i class="fa fa-caret-down"></i>
             {% if issues_filter.objects.state %}
                     <span class="selection">{{ issues_filter.objects.state }}</span>
                 </a>
-                <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "state" %}" title="Clear this filter"><i class="icon-remove"> </i>
+                <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "state" %}" title="Clear this filter"><i class="fa fa-times"> </i>
             {% endif %}
         </a>
         <ul id="filter-state" class="collapse">
@@ -44,11 +44,11 @@
         <span class="glow"></span>
         <a class="accordion-toggle collapsed{% if issues_filter.parts.pr %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-pr">
             Pull-request
-            <i class="icon-caret-down"></i>
+            <i class="fa fa-caret-down"></i>
             {% if issues_filter.parts.pr %}
                     <span class="selection">{{ issues_filter.parts.pr }}</span>
                 </a>
-                <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "pr" %}" title="Clear this filter"><i class="icon-remove"> </i>
+                <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "pr" %}" title="Clear this filter"><i class="fa fa-times"> </i>
             {% endif %}
         </a>
         <ul id="filter-pr" class="collapse">
@@ -67,7 +67,7 @@
                 <span class="glow"></span>
                 <a class="accordion-toggle collapsed{% if issues_filter.objects.milestone %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-milestone">
                     Milestone
-                    <i class="icon-caret-down"></i>
+                    <i class="fa fa-caret-down"></i>
                     {% if issues_filter.objects.milestone %}
                             <span class="selection">
                                 {% if issues_filter.objects.milestone == '__none__' %}
@@ -77,7 +77,7 @@
                                 {% endif %}
                             </span>
                         </a>
-                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "milestone" %}" title="Clear this filter"><i class="icon-remove"> </i>
+                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "milestone" %}" title="Clear this filter"><i class="fa fa-times"> </i>
                     {% endif %}
                 </a>
                 <ul id="filter-milestone" class="collapse">
@@ -109,16 +109,16 @@
                     <span class="glow"></span>
                     <a class="accordion-toggle collapsed{% if current_label_for_label_type %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-label-type-{{ label_type.id }}">
                         {{ label_type.name }}
-                        <i class="icon-caret-down"></i>
+                        <i class="fa fa-caret-down"></i>
                             {% if current_label_for_label_type %}
                                 {% if current_label_for_label_type == '__none__' %}
                                         <span class="selection">(&nbsp;Not set&nbsp;)</span>
                                         </a>
-                                    <a class="clear-filter" href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" unset remove_values=label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" unset remove_values=label_names %}" title="Clear this filter"><i class="fa fa-times"> </i>
                                 {% else %}
                                         <span class="selection">{{ current_label_for_label_type.typed_name }}</span>
                                         </a>
-                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_for_label_type.name  %}" title="Clear this filter"><i class="icon-remove"> </i>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_for_label_type.name  %}" title="Clear this filter"><i class="fa fa-times"> </i>
                                 {% endif %}
                             {% endif %}
                     </a>
@@ -152,12 +152,12 @@
                 <span class="glow"></span>
                 <a class="accordion-toggle collapsed{% if issues_filter.objects.current_labels %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-labels">
                     Labels
-                    <i class="icon-caret-down"></i>
+                    <i class="fa fa-caret-down"></i>
                     {% if issues_filter.objects.current_labels %}
                         {% attributes_for_list issues_filter.objects.current_labels "name" as current_label_names %}
                             <span class="selection">{{ current_label_names|join:", " }}</span>
                         </a>
-                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="icon-remove"> </i>
+                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="fa fa-times"> </i>
                     {% endif %}
                 </a>
                 <ul id="filter-labels" class="collapse filter-labels">

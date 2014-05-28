@@ -167,6 +167,9 @@
         margin-right: 5px;
         line-height: 24px;
         cursor: default;
+        i {
+            margin-right: 2px;
+        }
     }
     .issue-item-assignee {
         @extend %issue-assignee;

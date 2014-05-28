@@ -9,7 +9,7 @@
                 <div class="span4">
                     <div class="action-nav-button">
                         <a href="{{ assigned_url }}?state=open" title="Assigned to you">
-                            <i class="icon-file-alt"></i>
+                            <i class="fa fa-file-text-o"></i>
                             <span>Open assigned to you</span>
                         </a>
                         {% with count=counters.assigned %}
@@ -23,7 +23,7 @@
             <div class="span4{% if not counters.assigned and counters.assigned != 0 %} offset2{% endif %}">
                 <div class="action-nav-button">
                     <a href="{{ createdy_url }}?state=open" title="Created by you">
-                        <i class="icon-file-alt"></i>
+                        <i class="fa fa-file-text-o"></i>
                         <span>Open created by you</span>
                     </a>
                     {% with count=counters.created %}
@@ -36,7 +36,7 @@
             <div class="span4">
                 <div class="action-nav-button">
                     <a href="{{ createdy_url }}?state=open&amp;pr=yes" title="Your pull requests">
-                        <i class="icon-upload-alt"></i>
+                        <i class="fa fa-file-code-o"></i>
                         <span>Your open pull requests</span>
                     </a>
                     {% with count=counters.prs %}
@@ -53,39 +53,39 @@
             <div class="span4">
                 <div class="action-nav-button">
                     <a href="{{ issues_url }}?state=open" title="All open issues">
-                        <i class="icon-file-alt"></i>
+                        <i class="fa fa-file-text-o"></i>
                         <span>All open</span>
                     </a>
                     {% with count=counters.all %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
                     {% endwith %}
-                    <span class="label left"><i class="icon-group"></i></span>
+                    <span class="label left"><i class="fa fa-users"></i></span>
                 </div>
             </div>
 
             <div class="span4">
                 <div class="action-nav-button">
                     <a href="{{ current_repository|base_url_issues_filtered_by_assigned:'none' }}?state=open" title="All open and not assigned issues">
-                        <i class="icon-file-alt"></i>
+                        <i class="fa fa-file-text-o"></i>
                         <span>All open not assigned</span>
                     </a>
                     {% with count=counters.all_na %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
                     {% endwith %}
-                    <span class="label left"><i class="icon-group"></i></span>
+                    <span class="label left"><i class="fa fa-users"></i></span>
                 </div>
             </div>
 
             <div class="span4">
                 <div class="action-nav-button">
                     <a href="{{ issues_url }}?state=open&amp;pr=yes" title="All open pull requests">
-                        <i class="icon-upload-alt"></i>
+                        <i class="fa fa-file-code-o"></i>
                         <span>All open pull requests</span>
                     </a>
                     {% with count=counters.all_prs %}
                         <span class="label label-{% if count > 10 %}important{% elif count > 5 %}warning{% elif count %}info{% else %}success{% endif %}">{{ count }}</span>
                     {% endwith %}
-                    <span class="label left"><i class="icon-group"></i></span>
+                    <span class="label left"><i class="fa fa-users"></i></span>
                 </div>
             </div>
 

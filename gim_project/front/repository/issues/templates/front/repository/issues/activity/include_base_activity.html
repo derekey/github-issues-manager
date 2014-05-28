@@ -7,7 +7,7 @@
             {% with github_url=comment.github_url %}
                 {% if comment and comment.created_at %}
                     <{% if github_url %}a href="{{ github_url }}" target="_blank"{% else %}span{% endif %} class="time" title="{{ comment.created_at|date:"DATETIME_FORMAT" }}">
-                        <i class="icon-time"></i><span>{{ comment.created_at|ago }}</span>
+                        <i class="fa fa-clock-o"></i><span>{{ comment.created_at|ago }}</span>
                     </{% if github_url %}a{% else %}span{% endif %}>{% endif %}
             {% endwith %}
         {% endblock %}

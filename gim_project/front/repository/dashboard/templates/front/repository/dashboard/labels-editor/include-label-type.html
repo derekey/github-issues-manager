@@ -19,9 +19,9 @@
             <ul class="box-toolbar">
                 <li class="btn-edit-label-type">
                     {% if label_type %}
-                        <a class="btn btn-blue btn-loading" href="{{ label_type.get_edit_url }}">Edit <i class='icon-spinner icon-spin'> </i></a>
+                        <a class="btn btn-blue btn-loading" href="{{ label_type.get_edit_url }}">Edit <i class='fa fa-spinner fa-spin'> </i></a>
                     {% else %}
-                        <a class="btn btn-blue btn-loading" href="{{ label_type_create_url }}">Add a group <i class='icon-spinner icon-spin'> </i></a>
+                        <a class="btn btn-blue btn-loading" href="{{ label_type_create_url }}">Add a group <i class='fa fa-spinner fa-spin'> </i></a>
                     {% endif %}
                 </li>
             </ul>

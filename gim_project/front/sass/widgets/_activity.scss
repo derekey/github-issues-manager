@@ -33,7 +33,7 @@
                     }
                 }
             }
-            i.icon-upload-alt {
+            i.fa-code {
                 float: right;
                 margin-right: 15px;
                 margin-left: 10px;
@@ -50,19 +50,46 @@
             & > li {
                 margin-top: 5px;
                 margin-bottom: 5px;
-                & > p {
-                    margin: 0;
-                    & > span[data-toggle=collapse] {
-                        @extend %toggle;
-                        margin-left: 5px;
-                        position: relative;
-                        top: -2px;
+                & > .box-content {
+                    margin-right: 45px;
+                    & > p {
+                        margin: 0;
+                        & > span[data-toggle=collapse] {
+                            @extend %toggle;
+                            margin-left: 5px;
+                            position: relative;
+                            top: -2px;
+                        }
+                    }
+                    & > blockquote {
+                        margin-top: 4px;
+                        margin-bottom: 2px;
+                        padding-left: 7px;
                     }
                 }
-                & > blockquote {
-                    margin-top: 4px;
-                    margin-bottom: 2px;
-                    padding-left: 7px;
+            }
+        }
+    }
+    .fa-stack {
+        position: absolute;
+        right: 10px;
+        margin-top: -3px;
+        color: #2c596d;
+        .fa-code-fork {
+            color: #ccc;
+            ~ .fa {
+                opacity: 0.8;
+            }
+        }
+        .fa-file-text-o, .fa-file-code-o {
+            color: #ddd;
+        }
+        .fa-quote-left {
+            color: #ddd;
+            ~ .fa {
+                opacity: 0.8;
+                &.fa-file-text-o, &.fa-file-code-o {
+                    color: inherit;
                 }
             }
         }
@@ -79,7 +106,7 @@
         }
         i {
             font-size: inherit;
-            &.icon-spinner {
+            &.fa-spinner {
                 position: relative;
                 top: 2px;
             }

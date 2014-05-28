@@ -7,13 +7,13 @@
     <ul class="nav">
         <li{% if view.url_name == "front:dashboard:home" %} class="active"{% endif %}>
             <a role="menuitem" href="{% url "front:dashboard:home" %}">
-                <i class="icon-dashboard"> </i>
+                <i class="fa fa-tachometer"> </i>
                 Dashboard
             </a>
         </li>
         <li{% if view.url_name == "front:dashboard:repositories:choose" %} class="active"{% endif %}>
             <a role="menuitem" href="{% url "front:dashboard:repositories:choose" %}">
-                <i class="icon-ok-sign"> </i>
+                <i class="fa fa-check-circle"> </i>
                 Subscriptions
             </a>
         </li>

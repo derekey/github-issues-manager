@@ -2,17 +2,17 @@
 {% static 'front/img/default-avatar.png' as default_avatar %}
 {% if current_issue %}
     <nav class="issue-nav dropdown">
-        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="icon-reorder"> </i></button>
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"> </i></button>
         <ul class="dropdown-menu pull-right" role="menu" aria-label="Issue menu">
-            <li><a href="#" class="refresh-issue"><i class="icon-refresh"> </i> Refresh issue</a></li>
+            <li><a href="#" class="refresh-issue"><i class="fa fa-refresh fa-fw"> </i> Refresh issue</a></li>
             {% if current_issue.number %}
-                <li><a href="#" class="force-refresh-issue"><i class="icon-refresh"> </i> Update from github</a></li>
+                <li><a href="#" class="force-refresh-issue"><i class="fa fa-refresh fa-fw"> </i> Update from github</a></li>
             {% endif %}
             <li class="divider"></li>
-            <li><a href="#" class="resize-issue"><i class="icon-fullscreen"> </i> Toggle full screen</a></li>
+            <li><a href="#" class="resize-issue"><i class="fa fa-arrows-alt fa-fw"> </i> Toggle full screen</a></li>
             {% if current_issue.number %}
                 <li class="divider"></li>
-                <li><a href="{{ current_issue.github_url }}" target='_blank' class="view-on-github"><i class="icon-github"> </i> View on Github</a></li>
+                <li><a href="{{ current_issue.github_url }}" target='_blank' class="view-on-github"><i class="fa fa-github fa-fw"> </i> View on Github</a></li>
             {% endif %}
         </ul>
     </nav>
@@ -29,7 +29,7 @@
                         {{ current_issue.title }}
                     </span>
                     {% if current_issue.number %}</a>{% endif %}
-                    {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'title' }}" class="issue-edit-btn issue-edit-btn-title btn-loading" data-field="title" title="Edit the title"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                    {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'title' }}" class="issue-edit-btn issue-edit-btn-title btn-loading" data-field="title" title="Edit the title"><i class="fa fa-edit"> </i><i class='fa fa-spinner fa-spin'> </i></a>{% endif %}
                 </h3>
             </header>
             <section>
@@ -43,25 +43,25 @@
                         {% endif %}
                     {% endif %}
                 {% endif %}
-                {% if current_issue.is_pull_request %}<i class="icon-upload-alt issue-pull-request" title="It's a pull-request"> </i>{% endif %}
+                {% if current_issue.is_pull_request %}<i class="fa fa-code issue-pull-request" title="It's a pull-request"> </i>{% endif %}
                 {% if current_issue.milestone or current_issue_edit_level == 'full' %}
                     <div class="issue-milestone{% if not current_issue.milestone %} no-milestone{% endif %} edit-place" data-field="milestone">
                         {% if current_issue.milestone %}
-                            <i class="icon-tasks text-{{ current_issue.milestone.state }}" title="{{ current_issue.milestone.state|capfirst }} milestone{% if current_issue.milestone.state == 'open' and current_issue.milestone.due_on %}, due on {{ current_issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </i> Milestone: <strong>{{ current_issue.milestone.title|truncatechars:30 }}</strong>
+                            <i class="fa fa-tasks text-{{ current_issue.milestone.state }}" title="{{ current_issue.milestone.state|capfirst }} milestone{% if current_issue.milestone.state == 'open' and current_issue.milestone.due_on %}, due on {{ current_issue.milestone.due_on|date:'DATE_FORMAT' }} {% endif %}"> </i> Milestone: <strong>{{ current_issue.milestone.title|truncatechars:30 }}</strong>
                         {% else %}
-                            <i class="icon-tasks"> </i> No milestone
+                            <i class="fa fa-tasks"> </i> No milestone
                         {% endif %}
-                        {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'milestone' }}" class="issue-edit-btn issue-edit-btn-milestone btn-loading" data-field="milestone" title="Edit the milestone"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                        {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'milestone' }}" class="issue-edit-btn issue-edit-btn-milestone btn-loading" data-field="milestone" title="Edit the milestone"><i class="fa fa-edit"> </i><i class='fa fa-spinner fa-spin'> </i></a>{% endif %}
                     </div>
                 {% endif %}
                 {% if current_issue.assignee or current_issue_edit_level == 'full' %}
                     <div class="issue-assignee{% if not current_issue.assignee %} no-assignee{% endif %} edit-place" data-field="assignee">
                         {% if current_issue.assignee %}
-                            <i class="icon-hand-right"> </i>&nbsp;<img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" /> Assigned to <strong>{{ current_issue.assignee.username }}</strong>
+                            <i class="fa fa-hand-o-right"> </i>&nbsp;<img class="avatar-tiny img-circle" src="{{ current_issue.assignee.avatar_url|default:default_avatar }}" /> Assigned to <strong>{{ current_issue.assignee.username }}</strong>
                         {% else %}
-                            <i class="icon-hand-right"> </i> No one assigned
+                            <i class="fa fa-hand-o-right"> </i> No one assigned
                         {% endif %}
-                        {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'assignee' }}" class="issue-edit-btn issue-edit-btn-assignee btn-loading" data-field="assignee" title="Edit the assignee"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                        {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'assignee' }}" class="issue-edit-btn issue-edit-btn-assignee btn-loading" data-field="assignee" title="Edit the assignee"><i class="fa fa-edit"> </i><i class='fa fa-spinner fa-spin'> </i></a>{% endif %}
                     </div>
                 {% endif %}
             </section>
@@ -85,7 +85,7 @@
                                     <li style="border: none">No labels</li>
                                 {% endif %}
                             </ul>
-                            {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'labels' }}" class="issue-edit-btn issue-edit-btn-labels btn-loading" data-field="labels" title="Edit the labels"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                            {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'labels' }}" class="issue-edit-btn issue-edit-btn-labels btn-loading" data-field="labels" title="Edit the labels"><i class="fa fa-edit"> </i><i class='fa fa-spinner fa-spin'> </i></a>{% endif %}
                         </div>
                     {% endif %}
                 {% endwith %}
@@ -94,7 +94,7 @@
                         <div>
                             {% if current_issue.total_comments_count %}
                                 <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
-                                    <i class="icon-comments-alt"> </i> {{ current_issue.total_comments_count }}
+                                    <i class="fa fa-comments-o"> </i> {{ current_issue.total_comments_count }}
                                 </a>
                             {% endif %}
                             {% if current_issue_involved|length > 1 %}
@@ -114,10 +114,10 @@
                 {% if current_issue.is_pull_request %}
                     {% if current_issue.pr_fetched_at %}
                         <ul class="unstyled">
-                            <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="icon-pencil"></i> {{ current_issue.nb_commits }}</li>
-                            <li class="label label-green" title="{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}"><i class="icon-plus"></i> {{ current_issue.nb_additions }}</li>
-                            <li class="label label-red" title="{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}"><i class="icon-minus"></i> {{ current_issue.nb_deletions }}</li>
-                            <li class="label label-black" title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="icon-file"></i> {{ current_issue.nb_changed_files }}</li>
+                            <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="fa fa-git-square"></i> {{ current_issue.nb_commits }}</li>
+                            <li class="label label-green" title="{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}"><i class="fa fa-plus"></i> {{ current_issue.nb_additions }}</li>
+                            <li class="label label-red" title="{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}"><i class="fa fa-minus"></i> {{ current_issue.nb_deletions }}</li>
+                            <li class="label label-black" title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="fa fa-file-o"></i> {{ current_issue.nb_changed_files }}</li>
                         </ul>
                     {% endif %}
                     <div>Pull request from <strong>{{ current_issue.head_label|default:current_issue.user.username }}</strong></div>
@@ -162,7 +162,7 @@
         {% endif %}
             <div class="content issue-body{% if not current_issue.body %} empty{% endif %} edit-place" data-field="body">
                 {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this {{ current_issue.type }} !{% endif %}
-                {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'body' }}" class="issue-edit-btn issue-edit-btn-body btn-loading" data-field="body" title="Edit the body"><i class="icon-edit"> </i><i class='icon-spinner icon-spin'> </i></a>{% endif %}
+                {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'body' }}" class="issue-edit-btn issue-edit-btn-body btn-loading" data-field="body" title="Edit the body"><i class="fa fa-edit"> </i><i class='fa fa-spinner fa-spin'> </i></a>{% endif %}
             </div>
             {% if current_issue.number %}
             <aside>
@@ -215,7 +215,7 @@
                     <div class="content empty">
                         Loading commits...
                     </div>
-                    <p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>
+                    <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
                 {% else %}
                     {% include "front/repository/issues/commits/include_issue_commits.html" %}
                 {% endif %}
@@ -225,7 +225,7 @@
                     <div class="content empty">
                         Loading {% if current_issue.nb_additions|add:current_issue.nb_deletions > 500 or current_issue.nb_changed_files > 20 %} big{% endif %}diff...
                     </div>
-                    <p class="empty-area"><i class="icon-spinner icon-spin"> </i></p>
+                    <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
                 {% else %}
                     {% include "front/repository/issues/code/include_issue_files.html" %}
                 {% endif %}

@@ -7,8 +7,8 @@
     {% endfor %}
     {% block buttons %}
     <div class="edit-buttons">{% spaceless %}
-        <button type="submit" class="btn btn-blue btn-loading btn-save" title="Save">{% block save_btn %}<i class="icon-ok"> </i>{% endblock save_btn %}<i class='icon-spinner icon-spin'> </i></button>
-        <button type="button" class="btn btn-default btn-loading btn-cancel" title="Cancel">{% block cancel_btn %}<i class="icon-remove"> </i>{% endblock cancel_btn %}<i class='icon-spinner icon-spin'> </i></button>
+        <button type="submit" class="btn btn-blue btn-loading btn-save" title="Save">{% block save_btn %}<i class="fa fa-check"> </i>{% endblock save_btn %}<i class='fa fa-spinner fa-spin'> </i></button>
+        <button type="button" class="btn btn-default btn-loading btn-cancel" title="Cancel">{% block cancel_btn %}<i class="fa fa-times"> </i>{% endblock cancel_btn %}<i class='fa fa-spinner fa-spin'> </i></button>
     {% endspaceless %}</div>
     {% endblock buttons %}
 </form>
