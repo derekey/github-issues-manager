@@ -18,7 +18,7 @@
     </div>{# .box-header #}
     <div class="box-content">
         {% if milestones|length %}
-            {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:'*' non_assigned_url=current_repository|base_url_issues_filtered_by_assigned:'none' issues_url=current_repository|repository_view_url:'issues' %}
+            {% with assigned_url=current_repository|base_url_issues_filtered_by_assigned:'__any__' non_assigned_url=current_repository|base_url_issues_filtered_by_assigned:'__none__' issues_url=current_repository|repository_view_url:'issues' %}
                 {% for milestone in milestones %}
                     <div class="box-section">
                         <a href="#" title="[{{ milestone.state|capfirst }}] Click to view details" data-toggle="collapse" data-target="#milestone-{{ milestone.id}}-details" data-parent="#milestones" class="collapsed"><h3><i class="fa fa-tasks text-{{ milestone.state }}" title="{{ milestone.state|capfirst }} milestone"> </i> {{ milestone.title }}</h3></a>
