@@ -82,6 +82,14 @@ $counters-small-height: 154px;
             margin: -10px 0 15px;
             float: left;
         }
+        & .github-link {
+            color: #ccc;
+            position: relative;
+            top: 5px;
+            margin-left: 1ex;
+            opacity: 0;
+            @include transition(opacity 0.35s);
+        }
         & > a[data-toggle=collapse] {
             overflow: auto;
             & > h3 {
@@ -105,6 +113,9 @@ $counters-small-height: 154px;
                     span {
                         opacity: 1;
                     }
+                }
+                & ~ a.github-link {
+                    opacity: 1;
                 }
             }
         }
