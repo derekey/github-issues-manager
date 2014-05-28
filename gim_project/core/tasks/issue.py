@@ -32,6 +32,7 @@ class FetchIssueByNumber(Job):
     queue_name = 'fetch-issue-by-number'
     deleted = fields.InstanceHashField()
     force_fetch = fields.InstanceHashField()  # will only force the issue/pr api call
+    force_fetch_all = fields.InstanceHashField()  # will be used for fetch_all
     users_to_inform = fields.SetField()
 
     permission = 'read'
@@ -70,16 +71,18 @@ class FetchIssueByNumber(Job):
             issue = Issue(repository=repository, number=issue_number)
 
         force_fetch = self.force_fetch.hget() == '1'
+        force_fetch_all = self.force_fetch_all.hget() == '1'
         try:
             # prefetch full data if wanted
-            if force_fetch:
+            if force_fetch and not force_fetch_all:
                 if repository.has_issues:
                     issue.fetch(gh, force_fetch=True)
                 if issue.is_pull_request:
                     issue.fetch_pr(gh, force_fetch=True)
 
             # now the normal fetch, if we previously force fetched they'll result in 304
-            issue.fetch_all(gh)
+            # except if force_fetch_all
+            issue.fetch_all(gh, force_fetch=force_fetch_all)
         except ApiNotFoundError, e:
             # we have a 404, but... check if it's the issue itself
             try:
@@ -112,8 +115,14 @@ class FetchIssueByNumber(Job):
         return True
 
     def success_message_addon(self, queue, result):
+        result = ''
+        if self.force_fetch_all.hget() == '1':
+            result += ' [force_fetch=all]'
+        elif self.force_fetch.hget() == '1':
+            result += ' [force_fetch=1]'
         if result is False:
-            return ' [deleted]'
+            result += ' [deleted]'
+        return result
 
 
 class IssueJob(DjangoModelJob):

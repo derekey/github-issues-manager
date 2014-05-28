@@ -804,6 +804,7 @@ class AskFetchIssueView(WithAjaxRestrictionViewMixin, IssueView):
                     priority=5,  # higher priority
                     gh=self.request.user.get_connection(),
                     users_to_inform=users_to_inform,
+                    force_fetch_all=1,
             )
             # we may already have this job queued
             if user_pk_str in job.users_to_inform.smembers():
