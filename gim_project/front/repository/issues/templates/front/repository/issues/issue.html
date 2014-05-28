@@ -43,7 +43,7 @@
                         {% endif %}
                     {% endif %}
                 {% endif %}
-                {% if current_issue.is_pull_request %}<i class="fa fa-upload issue-pull-request" title="It's a pull-request"> </i>{% endif %}
+                {% if current_issue.is_pull_request %}<i class="fa fa-code issue-pull-request" title="It's a pull-request"> </i>{% endif %}
                 {% if current_issue.milestone or current_issue_edit_level == 'full' %}
                     <div class="issue-milestone{% if not current_issue.milestone %} no-milestone{% endif %} edit-place" data-field="milestone">
                         {% if current_issue.milestone %}
@@ -114,7 +114,7 @@
                 {% if current_issue.is_pull_request %}
                     {% if current_issue.pr_fetched_at %}
                         <ul class="unstyled">
-                            <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="fa fa-pencil"></i> {{ current_issue.nb_commits }}</li>
+                            <li class="label label-blue" title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="fa fa-git-square"></i> {{ current_issue.nb_commits }}</li>
                             <li class="label label-green" title="{{ current_issue.nb_additions }} addition{{ current_issue.nb_additions|pluralize }}"><i class="fa fa-plus"></i> {{ current_issue.nb_additions }}</li>
                             <li class="label label-red" title="{{ current_issue.nb_deletions }} deletion{{ current_issue.nb_deletions|pluralize }}"><i class="fa fa-minus"></i> {{ current_issue.nb_deletions }}</li>
                             <li class="label label-black" title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="fa fa-file-o"></i> {{ current_issue.nb_changed_files }}</li>

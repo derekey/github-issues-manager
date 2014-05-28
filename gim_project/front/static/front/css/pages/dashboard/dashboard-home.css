@@ -2080,7 +2080,7 @@ table.commits-list td.cell-sha {
   color: #b35d5d;
 }
 /* line 36, ../../../../../sass/widgets/_activity.scss */
-.activity-feed .box-section h3 i.fa-upload {
+.activity-feed .box-section h3 i.fa-code {
   float: right;
   margin-right: 15px;
   margin-left: 10px;

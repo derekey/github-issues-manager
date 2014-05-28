@@ -33,7 +33,7 @@
             <div class="box-section" data-number="{{ entry.issue.number }}" data-repository="{{ entry.issue.repository.full_name }}">
                 <h3>
                     <a href="{{ entry.issue.get_absolute_url }}">
-                        {% if entry.issue.is_pull_request %}<i class="fa fa-upload" title="It's a pull request"> </i> {% endif %}
+                        {% if entry.issue.is_pull_request %}<i class="fa fa-code" title="It's a pull request"> </i> {% endif %}
                         <span class="{{ entry.issue.state }}" title="{{ entry.issue.state }}">#{{ entry.issue.number }}</span>
                         <span style="margin-left:{{ entry.issue.number|slugify|length|add:2 }}ex">{{ entry.issue.title }}</span>
                     </a>
