@@ -712,10 +712,17 @@ class LabelTypeManager(models.Manager):
     to quickly return label type and typed name for a label.
     """
     _name_cache = {}
-    AUTO_ORDERED_TYPE_FIND_RE = re.compile(r'^(.*)(\s*)([:#_\-])(\s*)(\d+)(\s*)([:#_\-])(\s*)(.*)$')
-    AUTO_ORDERED_TYPE_FORMAT = '%s%s%s%s{order}%s%s%s{label}'
-    AUTO_TYPE_FIND_RE = re.compile(r'^(.*)(\s*)([:#_\-])(\s*)(.*)$')
-    AUTO_TYPE_FORMAT = '%s%s%s%s{label}'
+
+    AUTO_TYPES = [
+        (
+            re.compile('^(?P<type_name>.*)(?P<sep1>\s*[:#_\-]\s*)(?P<order>\d+)(?P<sep2>\s*[:#_\-]\s*)(?P<label>.*)$'),
+            '%(type_name)s%(sep1)s{order}%(sep2)s{label}'
+        ),
+        (
+            re.compile('^(?P<type_name>.*)(?P<sep1>\s*[:#_\-]\s*)(?P<label>.*)$'),
+            '%(type_name)s%(sep1)s{label}'
+        ),
+    ]
 
     def _reset_cache(self, repository):
         """
@@ -742,22 +749,21 @@ class LabelTypeManager(models.Manager):
 
             # try to add an automatic group
             if found_label_type is None:
-                match = self.AUTO_ORDERED_TYPE_FIND_RE.match(name)
-                if match:
-                    type_name, spaces1, sep1, spaces2, number, spaces3, sep2, spaces4, label = match.groups()
-                    format_string = self.AUTO_ORDERED_TYPE_FORMAT % (type_name, spaces1, sep1, spaces2, spaces3, sep2, spaces4)
-                else:
-                    match = self.AUTO_TYPE_FIND_RE.match(name)
+                for auto_find_re, auto_format in self.AUTO_TYPES:
+                    match = auto_find_re.match(name)
                     if match:
-                        type_name, spaces1, sep, spaces2, label = match.groups()
-                        format_string = self.AUTO_TYPE_FORMAT % (type_name, spaces1, sep, spaces2)
-                if match:
-                    found_label_type = repository.label_types.create(
-                        name=type_name.capitalize(),
-                        edit_mode=self.model.LABELTYPE_EDITMODE.FORMAT,
-                        edit_details={'format_string': format_string},
-                        regex=self.model.regex_from_format(format_string)
-                    )
+                        parts = match.groupdict()
+                        format_string = auto_format % parts
+
+                        found_label_type = repository.label_types.create(
+                            name=parts['type_name'].capitalize(),
+                            edit_mode=self.model.LABELTYPE_EDITMODE.FORMAT,
+                            edit_details={'format_string': format_string},
+                            regex=self.model.regex_from_format(format_string)
+                        )
+
+                        # stop the loop, we found what we wanted
+                        break
 
             result = None
             if found_label_type:
