@@ -45,6 +45,13 @@ class GithubObjectManager(models.Manager):
         return self.get_query_set().exclude(
                         github_status__in=self.model.GITHUB_STATUS_NOT_READY)
 
+    def exclude_deleting(self):
+        """
+        Ignore all objects that are in the process of being deleted
+        """
+        return self.get_query_set().exclude(
+                        github_status=self.model.GITHUB_STATUS_CHOICES.WAITING_DELETE)
+
     def get_github_callable(self, gh, identifiers):
         """
         Return the github callable object for the given identifiers.
@@ -705,8 +712,34 @@ class LabelTypeManager(models.Manager):
     to quickly return label type and typed name for a label.
     """
     _name_cache = {}
-    AUTO_TYPE_FIND_RE = re.compile(r'^(.*)(\s*):(\s*)(.*)$')
-    AUTO_TYPE_FORMAT = '%s%s:%s{label}'
+
+    AUTO_TYPES = [
+        (
+            # Workflow - 1 - Assigned
+            re.compile('^(?P<type_name>.+?)(?P<sep1>\s*[:#_\-]\s*)(?P<order>\d+)(?P<sep2>\s*[:#_\-]\s*)(?P<label>.+)$'),
+            '%(type_name)s%(sep1)s{order}%(sep2)s{label}'
+        ),
+        (
+            # [1] Workflow : Assigned
+            re.compile('^(?P<sep1>[\[\(\{\-\.]?\s*)(?P<order>\d+)(?P<sep2>\s*[:#_\-\]\)\}\-\.]\s*)(?P<type_name>.+?)(?P<sep3>\s*[:#_\-]\s*)(?P<label>.+)$'),
+            '%(sep1)s{order}%(sep2)s%(type_name)s%(sep3)s{label}'
+        ),
+        (
+            # [Workflow] #2 Assigned
+            re.compile('^(?P<sep1>[\[\(\{\-\.]?\s*)(?P<type_name>[^\[\(\{\]\)\}]+?)(?P<sep2>[\]\)\}\-\.]\s*)(?P<sep3>\s*[:#_\-]\s*)(?P<order>\d+)(?P<sep4>\s*[:#_\-]?\s*)(?P<label>.+)$'),
+            '%(sep1)s%(type_name)s%(sep2)s%(sep3)s{order}%(sep4)s{label}'
+        ),
+        (
+            # Workflow - Assigned
+            re.compile('^(?P<type_name>.+?)(?P<sep1>\s*[:#_\-]\s*)(?P<label>.+)$'),
+            '%(type_name)s%(sep1)s{label}'
+        ),
+        (
+            # [Workflow] Assigned
+            re.compile('^(?P<sep1>[\[\(\{\-\.]?\s*)(?P<type_name>.+?)(?P<sep2>[\]\)\}\-\.]\s*)(?P<label>.+)$'),
+            '%(sep1)s%(type_name)s%(sep2)s{label}'
+        ),
+    ]
 
     def _reset_cache(self, repository):
         """
@@ -733,16 +766,21 @@ class LabelTypeManager(models.Manager):
 
             # try to add an automatic group
             if found_label_type is None:
-                match = self.AUTO_TYPE_FIND_RE.match(name)
-                if match:
-                    type_name, spaces1, spaces2, label = match.groups()
-                    format_string = self.AUTO_TYPE_FORMAT % (type_name, spaces1, spaces2)
-                    found_label_type = repository.label_types.create(
-                        name=type_name.capitalize(),
-                        edit_mode=self.model.LABELTYPE_EDITMODE.FORMAT,
-                        edit_details={'format_string': format_string},
-                        regex=self.model.regex_from_format(format_string)
-                    )
+                for auto_find_re, auto_format in self.AUTO_TYPES:
+                    match = auto_find_re.match(name)
+                    if match:
+                        parts = match.groupdict()
+                        format_string = auto_format % parts
+
+                        found_label_type = repository.label_types.create(
+                            name=parts['type_name'].capitalize(),
+                            edit_mode=self.model.LABELTYPE_EDITMODE.FORMAT,
+                            edit_details={'format_string': format_string},
+                            regex=self.model.regex_from_format(format_string)
+                        )
+
+                        # stop the loop, we found what we wanted
+                        break
 
             result = None
             if found_label_type:
