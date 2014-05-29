@@ -42,7 +42,7 @@
         {% endifchanged %}
     {% endif %}
     {% with model=entry|model %}
-        <li class="arrow-box-left" data-ident="{{ entry.activity_identifier }}"{% if entry.activity_score %} data-score="{{ entry.activity_score }}"{% endif %}>
+        <li class="arrow-box-left model-{{ model }}{% if model == 'Event' %}-{% if entry.is_update %}update{% else %}create{% endif %}{% elif model == 'IssueEvent' %}-{{ entry.event }}{% endif %}" data-ident="{{ entry.activity_identifier }}"{% if entry.activity_score %} data-score="{{ entry.activity_score }}"{% endif %}>
         {% if model == 'Event' %}
             <div class="info">
                 {% if entry.is_update %}
@@ -61,7 +61,7 @@
                 {% if entry.is_update %}
                     <span class="fa-stack">
                         <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
-                        <i class="fa fa-pencil-square fa-stack-1x text-update"></i>
+                        <i class="fa fa-pencil-square fa-stack-1x"></i>
                     </span>
                 {% else %}
                     <span class="fa-stack">
@@ -154,7 +154,7 @@
             {% elif entry.event == 'reopened' %}
                 <span class="fa-stack">
                     <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
-                    <i class="fa fa-adjust fa-stack-1x" text-open></i>
+                    <i class="fa fa-square-o fa-stack-1x text-open"></i>
                 </span>
                 <p class="box-content">Reopened this {{ entry.issue.type }}</p>
             {% elif entry.event == 'assigned' %}

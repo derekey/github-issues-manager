@@ -21,6 +21,14 @@ $().ready(function() {
             return decorator;
         }), // stop_event_decorate
 
+        cancel: (function cancel(e) {
+            /* A simple callback to use to simply cancel an event
+            */
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }), // cancel
+
         stop_event_decorate_dropdown: (function stop_event_decorate_dropdown(callback) {
             /* Return a function to use as a callback for clicks on dropdown items
                It will close the dropwdown before calling the callback, and will
@@ -2627,7 +2635,9 @@ $().ready(function() {
                 issues: '.box-section',
                 repositories: '.activity-repository'
             },
-            find_empty: ':not(:has(.chat-box > li))'
+            find_empty: ':not(:has(.chat-box > li))',
+            filter_checkboxes: '.activity-filter input',
+            filter_links: '.activity-filter a'
         },
 
         on_issue_link_click: (function Activity__on_issue_link_click () {
@@ -2852,6 +2862,19 @@ $().ready(function() {
             return false;
         }), // on_more_button_click
 
+        on_filter_change: (function Activity__on_filter_change (ev) {
+            var $checkbox = $(this).closest('a').find('input'),  // works if ev on A or INPUT
+                klass = 'hide-' + $checkbox.attr('name'),
+                checked = $checkbox.is(':checked');
+            $checkbox.closest('.activity-feed').toggleClass(klass, !checked);
+            return false;
+        }), // on_filter_change
+
+        on_filter_link_click: (function on_filter_link_click (ev) {
+            // avoid propagation to boostrap dropdown which would close the dropdown
+            ev.stopPropagation();
+        }), // on_filter_link_click
+
         init_feeds: (function Activity__init_feeds () {
             setInterval(function() {
                 var $feeds = $(Activity.selectors.main);
@@ -2865,6 +2888,8 @@ $().ready(function() {
             $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.issue_link, Ev.stop_event_decorate(Activity.on_issue_link_click));
             $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.buttons.refresh, Ev.stop_event_decorate(Activity.on_refresh_button_click));
             $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.buttons.more, Ev.stop_event_decorate(Activity.on_more_button_click));
+            $document.on('click', Activity.selectors.main + ' ' + Activity.selectors.filter_links, Ev.stop_event_decorate(Activity.on_filter_link_click));
+            $document.on('change', Activity.selectors.main + ' ' + Activity.selectors.filter_checkboxes, Ev.stop_event_decorate(Activity.on_filter_change));
         }), // init_events
 
         init: (function Activity__init () {
