@@ -177,30 +177,38 @@ class TypedLabelEditForm(LabelEditForm):
         super(TypedLabelEditForm, self).__init__(*args, **kwargs)
         self.fields['typed_name'].validators = [self.label_name_validator]
 
+    def clean_label_type(self):
+        label_type = self.cleaned_data.get('label_type')
+        if (
+                not label_type
+                or
+                label_type.repository_id != self.repository.id
+                or self.instance and label_type.id != self.instance.label_type_id
+            ):
+            raise forms.ValidationError('Impossible to save this label')
+        return label_type
+
     def clean(self):
         cleaned_data = super(TypedLabelEditForm, self).clean()
 
-        # cannot change label type
-        if self.instance and self.instance.label_type:
-            cleaned_data['label_type'] = self.instance.label_type
+        label_type = cleaned_data.get('label_type')
 
-        label_type = cleaned_data['label_type']
+        if label_type:  # if not, we are in error mode
+            if label_type.edit_mode == LABELTYPE_EDITMODE.REGEX:
+                raise forms.ValidationError('You cannot add a label directly to a "regex" group')
 
-        if label_type.edit_mode == LABELTYPE_EDITMODE.REGEX:
-            raise forms.ValidationError('You cannot add a label directly to a "regex" group')
+            if label_type.edit_mode == LABELTYPE_EDITMODE.FORMAT:
+                # try to get the full label name, will raise ValidationError if problem
+                cleaned_data['name'] = label_type.create_from_format(
+                    cleaned_data['typed_name'],
+                    cleaned_data.get('order')
+                )
 
-        if label_type.edit_mode == LABELTYPE_EDITMODE.FORMAT:
-            # try to get the full label name, will raise ValidationError if problem
-            cleaned_data['name'] = label_type.create_from_format(
-                cleaned_data['typed_name'],
-                cleaned_data.get('order')
-            )
-
-        else:  # label_type.edit_mode == LABELTYPE_EDITMODE.LIST:
-            cleaned_data['name'] = cleaned_data['typed_name']
-            # remember the name if changed to remove it from the list
-            if self.instance and self.instance.name != cleaned_data['name']:
-                self._old_label_name = self.instance.name
+            else:  # label_type.edit_mode == LABELTYPE_EDITMODE.LIST:
+                cleaned_data['name'] = cleaned_data['typed_name']
+                # remember the name if changed to remove it from the list
+                if self.instance and self.instance.name != cleaned_data['name']:
+                    self._old_label_name = self.instance.name
 
         return cleaned_data
 
