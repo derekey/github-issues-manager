@@ -41,7 +41,7 @@ class LinkedToRepositoryFormMixin(forms.ModelForm):
         try:
             self.instance.validate_unique(exclude=exclude)
         except forms.ValidationError as e:
-            self._update_errors(e.message_dict)
+            self._update_errors(e)
 
 
 class LinkedToIssueFormMixin(LinkedToRepositoryFormMixin):
@@ -76,4 +76,4 @@ class LinkedToIssueFormMixin(LinkedToRepositoryFormMixin):
         try:
             self.instance.validate_unique(exclude=exclude)
         except forms.ValidationError as e:
-            self._update_errors(e.message_dict)
+            self._update_errors(e)

@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DeleteView, DetailView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
+from django.utils.functional import cached_property
 
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
 
@@ -25,7 +26,7 @@ from front.activity.views import ActivityViewMixin
 from front.repository.views import BaseRepositoryView
 
 from .forms import (LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm,
-                    MilestoneEditForm, MilestoneCreateForm)
+                    TypedLabelEditForm, MilestoneEditForm, MilestoneCreateForm)
 
 
 class RepositoryDashboardPartView(DeferrableViewPart, SubscribedRepositoryViewMixin, DetailView):
@@ -252,7 +253,6 @@ class LabelsEditor(BaseRepositoryView):
         context.update({
             'label_types': label_types,
             'labels_without_type': self.repository.labels.exclude_deleting().order_by('lower_name').filter(label_type_id__isnull=True),
-            'all_labels': self.repository.labels.ready().order_by('lower_name').values_list('name', flat=True),
             'label_type_include_template': self.label_type_include_template,
         })
 
@@ -443,6 +443,22 @@ class LabelFormBaseView(LinkedToRepositoryFormViewMixin):
 
 class LabelEditBase(LabelFormBaseView):
     template_name = 'front/repository/dashboard/labels-editor/form-errors.html'
+
+    @cached_property
+    def is_typed_label(self):
+        return self.request.method in ('POST', 'PUT') and self.request.POST.get('label_type', None)
+
+    def get_form_class(self):
+        if self.is_typed_label:
+            return TypedLabelEditForm
+        return self.form_class
+
+    def get_form_kwargs(self):
+        kwargs = super(LabelEditBase, self).get_form_kwargs()
+        if self.is_typed_label:
+            kwargs['data'] = kwargs['data'].copy()
+            kwargs['data']['typed_name'] = kwargs['data']['name']
+        return kwargs
 
 
 class LabelEdit(LabelEditBase, UpdateView):

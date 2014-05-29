@@ -118,24 +118,34 @@ $().ready(function() {
         },
         init_popover: function($label) {
             $label.data('parent-title', $label.parent().attr('title'));
-            var name = escapeMarkup($label.data('name')),
+            var $type_node = $label.closest('.label-type'),
+                label_type_id = $type_node.data('label-type-id'),
+                display_order = label_type_id ? !!$type_node.data('has-order') : false,
+                name = escapeMarkup($label.data('name')),
                 color = $label.data('color'),
                 id = $label.data('id'),
+                order = display_order ? $label.data('order') || '' : '',
+                display_name = label_type_id ? $label.data('typed-name') || name : name,
                 content = LabelEditor.popover_options.content
-                            .replace('%(name)s', name)
-                            .replace('%(color)s', color);
+                            .replace('%(name)s', display_name)
+                            .replace('%(color)s', color)
+                            .replace('%(order)s', order)
+                            .replace('%(label_type_id)s', label_type_id || '');
             if (!id) {
                 content = content.replace('delete btn-loading', 'delete btn-loading hide');
                 content = content.replace('%(id)s', "");
             } else {
                 content = content.replace('%(id)s', id);
             }
+            if (display_order) {
+                content = content.replace('hide-order', 'show-order');
+            }
             $label.popover($.extend(
                 {},
                 LabelEditor.popover_options,
                 {
                     title: LabelEditor.popover_options.title
-                            .replace('%(name)s', name || '...')
+                            .replace('%(name)s', display_name || '...')
                             .replace('%(color)s', color),
                     content: content
                 }
@@ -147,13 +157,17 @@ $().ready(function() {
                 $popover = $label.next('.popover'),
                 $color_input = $popover.find('input[name=color]'),
                 $name_input = $popover.find('input[name=name]'),
-                $label_title = $popover.find('.popover-title strong');
+                $label_title = $popover.find('.popover-title strong'),
+                $to_focus = $name_input;
             $color_input.spectrum(LabelEditor.spectrum_options)
                         .data('label-title', $label_title);
-            $name_input.data('label-title', $label_title).focus();
+            if ($popover.find('form').hasClass('show-order')) {
+                $to_focus = $popover.find('input[name=order]');
+            }
+            $to_focus.focus();
             try {
                 // position the cursor at the end
-                var input = $name_input[0];
+                var input = $to_focus[0];
                 input.selectionStart = input.value.length;
             } catch(err) {}
         },
@@ -386,7 +400,13 @@ $().ready(function() {
             formatResult: function(state) { return LabelTypeForm.format_labels_list_select2(state); }
         },
         prepare_labels_list_select2: function() {
-            LabelTypeForm.labels_data = $('#id_labels_list').data('labels');
+            var labels = $('#id_labels_list').data('labels');
+            LabelTypeForm.labels_list_select2_options.tags = $.map(labels, function(value, key) { 
+                return key;
+            }).sort(function(a, b) {
+               return a.toLowerCase().localeCompare(b.toLowerCase());
+            });
+            LabelTypeForm.labels_data = labels;
             $('#id_labels_list').select2(LabelTypeForm.labels_list_select2_options);
         },
         update: function() {
@@ -513,8 +533,7 @@ $().ready(function() {
             LabelTypeForm.$modal_footer.on('click', '.cancel-deletion', LabelTypeForm.on_cancel_deletion);
             LabelTypeForm.$modal_footer.on('click', '.confirm-deletion', LabelTypeForm.on_confirm_deletion);
         },
-        init: function(labels) {
-            LabelTypeForm.labels_list_select2_options.tags = labels;
+        init: function() {
             LabelTypeForm.init_modal();
             $document.on('click', '.btn-edit-label-type a', LabelTypeForm.on_link_click);
             $document.on('submit', '#label-type-form', LabelTypeForm.on_form_submit);

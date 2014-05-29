@@ -1665,6 +1665,34 @@ class LabelType(models.Model):
         d = self.match(name).groupdict()
         return d['label'], d.get('order', None)
 
+    def create_from_format(self, typed_name, order=None):
+        """
+        If the current type has the mode "format", then we try to use the given
+        name and order to create a full label name
+        """
+        if self.edit_mode != self.LABELTYPE_EDITMODE.FORMAT:
+            raise ValidationError('Cannot create a typed label for this group mode')
+
+        result = self.edit_details['format_string']
+
+        if order and '{order}' not in result:
+            raise ValidationError('The order is not expected for this group')
+        elif not order and '{order}' in result:
+            raise ValidationError('An order is expected for this group')
+
+        typed_name = typed_name.strip()
+        if not typed_name:
+            raise ValidationError('A label name is expected for this group')
+
+        result = result.replace('{label}', typed_name)
+        if order:
+            result = result.replace('{order}', str(order))
+
+        if not self.match(result):
+            raise ValidationError('Impossible to create a label for this group with these values')
+
+        return result
+
     def save(self, *args, **kwargs):
         """
         Check validity, save the label-type, and apply label-type search for
@@ -1700,7 +1728,9 @@ class LabelType(models.Model):
 
     @staticmethod
     def regex_from_list(labels_list):
-        return '^(?P<label>%s)$' % u'|'.join(map(re.escape, labels_list.split(u',')))
+        if isinstance(labels_list, basestring):
+            labels_list = labels_list.split(u',')
+        return '^(?P<label>%s)$' % u'|'.join(map(re.escape, labels_list))
 
 
 class Label(WithRepositoryMixin, GithubObject):
@@ -1782,6 +1812,11 @@ class Label(WithRepositoryMixin, GithubObject):
             kwargs['update_fields'] += ['label_type', 'typed_name', 'order']
 
         super(Label, self).save(*args, **kwargs)
+
+    def unique_error_message(self, model_class, unique_check):
+        if unique_check == ('repository', 'name'):
+            return 'A label with this name already exists for this repository'
+        return super(Label, self).unique_error_message(model_class, unique_check)
 
 
 class Milestone(WithRepositoryMixin, GithubObjectWithId):
