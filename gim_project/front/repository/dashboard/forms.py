@@ -154,7 +154,8 @@ class LabelEditForm(LinkedToRepositoryFormMixin):
     def __init__(self, *args, **kwargs):
         super(LabelEditForm, self).__init__(*args, **kwargs)
 
-        self.fields['name'].validators = [self.label_name_validator]
+        if 'name' in self.fields:
+            self.fields['name'].validators = [self.label_name_validator]
         self.fields['color'].validators = [self.color_validator]
 
     def save(self, commit=True):
@@ -166,6 +167,68 @@ class LabelEditForm(LinkedToRepositoryFormMixin):
         else:
             self.instance.github_status = GITHUB_STATUS_CHOICES.WAITING_CREATE
         return super(LabelEditForm, self).save(commit)
+
+
+class TypedLabelEditForm(LabelEditForm):
+    class Meta(LabelEditForm.Meta):
+        fields = ('label_type', 'order', 'typed_name', 'color', 'name')
+
+    def __init__(self, *args, **kwargs):
+        super(TypedLabelEditForm, self).__init__(*args, **kwargs)
+        self.fields['typed_name'].validators = [self.label_name_validator]
+
+    def clean(self):
+        cleaned_data = super(TypedLabelEditForm, self).clean()
+
+        # cannot change label type
+        if self.instance and self.instance.label_type:
+            cleaned_data['label_type'] = self.instance.label_type
+
+        label_type = cleaned_data['label_type']
+
+        if label_type.edit_mode == LABELTYPE_EDITMODE.REGEX:
+            raise forms.ValidationError('You cannot add a label directly to a "regex" group')
+
+        if label_type.edit_mode == LABELTYPE_EDITMODE.FORMAT:
+            # try to get the full label name, will raise ValidationError if problem
+            cleaned_data['name'] = label_type.create_from_format(
+                cleaned_data['typed_name'],
+                cleaned_data.get('order')
+            )
+
+        else:  # label_type.edit_mode == LABELTYPE_EDITMODE.LIST:
+            cleaned_data['name'] = cleaned_data['typed_name']
+            # remember the name if changed to remove it from the list
+            if self.instance and self.instance.name != cleaned_data['name']:
+                self._old_label_name = self.instance.name
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        label = super(TypedLabelEditForm, self).save(commit=commit)
+
+        # manage the list of labels if we have this kind of label-type
+        label_type = self.cleaned_data['label_type']
+        if label_type.edit_mode == LABELTYPE_EDITMODE.LIST:
+            labels_list = label_type.edit_details['labels_list'].split(u',')
+            type_updated = False
+
+            # if the label changed its name, we remove the old one from the list
+            if hasattr(self, '_old_label_name') and self._old_label_name in labels_list:
+                labels_list.remove(self._old_label_name)
+                type_updated = True
+
+            # if the label is new in the type list, add it
+            if label.name not in labels_list:
+                labels_list.append(label.name)
+                type_updated = True
+
+            if type_updated:
+                label_type.edit_details['labels_list'] = u','.join(labels_list)
+                label_type.regex = label_type.regex_from_list(labels_list)
+                label_type.save()
+
+        return label
 
 
 class DueOnWidget(EnclosedInput, forms.DateInput):

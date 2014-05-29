@@ -8,7 +8,7 @@
 
 #labels-editor {
     .btn-edit-label-type {
-        padding-right: 4px;
+        padding-right: 6px;
         a {
             position: relative;
             top: -1px;
@@ -82,9 +82,21 @@
 }
 
 .label-edit-form {
-    input[name=name] {
-        width: 182px;
+    input[name=order] {
+        width: 45px;
         margin-right: 5px;
+    }
+    input[name=name] {
+        width: 132px;
+        margin-right: 5px;
+    }
+    &:not(.show-order) {
+        input[name=order] {
+            display: none;
+        }
+        input[name=name] {
+            width: 182px;
+        }
     }
     input[name=color] {
         width: 46px;

@@ -570,7 +570,7 @@ p.state-closed {
 
 /* line 10, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #labels-editor .btn-edit-label-type {
-  padding-right: 4px;
+  padding-right: 6px;
 }
 /* line 12, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #labels-editor .btn-edit-label-type a {
@@ -651,98 +651,111 @@ p.state-closed {
 }
 
 /* line 85, ../../../../../sass/pages/repository/dashboard-editor.scss */
-.label-edit-form input[name=name] {
-  width: 182px;
+.label-edit-form input[name=order] {
+  width: 45px;
   margin-right: 5px;
 }
 /* line 89, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form input[name=name] {
+  width: 132px;
+  margin-right: 5px;
+}
+/* line 94, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form:not(.show-order) input[name=order] {
+  display: none;
+}
+/* line 97, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form:not(.show-order) input[name=name] {
+  width: 182px;
+}
+/* line 101, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form input[name=color] {
   width: 46px;
   padding-left: 3px;
 }
-/* line 94, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 106, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form .sp-replacer {
   padding: 3px;
   vertical-align: top;
 }
-/* line 98, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 110, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form .sp-preview {
   width: 26px;
   height: 18px;
 }
 
-/* line 104, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 116, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label {
   padding: 0px;
   border: medium none;
   margin-top: 3px;
   margin-bottom: 4px;
 }
-/* line 111, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 123, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label > a.btn {
   line-height: 19px;
   margin-top: 1px;
 }
-/* line 117, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 129, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-title {
   overflow: hidden;
 }
-/* line 119, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 131, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-title strong {
   border-bottom: solid transparent 3px;
   line-height: 1.8em;
 }
-/* line 125, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 137, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-content label {
   float: left;
 }
-/* line 128, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 140, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-content .errorlist li {
   margin: 0;
   margin-left: 5px;
 }
-/* line 134, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 146, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover .popover-content {
   white-space: nowrap;
 }
 
-/* line 141, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 153, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .select2-labels .select2-results {
   max-height: 400px;
   display: block;
 }
-/* line 144, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 156, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .select2-labels .select2-results > li:not(.select2-selected) {
   display: inline-block;
 }
-/* line 146, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 158, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .select2-labels .select2-results > li:not(.select2-selected) .select2-result-label {
   padding-left: 5px !important;
 }
 
-/* line 157, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 169, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices {
   min-height: 27px;
   padding: 0 4px 1px 0;
 }
-/* line 158, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 170, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices * {
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
   box-sizing: content-box;
 }
-/* line 163, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 175, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices .select2-search-field {
   padding: 4px 0px 0px 4px;
   margin: 0;
 }
-/* line 166, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 178, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices .select2-search-field input {
   margin: 0;
   padding: 0;
   height: 20px;
 }
-/* line 172, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 184, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices .select2-search-choice {
   margin: 2px 0 0 4px;
   -webkit-border-radius: 0;
@@ -754,14 +767,14 @@ p.state-closed {
   border: none !important;
   padding: 0 0 0 18px !important;
 }
-/* line 178, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 190, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices .select2-search-choice span {
   margin-left: -18px;
   padding-left: 18px;
   padding-right: 3px;
   line-height: 20px;
 }
-/* line 186, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 198, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices .select2-search-choice-close {
   top: 5px;
 }

@@ -1,4 +1,4 @@
-<div class="row-fluid label-type" id="label-type-{{ label_type.id|default:'none' }}">
+<div class="row-fluid label-type" id="label-type-{{ label_type.id|default:'none' }}"{% if label_type %} data-label-type-id="{{ label_type.id }}"{% if label_type.edit_mode == label_type.LABELTYPE_EDITMODE.FORMAT and '{order}' in label_type.edit_details.format_string %} data-has-order="1"{% endif %}{% endif %}>
     <div class="box span12">
 
         <div class="box-header">
@@ -19,9 +19,9 @@
             <ul class="box-toolbar">
                 <li class="btn-edit-label-type">
                     {% if label_type %}
-                        <a class="btn btn-blue btn-loading" href="{{ label_type.get_edit_url }}">Edit <i class='fa fa-spinner fa-spin'> </i></a>
+                        <a class="btn btn-small btn-blue btn-loading" href="{{ label_type.get_edit_url }}">Edit <i class='fa fa-spinner fa-spin'> </i></a>
                     {% else %}
-                        <a class="btn btn-blue btn-loading" href="{{ label_type_create_url }}">Add a group <i class='fa fa-spinner fa-spin'> </i></a>
+                        <a class="btn btn-small btn-blue btn-loading" href="{{ label_type_create_url }}">Add a group <i class='fa fa-spinner fa-spin'> </i></a>
                     {% endif %}
                 </li>
             </ul>
@@ -33,11 +33,11 @@
             <ul class="unstyled labels">
                 {% for label in labels %}
                     <li style="border-bottom-color: #{{ label.color }}" title='Edit "{{ label.name }}"'{% if view.request.is_ajax %}{% if view.request.GET.label_just_edited|add:0 == label.id %} data-toggle="tooltip" data-title="Just edited, will be saved shortly" data-trigger="manual" data-tooltip-class="success" {% elif view.request.GET.label_just_created == label.name %} data-toggle="tooltip" data-title="Just created, will be saved shortly" data-trigger="manual" data-tooltip-class="success" {% endif %}{% endif %}>
-                        <a href="" data-color='{{ label.color }}' data-name='{{ label.name }}' data-id='{{ label.id }}'>{% if label.label_type_id %}{{ label.typed_name }}{% else %}{{ label.name }}{% endif %}</a>
+                        <a href="" data-color='{{ label.color }}' data-name='{{ label.name }}' data-id='{{ label.id }}' {% if label.label_type_id %} data-typed-name='{{ label.typed_name }}' data-order='{{ label.order }}'{% endif %}>{% if label.label_type_id %}{{ label.typed_name }}{% else %}{{ label.name }}{% endif %}</a>
                     </li>
                 {% endfor %}
-                {% if not label_type %}
-                    <li class="new-label" title="Add a new label"><a class="btn btn-blue" href="" data-color="ff0000" data-name="" >Add a new label</a></li>
+                {% if not label_type or label_type.edit_mode != label_type.LABELTYPE_EDITMODE.REGEX %}
+                    <li class="new-label" title="Add a new label"><a class="btn btn-small btn-blue" href="" data-color="ff0000" data-name="">Create a new {% if label_type %}"{{ label_type.name }}"{% else %}label{% endif %}</a></li>
                 {% endif %}
             </ul>
         {% else %}

@@ -67,8 +67,10 @@
     </div>{# #label-type-edit-form #}
 
     <div id="label-edit-form" class="hide" data-edit-url="{{ base_label_edit_url }}" data-delete-url="{{ base_label_delete_url }}" data-create-url="{{ label_create_url }}">
-        <form method="post" class="fill-up label-edit-form" data-id="%(id)s">
+        <form method="post" class="fill-up label-edit-form hide-order" data-id="%(id)s">
             {% csrf_token %}
+            <input name='label_type' type='hidden' value="%(label_type_id)s" />
+            <input name='order' type='text' value="%(order)s" placeholder="Order" title="Enter a number"/>
             <input name='name' type='text' value="%(name)s" placeholder="Name" />
             <input name='color' type='text' value="%(color)s" placeholder="Color" maxlength="6" title="Color"/>
             <div class="row-fluid auto-align">
