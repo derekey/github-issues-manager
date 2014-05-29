@@ -705,6 +705,8 @@ class LabelTypeManager(models.Manager):
     to quickly return label type and typed name for a label.
     """
     _name_cache = {}
+    AUTO_ORDERED_TYPE_FIND_RE = re.compile(r'^(.*)(\s*):(\s*)(\d+)(\s*):(\s*)(.*)$')
+    AUTO_ORDERED_TYPE_FORMAT = '%s%s:%s{order}%s:%s{label}'
     AUTO_TYPE_FIND_RE = re.compile(r'^(.*)(\s*):(\s*)(.*)$')
     AUTO_TYPE_FORMAT = '%s%s:%s{label}'
 
@@ -733,10 +735,16 @@ class LabelTypeManager(models.Manager):
 
             # try to add an automatic group
             if found_label_type is None:
-                match = self.AUTO_TYPE_FIND_RE.match(name)
+                match = self.AUTO_ORDERED_TYPE_FIND_RE.match(name)
                 if match:
-                    type_name, spaces1, spaces2, label = match.groups()
-                    format_string = self.AUTO_TYPE_FORMAT % (type_name, spaces1, spaces2)
+                    type_name, spaces1, spaces2, number, spaces3, spaces4, label = match.groups()
+                    format_string = self.AUTO_ORDERED_TYPE_FORMAT % (type_name, spaces1, spaces2, spaces3, spaces4)
+                else:
+                    match = self.AUTO_TYPE_FIND_RE.match(name)
+                    if match:
+                        type_name, spaces1, spaces2, label = match.groups()
+                        format_string = self.AUTO_TYPE_FORMAT % (type_name, spaces1, spaces2)
+                if match:
                     found_label_type = repository.label_types.create(
                         name=type_name.capitalize(),
                         edit_mode=self.model.LABELTYPE_EDITMODE.FORMAT,
