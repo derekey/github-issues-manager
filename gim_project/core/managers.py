@@ -45,6 +45,13 @@ class GithubObjectManager(models.Manager):
         return self.get_query_set().exclude(
                         github_status__in=self.model.GITHUB_STATUS_NOT_READY)
 
+    def exclude_deleting(self):
+        """
+        Ignore all objects that are in the process of being deleted
+        """
+        return self.get_query_set().exclude(
+                        github_status=self.model.GITHUB_STATUS_CHOICES.WAITING_DELETE)
+
     def get_github_callable(self, gh, identifiers):
         """
         Return the github callable object for the given identifiers.

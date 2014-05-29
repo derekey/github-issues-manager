@@ -245,9 +245,13 @@ class LabelsEditor(BaseRepositoryView):
     def get_context_data(self, **kwargs):
         context = super(LabelsEditor, self).get_context_data(**kwargs)
 
+        label_types = self.repository.label_types.all().prefetch_related('labels')
+        for label_type in label_types:
+            label_type.visible_labels = [l for l in label_type.labels.all() if l.github_status != GITHUB_STATUS_CHOICES.WAITING_DELETE]
+
         context.update({
-            'label_types': self.repository.label_types.all().prefetch_related('labels'),
-            'labels_without_type': self.repository.labels.order_by('lower_name').filter(label_type_id__isnull=True),
+            'label_types': label_types,
+            'labels_without_type': self.repository.labels.exclude_deleting().order_by('lower_name').filter(label_type_id__isnull=True),
             'all_labels': self.repository.labels.ready().order_by('lower_name').values_list('name', flat=True),
             'label_type_include_template': self.label_type_include_template,
         })
@@ -357,7 +361,7 @@ class LabelTypePreview(LabelTypeFormBaseView, UpdateView):
             'error': False
         }
 
-        labels = self.repository.labels.order_by('lower_name')
+        labels = self.repository.labels.exclude_deleting().order_by('lower_name')
 
         matching_labels = []
         has_order = True
