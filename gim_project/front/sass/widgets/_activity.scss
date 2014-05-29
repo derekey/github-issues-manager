@@ -2,6 +2,9 @@
 
 .activity-feed {
     .activity-repository {
+        &.hidden {
+            display: none;
+        }
         &:not(:first-child) {
             border-top: 1px solid #CDCDCD;
         }
@@ -38,6 +41,9 @@
     .box-section {
         padding: 5px;
         padding-left: 2px;
+        &.hidden {
+            display: none;
+        }
         h3 {
             position: relative;
             line-height: 18px;

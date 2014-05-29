@@ -2731,6 +2731,8 @@ $().ready(function() {
             } else {
                 Activity.update_placeholder($placeholder, 'nothing', callback);
             }
+
+            Activity.toggle_empty_parts($main_node);
         }), // add_loaded_entries
 
         placeholders: {
@@ -2867,13 +2869,36 @@ $().ready(function() {
                 klass = 'hide-' + $checkbox.attr('name'),
                 checked = $checkbox.is(':checked');
             $checkbox.closest('.activity-feed').toggleClass(klass, !checked);
+            Activity.toggle_empty_parts($checkbox.closest('.activity-feed'));
             return false;
         }), // on_filter_change
 
-        on_filter_link_click: (function on_filter_link_click (ev) {
+        on_filter_link_click: (function Activity__on_filter_link_click (ev) {
             // avoid propagation to boostrap dropdown which would close the dropdown
             ev.stopPropagation();
         }), // on_filter_link_click
+
+        toggle_empty_parts: (function Activity__toggle_empty_parts ($feed) {
+            var checked_filters = [],
+                $inputs = $feed.find('.activity-filter input:checked');
+            for (var i = 0; i < $inputs.length; i++) {
+                checked_filters.push('.' + $inputs[i].name);
+            };
+            var filter = checked_filters.join(', '),
+                no_filter = checked_filters.length == 0,
+                $sections = $feed.find('.box-section');
+            for (var j = 0; j < $sections.length; j++) {
+                var $section = $($sections[j]);
+                $section.toggleClass('hidden', no_filter || $section.children('ul').children(filter).length == 0);
+            };
+            if ($feed.hasClass('for-repositories')) {
+                var $repositories = $feed.find('.activity-repository');
+                for (var k = 0; k < $repositories.length; k++) {
+                    var $repository = $($repositories[k]);
+                    $repository.toggleClass('hidden', no_filter || $repository.children('.box-content').children(':not(.hidden)').length == 0);
+                };
+            }
+        }), // toggle_empty_parts
 
         init_feeds: (function Activity__init_feeds () {
             setInterval(function() {
@@ -2882,6 +2907,11 @@ $().ready(function() {
                     replace_time_ago($feeds[i]);
                 }
             }, 60000);
+
+            var $feeds = $(Activity.selectors.main);
+            for (var i = 0; i < $feeds.length; i++) {
+                Activity.toggle_empty_parts($($feeds[i]));
+            }
         }), // init_feeds
 
         init_events: (function Activity__init_events () {
