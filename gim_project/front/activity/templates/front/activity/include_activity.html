@@ -144,7 +144,27 @@
                     <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
                     <i class="fa fa-square fa-stack-1x text-closed"></i>
                 </span>
-                <p class="box-content">Closed this {{ entry.issue.type }}</p>
+                <div class="box-content">
+                    <p class="box-content">
+                        Closed this {{ entry.issue.type }}
+                        {% if entry.commit_sha and entry.related_object_id %}from a commit:{% endif %}
+                    </p>
+                    {% if entry.commit_sha and entry.related_object_id %}
+                        <blockquote>
+                            {% with commit=entry.related_object|copy_fks_from:entry %}
+                                <a href="{{ commit.github_url }}" target='_blank' title='View on Github'>
+                                    {% if commit.message %}
+                                        "<strong>{{ commit.splitted_message.0 }}</strong>" -
+                                    {% endif %}
+                                    <em>{{ commit.sha|short_sha }}</em>
+                                </a>
+                                {% if commit.deleted %}
+                                    (deleted or in another repository)
+                                {% endif %}
+                            {% endwith %}
+                        </blockquote>
+                    {% endif %}
+                </div>
             {% elif entry.event == 'merged' %}
                 <span class="fa-stack">
                     <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
