@@ -1,3 +1,4 @@
+import json
 import re
 
 from django import forms
@@ -56,6 +57,15 @@ class LabelTypeEditForm(LinkedToRepositoryFormMixin):
 
         self.fields['edit_mode'].widget.attrs['class'] = 'uniform'
         self.fields['edit_mode'].help_text = 'Changing mode don\'t keep your configuration, except when changing to "Regular Expression" (each mode convert its configuration to a regular expression)'
+
+        self.fields['labels_list'].widget.attrs.update({
+            'data-labels': self.get_labels_json(),
+        })
+
+    def get_labels_json(self):
+        data = {l.name: {'name': l.name, 'color': l.color}
+                for l in self.repository.labels.all()}
+        return json.dumps(data)
 
     def _clean_fields(self):
         """

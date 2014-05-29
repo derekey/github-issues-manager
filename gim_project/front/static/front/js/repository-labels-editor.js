@@ -370,11 +370,23 @@ $().ready(function() {
         on_edit_mode_changed: function(ev) {
             LabelTypeForm.get_form().removeClass('mode1 mode2 mode3').addClass('mode' + ev.val);
         },
+        format_labels_list_select2: function(state) {
+            if (state.children) {
+                return state.text;
+            }
+            var data = LabelTypeForm.labels_data[state.id];
+            return '<span style="border-bottom-color: #' + data.color + '">' + data.name + '</span>';
+        },
         labels_list_select2_options: {
             tokenSeparators: [",", ";"],
-            maximumInputLength: 250
+            maximumInputLength: 250,
+            closeOnSelect: false,
+            dropdownCssClass: 'select2-labels',
+            formatSelection: function(state) { return LabelTypeForm.format_labels_list_select2(state); },
+            formatResult: function(state) { return LabelTypeForm.format_labels_list_select2(state); }
         },
         prepare_labels_list_select2: function() {
+            LabelTypeForm.labels_data = $('#id_labels_list').data('labels');
             $('#id_labels_list').select2(LabelTypeForm.labels_list_select2_options);
         },
         update: function() {

@@ -452,140 +452,316 @@ div.selector span {
   line-height: 24px;
 }
 
-/* line 9, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 23, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul > li, .part-label_type ul > li, .part-labels ul > a, .part-label_type ul > a, .select2-labels .select2-result-label span, .for-mode3 .select2-container-multi .select2-choices .select2-search-choice span {
+  display: inline-block;
+  white-space: nowrap;
+  margin: 1px 0;
+  padding: 0 3px;
+  color: inherit;
+  border-bottom: solid #ccc 3px;
+}
+
+/* line 32, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul, .part-label_type ul {
+  margin: 0;
+  padding: 0;
+  padding-right: 5px;
+}
+/* line 39, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul > li > a, .part-label_type ul > li > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* line 54, ../../../../../sass/components/_issues_mixins.scss */
+p.state-closed {
+  color: #b35d5d;
+}
+
+/* line 58, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span[data-toggle=collapse], .part-title > span[data-toggle=collapse] {
+  display: inline-block;
+  height: 12px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  -ms-border-radius: 1px;
+  -o-border-radius: 1px;
+  border-radius: 1px;
+  background: #ddd;
+  line-height: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 1px 3px;
+}
+
+/* line 70, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul, .part-label_type ul {
+  display: inline-block;
+  margin-top: 0;
+  padding-right: 0;
+}
+/* line 74, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul li, .part-label_type ul li {
+  margin-top: 0;
+}
+/* line 79, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels > span, .part-label_type > span {
+  float: left;
+  margin-right: 5px;
+}
+
+/* line 84, ../../../../../sass/components/_issues_mixins.scss */
+.part-body, .part-title {
+  margin: 0 -10px;
+}
+/* line 85, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span:first-child, .part-title > span:first-child {
+  display: block;
+  margin: 5px 5px 5px 10px;
+}
+/* line 88, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span:first-child.collapsible, .part-title > span:first-child.collapsible {
+  float: left;
+}
+/* line 93, ../../../../../sass/components/_issues_mixins.scss */
+.part-body table.diff, .part-title table.diff {
+  font-size: 12px;
+  border-top: solid 1px #D8D8D8;
+  border-bottom: solid 1px #D8D8D8;
+  margin-bottom: 10px;
+  table-layout: fixed;
+}
+/* line 99, ../../../../../sass/components/_issues_mixins.scss */
+.part-body table.diff tbody tr, .part-title table.diff tbody tr {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+/* line 104, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span[data-toggle=collapse], .part-title > span[data-toggle=collapse] {
+  position: relative;
+  top: 2px;
+}
+/* line 109, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse, .part-title > div.collapse {
+  clear: both;
+}
+/* line 111, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse table.diff, .part-title > div.collapse table.diff {
+  margin-bottom: 0px;
+}
+/* line 114, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse.in, .part-title > div.collapse.in {
+  margin-bottom: 10px;
+}
+
+/* line 123, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body table.diff, .box-content:last-of-type > .part-title table.diff {
+  margin-bottom: -6px;
+}
+/* line 127, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body > div.collapse table.diff, .box-content:last-of-type > .part-title > div.collapse table.diff {
+  margin-bottom: 0px;
+}
+/* line 130, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body > div.collapse.in, .box-content:last-of-type > .part-title > div.collapse.in {
+  margin-bottom: -6px;
+}
+
+/* line 10, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #labels-editor .btn-edit-label-type {
   padding-right: 4px;
 }
-/* line 11, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 12, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #labels-editor .btn-edit-label-type a {
   position: relative;
   top: -1px;
 }
 
-/* line 18, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 19, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .box-header .title .label {
   margin-left: 1em;
   line-height: 13px;
 }
 
-/* line 23, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 24, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #label-type-edit-form {
   width: 90%;
   margin-left: -45%;
 }
-/* line 27, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 28, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #label-type-edit-form form input[type=submit] {
   display: none;
 }
-/* line 30, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 31, ../../../../../sass/pages/repository/dashboard-editor.scss */
 #label-type-edit-form form > div > label + input[type=text] + .note {
   margin-top: -10px;
 }
 
-/* line 36, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 37, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode1, .for-mode2, .for-mode3 {
   display: none;
 }
 
-/* line 41, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 42, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .mode1 .for-mode1,
 .mode2 .for-mode2,
 .mode3 .for-mode3 {
   display: block;
 }
 
-/* line 46, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 47, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .edit-mode-dropdown .select2-results {
   max-height: none;
 }
-/* line 49, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 50, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .edit-mode-dropdown li.select2-highlighted .note {
   color: white;
 }
 
-/* line 54, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 55, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type-samples {
   margin-top: 5px;
 }
-/* line 56, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 57, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type-samples .note {
   margin-bottom: 0;
 }
-/* line 59, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 60, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type-samples li {
   cursor: pointer;
 }
 
-/* line 66, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 67, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .btn + div.popover + .btn {
   margin-bottom: 0px;
   margin-left: 5px;
 }
-/* line 70, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 71, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .alert {
   text-align: center;
 }
-/* line 74, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 75, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .popover-content label {
   margin-bottom: 0;
 }
-/* line 76, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 77, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .popover-content label + .errorlist {
   margin-left: 5px;
 }
 
-/* line 84, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 85, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form input[name=name] {
   width: 182px;
   margin-right: 5px;
 }
-/* line 88, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 89, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form input[name=color] {
   width: 46px;
   padding-left: 3px;
 }
-/* line 93, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 94, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form .sp-replacer {
   padding: 3px;
   vertical-align: top;
 }
-/* line 97, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 98, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-edit-form .sp-preview {
   width: 26px;
   height: 18px;
 }
 
-/* line 103, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 104, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label {
   padding: 0px;
   border: medium none;
   margin-top: 3px;
   margin-bottom: 4px;
 }
-/* line 110, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 111, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li.new-label > a.btn {
   line-height: 19px;
   margin-top: 1px;
 }
-/* line 116, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 117, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-title {
   overflow: hidden;
 }
-/* line 118, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 119, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-title strong {
   border-bottom: solid transparent 3px;
   line-height: 1.8em;
 }
-/* line 124, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 125, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-content label {
   float: left;
 }
-/* line 127, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 128, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover-content .errorlist li {
   margin: 0;
   margin-left: 5px;
 }
-/* line 133, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 134, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .label-type .labels li .popover .popover .popover-content {
   white-space: nowrap;
+}
+
+/* line 141, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.select2-labels .select2-results {
+  max-height: 400px;
+  display: block;
+}
+/* line 144, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.select2-labels .select2-results > li:not(.select2-selected) {
+  display: inline-block;
+}
+/* line 146, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.select2-labels .select2-results > li:not(.select2-selected) .select2-result-label {
+  padding-left: 5px !important;
+}
+
+/* line 157, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices {
+  min-height: 27px;
+  padding: 0 4px 1px 0;
+}
+/* line 158, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices * {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+/* line 163, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-field {
+  padding: 4px 0px 0px 4px;
+  margin: 0;
+}
+/* line 166, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-field input {
+  margin: 0;
+  padding: 0;
+  height: 20px;
+}
+/* line 172, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-choice {
+  margin: 2px 0 0 4px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none !important;
+  padding: 0 0 0 18px !important;
+}
+/* line 178, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-choice span {
+  margin-left: -18px;
+  padding-left: 18px;
+  padding-right: 3px;
+  line-height: 20px;
+}
+/* line 186, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-choice-close {
+  top: 5px;
 }
