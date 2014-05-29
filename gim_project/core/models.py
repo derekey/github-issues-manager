@@ -1783,6 +1783,11 @@ class Label(WithRepositoryMixin, GithubObject):
 
         super(Label, self).save(*args, **kwargs)
 
+    def unique_error_message(self, model_class, unique_check):
+        if unique_check == ('repository', 'name'):
+            return 'A label with this name already exists for this repository'
+        return super(Label, self).unique_error_message(model_class, unique_check)
+
 
 class Milestone(WithRepositoryMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='milestones')
