@@ -715,12 +715,29 @@ class LabelTypeManager(models.Manager):
 
     AUTO_TYPES = [
         (
-            re.compile('^(?P<type_name>.*)(?P<sep1>\s*[:#_\-]\s*)(?P<order>\d+)(?P<sep2>\s*[:#_\-]\s*)(?P<label>.*)$'),
+            # Workflow - 1 - Assigned
+            re.compile('^(?P<type_name>.+?)(?P<sep1>\s*[:#_\-]\s*)(?P<order>\d+)(?P<sep2>\s*[:#_\-]\s*)(?P<label>.+)$'),
             '%(type_name)s%(sep1)s{order}%(sep2)s{label}'
         ),
         (
-            re.compile('^(?P<type_name>.*)(?P<sep1>\s*[:#_\-]\s*)(?P<label>.*)$'),
+            # [1] Workflow : Assigned
+            re.compile('^(?P<sep1>[\[\(\{\-\.]?\s*)(?P<order>\d+)(?P<sep2>\s*[:#_\-\]\)\}\-\.]\s*)(?P<type_name>.+?)(?P<sep3>\s*[:#_\-]\s*)(?P<label>.+)$'),
+            '%(sep1)s{order}%(sep2)s%(type_name)s%(sep3)s{label}'
+        ),
+        (
+            # [Workflow] #2 Assigned
+            re.compile('^(?P<sep1>[\[\(\{\-\.]?\s*)(?P<type_name>[^\[\(\{\]\)\}]+?)(?P<sep2>[\]\)\}\-\.]\s*)(?P<sep3>\s*[:#_\-]\s*)(?P<order>\d+)(?P<sep4>\s*[:#_\-]?\s*)(?P<label>.+)$'),
+            '%(sep1)s%(type_name)s%(sep2)s%(sep3)s{order}%(sep4)s{label}'
+        ),
+        (
+            # Workflow - Assigned
+            re.compile('^(?P<type_name>.+?)(?P<sep1>\s*[:#_\-]\s*)(?P<label>.+)$'),
             '%(type_name)s%(sep1)s{label}'
+        ),
+        (
+            # [Workflow] Assigned
+            re.compile('^(?P<sep1>[\[\(\{\-\.]?\s*)(?P<type_name>.+?)(?P<sep2>[\]\)\}\-\.]\s*)(?P<label>.+)$'),
+            '%(sep1)s%(type_name)s%(sep2)s{label}'
         ),
     ]
 
