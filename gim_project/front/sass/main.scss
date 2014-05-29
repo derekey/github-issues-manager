@@ -13,10 +13,10 @@ del {
 }
 
 .text-open {
-    color: $state-open-color;
+    color: $state-open-color !important;
 }
 .text-closed {
-    color: $state-closed-color;
+    color: $state-closed-color !important;
 }
 
 body {

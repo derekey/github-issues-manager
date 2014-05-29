@@ -4958,12 +4958,12 @@ del {
 
 /* line 15, ../../../sass/main.scss */
 .text-open {
-  color: #8cc079;
+  color: #8cc079 !important;
 }
 
 /* line 18, ../../../sass/main.scss */
 .text-closed {
-  color: #b35d5d;
+  color: #b35d5d !important;
 }
 
 /* line 22, ../../../sass/main.scss */

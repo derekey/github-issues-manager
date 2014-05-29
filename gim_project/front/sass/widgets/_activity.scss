@@ -2,6 +2,9 @@
 
 .activity-feed {
     .activity-repository {
+        &.hidden {
+            display: none;
+        }
         &:not(:first-child) {
             border-top: 1px solid #CDCDCD;
         }
@@ -14,9 +17,33 @@
             }
         }
     }
+    .fa-stack {
+        color: #2c596d !important;
+        .fa-code-fork {
+            color: #ccc !important;
+            ~ .fa {
+                opacity: 0.8;
+            }
+        }
+        .fa-file-text-o, .fa-file-code-o {
+            color: #ddd !important;
+        }
+        .fa-quote-left {
+            color: #ddd !important;
+            ~ .fa {
+                opacity: 0.8;
+                &.fa-file-text-o, &.fa-file-code-o {
+                    color: inherit !important;
+                }
+            }
+        }
+    }
     .box-section {
         padding: 5px;
         padding-left: 2px;
+        &.hidden {
+            display: none;
+        }
         h3 {
             position: relative;
             line-height: 18px;
@@ -69,28 +96,22 @@
                 }
             }
         }
+        .fa-stack {
+            position: absolute;
+            right: 10px;
+            margin-top: -3px;
+        }
     }
-    .fa-stack {
-        position: absolute;
-        right: 10px;
-        margin-top: -3px;
-        color: #2c596d;
-        .fa-code-fork {
-            color: #ccc;
-            ~ .fa {
-                opacity: 0.8;
-            }
+    .box-toolbar {
+        label {
+            padding-right: 30px;
         }
-        .fa-file-text-o, .fa-file-code-o {
-            color: #ddd;
-        }
-        .fa-quote-left {
-            color: #ddd;
-            ~ .fa {
-                opacity: 0.8;
-                &.fa-file-text-o, &.fa-file-code-o {
-                    color: inherit;
-                }
+        .fa-stack {
+            position: absolute;
+            right: 15px;
+            margin-top: -2px;
+            i {
+                color: inherit;
             }
         }
     }
@@ -173,5 +194,24 @@
                 border-left-color: $active-color;
             }
         }
+    }
+
+    &.hide-model-Event-create .model-Event-create,
+    &.hide-model-Event-update .model-Event-update,
+    &.hide-model-IssueEvent-closed .model-IssueEvent-closed,
+    &.hide-model-IssueEvent-merged .model-IssueEvent-merged,
+    &.hide-model-IssueEvent-reopened .model-IssueEvent-reopened,
+    &.hide-model-IssueComment .model-IssueComment,
+    &.hide-model-PullRequestComment .model-PullRequestComment,
+    &.hide-model-Issue_commits .model-Issue_commits,
+    &.hide-model-IssueEvent-assigned .model-IssueEvent-assigned,
+    &.hide-model-IssueEvent-head_ref_deleted .model-IssueEvent-head_ref_deleted,
+    &.hide-model-IssueEvent-head_ref_restored .model-IssueEvent-head_ref_restored,
+    &.hide-model-IssueEvent-referenced .model-IssueEvent-referenced,
+    &.hide-model-IssueEvent-referenced_by_issue .model-IssueEvent-referenced_by_issue,
+    &.hide-model-IssueEvent-referenced_by_issuecomment .model-IssueEvent-referenced_by_issuecomment,
+    &.hide-model-IssueEvent-referenced_by_pullrequestcomment .model-IssueEvent-referenced_by_pullrequestcomment,
+    &.hide-model-IssueEvent-referenced_by_milestone .model-IssueEvent-referenced_by_milestone {
+        display: none;
     }
 }
