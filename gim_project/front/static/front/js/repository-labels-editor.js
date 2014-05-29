@@ -386,7 +386,13 @@ $().ready(function() {
             formatResult: function(state) { return LabelTypeForm.format_labels_list_select2(state); }
         },
         prepare_labels_list_select2: function() {
-            LabelTypeForm.labels_data = $('#id_labels_list').data('labels');
+            var labels = $('#id_labels_list').data('labels');
+            LabelTypeForm.labels_list_select2_options.tags = $.map(labels, function(value, key) { 
+                return key;
+            }).sort(function(a, b) {
+               return a.toLowerCase().localeCompare(b.toLowerCase());
+            });
+            LabelTypeForm.labels_data = labels;
             $('#id_labels_list').select2(LabelTypeForm.labels_list_select2_options);
         },
         update: function() {
@@ -513,8 +519,7 @@ $().ready(function() {
             LabelTypeForm.$modal_footer.on('click', '.cancel-deletion', LabelTypeForm.on_cancel_deletion);
             LabelTypeForm.$modal_footer.on('click', '.confirm-deletion', LabelTypeForm.on_confirm_deletion);
         },
-        init: function(labels) {
-            LabelTypeForm.labels_list_select2_options.tags = labels;
+        init: function() {
             LabelTypeForm.init_modal();
             $document.on('click', '.btn-edit-label-type a', LabelTypeForm.on_link_click);
             $document.on('submit', '#label-type-form', LabelTypeForm.on_form_submit);

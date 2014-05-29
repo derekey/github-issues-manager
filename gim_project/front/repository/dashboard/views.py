@@ -252,7 +252,6 @@ class LabelsEditor(BaseRepositoryView):
         context.update({
             'label_types': label_types,
             'labels_without_type': self.repository.labels.exclude_deleting().order_by('lower_name').filter(label_type_id__isnull=True),
-            'all_labels': self.repository.labels.ready().order_by('lower_name').values_list('name', flat=True),
             'label_type_include_template': self.label_type_include_template,
         })
 
