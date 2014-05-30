@@ -159,9 +159,10 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
     default_qs = 'state=open'
 
     allowed_filters = ['milestone', 'state', 'labels', 'sort', 'direction',
-                       'group_by', 'group_by_direction', 'pr']
+                       'group_by', 'group_by_direction', 'pr', 'mergeable']
     allowed_states = ['open', 'closed']
     allowed_prs = ['no', 'yes']
+    allowed_mergeables = ['no', 'yes']
     allowed_sort_fields = ['created', 'updated', ]
     allowed_sort_orders = ['asc', 'desc']
     allowed_group_by_fields = ['state', 'creator', 'assigned', 'closed by', 'milestone', 'pull-request']
@@ -184,6 +185,17 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         is_pull_request = qs_parts.get('pr', None)
         if is_pull_request in self.allowed_prs:
             return True if is_pull_request == 'yes' else False
+        return None
+
+    def _get_is_mergeable(self, qs_parts):
+        """
+        Return the valid "is_mergeable" flag to use, or None
+        Will return None if current filter is not on Pull requests
+        """
+        is_mergeable = qs_parts.get('mergeable', None)
+        if is_mergeable in self.allowed_mergeables:
+            if self._get_is_pull_request(qs_parts):
+                return True if is_mergeable == 'yes' else False
         return None
 
     def _get_milestone(self, qs_parts):
@@ -308,6 +320,12 @@ class IssuesView(WithQueryStringViewMixin, BaseRepositoryView):
         if is_pull_request is not None:
             qs_filters['pr'] = self.allowed_prs[is_pull_request]
             filter_objects['pr'] = query_filters['is_pull_request'] = is_pull_request
+
+        # filter by mergeable status
+        is_mergeable = self._get_is_mergeable(qs_parts)
+        if is_mergeable is not None:
+            qs_filters['mergeable'] = self.allowed_mergeables[is_mergeable]
+            filter_objects['mergeable'] = query_filters['mergeable'] = is_mergeable
 
         # filter by milestone
         milestone = self._get_milestone(qs_parts)
