@@ -12,12 +12,14 @@
             </span>
         </span>
     {% else %}
-        {% if current_issue_edit_level or comment.user == view.request.user %}
+        {% if current_issue_edit_level == "full" or comment.user == view.request.user or comment.github_status not in GITHUB_STATUSES.ALL_WAITING %}
             <nav class="comment-nav dropdown">
                 <button class="btn btn-default btn-mini dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"> </i></button>
                 <ul class="dropdown-menu pull-right" role="menu" aria-label="Comment menu">
-                    <li><a href="{{ comment.get_edit_url }}" class="comment-edit-btn btn-loading" title="Edit this comment"><i class="fa fa-edit fa-fw"> </i><i class='fa fa-spinner fa-spin' fa-fw> </i> Edit this comment</a></li>
-                    <li><a href="{{ comment.get_delete_url }}" class="comment-delete-btn btn-loading" title="Delete this comment"><i class="fa fa-times fa-fw"> </i><i class='fa fa-spinner fa-spin fa-fw'> </i> Delete this comment</a></li>
+                    {% if current_issue_edit_level == "full" or comment.user == view.request.user %}
+                        <li><a href="{{ comment.get_edit_url }}" class="comment-edit-btn btn-loading" title="Edit this comment"><i class="fa fa-edit fa-fw"> </i><i class='fa fa-spinner fa-spin' fa-fw> </i> Edit this comment</a></li>
+                        <li><a href="{{ comment.get_delete_url }}" class="comment-delete-btn btn-loading" title="Delete this comment"><i class="fa fa-times fa-fw"> </i><i class='fa fa-spinner fa-spin fa-fw'> </i> Delete this comment</a></li>
+                    {% endif %}
                     {% if comment.github_status not in GITHUB_STATUSES.ALL_WAITING %}
                         {% with github_url=comment.github_url %}
                             {% if with_link_to_diff or github_url %}
