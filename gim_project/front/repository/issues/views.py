@@ -733,17 +733,11 @@ class IssueView(UserIssuesView):
                 current_issue_state = 'undefined'
 
         # fetch other useful data
-        edit_level = None
+        edit_level = self.get_edit_level(current_issue)
         if current_issue:
             context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
             activity = current_issue.get_activity()
             involved = self.get_involved_people(current_issue, activity, context['collaborators_ids'])
-            if current_issue.number:
-                if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
-                    edit_level = 'full'
-                elif self.subscription.state == SUBSCRIPTION_STATES.READ\
-                                        and current_issue.user == self.request.user:
-                    edit_level = 'self'
 
             if current_issue.is_pull_request:
                 context['entry_points_dict'] = self.get_entry_points_dict(current_issue)
@@ -762,6 +756,21 @@ class IssueView(UserIssuesView):
         })
 
         return context
+
+    def get_edit_level(self, issue):
+        """
+        Return the edit level of the given issue. It may be None (read only),
+        "self" or "full"
+        """
+        edit_level = None
+        if issue and issue.number:
+            if self.subscription.state in SUBSCRIPTION_STATES.WRITE_RIGHTS:
+                edit_level = 'full'
+            elif self.subscription.state == SUBSCRIPTION_STATES.READ\
+                                    and issue.user == self.request.user:
+                edit_level = 'self'
+
+        return edit_level
 
     def get_entry_points_dict(self, issue):
         """
@@ -936,9 +945,12 @@ class SimpleAjaxIssueView(IssueView):
         context = super(IssuesView, self).get_context_data(**kwargs)
 
         try:
-            context['current_issue'] = self.get_current_issue()
+            current_issue = self.get_current_issue()
         except Issue.DoesNotExist:
             raise Http404
+
+        context['current_issue'] = current_issue
+        context['current_issue_edit_level'] = self.get_edit_level(current_issue)
 
         return context
 

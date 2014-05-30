@@ -991,6 +991,7 @@ $().ready(function() {
         select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'discussion'); },
         select_commits_tab: function(panel) { return IssueDetail.select_tab(panel, 'commits'); },
         select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'files'); },
+        select_review_tab: function(panel) { return IssueDetail.select_tab(panel, 'review'); },
 
         on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $target) {
             if ($target.data('files-list-loaded')) { return;}
@@ -1420,6 +1421,7 @@ $().ready(function() {
             jwerty.key('shift+d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
             jwerty.key('shift+c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
             jwerty.key('shift+f', IssueDetail.on_current_panel_key_event('select_files_tab'));
+            jwerty.key('shift+r', IssueDetail.on_current_panel_key_event('select_review_tab'));
             $document.on('shown.tab', '.pr-tabs a', IssueDetail.load_tab);
 
             // link from PR comment in "discussion" tab to same entry in "files changed" tab

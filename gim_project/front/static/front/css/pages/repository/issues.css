@@ -1851,12 +1851,12 @@ div.selector span {
 }
 /* line 780, ../../../../../sass/components/_issue.scss */
 .pr-tabs > li {
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 2px;
+  margin-right: 2px;
 }
 /* line 783, ../../../../../sass/components/_issue.scss */
 .pr-tabs > li:first-of-type {
-  margin-left: 30px;
+  margin-left: 10px;
 }
 /* line 786, ../../../../../sass/components/_issue.scss */
 .pr-tabs > li > a {
@@ -1905,7 +1905,7 @@ div.selector span {
 }
 
 /* line 822, ../../../../../sass/components/_issue.scss */
-.issue-commits > .content, .issue-commits .pr-files-list-container, .issue-files > .content, .issue-files .pr-files-list-container {
+.issue-commits > .content, .issue-commits .pr-files-list-container, .issue-review > .content, .issue-review .pr-files-list-container, .issue-files > .content, .issue-files .pr-files-list-container {
   padding: 15px;
   background: white;
   border-bottom: solid 1px #cdcdcd;
@@ -1914,26 +1914,26 @@ div.selector span {
   box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
 }
 /* line 827, ../../../../../sass/components/_issue.scss */
-.issue-commits > .content > nav, .issue-commits .pr-files-list-container > nav, .issue-files > .content > nav, .issue-files .pr-files-list-container > nav {
+.issue-commits > .content > nav, .issue-commits .pr-files-list-container > nav, .issue-review > .content > nav, .issue-review .pr-files-list-container > nav, .issue-files > .content > nav, .issue-files .pr-files-list-container > nav {
   margin-left: 10px;
   float: right;
   position: relative;
   top: -6px;
 }
 /* line 832, ../../../../../sass/components/_issue.scss */
-.issue-commits > .content > nav > .btn-group, .issue-commits .pr-files-list-container > nav > .btn-group, .issue-files > .content > nav > .btn-group, .issue-files .pr-files-list-container > nav > .btn-group {
+.issue-commits > .content > nav > .btn-group, .issue-commits .pr-files-list-container > nav > .btn-group, .issue-review > .content > nav > .btn-group, .issue-review .pr-files-list-container > nav > .btn-group, .issue-files > .content > nav > .btn-group, .issue-files .pr-files-list-container > nav > .btn-group {
   margin-left: 6px;
 }
 /* line 835, ../../../../../sass/components/_issue.scss */
-.issue-commits > .content > nav > div.quicksearch-widget, .issue-commits .pr-files-list-container > nav > div.quicksearch-widget, .issue-files > .content > nav > div.quicksearch-widget, .issue-files .pr-files-list-container > nav > div.quicksearch-widget {
+.issue-commits > .content > nav > div.quicksearch-widget, .issue-commits .pr-files-list-container > nav > div.quicksearch-widget, .issue-review > .content > nav > div.quicksearch-widget, .issue-review .pr-files-list-container > nav > div.quicksearch-widget, .issue-files > .content > nav > div.quicksearch-widget, .issue-files .pr-files-list-container > nav > div.quicksearch-widget {
   display: inline-block;
 }
 /* line 837, ../../../../../sass/components/_issue.scss */
-.issue-commits > .content > nav > div.quicksearch-widget input[type='text'], .issue-commits .pr-files-list-container > nav > div.quicksearch-widget input[type='text'], .issue-files > .content > nav > div.quicksearch-widget input[type='text'], .issue-files .pr-files-list-container > nav > div.quicksearch-widget input[type='text'] {
+.issue-commits > .content > nav > div.quicksearch-widget input[type='text'], .issue-commits .pr-files-list-container > nav > div.quicksearch-widget input[type='text'], .issue-review > .content > nav > div.quicksearch-widget input[type='text'], .issue-review .pr-files-list-container > nav > div.quicksearch-widget input[type='text'], .issue-files > .content > nav > div.quicksearch-widget input[type='text'], .issue-files .pr-files-list-container > nav > div.quicksearch-widget input[type='text'] {
   width: 100px;
 }
 /* line 843, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list, .issue-files .pr-files-list {
+.issue-commits .pr-files-list, .issue-review .pr-files-list, .issue-files .pr-files-list {
   clear: both;
   margin-bottom: -12px;
   max-height: 150px;
@@ -1944,65 +1944,65 @@ div.selector span {
   transition: height 0.01s ease;
 }
 /* line 849, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list.in, .issue-files .pr-files-list.in {
+.issue-commits .pr-files-list.in, .issue-review .pr-files-list.in, .issue-files .pr-files-list.in {
   margin-top: 15px;
   margin-bottom: -5px;
 }
 /* line 853, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list table, .issue-files .pr-files-list table {
+.issue-commits .pr-files-list table, .issue-review .pr-files-list table, .issue-files .pr-files-list table {
   margin-bottom: 0;
   table-layout: fixed;
 }
 /* line 857, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list td:first-of-type, .issue-files .pr-files-list td:first-of-type {
+.issue-commits .pr-files-list td:first-of-type, .issue-review .pr-files-list td:first-of-type, .issue-files .pr-files-list td:first-of-type {
   width: 12px;
   color: #767676;
 }
 /* line 860, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list td:first-of-type.status-added, .issue-files .pr-files-list td:first-of-type.status-added {
+.issue-commits .pr-files-list td:first-of-type.status-added, .issue-review .pr-files-list td:first-of-type.status-added, .issue-files .pr-files-list td:first-of-type.status-added {
   color: #8cc079;
 }
 /* line 863, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list td:first-of-type.status-removed, .issue-files .pr-files-list td:first-of-type.status-removed {
+.issue-commits .pr-files-list td:first-of-type.status-removed, .issue-review .pr-files-list td:first-of-type.status-removed, .issue-files .pr-files-list td:first-of-type.status-removed {
   color: #b35d5d;
 }
 /* line 866, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list td:first-of-type.status-renamed, .issue-files .pr-files-list td:first-of-type.status-renamed {
+.issue-commits .pr-files-list td:first-of-type.status-renamed, .issue-review .pr-files-list td:first-of-type.status-renamed, .issue-files .pr-files-list td:first-of-type.status-renamed {
   color: #7fb3d4;
 }
 /* line 870, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list td:nth-child(2) i, .issue-files .pr-files-list td:nth-child(2) i {
+.issue-commits .pr-files-list td:nth-child(2) i, .issue-review .pr-files-list td:nth-child(2) i, .issue-files .pr-files-list td:nth-child(2) i {
   color: white;
 }
 /* line 873, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list td:last-of-type, .issue-files .pr-files-list td:last-of-type {
+.issue-commits .pr-files-list td:last-of-type, .issue-review .pr-files-list td:last-of-type, .issue-files .pr-files-list td:last-of-type {
   text-align: right;
 }
 /* line 875, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list td:last-of-type li, .issue-files .pr-files-list td:last-of-type li {
+.issue-commits .pr-files-list td:last-of-type li, .issue-review .pr-files-list td:last-of-type li, .issue-files .pr-files-list td:last-of-type li {
   margin-left: 4px;
 }
 /* line 880, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list tr.active td:nth-child(2) i, .issue-files .pr-files-list tr.active td:nth-child(2) i {
+.issue-commits .pr-files-list tr.active td:nth-child(2) i, .issue-review .pr-files-list tr.active td:nth-child(2) i, .issue-files .pr-files-list tr.active td:nth-child(2) i {
   color: inherit;
 }
 /* line 884, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list tr:last-of-type td, .issue-files .pr-files-list tr:last-of-type td {
+.issue-commits .pr-files-list tr:last-of-type td, .issue-review .pr-files-list tr:last-of-type td, .issue-files .pr-files-list tr:last-of-type td {
   border-bottom: 1px solid #DDD;
 }
 /* line 887, ../../../../../sass/components/_issue.scss */
-.issue-commits .pr-files-list ul, .issue-files .pr-files-list ul {
+.issue-commits .pr-files-list ul, .issue-review .pr-files-list ul, .issue-files .pr-files-list ul {
   margin-bottom: 0;
   white-space: nowrap;
 }
 /* line 892, ../../../../../sass/components/_issue.scss */
-.issue-commits .empty-area, .issue-files .empty-area {
+.issue-commits .empty-area, .issue-review .empty-area, .issue-files .empty-area {
   position: static;
   height: 200px;
   margin-top: 100px;
 }
 /* line 896, ../../../../../sass/components/_issue.scss */
-.issue-commits .empty-area i, .issue-files .empty-area i {
+.issue-commits .empty-area i, .issue-review .empty-area i, .issue-files .empty-area i {
   font-size: inherit;
 }
 

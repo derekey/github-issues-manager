@@ -268,6 +268,9 @@ class _Issue(models.Model):
     def ajax_commits_url(self):
         return reverse_lazy('front:repository:issue.commits', kwargs=self.get_reverse_kwargs())
 
+    def ajax_review_url(self):
+        return reverse_lazy('front:repository:issue.review', kwargs=self.get_reverse_kwargs())
+
     @property
     def type(self):
         return 'pull request' if self.is_pull_request else 'issue'
@@ -395,6 +398,11 @@ class _Issue(models.Model):
             activity = GroupedCommits.add_commits_in_activity(self.all_commits, activity)
 
         return activity
+
+    def get_sorted_entry_points(self):
+        for entry_point in self.all_entry_points:
+            entry_point.last_created = list(entry_point.comments.all())[-1].created_at
+        return sorted(self.all_entry_points, key=attrgetter('last_created'))
 
     def get_commits_per_day(self):
         if not self.is_pull_request:

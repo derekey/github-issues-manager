@@ -1,7 +1,7 @@
 {% load frontutils %}
 <li>
     <div class="box pr-entry-point">
-        <div class="box-header" data-toggle="collapse" data-target="#pr-diff-{{ entry_point.id }}" title="Click to collapse/expand">
+        <div class="box-header" data-toggle="collapse" data-target="#{{ id_prefix|default:'pr-diff' }}-{{ entry_point.id }}" title="Click to collapse/expand">
             <div class="title">
                 <strong>{{ entry_point.user.username }}</strong> started a discussion in a{% if not entry_point.position %}n <strong>outdated</strong>{% endif %} diff
                 <span>{{ entry_point.path }}</span>
@@ -13,7 +13,7 @@
                 {% if not entry_point.updated_at or entry_point.created_at == entry_point.updated_at %}
                     <li class="time" title="{{ entry_point.created_at|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i>{{ entry_point.created_at|ago }}</li>
                 {% else %}
-                    <li class="time" title="Created on {{ entry_point.created_at|date:"DATETIME_FORMAT" }}, updated on  {{ entry_point.activity_order|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i>{{ entry_point.created_at|ago:True }}<i class="fa fa-caret-right"></i>{{ entry_point.activity_order|ago:True }}
+                    <li class="time" title="Created on {{ entry_point.created_at|date:"DATETIME_FORMAT" }}, updated on  {{ entry_point.last_created|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i>{{ entry_point.created_at|ago:True }}<i class="fa fa-caret-right"></i>{{ entry_point.last_created|ago:True }}
                     </li>
                 {% endif %}
                 {% with github_file_url=entry_point.github_url %}
@@ -25,7 +25,7 @@
                 {% endwith %}
             </ul>
         </div>
-        <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="pr-diff-{{ entry_point.id }}">
+        <div class="box-content collapse{% if entry_point.position %} in{% endif %}" id="{{ id_prefix|default:'pr-diff' }}-{{ entry_point.id }}">
             <div class="box-section code-diff">
                 {% include "front/repository/issues/code/include_diff.html" with parsed_diff=entry_point.diff_hunk|parse_diff:True entry_points=None path=entry_point.path sha=entry_point.original_commit_sha %}
             </div>
