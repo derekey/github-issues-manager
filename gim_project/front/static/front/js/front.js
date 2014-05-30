@@ -1412,8 +1412,8 @@ $().ready(function() {
             jwerty.key('r', IssueDetail.on_main_issue_panel_key_event('refresh'));
             $document.on('click', '.refresh-issue', Ev.stop_event_decorate_dropdown(IssueDetail.on_current_panel_key_event('refresh')));
 
-            jwerty.key('shift+r', IssueDetail.on_current_panel_key_event('force_refresh'));
-            jwerty.key('shift+r', IssueDetail.on_main_issue_panel_key_event('force_refresh'));
+            jwerty.key('shift+g', IssueDetail.on_current_panel_key_event('force_refresh'));
+            jwerty.key('shift+g', IssueDetail.on_main_issue_panel_key_event('force_refresh'));
             $document.on('click', '.force-refresh-issue', Ev.stop_event_decorate_dropdown(IssueDetail.on_current_panel_key_event('force_refresh')));
 
             // tabs activation
