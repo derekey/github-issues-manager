@@ -198,7 +198,7 @@
                         {% elif event.diff_hunk %}{# PullRequestEntryPoint #}
                             {% include "front/repository/issues/activity/include_pr_entry_point.html" with entry_point=event %}
                         {% elif event.is_commits_group %}{# GroupedPullRequestCommits #}
-                            {% include "front/repository/issues/commits/include_commits_groups.html" with groups=event|tolist id_prefix="pr-disc-" with_ago=True repository_source=current_issue.repository %}
+                            {% include "front/repository/issues/commits/include_commits_groups.html" with groups=event|tolist id_prefix="pr-disc-" with_ago=True repository_source=current_issue.repository collapsed=True %}
                         {% elif event.get_parts %}{# Event #}
                             {% include "front/repository/issues/activity/include_change_event.html" %}
                         {% else %}{# IssueComment #}

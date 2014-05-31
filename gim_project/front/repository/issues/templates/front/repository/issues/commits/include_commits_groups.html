@@ -19,7 +19,7 @@
                         <li class="time" title="{{ group.0.authored_at|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i> {% if with_ago %}{{ group.0.authored_at|ago }}{% else %}{{ group.0.authored_at|date }}{% endif %}</li>
                     </ul>
                 </div>
-                <div class="box-content collapse in" id="{{ id_prefix }}commits-group-{{ group.0.sha }}">
+                <div class="box-content collapse{% if not collapsed %}in{% endif %}" id="{{ id_prefix }}commits-group-{{ group.0.sha }}">
                     {% include "front/repository/issues/commits/include_commits.html" with commits=group %}
                 </div>
             </div>
