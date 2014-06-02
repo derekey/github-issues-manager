@@ -5,18 +5,18 @@
             <div class="box pr-commits-group">
                 <div class="box-header" data-toggle="collapse" data-target="#{{ id_prefix }}commits-group-{{ group.0.sha }}" title="Click to collapse/expand">
                     <div class="title">
-                        {% with authors=group.authors %}
-                            <strong>{{ authors.0 }}</strong>
+                        {% with authors=group.authors.all %}
+                            <strong>{{ authors.keys.0 }}</strong>
                             {% if authors|length == 2 %}
-                                and <strong>{{ authors.1 }}</strong>
+                                and <strong>{{ authors.keys.1 }}</strong>
                             {% elif authors|length > 2 %}
-                                , <strong>{{ authors.1 }}</strong> and others
+                                , <strong>{{ authors.keys.1 }}</strong> and others
                             {% endif %}
                         {% endwith %}
                         added <strong>{{ group|length }} commit{{ group|length|pluralize }}</strong>
                     </div>
                     <ul class="box-toolbar">
-                        <li class="time" title="{{ group.0.authored_at|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i> {% if with_ago %}{{ group.0.authored_at|ago }}{% else %}{{ group.0.authored_at|date }}{% endif %}</li>
+                        <li class="time" title="{{ group.0.authored_at|date:"DATE_FORMAT" }}"><i class="fa fa-clock-o"></i> {% if with_ago %}{{ group.0.authored_at|ago }}{% else %}{{ group.0.authored_at|date }}{% endif %}</li>
                     </ul>
                 </div>
                 <div class="box-content collapse{% if not collapsed %}in{% endif %}" id="{{ id_prefix }}commits-group-{{ group.0.sha }}">

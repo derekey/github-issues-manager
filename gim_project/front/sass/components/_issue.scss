@@ -757,8 +757,10 @@ $repo-name-height: 20px;
         margin-bottom: 15px;
     }
 
-    .change-event .box-content {
-        margin: 5px 10px;
+    .change-event, .pr-comments-group {
+        .box-content {
+            margin: 5px 10px;
+        }
     }
 
     .comment-nav {
