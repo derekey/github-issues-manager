@@ -2,8 +2,12 @@
 <li>
     <div class="box pr-comments-group">
         <div class="box-header">
+            <span class="fa-stack">
+                <i class="fa fa-comment-o fa-stack-2x"></i>
+                <i class="fa fa-code fa-stack-1x"></i>
+            </span>
             <div class="title">
-                {% with nb_comments=group|length %}
+                    {% with nb_comments=group|length %}
                     {{ nb_comments }} code comment{{ nb_comments|pluralize }} {{ nb_comments|pluralize:'was,were'}} added
                 {% endwith %}
             </div>

@@ -4,6 +4,11 @@
         <li>
             <div class="box pr-commits-group">
                 <div class="box-header" data-toggle="collapse" data-target="#{{ id_prefix }}commits-group-{{ group.0.sha }}" title="Click to collapse/expand">
+                    {% if with_icon %}
+                    <span class="fa-stack">
+                        <i class="fa fa-git-square fa-stack-2x"></i>
+                    </span>
+                    {% endif %}
                     <div class="title">
                         {% with authors=group.authors.all %}
                             <strong>{{ authors.keys.0 }}</strong>

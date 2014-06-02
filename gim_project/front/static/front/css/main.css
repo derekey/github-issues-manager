@@ -5134,6 +5134,35 @@ ol.errorlist, ul.errorlist {
   margin-left: 20px;
 }
 
+/* line 192, ../../../sass/main.scss */
+.fa-stack {
+  color: #2c596d !important;
+}
+/* line 194, ../../../sass/main.scss */
+.fa-stack .fa-code-fork {
+  color: #ccc !important;
+}
+/* line 196, ../../../sass/main.scss */
+.fa-stack .fa-code-fork ~ .fa {
+  opacity: 0.8;
+}
+/* line 200, ../../../sass/main.scss */
+.fa-stack .fa-file-text-o, .fa-stack .fa-file-code-o {
+  color: #ddd !important;
+}
+/* line 203, ../../../sass/main.scss */
+.fa-stack .fa-quote-left {
+  color: #ddd !important;
+}
+/* line 205, ../../../sass/main.scss */
+.fa-stack .fa-quote-left ~ .fa {
+  opacity: 0.8;
+}
+/* line 207, ../../../sass/main.scss */
+.fa-stack .fa-quote-left ~ .fa.fa-file-text-o, .fa-stack .fa-quote-left ~ .fa.fa-file-code-o {
+  color: inherit !important;
+}
+
 @media (max-width: 1023px) {
   /* line 4, ../../../sass/_responsive.scss */
   .navbar-fixed-top .user_avatar .dropdown-toggle > span > span:not(.caret) {

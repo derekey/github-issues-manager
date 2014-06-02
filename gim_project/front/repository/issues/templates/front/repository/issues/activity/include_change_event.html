@@ -2,6 +2,10 @@
 <li>
     <div class="box change-event">
         <div class="box-header">
+            <span class="fa-stack">
+                <i class="fa {% if event.issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
+                <i class="fa fa-pencil-square fa-stack-1x"></i>
+            </span>
             <div class="title">The {{ event.issue.type }} was updated</div>
             <ul class="box-toolbar">
                 <li class="time"><span class="time" title="{{ event.created_at|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i> {{ event.created_at|ago }}</span></li>

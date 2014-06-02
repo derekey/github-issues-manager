@@ -17,27 +17,6 @@
             }
         }
     }
-    .fa-stack {
-        color: #2c596d !important;
-        .fa-code-fork {
-            color: #ccc !important;
-            ~ .fa {
-                opacity: 0.8;
-            }
-        }
-        .fa-file-text-o, .fa-file-code-o {
-            color: #ddd !important;
-        }
-        .fa-quote-left {
-            color: #ddd !important;
-            ~ .fa {
-                opacity: 0.8;
-                &.fa-file-text-o, &.fa-file-code-o {
-                    color: inherit !important;
-                }
-            }
-        }
-    }
     .box-section {
         padding: 5px;
         padding-left: 2px;
