@@ -284,6 +284,14 @@ class GithubObject(models.Model):
                     # params for next page
                     return next_page_parameters, etag
 
+            # manage model without pagination ctivated on the github side
+            else:
+                # simply increment the page number
+                next_page_parameters = parameters.copy()
+                next_page_parameters['page'] = parameters.get('page', 1) + 1
+                # params for next page
+                return next_page_parameters, etag
+
             # no more page, stop
             return None, etag
 
