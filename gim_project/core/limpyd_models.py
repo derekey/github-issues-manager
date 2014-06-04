@@ -32,6 +32,7 @@ class Token(lmodel.RedisModel):
 
     repos_admin = lfields.SetField(indexable=True)
     repos_push = lfields.SetField(indexable=True)
+    repos_pull = lfields.SetField(indexable=True)
 
     LIMIT = 500
 
@@ -192,7 +193,7 @@ class Token(lmodel.RedisModel):
     def update_repos(self):
         """
         Update the repos_admin and repo_push fields with pks of repositories
-        the user can admin/push
+        the user can admin/push/pull
         """
         self.repos_admin.delete()
         repos_admin = self.get_repos_pks_with_permissions('admin')
@@ -204,6 +205,11 @@ class Token(lmodel.RedisModel):
         if repos_push:
             self.repos_push.sadd(*repos_push)
 
+        self.repos_pull.delete()
+        repos_pull = self.get_repos_pks_with_permissions('admin', 'push', 'pull')
+        if repos_pull:
+            self.repos_pull.sadd(*repos_pull)
+
     @classmethod
     def get_one_for_repository(cls, repository_pk, permission, available=True, sort_by='-rate_limit_remaining'):
         collection = cls.collection()
@@ -214,6 +220,8 @@ class Token(lmodel.RedisModel):
             collection.filter(repos_admin=repository_pk)
         elif permission == 'push':
             collection.filter(repos_push=repository_pk)
+        elif permission == 'pull':
+            collection.filter(repos_pull=repository_pk)
         try:
             if sort_by is None:
                 token = choice(collection.instances())

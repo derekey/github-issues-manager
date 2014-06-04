@@ -185,9 +185,9 @@ class Job(LimpydJob):
             # if we have a repository, get one following permission
             repository = getattr(self, 'repository')
             if repository:
-                if repository.private and permission not in ('admin', 'push'):
+                if repository.private and permission not in ('admin', 'push', 'pull'):
                     # force correct permission if repository is private
-                    permission = 'push'
+                    permission = 'pull'
                 token = Token.get_one_for_repository(repository.pk, permission)
 
             # no repository, not "self", but want one ? don't know why but ok...
