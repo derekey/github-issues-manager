@@ -688,6 +688,7 @@ $repo-name-height: 20px;
     .box-section.pr-comments {
         padding-top: 5px;
         padding-bottom: 0;
+        position: relative;
     }
 
     .pr-file {
@@ -762,10 +763,19 @@ $repo-name-height: 20px;
         margin-bottom: 15px;
     }
 
-    .change-event, .pr-comments-group {
-        .box-content {
-            margin: 5px 10px;
-        }
+    .change-event .box-content {
+        margin: 5px 10px;
+    }
+
+    .pr-comments-group .box-content {
+        margin: 5px 10px;
+        padding-right: 70px;
+    }
+
+    .go-to-review-link {
+        position: absolute;
+        right: 20px;
+        margin-top: -1px;
     }
 
     .comment-nav {

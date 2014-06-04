@@ -10,14 +10,12 @@
                     </span>
                     {% endif %}
                     <div class="title">
-                        {% with authors=group.authors.all %}
-                            <strong>{{ authors.keys.0 }}</strong>
-                            {% if authors|length == 2 %}
-                                and <strong>{{ authors.keys.1 }}</strong>
-                            {% elif authors|length > 2 %}
-                                , <strong>{{ authors.keys.1 }}</strong> and others
-                            {% endif %}
-                        {% endwith %}
+                        <strong>{{ group.authors.keys.0 }}</strong>
+                        {% if group.authors|length == 2 %}
+                            and <strong>{{ group.authors.keys.1 }}</strong>
+                        {% elif group.authors|length > 2 %}
+                            , <strong>{{ group.authors.keys.1 }}</strong> and others
+                        {% endif %}
                         added <strong>{{ group|length }} commit{{ group|length|pluralize }}</strong>
                     </div>
                     <ul class="box-toolbar">

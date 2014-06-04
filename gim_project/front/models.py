@@ -418,10 +418,8 @@ class GroupedItems(list):
     - in a list of activities: all entries between two entries of the activity
       list are grouped together per day ("group_in_activity")
     - per day ("group_by_day")
-    Also provides an 'author' method which returns a a dict with:
-    - 'all': a dict with each author and its number of entries
-    - 'first': the author of the first entry
-    - 'last': the author of the last entry
+    Also provides an 'author' method which returns a a dict with each author and
+    its number of entries
     """
     model = None
     date_field = 'created_at'
@@ -485,19 +483,12 @@ class GroupedItems(list):
         return getattr(entry, cls.author_field)
 
     def authors(self):
-        result = {
-            'all': OrderedDict(),
-            'first': None,
-            'last': None,
-        }
+        result = OrderedDict()
 
         for entry in self:
             name = self.get_author(entry)
-            result['all'].setdefault(name, 0)
-            result['all'][name] += 1
-            result['last'] = name
-
-        result['first'] = result['all'].keys()[0]
+            result.setdefault(name, 0)
+            result[name] += 1
 
         return result
 

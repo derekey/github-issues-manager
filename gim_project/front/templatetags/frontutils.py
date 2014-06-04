@@ -290,3 +290,13 @@ def copy_fks_from(to_obj, from_obj):
         copy_fk('repository', to_obj, from_obj._issue_cache)
 
     return to_obj
+
+
+@register.filter
+def map_attr(objs, attr):
+    return [getattr(obj, attr) for obj in objs]
+
+
+@register.filter
+def map_dict_item(dicts, dict_item):
+    return [dikt.get(dict_item) for dikt in dicts]

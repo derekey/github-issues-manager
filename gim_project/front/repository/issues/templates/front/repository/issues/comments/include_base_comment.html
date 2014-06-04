@@ -1,7 +1,7 @@
 {% extends "front/repository/issues/activity/include_base_activity.html" %}
 {% load frontutils %}
 
-{% block node_data %}data-url="{{ comment.get_absolute_url }}"{% endblock %}
+{% block node_data %}data-url="{{ comment.get_absolute_url }}" data-id="{{ comment.id }}"{% endblock %}
 
 {% block comment_date %}
     {% if comment.github_status != GITHUB_STATUSES.FETCHED %}

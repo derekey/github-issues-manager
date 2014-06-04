@@ -1,32 +1,31 @@
 {% load frontutils %}
 <li>
     <div class="box pr-comments-group">
-        <div class="box-header">
-            <span class="fa-stack">
-                <i class="fa fa-comment-o fa-stack-2x"></i>
-                <i class="fa fa-code fa-stack-1x"></i>
-            </span>
-            <div class="title">
-                    {% with nb_comments=group|length %}
+        {% with nb_comments=group|length %}
+            <div class="box-header">
+                <span class="fa-stack">
+                    <i class="fa fa-comment-o fa-stack-2x"></i>
+                    <i class="fa fa-code fa-stack-1x"></i>
+                </span>
+                <div class="title">
                     {{ nb_comments }} code comment{{ nb_comments|pluralize }} {{ nb_comments|pluralize:'was,were'}} added
-                {% endwith %}
+                </div>
+                <ul class="box-toolbar">
+                    <li class="time" title="{{ group.0.created_at|date:"DATE_FORMAT" }}"><i class="fa fa-clock-o"></i> {% if with_ago %}{{ group.0.created_at|ago }}{% else %}{{ group.0.created_at|date:"DATE_FORMAT" }}{% endif %}</li>
+                </ul>
             </div>
-            <ul class="box-toolbar">
-                <li class="time" title="{{ group.0.created_at|date:"DATE_FORMAT" }}"><i class="fa fa-clock-o"></i> {% if with_ago %}{{ group.0.created_at|ago }}{% else %}{{ group.0.created_at|date:"DATE_FORMAT" }}{% endif %}</li>
-            </ul>
-        </div>
-        <div class="box-content">
-            {% with authors=group.authors.all %}
+            <div class="box-content">
                 by
-                <strong>{{ authors.keys.0 }}</strong>
-                {% if authors|length > 1 %}
-                    ({{ authors.values.0 }})<!--
-                    {% for author in authors.keys|slice:'1:-1' %}
-                        -->, <strong>{{ author }}</strong> ({{ authors|dict_item:author }})-->
+                <strong>{{ group.authors.keys.0 }}</strong>
+                {% if group.authors|length > 1 %}
+                    ({{ group.authors.values.0 }})<!--
+                    {% for author in group.authors.keys|slice:'1:-1' %}
+                        -->, <strong>{{ author }}</strong> ({{ group.authors|dict_item:author }})-->
                     {% endfor %}
-                    --> and <strong>{{ authors.keys|last }}</strong> ({{ authors.values|last }})
+                    --> and <strong>{{ group.authors.keys|last }}</strong> ({{ group.authors.values|last }})
                 {% endif %}
-            {% endwith %}
-        </div>
+                <button class="btn btn-mini btn-gray go-to-review-link" data-ids="[{{ group|map_attr:'id'|join:',' }}]">View {{ nb_comments|pluralize:'it,them'}}</button>
+            </div>
+        {% endwith %}
     </div>
 </li>
