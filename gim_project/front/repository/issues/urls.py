@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     # parts
     url(r'^(?P<issue_number>\d+)/files/$', FilesAjaxIssueView.as_view(), name='issue.files'),
     url(r'^(?P<issue_number>\d+)/commits/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/commits/include_issue_commits.html'), name='issue.commits'),
+    url(r'^(?P<issue_number>\d+)/review/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/comments/include_pr_review.html'), name='issue.review'),
 
     # edit views
     url(r'^(?P<issue_number>\d+)/edit/state/$', IssueEditState.as_view(), name=IssueEditState.url_name),

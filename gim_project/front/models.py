@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import OrderedDict
 from operator import attrgetter
 import re
 
@@ -268,6 +269,9 @@ class _Issue(models.Model):
     def ajax_commits_url(self):
         return reverse_lazy('front:repository:issue.commits', kwargs=self.get_reverse_kwargs())
 
+    def ajax_review_url(self):
+        return reverse_lazy('front:repository:issue.review', kwargs=self.get_reverse_kwargs())
+
     @property
     def type(self):
         return 'pull request' if self.is_pull_request else 'issue'
@@ -370,36 +374,36 @@ class _Issue(models.Model):
 
         for event in change_events:
             event.renderer_ignore_fields = self.RENDERER_IGNORE_FIELDS
-            event.activity_order = event.created_at
 
         comments = list(self.comments.select_related('user', 'repository__owner'))
-        for comment in comments:
-            comment.activity_order = comment.created_at
 
         events = list(self.events.exclude(event='referenced', commit_sha__isnull=True)
                                         .select_related('user', 'repository__owner'))
-        for event in events:
-            event.activity_order = event.created_at
 
         activity = change_events + comments + events
 
         if self.is_pull_request:
-            for entry_point in self.all_entry_points:
-                entry_point.activity_order = list(entry_point.comments.all())[-1].created_at
+            pr_comments = list(self.pr_comments.select_related('user'))
 
-            activity += self.all_entry_points
+            activity += pr_comments + self.all_commits
 
-        activity.sort(key=attrgetter('activity_order'))
+        activity.sort(key=attrgetter('created_at'))
 
         if self.is_pull_request:
-            activity = GroupedCommits.add_commits_in_activity(self.all_commits, activity)
+            activity = GroupedCommits.group_in_activity(activity)
+            activity = GroupedPullRequestComments.group_in_activity(activity)
 
         return activity
+
+    def get_sorted_entry_points(self):
+        for entry_point in self.all_entry_points:
+            entry_point.last_created = list(entry_point.comments.all())[-1].created_at
+        return sorted(self.all_entry_points, key=attrgetter('last_created'))
 
     def get_commits_per_day(self):
         if not self.is_pull_request:
             return []
-        return GroupedCommits.group_commits_by_day(self.all_commits)
+        return GroupedCommits.group_by_day(self.all_commits)
 
     @property
     def html_content(self):
@@ -408,71 +412,103 @@ class _Issue(models.Model):
 contribute_to_model(_Issue, core_models.Issue)
 
 
-class GroupedCommits(list):
+class GroupedItems(list):
     """
-    An object to regroup a list of commits
-    - in a list of activities: all commits between two entries of the activity
-      list are grouped together per day ("add_commits_in_activity")
-    - per day ("group_commits_by_day")
+    An object to regroup a list of entries of the same type:
+    - in a list of activities: all entries between two entries of the activity
+      list are grouped together per day ("group_in_activity")
+    - per day ("group_by_day")
+    Also provides an 'author' method which returns a a dict with each author and
+    its number of entries
     """
-    is_commits_group = True  # for template
+    model = None
+    date_field = 'created_at'
+    author_field = 'user'
 
     @classmethod
-    def add_commits_in_activity(cls, commits, activity):
-        if not len(commits):
-            return activity
-
-        commits = list(commits)
+    def group_in_activity(cls, activity):
         final_activity = []
         current_group = None
 
         for entry in activity:
 
-            # add in a group all commits before the entry
-            while len(commits) and commits[0].authored_at < entry.activity_order:
-                if current_group is None:
+            if isinstance(entry, cls.model):
+                # we have a THING
+
+                # create a new group if first THING in a row
+                if not current_group:
                     current_group = cls()
-                current_group.append(commits.pop(0))
 
-            if current_group:
-                # final_activity.append(current_group)
-                final_activity.extend(GroupedCommits.group_commits_by_day(current_group))
-                current_group = None
+                # add the THING to the current group
+                current_group.append(entry)
 
-            # then add the entry
-            final_activity.append(entry)
+            else:
+                # not a THING
 
-        # still some commits, add a group with them
-        if len(commits):
-            #final_activity.append(cls(commits))
-            final_activity.extend(GroupedCommits.group_commits_by_day(commits))
+                # we close the current group, group its THINGs by day, and insert
+                # the resulting sub groups in the activity
+                if current_group:
+                    final_activity.extend(cls.group_by_day(current_group))
+                    # we'll want to start a fresh group
+                    current_group = None
+
+                # we add the non-THING entry in the activity
+                final_activity.append(entry)
+
+        # still some THINGs with nothing after, add a group with them
+        if current_group:
+            final_activity.extend(cls.group_by_day(current_group))
 
         return final_activity
 
     @classmethod
-    def group_commits_by_day(cls, commits):
-        if not len(commits):
+    def group_by_day(cls, entries):
+        if not len(entries):
             return []
 
         groups = []
         current_date = None
 
-        for commit in commits:
-            commit_date = commit.authored_at.date()
-            if not current_date or commit_date != current_date:
+        for entry in entries:
+            entry_date = getattr(entry, cls.date_field).date()
+            if not current_date or entry_date != current_date:
                 groups.append(cls())
-                current_date = commit_date
-            groups[-1].append(commit)
+                current_date = entry_date
+            groups[-1].append(entry)
 
         return groups
 
+    @classmethod
+    def get_author(cls, entry):
+        return getattr(entry, cls.author_field)
+
     def authors(self):
-        authors = []
-        for commit in self:
-            name = commit.author.username if commit.author_id else commit.author_name
-            if name not in authors:
-                authors.append(name)
-        return authors
+        result = OrderedDict()
+
+        for entry in self:
+            name = self.get_author(entry)
+            result.setdefault(name, 0)
+            result[name] += 1
+
+        return result
+
+
+class GroupedPullRequestComments(GroupedItems):
+    model = core_models.PullRequestComment
+    date_field = 'created_at'
+    author_field = 'user'
+    is_pr_comments_group = True  # for template
+
+
+class GroupedCommits(GroupedItems):
+    model = core_models.Commit
+    date_field = 'authored_at'
+    author_field = 'author'
+    is_commits_group = True  # for template
+
+    @classmethod
+    def get_author(cls, entry):
+        return entry.author.username if entry.author_id else entry.author_name
 
 
 class _Commit(models.Model):

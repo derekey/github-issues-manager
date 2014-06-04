@@ -1,0 +1,14 @@
+{% with entry_points=current_issue.get_sorted_entry_points %}{% with nb_entry_points=entry_points|length %}
+    <div class="content">
+        <strong>{{ current_issue.pr_comments_count }} comment{{ current_issue.pr_comments_count|pluralize }}</strong>
+        on
+        <strong>{{ nb_entry_points }} part{{ nb_entry_points|pluralize }}</strong>
+        being discussed
+    </div>
+
+    <ul class="unstyled chat-box timeline issue-activity issue-review">
+        {% for entry_point in entry_points%}
+            {% include "front/repository/issues/activity/include_pr_entry_point.html" with id_prefix='pr-review' %}
+        {% endfor %}
+    </ul>
+{% endwith %}{% endwith %}

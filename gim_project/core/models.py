@@ -1922,6 +1922,10 @@ class Commit(WithRepositoryMixin, GithubObject):
             self.sha,
         ]
 
+    @property
+    def created_at(self):
+        return self.authored_at
+
 
 class Issue(WithRepositoryMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='issues')

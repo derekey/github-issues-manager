@@ -153,9 +153,10 @@
         {% endif %}
         {% if current_issue.is_pull_request %}
             <ul class="nav nav-tabs pr-tabs">
-                <li class="pr-discussion-tab active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion</a></li>
+                <li class="pr-discussion-tab active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion & updates</a></li>
                 <li class="pr-commits-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-commits">Commits</a></li>
                 <li class="pr-files-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed</a></li>
+                <li class="pr-review-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-review">Review comments</a></li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active issue-discussion" data-tab="issue-discussion" id="issue-{{ current_issue.number }}-discussion">
@@ -194,10 +195,10 @@
                             {% elif event.event == 'referenced_by_milestone' %}
                                 {% include "front/repository/issues/activity/include_referenced_by_milestone_comment.html" with comment=event %}
                             {% endif %}
-                        {% elif event.diff_hunk %}{# PullRequestEntryPoint #}
-                            {% include "front/repository/issues/activity/include_pr_entry_point.html" with entry_point=event %}
-                        {% elif event.is_commits_group %}{# GroupedPullRequestCommits #}
-                            {% include "front/repository/issues/commits/include_commits_groups.html" with groups=event|tolist id_prefix="pr-disc-" with_ago=True repository_source=current_issue.repository %}
+                        {% elif event.is_commits_group %}{# GroupedCommits #}
+                            {% include "front/repository/issues/commits/include_commits_groups.html" with groups=event|tolist id_prefix="pr-disc-" with_ago=True repository_source=current_issue.repository collapsed=True with_icon=True %}
+                        {% elif event.is_pr_comments_group %}{# GroupedPullRequestComments #}
+                            {% include "front/repository/issues/activity/include_pr_comments_group.html" with group=event with_ago=True %}
                         {% elif event.get_parts %}{# Event #}
                             {% include "front/repository/issues/activity/include_change_event.html" %}
                         {% else %}{# IssueComment #}
@@ -228,6 +229,16 @@
                     <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
                 {% else %}
                     {% include "front/repository/issues/code/include_issue_files.html" %}
+                {% endif %}
+            </div>
+            <div class="tab-pane issue-review" data-tab="issue-review" id="issue-{{ current_issue.number }}-review" data-url="{{ current_issue.ajax_review_url }}">
+                {% if current_issue.pr_comments_entry_points.count > 10 %}
+                    <div class="content empty">
+                        Loading review comments...
+                    </div>
+                    <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
+                {% else %}
+                    {% include "front/repository/issues/comments/include_pr_review.html" %}
                 {% endif %}
             </div>
             <div class="box-section code-diff template" style="display: none"></div>

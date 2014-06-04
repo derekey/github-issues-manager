@@ -4,22 +4,25 @@
         <li>
             <div class="box pr-commits-group">
                 <div class="box-header" data-toggle="collapse" data-target="#{{ id_prefix }}commits-group-{{ group.0.sha }}" title="Click to collapse/expand">
+                    {% if with_icon %}
+                    <span class="fa-stack">
+                        <i class="fa fa-git-square fa-stack-2x"></i>
+                    </span>
+                    {% endif %}
                     <div class="title">
-                        {% with authors=group.authors %}
-                            <strong>{{ authors.0 }}</strong>
-                            {% if authors|length == 2 %}
-                                and <strong>{{ authors.1 }}</strong>
-                            {% elif authors|length > 2 %}
-                                , <strong>{{ authors.1 }}</strong> and others
-                            {% endif %}
-                        {% endwith %}
+                        <strong>{{ group.authors.keys.0 }}</strong>
+                        {% if group.authors|length == 2 %}
+                            and <strong>{{ group.authors.keys.1 }}</strong>
+                        {% elif group.authors|length > 2 %}
+                            , <strong>{{ group.authors.keys.1 }}</strong> and others
+                        {% endif %}
                         added <strong>{{ group|length }} commit{{ group|length|pluralize }}</strong>
                     </div>
                     <ul class="box-toolbar">
-                        <li class="time" title="{{ group.0.authored_at|date:"DATETIME_FORMAT" }}"><i class="fa fa-clock-o"></i> {% if with_ago %}{{ group.0.authored_at|ago }}{% else %}{{ group.0.authored_at|date }}{% endif %}</li>
+                        <li class="time" title="{{ group.0.authored_at|date:"DATE_FORMAT" }}"><i class="fa fa-clock-o"></i> {% if with_ago %}{{ group.0.authored_at|ago }}{% else %}{{ group.0.authored_at|date }}{% endif %}</li>
                     </ul>
                 </div>
-                <div class="box-content collapse in" id="{{ id_prefix }}commits-group-{{ group.0.sha }}">
+                <div class="box-content collapse{% if not collapsed %}in{% endif %}" id="{{ id_prefix }}commits-group-{{ group.0.sha }}">
                     {% include "front/repository/issues/commits/include_commits.html" with commits=group %}
                 </div>
             </div>

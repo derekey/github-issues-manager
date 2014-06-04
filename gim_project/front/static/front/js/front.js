@@ -991,6 +991,7 @@ $().ready(function() {
         select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'discussion'); },
         select_commits_tab: function(panel) { return IssueDetail.select_tab(panel, 'commits'); },
         select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'files'); },
+        select_review_tab: function(panel) { return IssueDetail.select_tab(panel, 'review'); },
 
         on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $target) {
             if ($target.data('files-list-loaded')) { return;}
@@ -1003,7 +1004,7 @@ $().ready(function() {
             var $link = $(this),
                 $target = $($link.attr('href')),
                 $node = $link.closest('.issue-container');
-            IssueDetail.scroll_in_files_list($node, $target);
+            IssueDetail.scroll_in_files_list($node, $target, -20); // -20 = margin
             IssueDetail.set_active_file($node, $link.closest('tr').data('pos'), true);
             if (!ev.no_file_focus) {
                 $target.find('.box-header a.path').focus();
@@ -1025,10 +1026,10 @@ $().ready(function() {
                                 }, 0),
                 position = (is_modal ? $target.position().top : $target.offset().top)
                          + (is_modal ? 0 : $context.scrollTop())
-                          - stuck_height
-                          + (is_modal ? (is_list_on_top ? 5 : 303) : -52) // manual finding... :(
-                          - 15 // adjust (margin ?)
-                          - (delta || 0);
+                         - stuck_height
+                         + (is_modal ? (is_list_on_top ? 60 : 440) : 5) // manual finding... :(
+                         - 47 // topbar
+                         + (delta || 0);
 
             $context.scrollTop(position);
         }), // scroll_in_files_list
@@ -1210,10 +1211,30 @@ $().ready(function() {
             $file_node = $comment.closest('.pr-file');
             $files_list_container.data('active-comment', comment);
             IssueDetail.set_active_file($node, $file_node.data('pos'), false);
-            IssueDetail.scroll_in_files_list($node, $comment, 30);  // 30 = 2 previous diff lines
+            IssueDetail.scroll_in_files_list($node, $comment, -50);  // -20=margin, -30 = 2 previous diff lines
             $node.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
             $node.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
         }), // go_to_file_comment
+
+        scroll_in_review: (function IssueDetail__scroll_in_review ($node, $target, delta) {
+            var is_modal = IssueDetail.is_modal($node),
+                $context = IssueDetail.get_scroll_context($node, is_modal),
+                stuck_height = $node.find('.sticky-wrapper:not(.files-list-sticky-wrapper)')
+                               .toArray()
+                               .reduce(function(height, wrapper) {
+                                    var $wrapper = $(wrapper),
+                                        $stickable = $wrapper.children().first();
+                                    return height + ($stickable.hasClass('stuck') ? $stickable : $wrapper).outerHeight();
+                                }, 0),
+                position = (is_modal ? $target.position().top : $target.offset().top)
+                         + (is_modal ? 0 : $context.scrollTop())
+                         - stuck_height
+                         + (is_modal ? 80 : 5) // manual finding... :(
+                         - 47 // topbar;
+                         + (delta || 0);
+
+                $context.scrollTop(position);
+        }), // scroll_in_review
 
         load_tab: (function IssueDetail__load_tab (ev) {
             var $tab = $(ev.target),
@@ -1379,18 +1400,48 @@ $().ready(function() {
             $node.one('loaded.tab.issue-files', function() {
                 var $comment_node = $node.find('.issue-files .issue-comment[data-url="' + url + '"]');
                 if ($comment_node.length) {
-                    var relative_position = 0;
+                    var relative_position = -20;  // some margin
                     if (IssueDetail.is_modal($node)) {
                         var $container = $comment_node.closest('.pr-comments');
-                        relative_position = -$container.position().top - 20;
+                        relative_position += $container.position().top;
                     }
-                    IssueDetail.scroll_in_files_list($node, $comment_node, relative_position-5);
+                    IssueDetail.scroll_in_files_list($node, $comment_node, relative_position);
                 } else {
                     alert('This comment is not linked to active code anymore');
                 }
             });
             IssueDetail.select_files_tab(PanelsSwpr.current_panel);
         }), // on_link_to_diff_comment
+
+        on_link_to_review_comment: (function IssueDetail__on_link_to_review_comment () {
+            var $button = $(this),
+                css_filter = $.map($button.data('ids'), function(id) { return '.issue-review [data-id=' + id + ']' } ).join(', '),
+                $node = $button.closest('.issue-container');
+            $node.one('loaded.tab.issue-review', function() {
+                var $comment_node = $node.find(css_filter).first();
+                if (!$comment_node.length) {
+                    alert('This comment was not found, maybe a bug ;)');
+                    return;
+                }
+                var do_scroll = function() {
+                    var relative_position = -20; // some margin
+                    if (IssueDetail.is_modal($node)) {
+                        var $container = $comment_node.closest('.pr-comments');
+                        relative_position += $container.position().top;
+                    }
+                    IssueDetail.scroll_in_review($node, $comment_node, relative_position);
+
+                }; // do_scroll
+                var $container = $comment_node.closest('.collapse');
+                if (!$container.hasClass('in')) {
+                    $container.one('shown.collapse', do_scroll);
+                    $container.collapse('show');
+                } else {
+                   do_scroll();
+                }
+            });
+            IssueDetail.select_review_tab(PanelsSwpr.current_panel);
+        }), // on_link_to_review_comment
 
         init: (function IssueDetail__init () {
             // init modal container
@@ -1412,18 +1463,22 @@ $().ready(function() {
             jwerty.key('r', IssueDetail.on_main_issue_panel_key_event('refresh'));
             $document.on('click', '.refresh-issue', Ev.stop_event_decorate_dropdown(IssueDetail.on_current_panel_key_event('refresh')));
 
-            jwerty.key('shift+r', IssueDetail.on_current_panel_key_event('force_refresh'));
-            jwerty.key('shift+r', IssueDetail.on_main_issue_panel_key_event('force_refresh'));
+            jwerty.key('shift+g', IssueDetail.on_current_panel_key_event('force_refresh'));
+            jwerty.key('shift+g', IssueDetail.on_main_issue_panel_key_event('force_refresh'));
             $document.on('click', '.force-refresh-issue', Ev.stop_event_decorate_dropdown(IssueDetail.on_current_panel_key_event('force_refresh')));
 
             // tabs activation
             jwerty.key('shift+d', IssueDetail.on_current_panel_key_event('select_discussion_tab'));
             jwerty.key('shift+c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
             jwerty.key('shift+f', IssueDetail.on_current_panel_key_event('select_files_tab'));
+            jwerty.key('shift+r', IssueDetail.on_current_panel_key_event('select_review_tab'));
             $document.on('shown.tab', '.pr-tabs a', IssueDetail.load_tab);
 
-            // link from PR comment in "discussion" tab to same entry in "files changed" tab
+            // link from PR comment in "review" tab to same entry in "files changed" tab
             $document.on('click', '.go-to-diff-link', Ev.stop_event_decorate(IssueDetail.on_link_to_diff_comment));
+
+            // link from PR comment group in "discussion" tab to first entry "files changed" tab
+            $document.on('click', '.go-to-review-link', Ev.stop_event_decorate(IssueDetail.on_link_to_review_comment));
 
             // modal events
             if (IssueDetail.$modal.length) {
