@@ -2317,7 +2317,69 @@ class WithIssueMixin(WithRepositoryMixin):
         return values
 
 
-class IssueComment(WithIssueMixin, GithubObjectWithId):
+class CommentMixin(models.Model):
+    linked_commits = models.ManyToManyField('Commit')
+
+    class Meta:
+        abstract = True
+
+    RE_COMMITS = re.compile('https?://(?:www.)?github\.com/([\w\-\.]+)/([\w\-\.]+)/commit/([0-9a-f]+)')
+
+    def save(self, *args, **kwargs):
+        """
+        If the user, which is mandatory, is not defined, use (and create if
+        needed) a special user named 'user.deleted'
+        Find references to other issues
+        Find references to commits
+        """
+        if self.user_id is None:
+            self.user = GithubUser.objects.get_deleted_user()
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('user')
+
+        super(CommentMixin, self).save(*args, **kwargs)
+
+        if not kwargs.get('updated_field') or 'body_html' in kwargs['updated_field']:
+            IssueEvent.objects.check_references(self, ['body_html'])
+            self.find_commits()
+
+    def find_commits(self):
+        """
+        Check all references to commits in the comment, and link them via the
+        `linked_commits` m2m field.
+        """
+        all_commits = self.RE_COMMITS.findall(self.body_html) if self.body_html and self.body_html.strip() else []
+        existing_commits = self.linked_commits.all().select_related('repository__owner')
+        exising_commits_tuple = [(c.repository.owner.username, c.repository.name, c.sha) for c in existing_commits]
+
+        # remove removed commits
+        for existing in exising_commits_tuple:
+            if existing not in all_commits:
+                try:
+                    self.linked_commits.get(
+                        repository__owner__username=existing[0],
+                        repository__name=existing[1],
+                        sha=existing[2]
+                    ).delete()
+                except Commit.DoesNotExist:
+                    pass
+
+        # add new commits if we have them
+        for new in all_commits:
+            if new in exising_commits_tuple:
+                continue
+            try:
+                commit = Commit.objects.get(
+                    repository__owner__username=new[0],
+                    repository__name=new[1],
+                    sha=new[2]
+                )
+            except Commit.DoesNotExist:
+                continue
+            self.linked_commits.add(commit)
+
+
+class IssueComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='comments')
     issue = models.ForeignKey(Issue, related_name='comments')
     user = models.ForeignKey(GithubUser, related_name='issue_comments')
@@ -2356,20 +2418,6 @@ class IssueComment(WithIssueMixin, GithubObjectWithId):
     @property
     def github_callable_create_identifiers(self):
         return self.issue.github_callable_identifiers_for_comments
-
-    def save(self, *args, **kwargs):
-        """
-        If the user, which is mandatory, is not defined, use (and create if
-        needed) a special user named 'user.deleted'
-        """
-        if self.user_id is None:
-            self.user = GithubUser.objects.get_deleted_user()
-            if kwargs.get('update_fields'):
-                kwargs['update_fields'].append('user')
-        super(IssueComment, self).save(*args, **kwargs)
-
-        if not kwargs.get('updated_field') or 'body_html' in kwargs['updated_field']:
-            IssueEvent.objects.check_references(self, ['body_html'])
 
 
 class PullRequestCommentEntryPoint(GithubObject):
@@ -2441,7 +2489,7 @@ class PullRequestCommentEntryPoint(GithubObject):
         super(PullRequestCommentEntryPoint, self).save(*args, **kwargs)
 
 
-class PullRequestComment(WithIssueMixin, GithubObjectWithId):
+class PullRequestComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='pr_comments')
     issue = models.ForeignKey(Issue, related_name='pr_comments')
     user = models.ForeignKey(GithubUser, related_name='pr_comments')
@@ -2496,24 +2544,15 @@ class PullRequestComment(WithIssueMixin, GithubObjectWithId):
 
     def save(self, *args, **kwargs):
         """
-        If the user, which is mandatory, is not defined, use (and create if
-        needed) a special user named 'user.deleted'
         If it's a creation, update the pr_comments_count of the issue
         If it's an update, update the starting point of the entry-point
         """
-        if self.user_id is None:
-            self.user = GithubUser.objects.get_deleted_user()
-            if kwargs.get('update_fields'):
-                kwargs['update_fields'].append('user')
         is_new = not bool(self.pk)
         super(PullRequestComment, self).save(*args, **kwargs)
         if is_new:
             self.issue.update_pr_comments_count()
         else:
             self.entry_point.update_starting_point(save=True)
-
-        if not kwargs.get('updated_field') or 'body_html' in kwargs['updated_field']:
-            IssueEvent.objects.check_references(self, ['body_html'])
 
 
 class IssueEvent(WithIssueMixin, GithubObjectWithId):

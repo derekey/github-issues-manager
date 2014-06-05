@@ -56,4 +56,13 @@
 
 {% block comment_inner_body %}
     {{ comment.html_content|safe }}
+    {% if comment.linked_commits %}
+        {% with commits=comment.linked_commits.all %}
+            {% if commits|length %}
+                <div class="comment-commits">
+                    {% include "front/repository/issues/commits/include_commits.html" with commits=commits repository_source=comment.repository %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
 {% endblock comment_inner_body %}
