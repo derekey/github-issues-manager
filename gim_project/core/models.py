@@ -2355,7 +2355,7 @@ class CommentMixin(models.Model):
             IssueEvent.objects.check_references(self, ['body_html'])
             self.find_commits()
 
-    def find_commits(self):
+    def find_commits(self, jobs_priority=0):
         """
         Check all references to commits in the comment, and link them via the
         `linked_commits` m2m field.
@@ -2379,7 +2379,7 @@ class CommentMixin(models.Model):
             self.linked_commits.remove(*to_remove)
 
         # add new commits if we have them
-        to_add = []
+        to_add, not_found = [], []
         for new in new_commits:
 
             # check if this new one is already in existing ones
@@ -2399,10 +2399,35 @@ class CommentMixin(models.Model):
                     sha__startswith=new[2]
                 ))
             except Commit.DoesNotExist:
-                continue
+                not_found.append(new)
 
         if to_add:
             self.linked_commits.add(*to_add)
+
+        if not_found:
+            from core.tasks.commit import FetchCommitBySha
+            if isinstance(self, IssueComment):
+                from core.tasks.comment import SearchReferenceCommitForComment as JobModel
+            else:
+                from core.tasks.comment import SearchReferenceCommitForPRComment as JobModel
+
+            repos = {}
+            for new in not_found:
+                repo_tuple = (new[0], new[1])
+                if (repo_tuple) not in repos:
+                    try:
+                        repos[repo_tuple] = Repository.objects.get(
+                            owner__username=new[0],
+                            name=new[1]
+                        )
+                    except Repository.DoesNotExist:
+                        continue
+
+                FetchCommitBySha.add_job('%s#%s' % (repos[repo_tuple].id, new[2]),
+                                                    priority=jobs_priority)
+                JobModel.add_job(self.id, delayed_for=30,
+                                 repository_id=repos[repo_tuple].id, commit_sha=new[2],
+                                 priority=jobs_priority)
 
 
 class IssueComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
@@ -2647,8 +2672,8 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         if needs_comit:
             from core.tasks.commit import FetchCommitBySha
             FetchCommitBySha.add_job('%s#%s' % (self.repository_id, self.commit_sha))
-            from core.tasks.event import SearchReferenceCommit
-            SearchReferenceCommit.add_job(self.id, delayed_for=30)
+            from core.tasks.event import SearchReferenceCommitForEvent
+            SearchReferenceCommitForEvent.add_job(self.id, delayed_for=30)
 
 
 class PullRequestFile(WithIssueMixin, GithubObject):

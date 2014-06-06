@@ -1,5 +1,5 @@
 __all__ = [
-    'SearchReferenceCommit',
+    'SearchReferenceCommitForEvent',
 ]
 
 from limpyd import fields
@@ -31,17 +31,17 @@ class EventJob(DjangoModelJob):
         return self._repository
 
 
-class SearchReferenceCommit(EventJob):
+class SearchReferenceCommitForEvent(EventJob):
     """
     When an event is a reference to a commit, we may not have it, so we'll
     wait because it may have been fetched after the event was received
     """
-    queue_name = 'search-ref-commit'
+    queue_name = 'search-ref-commit-event'
 
     nb_tries = fields.InstanceHashField()
 
     def run(self, queue):
-        super(SearchReferenceCommit, self).run(queue)
+        super(SearchReferenceCommitForEvent, self).run(queue)
 
         event = self.event
 

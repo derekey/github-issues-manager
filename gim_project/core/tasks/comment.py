@@ -1,13 +1,18 @@
 __all__ = [
     'IssueCommentEditJob',
     'PullRequestCommentEditJob',
+    'SearchReferenceCommitForComment',
+    'SearchReferenceCommitForPRComment',
 ]
 
 
 from limpyd import fields
+from limpyd_jobs import STATUSES
+from limpyd_jobs.utils import compute_delayed_until
+
 from async_messages import messages
 
-from core.models import IssueComment, PullRequestComment
+from core.models import IssueComment, PullRequestComment, Commit
 from core.ghpool import ApiError
 
 from .base import DjangoModelJob
@@ -105,3 +110,53 @@ class IssueCommentEditJob(CommentEditJob):
 class PullRequestCommentEditJob(CommentEditJob):
     queue_name = 'edit-pr-comment'
     model = PullRequestComment
+
+
+class SearchReferenceCommitForComment(IssueCommentJob):
+    """
+    When an comment references a commit, we may not have it, so we'll
+    wait because it may have been fetched after the comment was received
+    """
+
+    queue_name = 'search-ref-commit-comment'
+
+    repository_id = fields.InstanceHashField()
+    commit_sha = fields.InstanceHashField()
+    nb_tries = fields.InstanceHashField()
+
+    def run(self, queue):
+        super(SearchReferenceCommitForComment, self).run(queue)
+
+        repository_id, commit_sha = self.hmget('repository_id', 'commit_sha')
+
+        try:
+            # try to find the matching commit
+            Commit.objects.filter(
+                repository_id=repository_id,
+                sha__startswith=commit_sha,
+            ).order_by('-authored_at')[0]
+        except IndexError:
+            # the commit was not found
+
+            tries = int(self.nb_tries.hget() or 0)
+
+            if tries >= 5:
+                # enough tries, stop now
+                self.status.hset(STATUSES.CANCELED)
+                return None
+            else:
+                # we'll try again...
+                self.status.hset(STATUSES.DELAYED)
+                self.delayed_until.hset(compute_delayed_until(delayed_for=60*tries))
+                self.nb_tries.hincrby(1)
+            return False
+
+        # commit found, save the comment
+        self.object.save()
+
+        return True
+
+
+class SearchReferenceCommitForPRComment(SearchReferenceCommitForComment):
+    model = PullRequestComment
+    queue_name = 'search-ref-commit-pr-comment'
