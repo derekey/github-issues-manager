@@ -4,6 +4,8 @@ __all__ = [
     'FetchCommitBySha',
 ]
 
+from datetime import datetime
+
 from limpyd import fields
 
 from core.models import Repository, Commit
@@ -54,7 +56,9 @@ class FetchCommitBySha(Job):
         except ApiNotFoundError:
             # the commit doesn't exist anymore, delete it
             if commit.pk:
-                commit.delete()
+                commit.deleted = True
+                commit.fetched_at = datetime.utcnow()
+                commit.save(update_field=['deleted', 'fetched_at'])
             self.deleted.hset(1)
             return False
 
