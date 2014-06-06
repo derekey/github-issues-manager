@@ -199,8 +199,8 @@ class GithubObject(models.Model):
                     # tell github we have all data since this date
                     if_modified_since = fetched_at
                     # limit to a few items per list when updating a repository
-                    # only if per_page not forced
-                    if not parameters.get('per_page'):
+                    # only if per_page not forced and last fetch is recent
+                    if not parameters.get('per_page') and datetime.utcnow() - fetched_at < timedelta(days=3):
                         per_page_parameter['per_page'] = model.github_per_page['min']
 
                     # do we have to check for a min date ?
