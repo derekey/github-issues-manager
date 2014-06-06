@@ -2348,35 +2348,49 @@ class CommentMixin(models.Model):
         Check all references to commits in the comment, and link them via the
         `linked_commits` m2m field.
         """
-        all_commits = self.RE_COMMITS.findall(self.body_html) if self.body_html and self.body_html.strip() else []
+        new_commits = self.RE_COMMITS.findall(self.body_html) if self.body_html and self.body_html.strip() else []
         existing_commits = self.linked_commits.all().select_related('repository__owner')
-        exising_commits_tuple = [(c.repository.owner.username, c.repository.name, c.sha) for c in existing_commits]
+        existing_commits_dict = {(c.repository.owner.username, c.repository.name, c.sha): c for c in existing_commits}
 
         # remove removed commits
-        for existing in exising_commits_tuple:
-            if existing not in all_commits:
-                try:
-                    self.linked_commits.get(
-                        repository__owner__username=existing[0],
-                        repository__name=existing[1],
-                        sha=existing[2]
-                    ).delete()
-                except Commit.DoesNotExist:
-                    pass
+        to_remove = []
+        for e_tuple, e_commit in existing_commits_dict.items():
+            found = False
+            for new in new_commits:
+                if (e_tuple[0], e_tuple[1], e_tuple[2][:len(new[2])]) == new:
+                    found = True
+                    break
+            if not found:
+                to_remove.append(e_commit)
+
+        if to_remove:
+            self.linked_commits.remove(*to_remove)
 
         # add new commits if we have them
-        for new in all_commits:
-            if new in exising_commits_tuple:
+        to_add = []
+        for new in new_commits:
+
+            # check if this new one is already in existing ones
+            found = False
+            for e_tuple in existing_commits_dict.keys():
+                if new == (e_tuple[0], e_tuple[1], e_tuple[2][:len(new[2])]):
+                    found = True
+                    break
+            if found:
                 continue
+
+            # try to find the commit to add
             try:
-                commit = Commit.objects.get(
+                to_add.append(Commit.objects.get(
                     repository__owner__username=new[0],
                     repository__name=new[1],
-                    sha=new[2]
-                )
+                    sha__startswith=new[2]
+                ))
             except Commit.DoesNotExist:
                 continue
-            self.linked_commits.add(commit)
+
+        if to_add:
+            self.linked_commits.add(*to_add)
 
 
 class IssueComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
