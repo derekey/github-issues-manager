@@ -78,6 +78,8 @@ class GithubObject(models.Model):
     github_date_field = None  # ex ('updated_at', 'updated',   'desc')
                               #      obj field     sort param  direction param
 
+    delete_missing_after_fetch = True
+
     class Meta:
         abstract = True
 
@@ -465,7 +467,7 @@ class GithubObject(models.Model):
                 to_delete_queryset = instance_field.model.objects.filter(id__in=to_remove)
                 if filter_queryset:
                     to_delete_queryset = to_delete_queryset.filter(filter_queryset)
-                to_delete_queryset.delete()
+                instance_field.model.objects.delete_missing_after_fetch(to_delete_queryset)
 
         # if we have new relations, add them
         to_add = fetched_ids - existing_ids
@@ -1901,6 +1903,9 @@ class Commit(WithRepositoryMixin, GithubObject):
     deleted = models.BooleanField(default=False)
 
     objects = CommitManager()
+
+    # we keep old commits for reference
+    delete_missing_after_fetch = False
 
     class Meta:
         ordering = ('committed_at', )
