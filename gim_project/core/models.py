@@ -2239,12 +2239,17 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(Issue, self).fetch_all(gh, force_fetch=force_fetch)
         #self.fetch_labels(gh, force_fetch=force_fetch)  # already retrieved via self.fetch
+
+        if self.is_pull_request:
+            # fetch commits first because they may be used as references in comments
+            self.fetch_commits(gh, force_fetch=force_fetch)
+
         self.fetch_events(gh, force_fetch=True)
         self.fetch_comments(gh, force_fetch=force_fetch)
+
         if self.is_pull_request:
             self.fetch_pr(gh, force_fetch=force_fetch)
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
-            self.fetch_commits(gh, force_fetch=force_fetch)
             self.fetch_files(gh, force_fetch=force_fetch)
 
     @property
