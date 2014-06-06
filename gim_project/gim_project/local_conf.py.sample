@@ -10,6 +10,8 @@ conf = {
 
     'BRAND_SHORT_NAME': 'G.I.M',
     'BRAND_LONG_NAME': 'Github Issues Manager',
+    #'FAVICON_PATH': '/path/to/img.png',
+    #'FAVICON_STATIC_MANAGED': False  # to let nginx do its rewrite for example
 
     # 'DB_ENGINE': '',
     # 'DB_NAME': '',

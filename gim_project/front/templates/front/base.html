@@ -4,6 +4,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700">
     <meta charset="utf-8">
     <title>{% block title %}{% endblock title %} | {{ brand.long_name }}</title>
+    {% if brand.favicon.path %}
+        <link rel="icon" type="image/png" href="{% if brand.favicon.static_managed %}{% static brand.favicon.path %}{% else %}{{ brand.favicon.path }}{% endif %}" />
+    {% endif %}
     <meta name="description" content="Github Issues Manager">
     <meta name="author" content='Stéphane "Twidi" Angel'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -328,6 +328,9 @@ CACHES = {
 BRAND_SHORT_NAME = conf.get('BRAND_SHORT_NAME', 'G.I.M')
 BRAND_LONG_NAME = conf.get('BRAND_LONG_NAME', 'Github Issues Manager')
 
+FAVICON_PATH = conf.get('FAVICON_PATH', None)
+FAVICON_STATIC_MANAGED = conf.get('FAVICON_STATIC_MANAGED', True)
+
 DEBUG_TOOLBAR = False
 try:
     from local_settings import *
