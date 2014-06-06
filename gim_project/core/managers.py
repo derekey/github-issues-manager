@@ -425,6 +425,17 @@ class GithubObjectManager(models.Manager):
 
         return fields
 
+    def delete_missing_after_fetch(self, queryset):
+        """
+        All objects matching the given queryset will be deleted, or, if the
+        `delete_missing_after_fetch` attribute of the model is set to False,
+        the `deleted` attribute of all this objects is set to True
+        """
+        if self.model.delete_missing_after_fetch:
+            queryset.delete()
+        else:
+            queryset.update(deleted=True)
+
 
 class WithRepositoryManager(GithubObjectManager):
     """

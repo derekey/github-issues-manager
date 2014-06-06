@@ -78,6 +78,8 @@ class GithubObject(models.Model):
     github_date_field = None  # ex ('updated_at', 'updated',   'desc')
                               #      obj field     sort param  direction param
 
+    delete_missing_after_fetch = True
+
     class Meta:
         abstract = True
 
@@ -197,8 +199,8 @@ class GithubObject(models.Model):
                     # tell github we have all data since this date
                     if_modified_since = fetched_at
                     # limit to a few items per list when updating a repository
-                    # only if per_page not forced
-                    if not parameters.get('per_page'):
+                    # only if per_page not forced and last fetch is recent
+                    if not parameters.get('per_page') and datetime.utcnow() - fetched_at < timedelta(days=3):
                         per_page_parameter['per_page'] = model.github_per_page['min']
 
                     # do we have to check for a min date ?
@@ -284,8 +286,10 @@ class GithubObject(models.Model):
                     # params for next page
                     return next_page_parameters, etag
 
-            # manage model without pagination ctivated on the github side
-            else:
+            # manage model without pagination activated on the github side
+            # but only if we receivend enough data to let us think we may have
+            # more than one page
+            elif len(objs) >= parameters.get('per_page'):  # == should suffice but...
                 # simply increment the page number
                 next_page_parameters = parameters.copy()
                 next_page_parameters['page'] = parameters.get('page', 1) + 1
@@ -465,7 +469,7 @@ class GithubObject(models.Model):
                 to_delete_queryset = instance_field.model.objects.filter(id__in=to_remove)
                 if filter_queryset:
                     to_delete_queryset = to_delete_queryset.filter(filter_queryset)
-                to_delete_queryset.delete()
+                instance_field.model.objects.delete_missing_after_fetch(to_delete_queryset)
 
         # if we have new relations, add them
         to_add = fetched_ids - existing_ids
@@ -1902,6 +1906,9 @@ class Commit(WithRepositoryMixin, GithubObject):
 
     objects = CommitManager()
 
+    # we keep old commits for reference
+    delete_missing_after_fetch = False
+
     class Meta:
         ordering = ('committed_at', )
         unique_together = (
@@ -2232,12 +2239,17 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         super(Issue, self).fetch_all(gh, force_fetch=force_fetch)
         #self.fetch_labels(gh, force_fetch=force_fetch)  # already retrieved via self.fetch
+
+        if self.is_pull_request:
+            # fetch commits first because they may be used as references in comments
+            self.fetch_commits(gh, force_fetch=force_fetch)
+
         self.fetch_events(gh, force_fetch=True)
         self.fetch_comments(gh, force_fetch=force_fetch)
+
         if self.is_pull_request:
             self.fetch_pr(gh, force_fetch=force_fetch)
             self.fetch_pr_comments(gh, force_fetch=force_fetch)
-            self.fetch_commits(gh, force_fetch=force_fetch)
             self.fetch_files(gh, force_fetch=force_fetch)
 
     @property
@@ -2343,40 +2355,79 @@ class CommentMixin(models.Model):
             IssueEvent.objects.check_references(self, ['body_html'])
             self.find_commits()
 
-    def find_commits(self):
+    def find_commits(self, jobs_priority=0):
         """
         Check all references to commits in the comment, and link them via the
         `linked_commits` m2m field.
         """
-        all_commits = self.RE_COMMITS.findall(self.body_html) if self.body_html and self.body_html.strip() else []
+        new_commits = self.RE_COMMITS.findall(self.body_html) if self.body_html and self.body_html.strip() else []
         existing_commits = self.linked_commits.all().select_related('repository__owner')
-        exising_commits_tuple = [(c.repository.owner.username, c.repository.name, c.sha) for c in existing_commits]
+        existing_commits_dict = {(c.repository.owner.username, c.repository.name, c.sha): c for c in existing_commits}
 
         # remove removed commits
-        for existing in exising_commits_tuple:
-            if existing not in all_commits:
-                try:
-                    self.linked_commits.get(
-                        repository__owner__username=existing[0],
-                        repository__name=existing[1],
-                        sha=existing[2]
-                    ).delete()
-                except Commit.DoesNotExist:
-                    pass
+        to_remove = []
+        for e_tuple, e_commit in existing_commits_dict.items():
+            found = False
+            for new in new_commits:
+                if (e_tuple[0], e_tuple[1], e_tuple[2][:len(new[2])]) == new:
+                    found = True
+                    break
+            if not found:
+                to_remove.append(e_commit)
+
+        if to_remove:
+            self.linked_commits.remove(*to_remove)
 
         # add new commits if we have them
-        for new in all_commits:
-            if new in exising_commits_tuple:
+        to_add, not_found = [], []
+        for new in new_commits:
+
+            # check if this new one is already in existing ones
+            found = False
+            for e_tuple in existing_commits_dict.keys():
+                if new == (e_tuple[0], e_tuple[1], e_tuple[2][:len(new[2])]):
+                    found = True
+                    break
+            if found:
                 continue
+
+            # try to find the commit to add
             try:
-                commit = Commit.objects.get(
+                to_add.append(Commit.objects.get(
                     repository__owner__username=new[0],
                     repository__name=new[1],
-                    sha=new[2]
-                )
+                    sha__startswith=new[2]
+                ))
             except Commit.DoesNotExist:
-                continue
-            self.linked_commits.add(commit)
+                not_found.append(new)
+
+        if to_add:
+            self.linked_commits.add(*to_add)
+
+        if not_found:
+            from core.tasks.commit import FetchCommitBySha
+            if isinstance(self, IssueComment):
+                from core.tasks.comment import SearchReferenceCommitForComment as JobModel
+            else:
+                from core.tasks.comment import SearchReferenceCommitForPRComment as JobModel
+
+            repos = {}
+            for new in not_found:
+                repo_tuple = (new[0], new[1])
+                if (repo_tuple) not in repos:
+                    try:
+                        repos[repo_tuple] = Repository.objects.get(
+                            owner__username=new[0],
+                            name=new[1]
+                        )
+                    except Repository.DoesNotExist:
+                        continue
+
+                FetchCommitBySha.add_job('%s#%s' % (repos[repo_tuple].id, new[2]),
+                                                    priority=jobs_priority)
+                JobModel.add_job(self.id, delayed_for=30,
+                                 repository_id=repos[repo_tuple].id, commit_sha=new[2],
+                                 priority=jobs_priority)
 
 
 class IssueComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
@@ -2621,8 +2672,8 @@ class IssueEvent(WithIssueMixin, GithubObjectWithId):
         if needs_comit:
             from core.tasks.commit import FetchCommitBySha
             FetchCommitBySha.add_job('%s#%s' % (self.repository_id, self.commit_sha))
-            from core.tasks.event import SearchReferenceCommit
-            SearchReferenceCommit.add_job(self.id, delayed_for=30)
+            from core.tasks.event import SearchReferenceCommitForEvent
+            SearchReferenceCommitForEvent.add_job(self.id, delayed_for=30)
 
 
 class PullRequestFile(WithIssueMixin, GithubObject):
