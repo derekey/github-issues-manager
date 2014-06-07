@@ -68,7 +68,17 @@
                         <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
                         <i class="fa fa-plus-square fa-stack-1x text-open"></i>
                     </span>
-                    <p>Created this {{ entry.issue.type }}</p>
+                    <p>
+                        Created this {{ entry.issue.type }}
+                        {% if entry.issue.body %}
+                            <span data-toggle="collapse" data-target="#issue-body-{{ entry.id }}" title="View description">…</span>
+                            </p>
+                            <blockquote class="collapse" id="issue-body-{{ entry.id }}">
+                                {{ entry.issue.html_content|safe }}
+                            </blockquote>
+                        {% else %}
+                            (<em>No description</em>)</p>
+                        {% endif %}
                 {% endif %}
 
                 {% for part in entry.get_parts %}
