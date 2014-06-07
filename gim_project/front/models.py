@@ -480,15 +480,22 @@ class GroupedItems(list):
 
     @classmethod
     def get_author(cls, entry):
-        return getattr(entry, cls.author_field)
+        author = getattr(entry, cls.author_field)
+        return {
+            'username': author.username,
+            'avatar_url': author.avatar_url,
+        }
 
     def authors(self):
         result = OrderedDict()
 
         for entry in self:
-            name = self.get_author(entry)
-            result.setdefault(name, 0)
-            result[name] += 1
+            author = self.get_author(entry)
+            name = author['username']
+            if name not in result:
+                result[name] = author
+                result[name]['count'] = 0
+            result[name]['count'] += 1
 
         return result
 
@@ -508,7 +515,13 @@ class GroupedCommits(GroupedItems):
 
     @classmethod
     def get_author(cls, entry):
-        return entry.author.username if entry.author_id else entry.author_name
+        if entry.author_id:
+            return super(GroupedCommits, cls).get_author(entry)
+        else:
+            return {
+                'username': entry.author_name,
+                'avatar_url': None,
+            }
 
 
 class _Commit(models.Model):
