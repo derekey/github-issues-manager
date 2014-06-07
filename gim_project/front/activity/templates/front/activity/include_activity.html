@@ -1,4 +1,4 @@
-{% load frontutils staticfiles macros %}{% spaceless %}
+{% load frontutils staticfiles macros spaceless_except_pre %}{% spaceless_except_pre %}
 {% static 'front/img/default-avatar.png' as default_avatar %}
 {% macro tags issue user %}
     {% if user == issue.repository.owner %}<span class="label label-success" title="{{ user.username }} is the project's owner">owner</span>{% endif %}
@@ -73,7 +73,7 @@
                         {% if entry.issue.body %}
                             <span data-toggle="collapse" data-target="#issue-body-{{ entry.id }}" title="View description">…</span>
                             </p>
-                            <blockquote class="collapse" id="issue-body-{{ entry.id }}">
+                            <blockquote class="issue-body collapse" id="issue-body-{{ entry.id }}">
                                 {{ entry.issue.html_content|safe }}
                             </blockquote>
                         {% else %}
@@ -106,7 +106,7 @@
             </span>
             <div class="box-content">
                 <p>Commented code on this pull request<span data-toggle="collapse" data-target="#comment-{{ entry.id }}" title="Toggle comment">…</span></p>
-                <blockquote class="collapse" id="comment-{{ entry.id }}">
+                <blockquote class="issue-comment collapse" id="comment-{{ entry.id }}">
                     {{ entry.html_content|safe }}
                 </blockquote>
             </div>
@@ -306,7 +306,7 @@
             </span>
             <div class="box-content">
                 <p>Commented on this {{ entry.issue.type }}<span data-toggle="collapse" data-target="#comment-{{ entry.id }}" title="Toggle comment">…</span></p>
-                <blockquote class="collapse" id="comment-{{ entry.id }}">
+                <blockquote class="issue-comment collapse" id="comment-{{ entry.id }}">
                     {{ entry.html_content|safe }}
                 </blockquote>
             </div>
@@ -325,4 +325,4 @@
 {% if more_activity %}
     <div class="placeholder visible more{% if partial_activity and activity_args.min %} missing{% endif %} box-footer"><a href='#'><i class="fa fa-plus"> </i> Load {% if partial_activity and activity_args.min %}missing{% else %}more{% endif %}</a></div>
 {% endif %}
-{% endspaceless %}
+{% endspaceless_except_pre %}
