@@ -57,9 +57,11 @@
                 margin-top: 5px;
                 margin-bottom: 5px;
                 & > .box-content {
-                    margin-right: 45px;
                     & > p {
                         margin: 0;
+                        &:first-child {
+                            margin-right: 45px;
+                        }
                         & > span[data-toggle=collapse] {
                             @extend %toggle;
                             margin-left: 5px;
@@ -71,6 +73,13 @@
                         margin-top: 4px;
                         margin-bottom: 2px;
                         padding-left: 7px;
+                    }
+                    > div:last-of-type {
+                        .part-body, .part-title {
+                            > div.in {
+                                margin-bottom: -16px
+                            }
+                        }
                     }
                 }
             }
