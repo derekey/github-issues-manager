@@ -1236,6 +1236,16 @@ $().ready(function() {
                 $context.scrollTop(position);
         }), // scroll_in_review
 
+        before_load_tab: (function IssueDetail__before_load_tab (ev) {
+            if (!ev.relatedTarget) { return; }
+            var $previous_tab = $(ev.relatedTarget),
+                $previous_target = $($previous_tab.attr('href')),
+                $node = $previous_tab.closest('.issue-container'),
+                is_modal = IssueDetail.is_modal($node),
+                $context = IssueDetail.get_scroll_context($node, is_modal);
+            $previous_target.data('scroll-position', $context.scrollTop());
+        }), // before_load_tab
+
         load_tab: (function IssueDetail__load_tab (ev) {
             var $tab = $(ev.target),
                 $target = $($tab.attr('href')),
@@ -1266,8 +1276,11 @@ $().ready(function() {
             var $tabs_holder = $node.find('.pr-tabs'),
                 $stuck_header, position, $stuck,
                 is_modal = IssueDetail.is_modal($node),
-                $context = IssueDetail.get_scroll_context($node, is_modal);
-            if ($tabs_holder.hasClass('stuck')) {
+                $context = IssueDetail.get_scroll_context($node, is_modal),
+                scroll_position = $target.data('scroll-position');
+            if (scroll_position) {
+                $context.scrollTop(scroll_position);
+            } else if ($tabs_holder.hasClass('stuck')) {
                 $stuck_header = $node.find(' > article > .area-top header');
                 position = $node.find('.tab-content').position().top
                          + (is_modal ? 0 : $context.scrollTop())
@@ -1472,6 +1485,7 @@ $().ready(function() {
             jwerty.key('shift+c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
             jwerty.key('shift+f', IssueDetail.on_current_panel_key_event('select_files_tab'));
             jwerty.key('shift+r', IssueDetail.on_current_panel_key_event('select_review_tab'));
+            $document.on('show.tab', '.pr-tabs a', IssueDetail.before_load_tab);
             $document.on('shown.tab', '.pr-tabs a', IssueDetail.load_tab);
 
             // link from PR comment in "review" tab to same entry in "files changed" tab
