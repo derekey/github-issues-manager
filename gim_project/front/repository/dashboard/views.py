@@ -5,7 +5,7 @@ from operator import attrgetter, itemgetter
 
 from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy, reverse
-from django.views.generic import UpdateView, CreateView, DeleteView, DetailView
+from django.views.generic import UpdateView, CreateView, DeleteView, DetailView, FormView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 from django.utils.functional import cached_property
@@ -19,14 +19,15 @@ from core.tasks.milestone import MilestoneEditJob
 
 from front.mixins.views import (DeferrableViewPart, SubscribedRepositoryViewMixin,
                                 LinkedToRepositoryFormViewMixin,
-                                LinkedToUserFormViewMixin)
+                                LinkedToUserFormViewMixin, WithAjaxRestrictionViewMixin)
 
 from front.activity.views import ActivityViewMixin
 
 from front.repository.views import BaseRepositoryView
 
 from .forms import (LabelTypeEditForm, LabelTypePreviewForm, LabelEditForm,
-                    TypedLabelEditForm, MilestoneEditForm, MilestoneCreateForm)
+                    TypedLabelEditForm, MilestoneEditForm, MilestoneCreateForm,
+                    HookToggleForm)
 
 
 class RepositoryDashboardPartView(DeferrableViewPart, SubscribedRepositoryViewMixin, DetailView):
@@ -227,6 +228,7 @@ class DashboardView(BaseRepositoryView):
             'milestones': MilestonesPart().get_as_part(self),
             'counters': CountersPart().get_as_part(self),
             'labels': LabelsPart().get_as_part(self),
+            'hook': HookPart().get_as_part(self),
             'activity': ActivityPart().get_as_deferred(self),
         }
 
@@ -571,3 +573,52 @@ class MilestoneDelete(MilestoneFormBaseView, DeleteView):
             u'The milestone <strong>%s</strong> will be deleted shortly' % self.object.short_title)
 
         return HttpResponse('OK')
+
+
+class HookPart(RepositoryDashboardPartView):
+    template_name = 'front/repository/dashboard/include_hook.html'
+    url_name = 'hook'
+
+    def get_context_data(self, **kwargs):
+        context = super(HookPart, self).get_context_data(**kwargs)
+        context['hook_toggle_form'] = HookToggleForm(initial={'hook_set': not self.repository.hook_set})
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        context['hook_toggle_url'] = reverse_lazy(
+                'front:repository:%s' % HookToggle.url_name, kwargs=reverse_kwargs)
+        return context
+
+
+class HookToggle(SubscribedRepositoryViewMixin, WithAjaxRestrictionViewMixin, FormView):
+    url_name = 'hook.toggle'
+    form_class = HookToggleForm
+    allowed_rights = (SUBSCRIPTION_STATES.ADMIN, )
+    ajax_only = True
+
+    def form_invalid(self, form):
+        return self.render_form_errors_as_messages(form, show_fields=False, status=422)
+
+    def form_valid(self, form):
+        to_set = form.cleaned_data['hook_set']
+        method = 'set_hook' if to_set else 'remove_hook'
+        gh = self.request.user.get_connection()
+
+        try:
+            getattr(self.repository, method)(gh)
+        except:
+            messages.error(self.request, u'We were unable to update the hook on your behalf')
+            return self.render_messages(status=422)
+
+        if self.repository.hook_set != to_set:
+            messages.error(self.request, u'We were unable to update the hook on your behalf')
+            return self.render_messages(status=422)
+
+        if to_set:
+            message = u'The hook was correctly set on Github for %s'
+        else:
+            message = u'The hook was correctly removed from Github for %s'
+
+        messages.success(self.request, message % self.repository)
+
+        reverse_kwargs = self.repository.get_reverse_kwargs()
+        return HttpResponseRedirect(reverse_lazy('front:repository:%s' % HookPart.url_name,
+                                                 kwargs=reverse_kwargs))

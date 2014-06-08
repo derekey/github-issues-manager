@@ -4,7 +4,8 @@ from .views import (DashboardView, MilestonesPart, CountersPart, LabelsPart,
                     LabelsEditor, LabelTypeCreate, LabelTypeEdit,
                     LabelTypePreview, LabelTypeDelete, LabelCreate,
                     LabelEdit, LabelDelete, ActivityPart,
-                    MilestoneCreate, MilestoneEdit, MilestoneDelete)
+                    MilestoneCreate, MilestoneEdit, MilestoneDelete,
+                    HookPart, HookToggle)
 
 from front.activity.urls import activity_pattern
 
@@ -14,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^milestones/$', MilestonesPart.as_view(), name=MilestonesPart.url_name),
     url(r'^counters/$', CountersPart.as_view(), name=CountersPart.url_name),
     url(r'^labels/$', LabelsPart.as_view(), name=LabelsPart.url_name),
+    url(r'^hook/$', HookPart.as_view(), name=HookPart.url_name),
     url(activity_pattern, ActivityPart.as_view(), name=ActivityPart.url_name),
 
     url(r'^labels/editor/$', LabelsEditor.as_view(), name=LabelsEditor.url_name),
@@ -28,4 +30,6 @@ urlpatterns = patterns('',
     url(r'milestone/create/$', MilestoneCreate.as_view(), name=MilestoneCreate.url_name),
     url(r'milestone/(?P<milestone_id>\d+)/edit/$', MilestoneEdit.as_view(), name=MilestoneEdit.url_name),
     url(r'milestone/(?P<milestone_id>\d+)/delete/$', MilestoneDelete.as_view(), name=MilestoneDelete.url_name),
+
+    url(r'hook/toggle/$', HookToggle.as_view(), name=HookToggle.url_name),
 )

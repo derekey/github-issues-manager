@@ -23,6 +23,9 @@ class WithAjaxRestrictionViewMixin(object):
             return self.http_method_not_allowed(self.request)
         return super(WithAjaxRestrictionViewMixin, self).dispatch(request, *args, **kwargs)
 
+    def render_messages(self, **kwargs):
+        return render(self.request, 'front/messages.html', **kwargs)
+
     def render_form_errors_as_json(self, form, code=422):
         """
         To be used in form_invalid to return the errors in json format to be
@@ -37,7 +40,7 @@ class WithAjaxRestrictionViewMixin(object):
             status=code,
         )
 
-    def render_form_errors_as_messages(self, form, show_fields=True):
+    def render_form_errors_as_messages(self, form, show_fields=True, **kwargs):
         """
         To be used in form_invalid to return nothing but messages (added to the
         content via a middleware)
@@ -48,7 +51,7 @@ class WithAjaxRestrictionViewMixin(object):
                 if show_fields and field != NON_FIELD_ERRORS:
                     msg = '%s: %s' % (field, error)
                 messages.error(self.request, msg)
-        return render(self.request, 'front/messages.html')
+        return self.render_messages(**kwargs)
 
 
 class LinkedToUserFormViewMixin(object):

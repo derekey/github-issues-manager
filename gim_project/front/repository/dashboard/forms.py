@@ -5,7 +5,7 @@ from django import forms
 from django.core import validators
 
 from core.models import (LabelType, LABELTYPE_EDITMODE, Label,
-                         GITHUB_STATUS_CHOICES, Milestone)
+                         GITHUB_STATUS_CHOICES, Milestone, Repository)
 
 from front.widgets import EnclosedInput
 from front.mixins.forms import LinkedToRepositoryFormMixin, LinkedToUserFormMixin
@@ -296,3 +296,7 @@ class MilestoneEditForm(LinkedToRepositoryFormMixin):
 
 class MilestoneCreateForm(LinkedToUserFormMixin, MilestoneEditForm):
     user_attribute = 'creator'
+
+
+class HookToggleForm(forms.Form):
+    hook_set = forms.BooleanField(required=False, widget=forms.HiddenInput)

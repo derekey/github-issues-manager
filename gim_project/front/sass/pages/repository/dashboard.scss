@@ -35,6 +35,20 @@ $counters-small-height: 154px;
         h5 {
             margin-left: 32px;
         }
+        .hook-block {
+            position: absolute;
+            right: 0;
+            top: 5px;
+            i {
+                font-size: inherit;
+                color: inherit;
+                float: none;
+                margin-top: 0;
+            }
+            a i {
+                margin-right: 0;
+            }
+        }
     }
     @media (max-height: $dashboard-small-height) {
         .issues-by-day {

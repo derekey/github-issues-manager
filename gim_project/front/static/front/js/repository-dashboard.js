@@ -217,6 +217,39 @@ $().ready(function() {
         }
     }; // MilestoneForm
 
+    window.HookToggleForm = {
+        get_form: function() {
+            return $('#hook-toggle-form');
+        },
+        get_button: function($form) {
+            return $form.parent().find('a.btn-loading');
+        },
+        on_button_click: function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var $form = HookToggleForm.get_form(),
+                $button = HookToggleForm.get_button($form);
+            if ($button.hasClass('loading')) { return; }
+            $button.addClass('loading');
+            $button.closest('li').addClass('disabled');
+            $.post($form.attr('action'), $form.serialize())
+                .done(HookToggleForm.on_submit_done)
+                .fail(HookToggleForm.on_submit_failed);
+        },
+        on_submit_failed: function() {
+            var $form = HookToggleForm.get_form(),
+                $button = HookToggleForm.get_button($form);
+            $button.removeClass('loading');
+            $button.closest('li').addClass('disabled');
+        },
+        on_submit_done: function(data) {
+            var $form = HookToggleForm.get_form();
+            $form.parent().replaceWith(data);
+        },
+        init: function() {
+            $document.on('click', '.hook-block a.btn-loading', HookToggleForm.on_button_click);
+        }
+    }; // HookToggleForm
 
     var $body = $('body');
     IssuesByDayGraph.fetch_and_make_graph($body.data('repository-id'), 40, $body.find('main > .row-header .area-top'));
