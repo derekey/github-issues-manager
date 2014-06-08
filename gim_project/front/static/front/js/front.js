@@ -2921,10 +2921,22 @@ $().ready(function() {
 
         on_filter_change: (function Activity__on_filter_change (ev) {
             var $checkbox = $(this).closest('a').find('input'),  // works if ev on A or INPUT
-                klass = 'hide-' + $checkbox.attr('name'),
-                checked = $checkbox.is(':checked');
-            $checkbox.closest('.activity-feed').toggleClass(klass, !checked);
-            Activity.toggle_empty_parts($checkbox.closest('.activity-feed'));
+                checked = $checkbox.is(':checked'),
+                is_all = $checkbox.attr('name') == 'toggle-all',
+                $feed = $checkbox.closest('.activity-feed'),
+                $checkboxes = null;
+            if (is_all) {
+                $checkboxes = $feed.find(Activity.selectors.filter_checkboxes + ':not([name=toggle-all])');
+            } else {
+                $checkboxes = $checkbox;
+            }
+            $checkboxes.each(function() {
+                var $checkbox = $(this),
+                    klass = 'hide-' + $checkbox.attr('name');
+                if (is_all) { $checkbox.prop('checked', checked); }
+                $feed.toggleClass(klass, !checked);
+            });
+            Activity.toggle_empty_parts($feed);
             return false;
         }), // on_filter_change
 
