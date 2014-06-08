@@ -803,6 +803,12 @@ $repo-name-height: 20px;
         > a {
             padding-bottom: 8px;
             padding-top: 5px;
+            > .badge:last-child {
+                margin-left: 3px;
+            }
+        }
+        &.pr-discussion-tab > a > .badge:first-child {
+            margin-left: 0;
         }
     }
     &.stuck {
