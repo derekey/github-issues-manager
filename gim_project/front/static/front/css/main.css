@@ -379,298 +379,298 @@ blockquote p:last-child {
   color: #555;
 }
 
-/* line 43, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .c, .issue-comment .highlight .c {
+/* line 45, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .c, .issue-body .codehilite .c, .issue-comment .highlight .c, .issue-comment .codehilite .c, .milestone-body .highlight .c, .milestone-body .codehilite .c {
   color: #999988;
   font-style: italic;
 }
-/* line 48, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .err, .issue-comment .highlight .err {
+/* line 50, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .err, .issue-body .codehilite .err, .issue-comment .highlight .err, .issue-comment .codehilite .err, .milestone-body .highlight .err, .milestone-body .codehilite .err {
   color: #a61717;
   background-color: #e3d2d2;
 }
-/* line 53, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .k, .issue-comment .highlight .k {
+/* line 55, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .k, .issue-body .codehilite .k, .issue-comment .highlight .k, .issue-comment .codehilite .k, .milestone-body .highlight .k, .milestone-body .codehilite .k {
   font-weight: bold;
 }
-/* line 57, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .o, .issue-comment .highlight .o {
+/* line 59, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .o, .issue-body .codehilite .o, .issue-comment .highlight .o, .issue-comment .codehilite .o, .milestone-body .highlight .o, .milestone-body .codehilite .o {
   font-weight: bold;
 }
-/* line 61, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .cm, .issue-comment .highlight .cm {
+/* line 63, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .cm, .issue-body .codehilite .cm, .issue-comment .highlight .cm, .issue-comment .codehilite .cm, .milestone-body .highlight .cm, .milestone-body .codehilite .cm {
   color: #999988;
   font-style: italic;
 }
-/* line 66, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .cp, .issue-comment .highlight .cp {
+/* line 68, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .cp, .issue-body .codehilite .cp, .issue-comment .highlight .cp, .issue-comment .codehilite .cp, .milestone-body .highlight .cp, .milestone-body .codehilite .cp {
   color: #999999;
   font-weight: bold;
 }
-/* line 71, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .c1, .issue-comment .highlight .c1 {
+/* line 73, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .c1, .issue-body .codehilite .c1, .issue-comment .highlight .c1, .issue-comment .codehilite .c1, .milestone-body .highlight .c1, .milestone-body .codehilite .c1 {
   color: #999988;
   font-style: italic;
 }
-/* line 76, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .cs, .issue-comment .highlight .cs {
+/* line 78, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .cs, .issue-body .codehilite .cs, .issue-comment .highlight .cs, .issue-comment .codehilite .cs, .milestone-body .highlight .cs, .milestone-body .codehilite .cs {
   color: #999999;
   font-weight: bold;
   font-style: italic;
 }
-/* line 82, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gd, .issue-comment .highlight .gd {
+/* line 84, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gd, .issue-body .codehilite .gd, .issue-comment .highlight .gd, .issue-comment .codehilite .gd, .milestone-body .highlight .gd, .milestone-body .codehilite .gd {
   color: #000000;
   background-color: #ffdddd;
 }
-/* line 87, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gd .x, .issue-comment .highlight .gd .x {
+/* line 89, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gd .x, .issue-body .codehilite .gd .x, .issue-comment .highlight .gd .x, .issue-comment .codehilite .gd .x, .milestone-body .highlight .gd .x, .milestone-body .codehilite .gd .x {
   color: #000000;
   background-color: #ffaaaa;
 }
-/* line 92, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .ge, .issue-comment .highlight .ge {
+/* line 94, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ge, .issue-body .codehilite .ge, .issue-comment .highlight .ge, .issue-comment .codehilite .ge, .milestone-body .highlight .ge, .milestone-body .codehilite .ge {
   font-style: italic;
 }
-/* line 96, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gr, .issue-comment .highlight .gr {
+/* line 98, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gr, .issue-body .codehilite .gr, .issue-comment .highlight .gr, .issue-comment .codehilite .gr, .milestone-body .highlight .gr, .milestone-body .codehilite .gr {
   color: #aa0000;
 }
-/* line 100, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gh, .issue-comment .highlight .gh {
+/* line 102, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gh, .issue-body .codehilite .gh, .issue-comment .highlight .gh, .issue-comment .codehilite .gh, .milestone-body .highlight .gh, .milestone-body .codehilite .gh {
   color: #999999;
 }
-/* line 104, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gi, .issue-comment .highlight .gi {
+/* line 106, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gi, .issue-body .codehilite .gi, .issue-comment .highlight .gi, .issue-comment .codehilite .gi, .milestone-body .highlight .gi, .milestone-body .codehilite .gi {
   color: #000000;
   background-color: #ddffdd;
 }
-/* line 109, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gi .x, .issue-comment .highlight .gi .x {
+/* line 111, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gi .x, .issue-body .codehilite .gi .x, .issue-comment .highlight .gi .x, .issue-comment .codehilite .gi .x, .milestone-body .highlight .gi .x, .milestone-body .codehilite .gi .x {
   color: #000000;
   background-color: #aaffaa;
 }
-/* line 114, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .go, .issue-comment .highlight .go {
+/* line 116, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .go, .issue-body .codehilite .go, .issue-comment .highlight .go, .issue-comment .codehilite .go, .milestone-body .highlight .go, .milestone-body .codehilite .go {
   color: #888888;
 }
-/* line 118, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gp, .issue-comment .highlight .gp {
+/* line 120, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gp, .issue-body .codehilite .gp, .issue-comment .highlight .gp, .issue-comment .codehilite .gp, .milestone-body .highlight .gp, .milestone-body .codehilite .gp {
   color: #555555;
 }
-/* line 122, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gs, .issue-comment .highlight .gs {
+/* line 124, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gs, .issue-body .codehilite .gs, .issue-comment .highlight .gs, .issue-comment .codehilite .gs, .milestone-body .highlight .gs, .milestone-body .codehilite .gs {
   font-weight: bold;
 }
-/* line 126, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gu, .issue-comment .highlight .gu {
+/* line 128, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gu, .issue-body .codehilite .gu, .issue-comment .highlight .gu, .issue-comment .codehilite .gu, .milestone-body .highlight .gu, .milestone-body .codehilite .gu {
   color: #800080;
   font-weight: bold;
 }
-/* line 131, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gt, .issue-comment .highlight .gt {
+/* line 133, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gt, .issue-body .codehilite .gt, .issue-comment .highlight .gt, .issue-comment .codehilite .gt, .milestone-body .highlight .gt, .milestone-body .codehilite .gt {
   color: #aa0000;
 }
-/* line 135, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .kc, .issue-comment .highlight .kc {
+/* line 137, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kc, .issue-body .codehilite .kc, .issue-comment .highlight .kc, .issue-comment .codehilite .kc, .milestone-body .highlight .kc, .milestone-body .codehilite .kc {
   font-weight: bold;
 }
-/* line 139, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .kd, .issue-comment .highlight .kd {
+/* line 141, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kd, .issue-body .codehilite .kd, .issue-comment .highlight .kd, .issue-comment .codehilite .kd, .milestone-body .highlight .kd, .milestone-body .codehilite .kd {
   font-weight: bold;
 }
-/* line 143, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .kn, .issue-comment .highlight .kn {
+/* line 145, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kn, .issue-body .codehilite .kn, .issue-comment .highlight .kn, .issue-comment .codehilite .kn, .milestone-body .highlight .kn, .milestone-body .codehilite .kn {
   font-weight: bold;
 }
-/* line 147, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .kp, .issue-comment .highlight .kp {
+/* line 149, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kp, .issue-body .codehilite .kp, .issue-comment .highlight .kp, .issue-comment .codehilite .kp, .milestone-body .highlight .kp, .milestone-body .codehilite .kp {
   font-weight: bold;
 }
-/* line 151, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .kr, .issue-comment .highlight .kr {
+/* line 153, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kr, .issue-body .codehilite .kr, .issue-comment .highlight .kr, .issue-comment .codehilite .kr, .milestone-body .highlight .kr, .milestone-body .codehilite .kr {
   font-weight: bold;
 }
-/* line 155, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .kt, .issue-comment .highlight .kt {
+/* line 157, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .kt, .issue-body .codehilite .kt, .issue-comment .highlight .kt, .issue-comment .codehilite .kt, .milestone-body .highlight .kt, .milestone-body .codehilite .kt {
   color: #445588;
   font-weight: bold;
 }
-/* line 160, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .m, .issue-comment .highlight .m {
+/* line 162, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .m, .issue-body .codehilite .m, .issue-comment .highlight .m, .issue-comment .codehilite .m, .milestone-body .highlight .m, .milestone-body .codehilite .m {
   color: #009999;
 }
-/* line 164, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .s, .issue-comment .highlight .s {
+/* line 166, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .s, .issue-body .codehilite .s, .issue-comment .highlight .s, .issue-comment .codehilite .s, .milestone-body .highlight .s, .milestone-body .codehilite .s {
   color: #dd1144;
 }
-/* line 168, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .n, .issue-comment .highlight .n {
+/* line 170, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .n, .issue-body .codehilite .n, .issue-comment .highlight .n, .issue-comment .codehilite .n, .milestone-body .highlight .n, .milestone-body .codehilite .n {
   color: #333333;
 }
-/* line 172, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .na, .issue-comment .highlight .na {
+/* line 174, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .na, .issue-body .codehilite .na, .issue-comment .highlight .na, .issue-comment .codehilite .na, .milestone-body .highlight .na, .milestone-body .codehilite .na {
   color: teal;
 }
-/* line 176, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .nb, .issue-comment .highlight .nb {
+/* line 178, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nb, .issue-body .codehilite .nb, .issue-comment .highlight .nb, .issue-comment .codehilite .nb, .milestone-body .highlight .nb, .milestone-body .codehilite .nb {
   color: #0086b3;
 }
-/* line 180, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .nc, .issue-comment .highlight .nc {
+/* line 182, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nc, .issue-body .codehilite .nc, .issue-comment .highlight .nc, .issue-comment .codehilite .nc, .milestone-body .highlight .nc, .milestone-body .codehilite .nc {
   color: #445588;
   font-weight: bold;
 }
-/* line 185, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .no, .issue-comment .highlight .no {
+/* line 187, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .no, .issue-body .codehilite .no, .issue-comment .highlight .no, .issue-comment .codehilite .no, .milestone-body .highlight .no, .milestone-body .codehilite .no {
   color: teal;
 }
-/* line 189, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .ni, .issue-comment .highlight .ni {
+/* line 191, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ni, .issue-body .codehilite .ni, .issue-comment .highlight .ni, .issue-comment .codehilite .ni, .milestone-body .highlight .ni, .milestone-body .codehilite .ni {
   color: purple;
 }
-/* line 193, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .ne, .issue-comment .highlight .ne {
+/* line 195, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ne, .issue-body .codehilite .ne, .issue-comment .highlight .ne, .issue-comment .codehilite .ne, .milestone-body .highlight .ne, .milestone-body .codehilite .ne {
   color: #990000;
   font-weight: bold;
 }
-/* line 198, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .nf, .issue-comment .highlight .nf {
+/* line 200, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nf, .issue-body .codehilite .nf, .issue-comment .highlight .nf, .issue-comment .codehilite .nf, .milestone-body .highlight .nf, .milestone-body .codehilite .nf {
   color: #990000;
   font-weight: bold;
 }
-/* line 203, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .nn, .issue-comment .highlight .nn {
+/* line 205, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nn, .issue-body .codehilite .nn, .issue-comment .highlight .nn, .issue-comment .codehilite .nn, .milestone-body .highlight .nn, .milestone-body .codehilite .nn {
   color: #555555;
 }
-/* line 207, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .nt, .issue-comment .highlight .nt {
+/* line 209, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nt, .issue-body .codehilite .nt, .issue-comment .highlight .nt, .issue-comment .codehilite .nt, .milestone-body .highlight .nt, .milestone-body .codehilite .nt {
   color: navy;
 }
-/* line 211, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .nv, .issue-comment .highlight .nv {
+/* line 213, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .nv, .issue-body .codehilite .nv, .issue-comment .highlight .nv, .issue-comment .codehilite .nv, .milestone-body .highlight .nv, .milestone-body .codehilite .nv {
   color: teal;
 }
-/* line 215, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .ow, .issue-comment .highlight .ow {
+/* line 217, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ow, .issue-body .codehilite .ow, .issue-comment .highlight .ow, .issue-comment .codehilite .ow, .milestone-body .highlight .ow, .milestone-body .codehilite .ow {
   font-weight: bold;
 }
-/* line 219, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .w, .issue-comment .highlight .w {
+/* line 221, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .w, .issue-body .codehilite .w, .issue-comment .highlight .w, .issue-comment .codehilite .w, .milestone-body .highlight .w, .milestone-body .codehilite .w {
   color: #bbbbbb;
 }
-/* line 223, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .mf, .issue-comment .highlight .mf {
+/* line 225, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .mf, .issue-body .codehilite .mf, .issue-comment .highlight .mf, .issue-comment .codehilite .mf, .milestone-body .highlight .mf, .milestone-body .codehilite .mf {
   color: #009999;
 }
-/* line 227, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .mh, .issue-comment .highlight .mh {
+/* line 229, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .mh, .issue-body .codehilite .mh, .issue-comment .highlight .mh, .issue-comment .codehilite .mh, .milestone-body .highlight .mh, .milestone-body .codehilite .mh {
   color: #009999;
 }
-/* line 231, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .mi, .issue-comment .highlight .mi {
+/* line 233, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .mi, .issue-body .codehilite .mi, .issue-comment .highlight .mi, .issue-comment .codehilite .mi, .milestone-body .highlight .mi, .milestone-body .codehilite .mi {
   color: #009999;
 }
-/* line 235, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .mo, .issue-comment .highlight .mo {
+/* line 237, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .mo, .issue-body .codehilite .mo, .issue-comment .highlight .mo, .issue-comment .codehilite .mo, .milestone-body .highlight .mo, .milestone-body .codehilite .mo {
   color: #009999;
 }
-/* line 239, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .sb, .issue-comment .highlight .sb {
+/* line 241, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sb, .issue-body .codehilite .sb, .issue-comment .highlight .sb, .issue-comment .codehilite .sb, .milestone-body .highlight .sb, .milestone-body .codehilite .sb {
   color: #dd1144;
 }
-/* line 243, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .sc, .issue-comment .highlight .sc {
+/* line 245, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sc, .issue-body .codehilite .sc, .issue-comment .highlight .sc, .issue-comment .codehilite .sc, .milestone-body .highlight .sc, .milestone-body .codehilite .sc {
   color: #dd1144;
 }
-/* line 247, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .sd, .issue-comment .highlight .sd {
+/* line 249, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sd, .issue-body .codehilite .sd, .issue-comment .highlight .sd, .issue-comment .codehilite .sd, .milestone-body .highlight .sd, .milestone-body .codehilite .sd {
   color: #dd1144;
 }
-/* line 251, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .s2, .issue-comment .highlight .s2 {
+/* line 253, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .s2, .issue-body .codehilite .s2, .issue-comment .highlight .s2, .issue-comment .codehilite .s2, .milestone-body .highlight .s2, .milestone-body .codehilite .s2 {
   color: #dd1144;
 }
-/* line 255, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .se, .issue-comment .highlight .se {
+/* line 257, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .se, .issue-body .codehilite .se, .issue-comment .highlight .se, .issue-comment .codehilite .se, .milestone-body .highlight .se, .milestone-body .codehilite .se {
   color: #dd1144;
 }
-/* line 259, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .sh, .issue-comment .highlight .sh {
+/* line 261, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sh, .issue-body .codehilite .sh, .issue-comment .highlight .sh, .issue-comment .codehilite .sh, .milestone-body .highlight .sh, .milestone-body .codehilite .sh {
   color: #dd1144;
 }
-/* line 263, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .si, .issue-comment .highlight .si {
+/* line 265, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .si, .issue-body .codehilite .si, .issue-comment .highlight .si, .issue-comment .codehilite .si, .milestone-body .highlight .si, .milestone-body .codehilite .si {
   color: #dd1144;
 }
-/* line 267, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .sx, .issue-comment .highlight .sx {
+/* line 269, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sx, .issue-body .codehilite .sx, .issue-comment .highlight .sx, .issue-comment .codehilite .sx, .milestone-body .highlight .sx, .milestone-body .codehilite .sx {
   color: #dd1144;
 }
-/* line 271, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .sr, .issue-comment .highlight .sr {
+/* line 273, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .sr, .issue-body .codehilite .sr, .issue-comment .highlight .sr, .issue-comment .codehilite .sr, .milestone-body .highlight .sr, .milestone-body .codehilite .sr {
   color: #009926;
 }
-/* line 275, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .s1, .issue-comment .highlight .s1 {
+/* line 277, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .s1, .issue-body .codehilite .s1, .issue-comment .highlight .s1, .issue-comment .codehilite .s1, .milestone-body .highlight .s1, .milestone-body .codehilite .s1 {
   color: #dd1144;
 }
-/* line 279, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .ss, .issue-comment .highlight .ss {
+/* line 281, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .ss, .issue-body .codehilite .ss, .issue-comment .highlight .ss, .issue-comment .codehilite .ss, .milestone-body .highlight .ss, .milestone-body .codehilite .ss {
   color: #990073;
 }
-/* line 283, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .bp, .issue-comment .highlight .bp {
+/* line 285, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .bp, .issue-body .codehilite .bp, .issue-comment .highlight .bp, .issue-comment .codehilite .bp, .milestone-body .highlight .bp, .milestone-body .codehilite .bp {
   color: #999999;
 }
-/* line 287, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .vc, .issue-comment .highlight .vc {
+/* line 289, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .vc, .issue-body .codehilite .vc, .issue-comment .highlight .vc, .issue-comment .codehilite .vc, .milestone-body .highlight .vc, .milestone-body .codehilite .vc {
   color: teal;
 }
-/* line 291, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .vg, .issue-comment .highlight .vg {
+/* line 293, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .vg, .issue-body .codehilite .vg, .issue-comment .highlight .vg, .issue-comment .codehilite .vg, .milestone-body .highlight .vg, .milestone-body .codehilite .vg {
   color: teal;
 }
-/* line 295, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .vi, .issue-comment .highlight .vi {
+/* line 297, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .vi, .issue-body .codehilite .vi, .issue-comment .highlight .vi, .issue-comment .codehilite .vi, .milestone-body .highlight .vi, .milestone-body .codehilite .vi {
   color: teal;
 }
-/* line 299, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .il, .issue-comment .highlight .il {
+/* line 301, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .il, .issue-body .codehilite .il, .issue-comment .highlight .il, .issue-comment .codehilite .il, .milestone-body .highlight .il, .milestone-body .codehilite .il {
   color: #009999;
 }
-/* line 303, ../../../sass/widgets/_markdown.scss */
-.issue-body .highlight .gc, .issue-comment .highlight .gc {
+/* line 305, ../../../sass/widgets/_markdown.scss */
+.issue-body .highlight .gc, .issue-body .codehilite .gc, .issue-comment .highlight .gc, .issue-comment .codehilite .gc, .milestone-body .highlight .gc, .milestone-body .codehilite .gc {
   color: #999;
   background-color: #eaf2f5;
 }
-/* line 308, ../../../sass/widgets/_markdown.scss */
-.issue-body .type-csharp .highlight .k, .issue-comment .type-csharp .highlight .k {
+/* line 315, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-cshard .highlight .k, .issue-body .type-cshard .codehilite .k, .issue-comment .type-cshard .highlight .k, .issue-comment .type-cshard .codehilite .k, .milestone-body .type-cshard .highlight .k, .milestone-body .type-cshard .codehilite .k {
   color: blue;
 }
-/* line 312, ../../../sass/widgets/_markdown.scss */
-.issue-body .type-csharp .highlight .kt, .issue-comment .type-csharp .highlight .kt {
+/* line 319, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-cshard .highlight .kt, .issue-body .type-cshard .codehilite .kt, .issue-comment .type-cshard .highlight .kt, .issue-comment .type-cshard .codehilite .kt, .milestone-body .type-cshard .highlight .kt, .milestone-body .type-cshard .codehilite .kt {
   color: blue;
 }
-/* line 316, ../../../sass/widgets/_markdown.scss */
-.issue-body .type-csharp .highlight .nf, .issue-comment .type-csharp .highlight .nf {
+/* line 323, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-cshard .highlight .nf, .issue-body .type-cshard .codehilite .nf, .issue-comment .type-cshard .highlight .nf, .issue-comment .type-cshard .codehilite .nf, .milestone-body .type-cshard .highlight .nf, .milestone-body .type-cshard .codehilite .nf {
   color: #000000;
   font-weight: normal;
 }
-/* line 321, ../../../sass/widgets/_markdown.scss */
-.issue-body .type-csharp .highlight .nc, .issue-comment .type-csharp .highlight .nc {
+/* line 328, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-cshard .highlight .nc, .issue-body .type-cshard .codehilite .nc, .issue-comment .type-cshard .highlight .nc, .issue-comment .type-cshard .codehilite .nc, .milestone-body .type-cshard .highlight .nc, .milestone-body .type-cshard .codehilite .nc {
   color: #2b91af;
 }
-/* line 325, ../../../sass/widgets/_markdown.scss */
-.issue-body .type-csharp .highlight .nn, .issue-comment .type-csharp .highlight .nn {
+/* line 332, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-cshard .highlight .nn, .issue-body .type-cshard .codehilite .nn, .issue-comment .type-cshard .highlight .nn, .issue-comment .type-cshard .codehilite .nn, .milestone-body .type-cshard .highlight .nn, .milestone-body .type-cshard .codehilite .nn {
   color: black;
 }
-/* line 329, ../../../sass/widgets/_markdown.scss */
-.issue-body .type-csharp .highlight .s, .issue-comment .type-csharp .highlight .s {
+/* line 336, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-cshard .highlight .s, .issue-body .type-cshard .codehilite .s, .issue-comment .type-cshard .highlight .s, .issue-comment .type-cshard .codehilite .s, .milestone-body .type-cshard .highlight .s, .milestone-body .type-cshard .codehilite .s {
   color: #a31515;
 }
-/* line 333, ../../../sass/widgets/_markdown.scss */
-.issue-body .type-csharp .highlight .sc, .issue-comment .type-csharp .highlight .sc {
+/* line 340, ../../../sass/widgets/_markdown.scss */
+.issue-body .type-cshard .highlight .sc, .issue-body .type-cshard .codehilite .sc, .issue-comment .type-cshard .highlight .sc, .issue-comment .type-cshard .codehilite .sc, .milestone-body .type-cshard .highlight .sc, .milestone-body .type-cshard .codehilite .sc {
   color: #a31515;
 }
 

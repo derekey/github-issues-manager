@@ -26,7 +26,15 @@ from subscriptions import models as subscriptions_models
 def html_content(self, body_field='body'):
     html = getattr(self, '%s_html' % body_field, None)
     if html is None:
-        html = markdown(getattr(self, body_field))
+        html = markdown(getattr(self, body_field),
+                        extensions=[
+                            'fenced_code',
+                            'nl2br',
+                            'smart_strong',
+                            'sane_lists',
+                            'codehilite',
+                        ]
+                    )
     return html
 
 

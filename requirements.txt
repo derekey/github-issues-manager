@@ -15,6 +15,7 @@ django-templates-macros==0.1
 ipython==1.2.1
 ghdiff_class==0.1
 markdown==2.4
+Pygments==1.6
 pytimeago==1.0.2
 
 # redis stuff
