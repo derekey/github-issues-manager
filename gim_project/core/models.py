@@ -206,7 +206,7 @@ class GithubObject(models.Model):
                     # only if per_page not forced and last fetch is recent
                     if (not parameters.get('per_page')
                         and not model.github_reverse_order
-                        and datetime.utcnow() - fetched_at < timedelta(days=3)):
+                        and datetime.utcnow() - fetched_at < timedelta(days=1)):
                         per_page_parameter['per_page'] = model.github_per_page['min']
 
                     # do we have to check for a min date ?
