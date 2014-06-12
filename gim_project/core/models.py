@@ -1507,9 +1507,6 @@ class Repository(GithubObjectWithId):
                                  force_fetch=force_fetch,
                                  max_pages=max_pages)
 
-        from .tasks.repository import FetchUnfetchedCommits
-        FetchUnfetchedCommits.add_job(self.id, limit=20, gh=gh)
-
         return count
 
     @property

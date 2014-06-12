@@ -4,7 +4,6 @@ __all__ = [
     'FetchUnmergedPullRequests',
     'FirstFetch',
     'FirstFetchStep2',
-    'FetchUnfetchedCommits',
     'FetchForUpdate',
 ]
 
@@ -384,54 +383,6 @@ class FirstFetchStep2(RepositoryJob):
             msg += ' - The end.'
 
         return msg
-
-
-class FetchUnfetchedCommits(RepositoryJob):
-    """
-    Job that fetches commit objects that weren't be fetched, for example just
-    created with a sha.
-    """
-    queue_name = 'fetch-unfetched-commits'
-
-    limit = fields.InstanceHashField()
-    count = fields.InstanceHashField()
-    errors = fields.InstanceHashField()
-    deleted = fields.InstanceHashField()
-
-    permission = 'read'
-    clonable_fields = ('gh', 'limit', )
-
-    def run(self, queue):
-        """
-        Get the repository and fetch unfetched commits, and save the count
-        of fetched comits in the job
-        """
-        super(FetchUnfetchedCommits, self).run(queue)
-
-        gh = self.gh
-        if not gh:
-            return  # it's delayed !
-
-        count, deleted, errors, todo = self.repository.fetch_unfetched_commits(
-                                    limit=int(self.limit.hget() or 20), gh=gh)
-
-        self.hmset(count=count, errors=errors, deleted=deleted)
-
-        return count, deleted, errors, todo
-
-    def on_success(self, queue, result):
-        """
-        If there is still commits to fetch, add a new job
-        """
-        todo = result[3]
-        if todo:
-            self.clone(delayed_for=60)
-
-    def success_message_addon(self, queue, result):
-        """
-        Display the count of fetched commits
-        """
-        return ' [fetched=%d, deleted=%s, errors=%s, todo=%s]' % result
 
 
 class FetchForUpdate(RepositoryJob):
