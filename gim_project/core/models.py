@@ -2489,8 +2489,10 @@ class CommentMixin(models.Model):
             from core.tasks.commit import FetchCommitBySha
             if isinstance(self, IssueComment):
                 from core.tasks.comment import SearchReferenceCommitForComment as JobModel
-            else:
+            elif isinstance(self, PullRequestComment):
                 from core.tasks.comment import SearchReferenceCommitForPRComment as JobModel
+            else:
+                from core.tasks.comment import SearchReferenceCommitForCommitComment as JobModel
 
             repos = {}
             for new in not_found:

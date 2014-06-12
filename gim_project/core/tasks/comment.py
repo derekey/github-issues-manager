@@ -3,6 +3,7 @@ __all__ = [
     'PullRequestCommentEditJob',
     'SearchReferenceCommitForComment',
     'SearchReferenceCommitForPRComment',
+    'SearchReferenceCommitForCommitComment',
 ]
 
 
@@ -12,7 +13,7 @@ from limpyd_jobs.utils import compute_delayed_until
 
 from async_messages import messages
 
-from core.models import IssueComment, PullRequestComment, Commit
+from core.models import IssueComment, PullRequestComment, Commit, CommitComment
 from core.ghpool import ApiError
 
 from .base import DjangoModelJob
@@ -160,3 +161,8 @@ class SearchReferenceCommitForComment(IssueCommentJob):
 class SearchReferenceCommitForPRComment(SearchReferenceCommitForComment):
     model = PullRequestComment
     queue_name = 'search-ref-commit-pr-comment'
+
+
+class SearchReferenceCommitForCommitComment(SearchReferenceCommitForComment):
+    model = CommitComment
+    queue_name = 'search-ref-commit-commit-comment'
