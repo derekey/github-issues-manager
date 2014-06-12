@@ -25,7 +25,8 @@ from .managers import (MODE_ALL, MODE_UPDATE,
                        PullRequestCommentManager, IssueEventManager,
                        PullRequestCommentEntryPointManager, CommitManager,
                        PullRequestFileManager, AvailableRepositoryManager,
-                       CommitCommentManager, CommitCommentEntryPointManager)
+                       CommitCommentManager, CommitCommentEntryPointManager,
+                       IssueCommitsManager)
 
 import username_hack  # force the username length to be 255 chars
 
@@ -481,27 +482,50 @@ class GithubObject(models.Model):
                 # delete the objects.
                 # Example: a milestone of a repository is not fetched via
                 # fetch_milestones? => we know it's deleted
-                to_delete_queryset = instance_field.model.objects.filter(id__in=to_remove)
+                # We also manage here relations via through tables
+                if hasattr(instance_field, 'through'):
+                    model = instance_field.through
+                    filter = {
+                        '%s__id' % instance_field.source_field_name: self.id,
+                        '%s__id__in' % instance_field.target_field_name: to_remove,
+                    }
+                else:
+                    model = instance_field.model
+                    filter = {'id__in': to_remove}
+
+                to_delete_queryset = model.objects.filter(**filter)
                 if filter_queryset:
                     to_delete_queryset = to_delete_queryset.filter(filter_queryset)
-                instance_field.model.objects.delete_missing_after_fetch(to_delete_queryset)
+                model.objects.delete_missing_after_fetch(to_delete_queryset)
 
         # if we have new relations, add them
         to_add = fetched_ids - existing_ids
         if to_add:
             count['added'] = len(to_add)
-            try:
-                instance_field.add(*to_add)
-            except DatabaseError, e:
-                # sqlite limits the vars passed in a request to 999
-                # In this case, we loop on the data by slice of 950 obj to add
-                if u'%s' % e != 'too many SQL variables':
-                    raise
-                per_iteration = 950  # do not use 999 has we may have other vars for internal django filter
-                to_add = list(to_add)
-                iterations = int(ceil(count['added'] / float(per_iteration)))
-                for iteration in range(0, iterations):
-                    instance_field.add(*to_add[iteration * per_iteration:(iteration + 1) * per_iteration])
+            if hasattr(instance_field, 'add'):
+                try:
+                    instance_field.add(*to_add)
+                except DatabaseError, e:
+                    # sqlite limits the vars passed in a request to 999
+                    # In this case, we loop on the data by slice of 950 obj to add
+                    if u'%s' % e != 'too many SQL variables':
+                        raise
+                    per_iteration = 950  # do not use 999 has we may have other vars for internal django filter
+                    to_add = list(to_add)
+                    iterations = int(ceil(count['added'] / float(per_iteration)))
+                    for iteration in range(0, iterations):
+                        instance_field.add(*to_add[iteration * per_iteration:(iteration + 1) * per_iteration])
+
+            elif hasattr(instance_field, 'through'):
+                model = instance_field.through
+                objs = [
+                    model(**{
+                        '%s_id' % instance_field.source_field_name: self.id,
+                        '%s_id' % instance_field.target_field_name: obj_id
+                    })
+                    for obj_id in to_add
+                ]
+                model.objects.bulk_create(objs)  # size limit for sqlite managed by django
 
         # check if we have something to save on the main object
         update_fields = []
@@ -2061,7 +2085,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     nb_changed_files = models.PositiveIntegerField(blank=True, null=True)
     commits_fetched_at = models.DateTimeField(blank=True, null=True)
     commits_etag = models.CharField(max_length=64, blank=True, null=True)
-    commits = models.ManyToManyField(Commit, related_name='issues')
+    commits = models.ManyToManyField(Commit, related_name='issues', through='IssueCommits')
     files_fetched_at = models.DateTimeField(blank=True, null=True)
     files_etag = models.CharField(max_length=64, blank=True, null=True)
 
@@ -2375,6 +2399,28 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         if self.mergeable:
             return True
         return self.mergeable_state in self.MERGEABLE_STATES['mergeable']
+
+
+class IssueCommits(models.Model):
+    """
+    The table to list commits related to issues, keeping commits not referenced
+    anymore in the issues by setting the 'deleted' attribute to True.
+    It allows to still display commit-comments on old commits (replaced via a
+    rebase for example)
+    """
+    issue = models.ForeignKey(Issue, related_name='related_commits')
+    commit = models.ForeignKey(Commit, related_name='related_issues')
+    deleted = models.BooleanField(default=False)
+
+    delete_missing_after_fetch = False
+
+    objects = IssueCommitsManager()
+
+    def __unicode__(self):
+        result = u'%s on %s'
+        if self.deleted:
+            result += u' (outdated)'
+        return result % (self.commit.sha, self.issue.number)
 
 
 class WithIssueMixin(WithRepositoryMixin):

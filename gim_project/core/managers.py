@@ -30,7 +30,21 @@ class SavedObjects(dict):
         self.setdefault(model, {})[tuple(sorted(filters.items()))] = obj
 
 
-class GithubObjectManager(models.Manager):
+class BaseManager(models.Manager):
+
+    def delete_missing_after_fetch(self, queryset):
+        """
+        All objects matching the given queryset will be deleted, or, if the
+        `delete_missing_after_fetch` attribute of the model is set to False,
+        the `deleted` attribute of all this objects is set to True
+        """
+        if self.model.delete_missing_after_fetch:
+            queryset.delete()
+        else:
+            queryset.update(deleted=True)
+
+
+class GithubObjectManager(BaseManager):
     """
     This manager is to be used with GithubObject models.
     It provides stuff to create or update objects with json from the github api.
@@ -424,17 +438,6 @@ class GithubObjectManager(models.Manager):
                         fields[field_type][field_name] = value
 
         return fields
-
-    def delete_missing_after_fetch(self, queryset):
-        """
-        All objects matching the given queryset will be deleted, or, if the
-        `delete_missing_after_fetch` attribute of the model is set to False,
-        the `deleted` attribute of all this objects is set to True
-        """
-        if self.model.delete_missing_after_fetch:
-            queryset.delete()
-        else:
-            queryset.update(deleted=True)
 
 
 class WithRepositoryManager(GithubObjectManager):
@@ -1118,4 +1121,8 @@ class CommitCommentManager(WithCommitManager):
 
 
 class CommitCommentEntryPointManager(CommentEntryPointManagerMixin):
+    pass
+
+
+class IssueCommitsManager(BaseManager):
     pass
