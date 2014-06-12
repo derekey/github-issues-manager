@@ -388,10 +388,23 @@ class EventManager(object):
                             saved_objects=SavedObjects(),
                         )
 
-                if fetch_issue:
-                    self.fetch_issue(result.issue.number)
-
                 return result
+
+        except Exception:
+            return None
+
+    def event_commit_comment(self, payload, fetch_issue=True):
+        try:
+            defaults = self.get_defaults()
+
+            result = core_models.CommitComment.objects.create_or_update_from_dict(
+                        data=payload,
+                        modes=MODE_ALL,
+                        defaults=defaults,
+                        saved_objects=SavedObjects(),
+                    )
+
+            return result
 
         except Exception:
             return None
