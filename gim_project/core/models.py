@@ -1209,8 +1209,6 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_labels(self, gh, force_fetch=False, parameters=None):
-        if not self.has_issues:
-            return 0
         return self._fetch_many('labels', gh,
                                 defaults={'fk': {'repository': self}},
                                 force_fetch=force_fetch,
@@ -1500,9 +1498,6 @@ class Repository(GithubObjectWithId):
 
     def fetch_issues_events(self, gh, force_fetch=False, parameters=None,
                                                             max_pages=None):
-        if not self.has_issues:
-            # bug in the github api, not able to retrieve issue events if only PRs
-            return 0
         count = self._fetch_many('issues_events', gh,
                                  defaults={
                                     'fk': {'repository': self},
@@ -1608,8 +1603,9 @@ class Repository(GithubObjectWithId):
 
         super(Repository, self).fetch_all(gh, force_fetch=force_fetch)
         self.fetch_collaborators(gh, force_fetch=force_fetch)
+        self.fetch_labels(gh, force_fetch=force_fetch)
+
         if self.has_issues:
-            self.fetch_labels(gh, force_fetch=force_fetch)
             self.fetch_milestones(gh, force_fetch=force_fetch)
 
         if two_steps:
