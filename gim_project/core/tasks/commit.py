@@ -67,7 +67,7 @@ class FetchCommitBySha(Job):
             if commit.pk:
                 commit.deleted = True
                 commit.fetched_at = datetime.utcnow()
-                commit.save(update_field=['deleted', 'fetched_at'])
+                commit.save(update_fields=['deleted', 'fetched_at'])
             self.deleted.hset(1)
             return False
 
