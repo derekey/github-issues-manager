@@ -848,9 +848,9 @@ class PullRequestCommentManager(WithIssueManager):
         return fields
 
 
-class PullRequestCommentEntryPointManager(GithubObjectManager):
+class CommentEntryPointManagerMixin(GithubObjectManager):
     """
-    This manager is for the PullRequestCommentEntryPoint model, with an
+    This manager is for the *CommentEntryPoint models, with an
     enhanced create_or_update_from_dict that will save the created_at (oldest
     from the comments) and updated_at (latest from the comments).
     Also save the user if it's the first one.
@@ -872,7 +872,7 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
 
         user = data.get('user')
 
-        obj = super(PullRequestCommentEntryPointManager, self)\
+        obj = super(CommentEntryPointManagerMixin, self)\
             .create_or_update_from_dict(data, modes, defaults, fetched_at_field,
                                                     saved_objects, force_update)
 
@@ -897,6 +897,10 @@ class PullRequestCommentEntryPointManager(GithubObjectManager):
             obj.save(update_fields=update_fields)
 
         return obj
+
+
+class PullRequestCommentEntryPointManager(CommentEntryPointManagerMixin):
+    pass
 
 
 class CommitManager(WithRepositoryManager):
@@ -926,6 +930,47 @@ class CommitManager(WithRepositoryManager):
 
         return super(CommitManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)
+
+
+class WithCommitManager(WithRepositoryManager):
+    """
+    This base manager is for the models linked to a commit, with an enhanced
+    get_object_fields_from_dict method, to get the commit and the repository.
+    """
+
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
+        """
+        In addition to the default get_object_fields_from_dict, try to guess the
+        commit the object belongs to, from the commit_sha found in the data given
+        by the github api. Only set if found.
+        """
+        from .models import Commit
+
+        sha = data.get('commit_id', data.get('commit_sha', data.get('sha')))
+
+        fields = super(WithCommitManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)
+        if not fields:
+            return None
+
+        repository = fields['fk'].get('repository')
+
+        # add the issue if needed
+        if not fields['fk'].get('commit'):
+            if sha:
+                try:
+                    commit = repository.commits.get(sha=sha)
+                except Commit.DoesNotExist:
+                    pass
+                else:
+                    fields['fk']['commit'] = commit
+
+            if not fields['fk'].get('commit'):
+                if not self.model._meta.get_field('commit').null:
+                    # no mandatory commit found, don't save the object !
+                    return None
+
+        return fields
 
 
 class IssueEventManager(WithIssueManager):
@@ -1032,3 +1077,45 @@ class AvailableRepositoryManager(WithRepositoryManager):
         return super(AvailableRepositoryManager, self).get_object_fields_from_dict(
             {'permission': permission, 'repository': data},
             defaults, saved_objects)
+
+
+class CommitCommentManager(WithCommitManager):
+    """
+    This manager is for the CommitComment model, with an enhanced
+    get_object_fields_from_dict method to get the commit, the repository, and
+    the entry point
+    """
+
+    def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
+        """
+        In addition to the default get_object_fields_from_dict, get/create the
+        entry_point: some fetched data are for the entry point, some others are
+        for the comment)
+        """
+        from .models import CommitCommentEntryPoint
+
+        fields = super(CommitCommentManager, self).get_object_fields_from_dict(
+                                                data, defaults, saved_objects)
+        if not fields:
+            return None
+
+        defaults_entry_points = {
+            'fk': {
+                'repository': fields['fk']['repository'],
+            }
+        }
+        if 'commit' in fields['fk']:
+            defaults_entry_points['fk']['commit'] = fields['fk']['commit']
+
+        entry_point = CommitCommentEntryPoint.objects\
+                    .create_or_update_from_dict(data=data,
+                                                defaults=defaults_entry_points,
+                                                saved_objects=saved_objects)
+        if entry_point:
+            fields['fk']['entry_point'] = entry_point
+
+        return fields
+
+
+class CommitCommentEntryPointManager(CommentEntryPointManagerMixin):
+    pass

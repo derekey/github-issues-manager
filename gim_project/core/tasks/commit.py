@@ -7,6 +7,8 @@ __all__ = [
 from datetime import datetime
 
 from limpyd import fields
+from limpyd_jobs import STATUSES
+
 
 from core.models import Repository, Commit
 from core.ghpool import ApiNotFoundError
@@ -45,12 +47,19 @@ class FetchCommitBySha(Job):
 
         repository = self.repository
 
+        force_fetch = self.force_fetch.hget() == '1'
+
         try:
             commit = repository.commits.filter(sha=sha)[0]
         except (Commit.DoesNotExist, IndexError):
             commit = Commit(repository=repository, sha=sha)
+        else:
+            if not force_fetch and commit.fetched_at:
+                # a commit doesn't change so is we already have it, fetch it
+                # only if we forced it
+                self.status.hset(STATUSES.CANCELED)
+                return None
 
-        force_fetch = self.force_fetch.hget() == '1'
         try:
             commit.fetch(gh, force_fetch=force_fetch)
         except ApiNotFoundError:
