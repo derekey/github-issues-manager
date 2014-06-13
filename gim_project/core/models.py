@@ -2419,7 +2419,7 @@ class IssueCommits(models.Model):
     def __unicode__(self):
         result = u'%s on %s'
         if self.deleted:
-            result += u' (outdated)'
+            result += u' (deleted)'
         return result % (self.commit.sha, self.issue.number)
 
 

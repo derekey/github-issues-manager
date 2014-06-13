@@ -42,7 +42,7 @@
         {% endifchanged %}
     {% endif %}
     {% with model=entry|model %}
-        <li class="arrow-box-left model-{{ model }}{% if model == 'Event' %}-{% if entry.is_update %}update{% else %}create{% endif %}{% elif model == 'IssueEvent' %}-{{ entry.event }}{% endif %}" data-ident="{{ entry.activity_identifier }}"{% if entry.activity_score %} data-score="{{ entry.activity_score }}"{% endif %}>
+        <li class="arrow-box-left model-{{ model }}{% if model == 'Event' %}-{% if entry.is_update %}update{% else %}create{% endif %}{% elif model == 'IssueEvent' %}-{{ entry.event }}{% elif model == 'IssueCommits' and entry.deleted %}-deleted{% endif %}" data-ident="{{ entry.activity_identifier }}"{% if entry.activity_score %} data-score="{{ entry.activity_score }}"{% endif %}>
         {% if model == 'Event' %}
             <div class="info">
                 {% if entry.is_update %}
@@ -110,7 +110,7 @@
                     {{ entry.html_content|safe }}
                 </blockquote>
             </div>
-        {% elif model == 'Issue_commits' %}
+        {% elif model == 'IssueCommits' %}
             {% with author_name=entry.commit.author.username|default:entry.commit.author_name %}
             <div class="avatar"><img class="avatar-small" src="{{ entry.commit.author.avatar_url|default:default_avatar }}" /></div>
             <div class="info">
@@ -124,7 +124,7 @@
                 <i class="fa fa-git-square fa-stack-2x"></i>
             </span>
             <div class="box-content">
-                <p>Has a commit added to this pull request:</p>
+                <p>Had a commit added to this pull request{% if entry.deleted %} <strong><em>(now outdated)</em></strong>{% endif %}:</p>
                 <blockquote>
                     {% with commit=entry.commit|copy_fks_from:entry %}
                         <a href="{{ commit.github_url }}" target='_blank' title='View on Github'>
@@ -157,7 +157,7 @@
                 <div class="box-content">
                     <p class="box-content">
                         Closed this {{ entry.issue.type }}
-                        {% if entry.commit_sha and entry.related_object_id %}from a commit:{% endif %}
+                        {% if entry.commit_sha and entry.related_object_id %}from a commit{% if entry.deleted %} <strong><em>(now outdated)</em></strong>{% endif %}:{% endif %}
                     </p>
                     {% if entry.commit_sha and entry.related_object_id %}
                         <blockquote>

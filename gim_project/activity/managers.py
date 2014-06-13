@@ -9,7 +9,7 @@ from limpyd_jobs.utils import import_class
 from events.models import EventPart
 from events.renderers import IssueRendererCollapsableTitleAndBody
 
-from core.models import Issue
+from core.models import Issue, IssueCommits
 
 
 class ActivityManager(object):
@@ -280,8 +280,8 @@ class ActivityManagerPCI(ActivityManager):
     # automatic through table
     related_name = None
     model_uri = None
-    model = Issue.commits.through
-    date_field = 'commit__authored_at'
+    model = IssueCommits
+    date_field = 'commit__committed_at'
 
     @classmethod
     def is_obj_valid(cls, *args, **kwargs):
@@ -311,7 +311,7 @@ class ActivityManagerPCI(ActivityManager):
         """
         Return the date stored on the commit object, not the "through" one
         """
-        return obj.commit.authored_at
+        return getattr(obj.commit, cls.date_field)
 
 
 # automatically register all ActivityManager classes
