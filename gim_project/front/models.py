@@ -290,7 +290,8 @@ class _Issue(models.Model):
             return 0
         if self.nb_commits == 1:
             return 1
-        return len(set(self.commits.values_list('author_name', flat=True)))
+        return len(set(self.commits.filter(related_commits__deleted=False)
+                                   .values_list('author_name', flat=True)))
 
     @property
     def hash(self):
@@ -347,7 +348,7 @@ class _Issue(models.Model):
     @property
     def all_commits(self):
         if not hasattr(self, '_all_commits'):
-            self._all_commits = list(self.commits.all()
+            self._all_commits = list(self.commits.filter(related_commits__deleted=False)
                                          .select_related('author',
                                             'committer', 'repository__owner')
                                          .order_by('authored_at'))
