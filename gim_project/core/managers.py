@@ -919,8 +919,11 @@ class CommitManager(WithRepositoryManager):
         """
         if 'commit' in data:
             c = data['commit']
-            if 'message' in c:
-                data['message'] = c['message']
+
+            for field in 'message', 'comment_count':
+                if field in c:
+                    data[field] = c[field]
+
             for user_type, date_field in (('author', 'authored'), ('committer', 'committed')):
                 if user_type in c:
                     if 'date' in c[user_type]:
@@ -928,6 +931,7 @@ class CommitManager(WithRepositoryManager):
                     for field in ('email', 'name'):
                         if field in c[user_type]:
                             data['%s_%s' % (user_type, field)] = c[user_type][field]
+
             if 'tree' in c:
                 data['tree'] = c['tree']['sha']
 

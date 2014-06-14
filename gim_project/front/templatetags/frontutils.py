@@ -300,3 +300,7 @@ def map_attr(objs, attr):
 @register.filter
 def map_dict_item(dicts, dict_item):
     return [dikt.get(dict_item) for dikt in dicts]
+
+@register.filter
+def strip(string_value):
+    return string_value.strip()

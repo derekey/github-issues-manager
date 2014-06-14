@@ -995,6 +995,11 @@ table.commits-list {
                 float: left;
                 margin-right: 4px;
                 margin-top: 3px;
+                &.comments-count {
+                    float: right;
+                    margin-right: 3px;
+                    margin-left: 1em;
+                }
             }
             p {
                 font-family: $monoFontFamily;
@@ -1005,12 +1010,12 @@ table.commits-list {
                     margin-top: 3px;
                     font-size: 12px;
                 }
-            }
-            > span[data-toggle=collapse] {
-                @extend %toggle;
-                float: right;
-                display: block;
-                margin: 6px 6px 2px 2px;
+                > span[data-toggle=collapse] {
+                    @extend %toggle;
+                    font-family: "Open Sans",HelveticaNeue,Helvetica,Arial;
+                    position: relative;
+                    top: -2px;
+                }
             }
         }
         &.cell-sha {

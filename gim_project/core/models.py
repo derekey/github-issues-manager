@@ -2013,6 +2013,10 @@ class Commit(WithRepositoryMixin, GithubObject):
     def created_at(self):
         return self.authored_at
 
+    def update_comments_count(self):
+        self.comments_count = self.commit_comments.count()
+        self.save(update_fields=['comments_count'])
+
 
 class WithCommitMixin(WithRepositoryMixin):
     """
@@ -2360,7 +2364,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         if self.is_pull_request:
             count = self.pr_comments.count()
             if count and (not self.pr_comments_count or count > self.pr_comments_count):
-                self.pr_comments_count = self.pr_comments.count()
+                self.pr_comments_count = count
                 self.save(update_fields=['pr_comments_count'])
 
     def save(self, *args, **kwargs):
@@ -2961,6 +2965,7 @@ class CommitComment(CommentMixin, WithCommitMixin, GithubObjectWithId):
         """
         Try to get the commit if not set, using the sha, or ask for it to be
         fetched from github
+        If it's a creation, update the comments_count of the commit
         If it's an update, update the starting point of the entry-point
         """
         is_new = not bool(self.pk)
@@ -2974,8 +2979,9 @@ class CommitComment(CommentMixin, WithCommitMixin, GithubObjectWithId):
 
         super(CommitComment, self).save(*args, **kwargs)
 
-        if not is_new:
+        if is_new:
+            self.commit.update_comments_count()
+        else:
             self.entry_point.update_starting_point(save=True)
-
 
 from core.tasks import *

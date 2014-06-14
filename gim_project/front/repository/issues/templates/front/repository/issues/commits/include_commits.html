@@ -8,28 +8,31 @@
                 <span title="{{ commit.author|default:commit.author_name }}">{{ commit.author|default:commit.author_name }}</span>
             </td>
             <td class="cell-message">
+                {% if commit.comments_count %}
+                    <a class='label label-cyan comments-count' href="{{ commit.github_url }}" target='_blank' title="View commit with comments on Github">
+                        <i class="fa fa-comments-o"></i> {{ commit.comments_count }}
+                    </a>
+                {% endif %}
+                {% if commit.relation_deleted %}
+                    <span class="label label-red">outdated</span>
+                {% endif %}
+                {% if repository_source and repository_source.id != commit.repository_id %}
+                    <span class="label label-blue">{{ repository_source.full_name }}</span>
+                {% endif %}
                 {% if not commit.fetched_at and not commit.message %}
-                    {% if repository_source and repository_source.id != commit.repository_id %}[from <i>{{ repository_source.full_name }}</i>] {% endif %}
                     <i>Commit not fetched yet</i>
                 {% else %}
                     {% with message=commit.splitted_message %}
-                        {% if commit.relation_deleted %}
-                            <span class="label label-red">outdated</span>
-                        {% endif %}
-                        {% if repository_source and repository_source.id != commit.repository_id %}
-                            <span class="label label-blue">{{ repository_source.full_name }}</span>
-                        {% endif %}
-                        {% if message.1|length %}
-                            <span data-toggle="collapse" data-target="#{{ id_prefix }}commit-more-{{ commit.sha }}">…</span>
-                        {% endif %}
-                        <p>{{ message.0 }}</p>
-                        {% if message.1|length %}
-                            <p class="collapse" id="{{ id_prefix }}commit-more-{{ commit.sha }}">{{ message.1 }}</p>
-                        {% endif %}
+                        <p>{{ message.0|strip }} {% if message.1|length %}<span data-toggle="collapse" data-target="#{{ id_prefix }}commit-more-{{ commit.sha }}">…</span>{% endif %}</p>
+                        {% with next=message.1|strip %}
+                            {% if next|length %}
+                                <p class="collapse" id="{{ id_prefix }}commit-more-{{ commit.sha }}">{{ next }}</p>
+                            {% endif %}
+                        {% endwith %}
                     {% endwith %}
                 {% endif %}
             </td>
-            <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank' title="View commit on Github">{{ commit.sha|short_sha }}</a></td>
+            <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank' title="View commit{% if commit.comments_count %} with comments{% endif %} on Github">{{ commit.sha|short_sha }}</a></td>
         </tr>
     {% endfor %}
 </table>
