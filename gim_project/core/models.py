@@ -2408,7 +2408,7 @@ class IssueCommits(models.Model):
     It allows to still display commit-comments on old commits (replaced via a
     rebase for example)
     """
-    issue = models.ForeignKey(Issue, related_name='related_issues')
+    issue = models.ForeignKey(Issue, related_name='related_commits')
     commit = models.ForeignKey(Commit, related_name='related_commits')
     deleted = models.BooleanField(default=False)
 

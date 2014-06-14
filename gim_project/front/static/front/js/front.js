@@ -1456,6 +1456,12 @@ $().ready(function() {
             IssueDetail.select_review_tab(PanelsSwpr.current_panel);
         }), // on_link_to_review_comment
 
+        on_deleted_commits_toggle_change: (function IssueDetail__on_deleted_commits_toggle_change () {
+            var $input = $(this),
+                $parent = $input.closest('.issue-commits');
+                $parent.toggleClass('view-deleted', $input.is(':checked'))
+        }), // on_deleted_commits_toggle_change
+
         init: (function IssueDetail__init () {
             // init modal container
             IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1504,6 +1510,9 @@ $().ready(function() {
             if (IssueDetail.$main_container.data('number')) {
                 IssueDetail.on_issue_loaded(IssueDetail.$main_container, false);
             }
+
+            // commits options
+            $document.on('change', '.deleted-commits-toggler input', IssueDetail.on_deleted_commits_toggle_change);
 
             // files list summary
             $document.on('click', '.pr-files-list a', Ev.stop_event_decorate(IssueDetail.on_files_list_click));

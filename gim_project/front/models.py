@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template import loader, Context
 from django.template.defaultfilters import escape
+from django.utils.functional import cached_property, memoize
 
 from markdown import markdown
 
@@ -345,14 +346,22 @@ class _Issue(models.Model):
 
         loader.get_template(template).render(context)
 
-    @property
-    def all_commits(self):
-        if not hasattr(self, '_all_commits'):
-            self._all_commits = list(self.commits.filter(related_commits__deleted=False)
-                                         .select_related('author',
-                                            'committer', 'repository__owner')
-                                         .order_by('authored_at'))
-        return self._all_commits
+    def all_commits(self, include_deleted=False):
+        qs = self.related_commits.select_related('commit__author',
+                                                 'commit__committer',
+                                                 'commit__repository__owner'
+                                ).order_by('commit__authored_at', 'commit__committed_at')
+        if not include_deleted:
+            qs = qs.filter(deleted=False)
+
+        result = []
+        for c in qs:
+            c.commit.relation_deleted = c.deleted
+            result.append(c.commit)
+
+        return result
+    all_commits._cache = {}
+    all_commits = memoize(all_commits, all_commits._cache, 2)
 
     @property
     def all_entry_points(self):
@@ -394,7 +403,7 @@ class _Issue(models.Model):
         if self.is_pull_request:
             pr_comments = list(self.pr_comments.select_related('user'))
 
-            activity += pr_comments + self.all_commits
+            activity += pr_comments + self.all_commits(False)
 
         activity.sort(key=attrgetter('created_at'))
 
@@ -409,10 +418,19 @@ class _Issue(models.Model):
             entry_point.last_created = list(entry_point.comments.all())[-1].created_at
         return sorted(self.all_entry_points, key=attrgetter('last_created'))
 
-    def get_commits_per_day(self):
+    def get_commits_per_day(self, include_deleted=False):
         if not self.is_pull_request:
             return []
-        return GroupedCommits.group_by_day(self.all_commits)
+        return GroupedCommits.group_by_day(
+            self.all_commits(include_deleted)
+        )
+
+    def get_all_commits_per_day(self):
+        return self.get_commits_per_day(True)
+
+    @cached_property
+    def nb_deleted_commits(self):
+        return self.related_commits.filter(deleted=True).count()
 
     @property
     def html_content(self):

@@ -841,6 +841,33 @@ $repo-name-height: 20px;
         margin-top: 0;
     }
 }
+.issue-commits {
+    .deleted-commits-toggler {
+        font-size: inherit;
+        display: inline-block;
+        float: right;
+        line-height: normal;
+        vertical-align: middle;
+        input {
+            vertical-align: middle;
+            margin-right: 1ex;
+        }
+        span {
+            vertical-align: middle;
+        }
+    }
+    .all-commits {
+        display: none;
+    }
+    &.view-deleted {
+        .all-commits {
+            display: block;
+        }
+        .active-commits {
+            display: none;
+        }
+    }
+}
 .issue-commits, .issue-review, .issue-files {
     > .content, .pr-files-list-container {
         padding: 15px;
@@ -964,6 +991,11 @@ table.commits-list {
             }
         }
         &.cell-message {
+            .label {
+                float: left;
+                margin-right: 4px;
+                margin-top: 3px;
+            }
             p {
                 font-family: $monoFontFamily;
                 font-size: 11px;
