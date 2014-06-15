@@ -1826,7 +1826,7 @@ class Label(WithRepositoryMixin, GithubObject):
     label_type = models.ForeignKey(LabelType, related_name='labels', blank=True, null=True, on_delete=models.SET_NULL)
     typed_name = models.TextField(db_index=True)
     lower_typed_name = models.TextField(db_index=True)
-    order = models.IntegerField(blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True, db_index=True)
 
     objects = WithRepositoryManager()
 
@@ -1974,7 +1974,7 @@ class Commit(WithRepositoryMixin, GithubObject):
     committed_at = models.DateTimeField(db_index=True, blank=True, null=True)
     comments_count = models.PositiveIntegerField(blank=True, null=True)
     tree = models.CharField(max_length=40, blank=True, null=True)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False, db_index=True)
 
     objects = CommitManager()
 
@@ -2414,7 +2414,7 @@ class IssueCommits(models.Model):
     """
     issue = models.ForeignKey(Issue, related_name='related_commits')
     commit = models.ForeignKey(Commit, related_name='related_commits')
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False, db_index=True)
 
     delete_missing_after_fetch = False
 
@@ -2812,7 +2812,7 @@ class PullRequestFile(WithIssueMixin, GithubObject):
     repository = models.ForeignKey(Repository, related_name='pr_files')
     issue = models.ForeignKey(Issue, related_name='files')
     sha = models.CharField(max_length=40, blank=True, null=True)
-    path = models.TextField(blank=True, null=True)
+    path = models.TextField(blank=True, null=True, db_index=True)
     status = models.CharField(max_length=32, blank=True, null=True)
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
     nb_deletions = models.PositiveIntegerField(blank=True, null=True)
