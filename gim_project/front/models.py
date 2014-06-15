@@ -664,6 +664,17 @@ class _PullRequestComment(models.Model):
 contribute_to_model(_PullRequestComment, core_models.PullRequestComment)
 
 
+class _CommitComment(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def html_content(self):
+        return html_content(self)
+
+contribute_to_model(_CommitComment, core_models.CommitComment)
+
+
 class Hash(lmodel.RedisModel):
 
     database = get_main_limpyd_database()

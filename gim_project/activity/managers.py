@@ -295,23 +295,91 @@ class ActivityManagerPCI(ActivityManager):
         """
         Use our through table, we don't have related_name here
         """
-        return cls.model.objects.exclude(issue__number__isnull=True).filter(issue=issue)
+        return cls.get_model().objects.exclude(issue__number__isnull=True).filter(issue=issue)
 
     @classmethod
     def get_load_queryset(cls):
         """
-        Prefetch issue, commit, repository, and author+commiter of the commit
+        Prefetch issue, commit, repository, and author+committer of the commit
         """
         qs = super(ActivityManagerPCI, cls).get_load_queryset()
         return qs.select_related('issue__user', 'issue__repository__owner',
-                                        'commit__author', 'commit__commiter')
+                                        'commit__author', 'commit__committer')
 
     @classmethod
     def get_object_date(cls, obj):
         """
         Return the date stored on the commit object, not the "through" one
         """
-        return getattr(obj.commit, cls.date_field)
+        return obj.commit.committed_at
+
+
+class ActivityManagerPCC(ActivityManager):
+    code = 'pcc'
+    limpyd_field = 'commit_comments'
+    related_name = None  # no direct link betwwem commit comment and issue
+    model_uri = 'core.models.CommitComment'
+    pr_only = True
+
+    @classmethod
+    def get_data_queryset(cls, issue):
+        """
+        There is no direct link between a commit comment and an issue, but we
+        can use CommitComment => Commit => IssueCommits => Issue
+        """
+        return cls.get_model().objects.filter(commit__related_commits__issue=issue)
+
+    @classmethod
+    def get_load_queryset(cls):
+        """
+        Prefetch author of the comment, commit and its author, linked issue, and
+        its repository, with their owners
+        """
+        # don't use super as super excludes the issue and we don't have issue here
+        return cls.get_model().objects.filter(
+            commit__related_commits__issue__isnull=False
+            ).select_related(
+                'user',
+                'repository__user',
+                'commit__author',
+                'commit__committer',
+            ).prefetch_related(
+                'commit__related_commits__issue__user',
+            )
+
+    @classmethod
+    def _link_relations(cls, obj):
+        """
+        Add issue from the commit relation to the object, and the repository from
+        the object, to the issue, to avoid useless sql queries
+        """
+        # ensure to use "all" to benefit from the prefetch_related in get_load_queryset
+        obj.issue = list(obj.commit.related_commits.all())[0].issue
+        obj.issue._repository_cache = obj.repository
+
+    @classmethod
+    def load_object(cls, pk):
+        """
+        Try to get an issue on which we have the commit linked to this comment
+        and add it to the object.
+        """
+        try:
+            obj = cls.get_load_queryset().get(pk=pk)
+        except cls.model.DoesNotExist:
+            return None
+        cls._link_relations(obj)
+        return obj
+
+    @classmethod
+    def load_objects(cls, pks):
+        """
+        Load a list of objects using the given list of pk and the queryset from
+        get_load_queryset
+        """
+        objs = cls.get_load_queryset().filter(pk__in=pks)
+        for obj in objs:
+            cls._link_relations(obj)
+        return objs
 
 
 # automatically register all ActivityManager classes

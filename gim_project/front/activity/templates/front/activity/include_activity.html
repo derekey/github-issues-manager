@@ -105,8 +105,27 @@
                 <i class="fa fa-code fa-stack-1x"></i>
             </span>
             <div class="box-content">
-                <p>Commented code on this pull request<span data-toggle="collapse" data-target="#comment-{{ entry.id }}" title="Toggle comment">…</span></p>
-                <blockquote class="issue-comment collapse" id="comment-{{ entry.id }}">
+                <p>Commented code on this pull request<span data-toggle="collapse" data-target="#pr-comment-{{ entry.id }}" title="Toggle comment">…</span></p>
+                <blockquote class="issue-comment collapse" id="pr-comment-{{ entry.id }}">
+                    {{ entry.html_content|safe }}
+                </blockquote>
+            </div>
+        {% elif model == 'CommitComment' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.user }}</strong>
+                    {% usemacro tags entry.issue entry.user %}
+                </span>
+                {% usemacro datetime entry.created_at %}
+            </div>
+            <span class="fa-stack">
+                <i class="fa fa-comment-o fa-stack-2x"></i>
+                <i class="fa fa-git fa-stack-1x"></i>
+            </span>
+            <div class="box-content">
+                <p>Commented a commit on this pull request<span data-toggle="collapse" data-target="#commit-comment-{{ entry.id }}" title="Toggle comment">…</span></p>
+                <blockquote class="issue-comment collapse" id="commit-comment-{{ entry.id }}">
                     {{ entry.html_content|safe }}
                 </blockquote>
             </div>
