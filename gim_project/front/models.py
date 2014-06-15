@@ -405,6 +405,17 @@ class _Issue(models.Model):
 
             activity += pr_comments + self.all_commits(False)
 
+            # group commit comments by day + commit
+            cc_by_commit = {}
+            for c in (core_models.CommitComment.objects
+                                 .filter(commit__related_commits__issue=self)
+                                 .select_related('commit', 'user')
+                    ):
+                cc_by_commit.setdefault(c.commit, []).append(c)
+
+            for comments in cc_by_commit.values():
+                activity += GroupedCommitComments.group_by_day(comments)
+
         activity.sort(key=attrgetter('created_at'))
 
         if self.is_pull_request:
@@ -494,13 +505,14 @@ class GroupedItems(list):
             return []
 
         groups = []
-        current_date = None
 
         for entry in entries:
-            entry_date = getattr(entry, cls.date_field).date()
-            if not current_date or entry_date != current_date:
+            entry_datetime = getattr(entry, cls.date_field)
+            entry_date = entry_datetime.date()
+            if not groups or entry_date != groups[-1].start_date:
                 groups.append(cls())
-                current_date = entry_date
+                groups[-1].start_date = entry_date
+                groups[-1].created_at = entry_datetime
             groups[-1].append(entry)
 
         return groups
@@ -532,6 +544,13 @@ class GroupedPullRequestComments(GroupedItems):
     date_field = 'created_at'
     author_field = 'user'
     is_pr_comments_group = True  # for template
+
+
+class GroupedCommitComments(GroupedItems):
+    model = core_models.CommitComment
+    date_field = 'created_at'
+    author_field = 'user'
+    is_commit_comments_group = True  # for template
 
 
 class GroupedCommits(GroupedItems):

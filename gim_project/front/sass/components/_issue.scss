@@ -626,6 +626,17 @@ $repo-name-height: 20px;
                     margin-top: 1px;
                 }
             }
+            &.event-referenced-in-commit {
+                .comment-commits table {
+                    border-top: none;
+                    tr:first-child {
+                        border-top: none;
+                        td  {
+                            border-top: none;
+                        }
+                    }
+                }
+            }
         }
     }
     .pr-commits-group .box-header {
@@ -776,6 +787,13 @@ $repo-name-height: 20px;
         position: absolute;
         right: 20px;
         margin-top: -1px;
+    }
+
+    .commit-comments-group .box-content {
+        margin: 5px 10px;
+        .comment-commits {
+            margin-top: 5px;
+        }
     }
 
     .comment-nav {
