@@ -51,3 +51,6 @@ class GithubWebHook(View):
 
     def event_pull_request_review_comment(self, payload):
         return self.event_manager.event_pull_request_review_comment(payload['comment'])
+
+    def event_commit_comment(self, payload):
+        return self.event_manager.event_commit_comment(payload['comment'])

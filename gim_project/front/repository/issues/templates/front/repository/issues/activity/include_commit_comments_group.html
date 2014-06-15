@@ -1,7 +1,7 @@
 {% load frontutils macros %}
 {% macro render_user user with_count %}<strong><img class="avatar-tiny img-circle" src="{{ user.avatar_url|default:default_avatar }}"> {{ user.username }}</strong>{% if with_count %} ({{ user.count }}){% endif %}{% endmacro %}
 <li>
-    <div class="box pr-comments-group">
+    <div class="box commit-comments-group">
         {% with nb_comments=group|length %}
             <div class="box-header">
                 <span class="fa-stack">
@@ -9,7 +9,7 @@
                     <i class="fa fa-code fa-stack-1x"></i>
                 </span>
                 <div class="title">
-                    {{ nb_comments }} code comment{{ nb_comments|pluralize }} {{ nb_comments|pluralize:'was,were'}} added
+                    {{ nb_comments }} commit comment{{ nb_comments|pluralize }} {{ nb_comments|pluralize:'was,were'}} added on a commit
                 </div>
                 <ul class="box-toolbar">
                     <li class="time" title="{{ group.start_date|date:"DATE_FORMAT" }}"><i class="fa fa-clock-o"></i> {% if with_ago %}{{ group.start_date|ago }}{% else %}{{ group.start_date|date:"DATE_FORMAT" }}{% endif %}</li>
@@ -26,7 +26,9 @@
                     {% endfor %}
                     --> and {% usemacro render_user group.authors.values|last True %}
                 {% endif %}
-                <button class="btn btn-mini btn-gray go-to-review-link" data-ids="[{{ group|map_attr:'id'|join:',' }}]">View {{ nb_comments|pluralize:'it,them'}}</button>
+                <div class="comment-commits">
+                    {% include "front/repository/issues/commits/include_commits.html" with commits=group.0.commit|tolist id_prefix="commit-comment-" repository_source=group.0.repository %}
+                </div>
             </div>
         {% endwith %}
     </div>

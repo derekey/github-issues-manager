@@ -24,7 +24,9 @@ from .managers import (MODE_ALL, MODE_UPDATE,
                        RepositoryManager, LabelTypeManager,
                        PullRequestCommentManager, IssueEventManager,
                        PullRequestCommentEntryPointManager, CommitManager,
-                       PullRequestFileManager, AvailableRepositoryManager)
+                       PullRequestFileManager, AvailableRepositoryManager,
+                       CommitCommentManager, CommitCommentEntryPointManager,
+                       IssueCommitsManager)
 
 import username_hack  # force the username length to be 255 chars
 
@@ -77,6 +79,8 @@ class GithubObject(models.Model):
     github_per_page = {'min': 10, 'max': 100}
     github_date_field = None  # ex ('updated_at', 'updated',   'desc')
                               #      obj field     sort param  direction param
+    github_reverse_order = False  # if entries are given by github in forced reverse order
+                                  # See CommitComment
 
     delete_missing_after_fetch = True
 
@@ -190,6 +194,7 @@ class GithubObject(models.Model):
         min_date = None
         if_modified_since = None
         fetched_at_field = '%s_fetched_at' % meta_base_name
+        last_page_field = '%s_last_page' % meta_base_name
 
         if not force_fetch:
             if hasattr(self, fetched_at_field):
@@ -200,7 +205,9 @@ class GithubObject(models.Model):
                     if_modified_since = fetched_at
                     # limit to a few items per list when updating a repository
                     # only if per_page not forced and last fetch is recent
-                    if not parameters.get('per_page') and datetime.utcnow() - fetched_at < timedelta(days=3):
+                    if (not parameters.get('per_page')
+                        and not model.github_reverse_order
+                        and datetime.utcnow() - fetched_at < timedelta(days=1)):
                         per_page_parameter['per_page'] = model.github_per_page['min']
 
                     # do we have to check for a min date ?
@@ -229,6 +236,7 @@ class GithubObject(models.Model):
             """
             response_headers = {}
             etag = None
+            last_page_ok = None
 
             page_objs = []
 
@@ -247,26 +255,29 @@ class GithubObject(models.Model):
 
             except ApiNotFoundError:
                 # no data for this list (issues may be no activated, for example)
-                pass
+                last_page_ok = int(parameters.get('page', 1)) - 1
             except ApiError, e:
                 if e.response and e.response['code'] in (410, ):
                     # no data for this list (issues may be no activated, for example)
-                    pass
+                    last_page_ok = int(parameters.get('page', 1)) - 1
                 else:
                     raise
             except Exception:
                 raise
+            else:
+                last_page_ok = int(parameters.get('page', 1))
 
             etag = response_headers.get('etag') or None
 
             if not page_objs:
                 # no fetched objects, we're done
-                return None, etag
+                last_page_ok -= 1
+                return None, etag, last_page_ok
 
             objs += page_objs
 
             # if we reached the min_date, stop
-            if min_date:
+            if min_date and not model.github_reverse_order:
                 obj_min_date = getattr(page_objs[-1], model.github_date_field[0])
                 if obj_min_date and obj_min_date < min_date:
                     raise MinDateRaised(etag)
@@ -284,7 +295,7 @@ class GithubObject(models.Model):
                             )
                     )
                     # params for next page
-                    return next_page_parameters, etag
+                    return next_page_parameters, etag, last_page_ok
 
             # manage model without pagination activated on the github side
             # but only if we receivend enough data to let us think we may have
@@ -292,12 +303,12 @@ class GithubObject(models.Model):
             elif len(objs) >= parameters.get('per_page'):  # == should suffice but...
                 # simply increment the page number
                 next_page_parameters = parameters.copy()
-                next_page_parameters['page'] = parameters.get('page', 1) + 1
+                next_page_parameters['page'] = int(parameters.get('page', 1)) + 1
                 # params for next page
-                return next_page_parameters, etag
+                return next_page_parameters, etag, last_page_ok
 
             # no more page, stop
-            return None, etag
+            return None, etag, last_page_ok
 
         if not vary:
             # no varying parameter, fetch with an empty set of parameters, with
@@ -335,6 +346,8 @@ class GithubObject(models.Model):
         cache_hit = False
         max_pages_raised = False
         something_fetched = False
+        last_page_ok = None
+
         for parameters_combination, etag_field in parameters_combinations:
 
             # use the etag if we have one and we don't have any 200 pages yet
@@ -349,15 +362,15 @@ class GithubObject(models.Model):
 
             try:
                 # fetch all available pages
-                page = parameters.get('page', 0)
+                page = int(parameters.get('page', 0))
                 pages_total = 0
                 page_parameters = parameters_combination.copy()
                 while True:
                     page += 1
-                    page_parameters, page_etag = fetch_page_and_next(objs,
-                                                    page_parameters, min_date)
+                    page_parameters, page_etag, last_page_ok = \
+                        fetch_page_and_next(objs, page_parameters, min_date)
                     pages_total += 1
-                    if page == 1:
+                    if page == 1 or model.github_reverse_order:
                         etags[etag_field] = page_etag
                         if request_etag:
                             # clear if-none-match header for pages > 1
@@ -391,7 +404,7 @@ class GithubObject(models.Model):
         # now update the list with created/updated objects
         if something_fetched:
             # but only if we had all fresh data !
-            started_at_first_page = parameters.get('page', 1) in (0, 1, None)
+            started_at_first_page = int(parameters.get('page', 1)) in (0, 1, None)
             do_remove = (remove_missing
                      and not cache_hit
                      and modes == MODE_ALL
@@ -405,7 +418,9 @@ class GithubObject(models.Model):
                                       save_etags_and_fetched_at=save_etags_and_fetched_at,
                                       etags=etags,
                                       fetched_at_field=fetched_at_field,
-                                      filter_queryset=filter_queryset)
+                                      filter_queryset=filter_queryset,
+                                      last_page_field=last_page_field,
+                                      last_page=last_page_ok)
 
         # we return the number of fetched objects
         if not objs:
@@ -415,7 +430,8 @@ class GithubObject(models.Model):
 
     def update_related_field(self, field_name, ids, do_remove=True,
                                 save_etags_and_fetched_at=True, etags=None,
-                                fetched_at_field=None, filter_queryset=None):
+                                fetched_at_field=None, filter_queryset=None,
+                                last_page_field=None, last_page=None):
         """
         For the given field name, with must be a m2m or the reverse side of
         a m2m or a fk, use the given list of ids as the lists of ids of all the
@@ -466,27 +482,50 @@ class GithubObject(models.Model):
                 # delete the objects.
                 # Example: a milestone of a repository is not fetched via
                 # fetch_milestones? => we know it's deleted
-                to_delete_queryset = instance_field.model.objects.filter(id__in=to_remove)
+                # We also manage here relations via through tables
+                if hasattr(instance_field, 'through'):
+                    model = instance_field.through
+                    filter = {
+                        '%s__id' % instance_field.source_field_name: self.id,
+                        '%s__id__in' % instance_field.target_field_name: to_remove,
+                    }
+                else:
+                    model = instance_field.model
+                    filter = {'id__in': to_remove}
+
+                to_delete_queryset = model.objects.filter(**filter)
                 if filter_queryset:
                     to_delete_queryset = to_delete_queryset.filter(filter_queryset)
-                instance_field.model.objects.delete_missing_after_fetch(to_delete_queryset)
+                model.objects.delete_missing_after_fetch(to_delete_queryset)
 
         # if we have new relations, add them
         to_add = fetched_ids - existing_ids
         if to_add:
             count['added'] = len(to_add)
-            try:
-                instance_field.add(*to_add)
-            except DatabaseError, e:
-                # sqlite limits the vars passed in a request to 999
-                # In this case, we loop on the data by slice of 950 obj to add
-                if u'%s' % e != 'too many SQL variables':
-                    raise
-                per_iteration = 950  # do not use 999 has we may have other vars for internal django filter
-                to_add = list(to_add)
-                iterations = int(ceil(count['added'] / float(per_iteration)))
-                for iteration in range(0, iterations):
-                    instance_field.add(*to_add[iteration * per_iteration:(iteration + 1) * per_iteration])
+            if hasattr(instance_field, 'add'):
+                try:
+                    instance_field.add(*to_add)
+                except DatabaseError, e:
+                    # sqlite limits the vars passed in a request to 999
+                    # In this case, we loop on the data by slice of 950 obj to add
+                    if u'%s' % e != 'too many SQL variables':
+                        raise
+                    per_iteration = 950  # do not use 999 has we may have other vars for internal django filter
+                    to_add = list(to_add)
+                    iterations = int(ceil(count['added'] / float(per_iteration)))
+                    for iteration in range(0, iterations):
+                        instance_field.add(*to_add[iteration * per_iteration:(iteration + 1) * per_iteration])
+
+            elif hasattr(instance_field, 'through'):
+                model = instance_field.through
+                objs = [
+                    model(**{
+                        '%s_id' % instance_field.source_field_name: self.id,
+                        '%s_id' % instance_field.target_field_name: obj_id
+                    })
+                    for obj_id in to_add
+                ]
+                model.objects.bulk_create(objs)  # size limit for sqlite managed by django
 
         # check if we have something to save on the main object
         update_fields = []
@@ -506,6 +545,10 @@ class GithubObject(models.Model):
                     setattr(self, etag_field, etag)
                     if etag_field in all_field_names:
                         update_fields.append(etag_field)
+
+        if last_page_field and hasattr(self, last_page_field) and last_page is not None:
+            setattr(self, last_page_field, last_page)
+            update_fields.append(last_page_field)
 
         # save main object if needed
         if update_fields:
@@ -1090,6 +1133,10 @@ class Repository(GithubObjectWithId):
     pr_comments_etag = models.CharField(max_length=64, blank=True, null=True)
     issues_events_fetched_at = models.DateTimeField(blank=True, null=True)
     issues_events_etag = models.CharField(max_length=64, blank=True, null=True)
+    commit_comments_fetched_at = models.DateTimeField(blank=True, null=True)
+    commit_comments_etag = models.CharField(max_length=64, blank=True, null=True)
+    # this list is not ordered, we must memorize the last page
+    commit_comments_last_page = models.PositiveIntegerField(blank=True, null=True)
 
     objects = RepositoryManager()
 
@@ -1186,8 +1233,6 @@ class Repository(GithubObjectWithId):
         ]
 
     def fetch_labels(self, gh, force_fetch=False, parameters=None):
-        if not self.has_issues:
-            return 0
         return self._fetch_many('labels', gh,
                                 defaults={'fk': {'repository': self}},
                                 force_fetch=force_fetch,
@@ -1477,9 +1522,6 @@ class Repository(GithubObjectWithId):
 
     def fetch_issues_events(self, gh, force_fetch=False, parameters=None,
                                                             max_pages=None):
-        if not self.has_issues:
-            # bug in the github api, not able to retrieve issue events if only PRs
-            return 0
         count = self._fetch_many('issues_events', gh,
                                  defaults={
                                     'fk': {'repository': self},
@@ -1488,9 +1530,6 @@ class Repository(GithubObjectWithId):
                                  parameters=parameters,
                                  force_fetch=force_fetch,
                                  max_pages=max_pages)
-
-        from .tasks.repository import FetchUnfetchedCommits
-        FetchUnfetchedCommits.add_job(self.id, limit=20, gh=gh)
 
         return count
 
@@ -1546,6 +1585,36 @@ class Repository(GithubObjectWithId):
             'commits',
         ]
 
+    @property
+    def github_callable_identifiers_for_commit_comments(self):
+        return self.github_callable_identifiers + [
+            'comments',
+        ]
+
+    def fetch_commit_comments(self, gh, force_fetch=False, parameters=None,
+                                                                max_pages=None):
+        final_parameters = {
+            'sort': CommitComment.github_date_field[1],
+            'direction': CommitComment.github_date_field[2],
+        }
+
+        if not force_fetch:
+            final_parameters['page'] = self.commit_comments_last_page or 1
+
+        if CommitComment.github_reverse_order:
+            force_fetch = True
+
+        if parameters:
+            final_parameters.update(parameters)
+        return self._fetch_many('commit_comments', gh,
+                                defaults={
+                                    'fk': {'repository': self},
+                                    'related': {'*': {'fk': {'repository': self}}},
+                                },
+                                parameters=final_parameters,
+                                force_fetch=force_fetch,
+                                max_pages=max_pages)
+
     def fetch_all(self, gh, force_fetch=False, **kwargs):
         """
         Pass "two_steps=True" to felay fetch of closed issues and comments (by
@@ -1555,8 +1624,9 @@ class Repository(GithubObjectWithId):
 
         super(Repository, self).fetch_all(gh, force_fetch=force_fetch)
         self.fetch_collaborators(gh, force_fetch=force_fetch)
+        self.fetch_labels(gh, force_fetch=force_fetch)
+
         if self.has_issues:
-            self.fetch_labels(gh, force_fetch=force_fetch)
             self.fetch_milestones(gh, force_fetch=force_fetch)
 
         if two_steps:
@@ -1599,6 +1669,8 @@ class Repository(GithubObjectWithId):
             counts['comments'] = self.fetch_comments(**kwargs)
         if 'pr_comments' not in to_ignore:
             counts['pr_comments'] = self.fetch_pr_comments(**kwargs)
+        if 'commit_comments' not in to_ignore:
+            counts['commit_comments'] = self.fetch_commit_comments(**kwargs)
 
         return counts
 
@@ -1754,7 +1826,7 @@ class Label(WithRepositoryMixin, GithubObject):
     label_type = models.ForeignKey(LabelType, related_name='labels', blank=True, null=True, on_delete=models.SET_NULL)
     typed_name = models.TextField(db_index=True)
     lower_typed_name = models.TextField(db_index=True)
-    order = models.IntegerField(blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True, db_index=True)
 
     objects = WithRepositoryManager()
 
@@ -1902,7 +1974,7 @@ class Commit(WithRepositoryMixin, GithubObject):
     committed_at = models.DateTimeField(db_index=True, blank=True, null=True)
     comments_count = models.PositiveIntegerField(blank=True, null=True)
     tree = models.CharField(max_length=40, blank=True, null=True)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False, db_index=True)
 
     objects = CommitManager()
 
@@ -1940,6 +2012,38 @@ class Commit(WithRepositoryMixin, GithubObject):
     @property
     def created_at(self):
         return self.authored_at
+
+    def update_comments_count(self):
+        self.comments_count = self.commit_comments.count()
+        self.save(update_fields=['comments_count'])
+
+
+class WithCommitMixin(WithRepositoryMixin):
+    """
+    A base class for all models containing data owned by a commit.
+    """
+
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
+        """
+        Enhance the default fetch by setting the current repository and issue
+        commit as default values.
+        """
+        if self.commit_id:
+            if not defaults:
+                defaults = {}
+            defaults.setdefault('fk', {})['commit'] = self.commit
+            defaults.setdefault('related', {}).setdefault('*', {}).setdefault('fk', {})['commit'] = self.commit
+
+        return super(WithCommitMixin, self).fetch(gh, defaults,
+                                               force_fetch=force_fetch,
+                                               parameters=parameters,
+                                               meta_base_name=meta_base_name)
+
+    def defaults_create_values(self):
+        values = super(WithCommitMixin, self).defaults_create_values()
+        values['fk']['commit'] = self.commit
+        return values
 
 
 class Issue(WithRepositoryMixin, GithubObjectWithId):
@@ -1985,7 +2089,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     nb_changed_files = models.PositiveIntegerField(blank=True, null=True)
     commits_fetched_at = models.DateTimeField(blank=True, null=True)
     commits_etag = models.CharField(max_length=64, blank=True, null=True)
-    commits = models.ManyToManyField(Commit, related_name='issues')
+    commits = models.ManyToManyField(Commit, related_name='issues', through='IssueCommits')
     files_fetched_at = models.DateTimeField(blank=True, null=True)
     files_etag = models.CharField(max_length=64, blank=True, null=True)
 
@@ -2260,7 +2364,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         if self.is_pull_request:
             count = self.pr_comments.count()
             if count and (not self.pr_comments_count or count > self.pr_comments_count):
-                self.pr_comments_count = self.pr_comments.count()
+                self.pr_comments_count = count
                 self.save(update_fields=['pr_comments_count'])
 
     def save(self, *args, **kwargs):
@@ -2301,6 +2405,28 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
         return self.mergeable_state in self.MERGEABLE_STATES['mergeable']
 
 
+class IssueCommits(models.Model):
+    """
+    The table to list commits related to issues, keeping commits not referenced
+    anymore in the issues by setting the 'deleted' attribute to True.
+    It allows to still display commit-comments on old commits (replaced via a
+    rebase for example)
+    """
+    issue = models.ForeignKey(Issue, related_name='related_commits')
+    commit = models.ForeignKey(Commit, related_name='related_commits')
+    deleted = models.BooleanField(default=False, db_index=True)
+
+    delete_missing_after_fetch = False
+
+    objects = IssueCommitsManager()
+
+    def __unicode__(self):
+        result = u'%s on %s'
+        if self.deleted:
+            result += u' (deleted)'
+        return result % (self.commit.sha, self.issue.number)
+
+
 class WithIssueMixin(WithRepositoryMixin):
     """
     A base class for all models containing data owned by an issue.
@@ -2330,6 +2456,11 @@ class WithIssueMixin(WithRepositoryMixin):
 
 
 class CommentMixin(models.Model):
+    body = models.TextField(blank=True, null=True)
+    body_html = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(db_index=True)
+    updated_at = models.DateTimeField(db_index=True)
+
     linked_commits = models.ManyToManyField('Commit')
 
     class Meta:
@@ -2408,8 +2539,10 @@ class CommentMixin(models.Model):
             from core.tasks.commit import FetchCommitBySha
             if isinstance(self, IssueComment):
                 from core.tasks.comment import SearchReferenceCommitForComment as JobModel
-            else:
+            elif isinstance(self, PullRequestComment):
                 from core.tasks.comment import SearchReferenceCommitForPRComment as JobModel
+            else:
+                from core.tasks.comment import SearchReferenceCommitForCommitComment as JobModel
 
             repos = {}
             for new in not_found:
@@ -2434,10 +2567,6 @@ class IssueComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='comments')
     issue = models.ForeignKey(Issue, related_name='comments')
     user = models.ForeignKey(GithubUser, related_name='issue_comments')
-    body = models.TextField(blank=True, null=True)
-    body_html = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(db_index=True)
-    updated_at = models.DateTimeField(db_index=True)
 
     objects = IssueCommentManager()
 
@@ -2471,19 +2600,44 @@ class IssueComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
         return self.issue.github_callable_identifiers_for_comments
 
 
-class PullRequestCommentEntryPoint(GithubObject):
-    repository = models.ForeignKey(Repository, related_name='pr_comments_entry_points')
-    issue = models.ForeignKey(Issue, related_name='pr_comments_entry_points')
-    diff_hunk = models.TextField(blank=True, null=True)
+class CommentEntryPointMixin(GithubObject):
     commit_sha = models.CharField(max_length=40, blank=True, null=True)
-    original_commit_sha = models.CharField(max_length=40, blank=True, null=True)
     position = models.PositiveIntegerField(blank=True, null=True)
-    original_position = models.PositiveIntegerField(blank=True, null=True)
     path = models.TextField(blank=True, null=True)
-
-    user = models.ForeignKey(GithubUser, related_name='pr_comments_entry_points', blank=True, null=True)
+    diff_hunk = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(db_index=True, blank=True, null=True)
     updated_at = models.DateTimeField(db_index=True, blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+    def update_starting_point(self, save=True):
+        try:
+            first_comment = self.comments.all()[0]
+        except IndexError:
+            pass
+        else:
+            if self.created_at != first_comment.created_at or self.user != first_comment.user:
+                self.created_at = first_comment.created_at
+                self.user = first_comment.user
+                if save:
+                    self.save(update_fields=['created_at', 'user'])
+                return True
+        return False
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            self.update_starting_point(save=False)
+        super(CommentEntryPointMixin, self).save(*args, **kwargs)
+
+
+class PullRequestCommentEntryPoint(CommentEntryPointMixin):
+    repository = models.ForeignKey(Repository, related_name='pr_comments_entry_points')
+    issue = models.ForeignKey(Issue, related_name='pr_comments_entry_points')
+    user = models.ForeignKey(GithubUser, related_name='pr_comments_entry_points', blank=True, null=True)
+
+    original_commit_sha = models.CharField(max_length=40, blank=True, null=True)
+    original_position = models.PositiveIntegerField(blank=True, null=True)
 
     objects = PullRequestCommentEntryPointManager()
 
@@ -2492,8 +2646,9 @@ class PullRequestCommentEntryPoint(GithubObject):
         'commit_id': 'commit_sha',
         'original_commit_id': 'original_commit_sha',
     })
-    github_ignore = GithubObject.github_ignore + ('id', 'commit_sha' + 'original_commit_sha'
+    github_ignore = GithubObject.github_ignore + ('id', 'commit_sha', 'original_commit_sha'
                                         ) + ('body_text', 'url', 'html_url', 'pull_request_url', )
+
     github_identifiers = {
         'repository__github_id': ('repository', 'github_id'),
         'issue__number': ('issue', 'number'),
@@ -2520,34 +2675,11 @@ class PullRequestCommentEntryPoint(GithubObject):
             url += '#L%s' % self.position
         return url
 
-    def update_starting_point(self, save=True):
-        try:
-            first_comment = self.comments.all()[0]
-        except IndexError:
-            pass
-        else:
-            if self.created_at != first_comment.created_at or self.user != first_comment.user:
-                self.created_at = first_comment.created_at
-                self.user = first_comment.user
-                if save:
-                    self.save(update_fields=['created_at', 'user'])
-                return True
-        return False
-
-    def save(self, *args, **kwargs):
-        if self.pk:
-            self.update_starting_point(save=False)
-        super(PullRequestCommentEntryPoint, self).save(*args, **kwargs)
-
 
 class PullRequestComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
     repository = models.ForeignKey(Repository, related_name='pr_comments')
     issue = models.ForeignKey(Issue, related_name='pr_comments')
     user = models.ForeignKey(GithubUser, related_name='pr_comments')
-    body = models.TextField(blank=True, null=True)
-    body_html = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(db_index=True)
-    updated_at = models.DateTimeField(db_index=True)
 
     entry_point = models.ForeignKey('PullRequestCommentEntryPoint', related_name='comments')
 
@@ -2680,7 +2812,7 @@ class PullRequestFile(WithIssueMixin, GithubObject):
     repository = models.ForeignKey(Repository, related_name='pr_files')
     issue = models.ForeignKey(Issue, related_name='files')
     sha = models.CharField(max_length=40, blank=True, null=True)
-    path = models.TextField(blank=True, null=True)
+    path = models.TextField(blank=True, null=True, db_index=True)
     status = models.CharField(max_length=32, blank=True, null=True)
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
     nb_deletions = models.PositiveIntegerField(blank=True, null=True)
@@ -2718,5 +2850,138 @@ class PullRequestFile(WithIssueMixin, GithubObject):
     def github_url(self):
         return self.repository.github_url + '/blob/%s/%s' % (self.tree, self.path)
 
+
+class CommitCommentEntryPoint(CommentEntryPointMixin):
+    repository = models.ForeignKey(Repository, related_name='commit_comments_entry_points')
+    commit = models.ForeignKey(Commit, related_name='commit_comments_entry_point', null=True)
+    user = models.ForeignKey(GithubUser, related_name='commit_comments_entry_points', blank=True, null=True)
+
+    objects = CommitCommentEntryPointManager()
+
+    github_matching = dict(GithubObject.github_matching)
+    github_matching.update({
+        'commit_id': 'commit_sha',
+    })
+    github_ignore = GithubObject.github_ignore + ('id', 'commit_sha') + (
+                                        'body_text', 'url', 'html_url', )
+    github_identifiers = {
+        'repository__github_id': ('repository', 'github_id'),
+        'commit_sha': 'commit_sha',
+        'path': 'path',
+        'position': 'position',
+    }
+
+    class Meta:
+        ordering = ('created_at', )
+        unique_together = (
+            ('repository', 'commit_sha', 'path', 'position')
+        )
+
+    def __unicode__(self):
+        return u'Entry point on commit #%s' % self.commit_sha
+
+    @property
+    def github_url(self):
+        if not self.commit_sha:
+            return None
+        if self.path:
+            return self.comments.github_url
+        else:
+            return self.repository.github_url + '/commit/%s#all_commit_comments' % self.commit_sha
+
+    def save(self, *args, **kwargs):
+        """
+        Try to get the commit if not set, using the sha, or ask for it to be
+        fetched from github
+        """
+        if not self.commit_id:
+            self.commit, _ = self.repository.commits.get_or_create(
+                sha=self.commit_sha,
+            )
+            from .tasks.commit import FetchCommitBySha
+            FetchCommitBySha.add_job('%s#%s' % (self.repository_id, self.commit_sha))
+
+        super(CommitCommentEntryPoint, self).save(*args, **kwargs)
+
+
+class CommitComment(CommentMixin, WithCommitMixin, GithubObjectWithId):
+    repository = models.ForeignKey(Repository, related_name='commit_comments')
+    user = models.ForeignKey(GithubUser, related_name='commit_comments')
+
+    commit = models.ForeignKey(Commit, related_name='commit_comments', null=True)
+    commit_sha = models.CharField(max_length=40)
+
+    entry_point = models.ForeignKey('CommitCommentEntryPoint', related_name='comments')
+
+    objects = CommitCommentManager()
+
+    github_matching = dict(GithubObjectWithId.github_matching)
+    github_matching.update({
+        'commit_id': 'commit_sha',
+    })
+
+    github_ignore = GithubObjectWithId.github_ignore + ('entry_point', ) + (
+                        'body_text', 'url', 'html_url', )
+    github_format = '.full+json'
+    github_edit_fields = {
+        'create': (
+           'body',
+           ('sha', 'entry_point__commit_sha'),
+           ('path', 'entry_point__path'),
+           ('position', 'entry_point__position'),
+        ),
+        'update': (
+           'body',
+           ('sha', 'entry_point__commit_sha'),
+           ('path', 'entry_point__path'),
+           ('position', 'entry_point__position'),
+        ),
+    }
+    github_date_field = ('created_at', 'created', 'asc')
+    github_reverse_order = True
+
+    class Meta:
+        ordering = ('created_at', )
+
+    @property
+    def github_url(self):
+        return self.repository.github_url + '/commit/%s#commitcomment-%s' % (
+                                                    self.commit_sha, self.github_id)
+
+    def __unicode__(self):
+        return u'on commit #%s' % self.commit_sha
+
+    @property
+    def github_callable_identifiers(self):
+        return self.repository.github_callable_identifiers_for_commit_comments + [
+            self.github_id,
+        ]
+
+    @property
+    def github_callable_create_identifiers(self):
+        return self.issue.github_callable_identifiers_for_commit_comments
+
+    def save(self, *args, **kwargs):
+        """
+        Try to get the commit if not set, using the sha, or ask for it to be
+        fetched from github
+        If it's a creation, update the comments_count of the commit
+        If it's an update, update the starting point of the entry-point
+        """
+        is_new = not bool(self.pk)
+
+        if not self.commit_id:
+            self.commit, _ = self.repository.commits.get_or_create(
+                sha=self.commit_sha,
+            )
+            from .tasks.commit import FetchCommitBySha
+            FetchCommitBySha.add_job('%s#%s' % (self.repository_id, self.commit_sha))
+
+        super(CommitComment, self).save(*args, **kwargs)
+
+        if is_new:
+            self.commit.update_comments_count()
+        else:
+            self.entry_point.update_starting_point(save=True)
 
 from core.tasks import *

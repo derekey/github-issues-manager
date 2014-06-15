@@ -626,6 +626,17 @@ $repo-name-height: 20px;
                     margin-top: 1px;
                 }
             }
+            &.event-referenced-in-commit {
+                .comment-commits table {
+                    border-top: none;
+                    tr:first-child {
+                        border-top: none;
+                        td  {
+                            border-top: none;
+                        }
+                    }
+                }
+            }
         }
     }
     .pr-commits-group .box-header {
@@ -778,6 +789,13 @@ $repo-name-height: 20px;
         margin-top: -1px;
     }
 
+    .commit-comments-group .box-content {
+        margin: 5px 10px;
+        .comment-commits {
+            margin-top: 5px;
+        }
+    }
+
     .comment-nav {
         float: right;
         margin: -2px -5px -1px 7px;
@@ -839,6 +857,33 @@ $repo-name-height: 20px;
 .issue-discussion {
     .issue-body {
         margin-top: 0;
+    }
+}
+.issue-commits {
+    .deleted-commits-toggler {
+        font-size: inherit;
+        display: inline-block;
+        float: right;
+        line-height: normal;
+        vertical-align: middle;
+        input {
+            vertical-align: middle;
+            margin-right: 1ex;
+        }
+        span {
+            vertical-align: middle;
+        }
+    }
+    .all-commits {
+        display: none;
+    }
+    &.view-deleted {
+        .all-commits {
+            display: block;
+        }
+        .active-commits {
+            display: none;
+        }
     }
 }
 .issue-commits, .issue-review, .issue-files {
@@ -964,6 +1009,16 @@ table.commits-list {
             }
         }
         &.cell-message {
+            .label {
+                float: left;
+                margin-right: 4px;
+                margin-top: 3px;
+                &.comments-count {
+                    float: right;
+                    margin-right: 3px;
+                    margin-left: 1em;
+                }
+            }
             p {
                 font-family: $monoFontFamily;
                 font-size: 11px;
@@ -973,12 +1028,12 @@ table.commits-list {
                     margin-top: 3px;
                     font-size: 12px;
                 }
-            }
-            > span[data-toggle=collapse] {
-                @extend %toggle;
-                float: right;
-                display: block;
-                margin: 6px 6px 2px 2px;
+                > span[data-toggle=collapse] {
+                    @extend %toggle;
+                    font-family: "Open Sans",HelveticaNeue,Helvetica,Arial;
+                    position: relative;
+                    top: -2px;
+                }
             }
         }
         &.cell-sha {

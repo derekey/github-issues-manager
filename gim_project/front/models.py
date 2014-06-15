@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template import loader, Context
 from django.template.defaultfilters import escape
+from django.utils.functional import cached_property, memoize
 
 from markdown import markdown
 
@@ -290,7 +291,8 @@ class _Issue(models.Model):
             return 0
         if self.nb_commits == 1:
             return 1
-        return len(set(self.commits.values_list('author_name', flat=True)))
+        return len(set(self.commits.filter(related_commits__deleted=False)
+                                   .values_list('author_name', flat=True)))
 
     @property
     def hash(self):
@@ -344,14 +346,22 @@ class _Issue(models.Model):
 
         loader.get_template(template).render(context)
 
-    @property
-    def all_commits(self):
-        if not hasattr(self, '_all_commits'):
-            self._all_commits = list(self.commits.all()
-                                         .select_related('author',
-                                            'committer', 'repository__owner')
-                                         .order_by('authored_at'))
-        return self._all_commits
+    def all_commits(self, include_deleted=False):
+        qs = self.related_commits.select_related('commit__author',
+                                                 'commit__committer',
+                                                 'commit__repository__owner'
+                                ).order_by('commit__authored_at', 'commit__committed_at')
+        if not include_deleted:
+            qs = qs.filter(deleted=False)
+
+        result = []
+        for c in qs:
+            c.commit.relation_deleted = c.deleted
+            result.append(c.commit)
+
+        return result
+    all_commits._cache = {}
+    all_commits = memoize(all_commits, all_commits._cache, 2)
 
     @property
     def all_entry_points(self):
@@ -393,7 +403,18 @@ class _Issue(models.Model):
         if self.is_pull_request:
             pr_comments = list(self.pr_comments.select_related('user'))
 
-            activity += pr_comments + self.all_commits
+            activity += pr_comments + self.all_commits(False)
+
+            # group commit comments by day + commit
+            cc_by_commit = {}
+            for c in (core_models.CommitComment.objects
+                                 .filter(commit__related_commits__issue=self)
+                                 .select_related('commit', 'user')
+                    ):
+                cc_by_commit.setdefault(c.commit, []).append(c)
+
+            for comments in cc_by_commit.values():
+                activity += GroupedCommitComments.group_by_day(comments)
 
         activity.sort(key=attrgetter('created_at'))
 
@@ -408,10 +429,19 @@ class _Issue(models.Model):
             entry_point.last_created = list(entry_point.comments.all())[-1].created_at
         return sorted(self.all_entry_points, key=attrgetter('last_created'))
 
-    def get_commits_per_day(self):
+    def get_commits_per_day(self, include_deleted=False):
         if not self.is_pull_request:
             return []
-        return GroupedCommits.group_by_day(self.all_commits)
+        return GroupedCommits.group_by_day(
+            self.all_commits(include_deleted)
+        )
+
+    def get_all_commits_per_day(self):
+        return self.get_commits_per_day(True)
+
+    @cached_property
+    def nb_deleted_commits(self):
+        return self.related_commits.filter(deleted=True).count()
 
     @property
     def html_content(self):
@@ -475,13 +505,14 @@ class GroupedItems(list):
             return []
 
         groups = []
-        current_date = None
 
         for entry in entries:
-            entry_date = getattr(entry, cls.date_field).date()
-            if not current_date or entry_date != current_date:
+            entry_datetime = getattr(entry, cls.date_field)
+            entry_date = entry_datetime.date()
+            if not groups or entry_date != groups[-1].start_date:
                 groups.append(cls())
-                current_date = entry_date
+                groups[-1].start_date = entry_date
+                groups[-1].created_at = entry_datetime
             groups[-1].append(entry)
 
         return groups
@@ -513,6 +544,13 @@ class GroupedPullRequestComments(GroupedItems):
     date_field = 'created_at'
     author_field = 'user'
     is_pr_comments_group = True  # for template
+
+
+class GroupedCommitComments(GroupedItems):
+    model = core_models.CommitComment
+    date_field = 'created_at'
+    author_field = 'user'
+    is_commit_comments_group = True  # for template
 
 
 class GroupedCommits(GroupedItems):
@@ -624,6 +662,17 @@ class _PullRequestComment(models.Model):
         return reverse_lazy('front:repository:issue.pr_comment.delete', kwargs=self.get_reverse_kwargs())
 
 contribute_to_model(_PullRequestComment, core_models.PullRequestComment)
+
+
+class _CommitComment(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def html_content(self):
+        return html_content(self)
+
+contribute_to_model(_CommitComment, core_models.CommitComment)
 
 
 class Hash(lmodel.RedisModel):

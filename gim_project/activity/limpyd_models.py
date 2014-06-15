@@ -29,6 +29,7 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
     issue_comments = lfields.SortedSetField()
     issue_events = lfields.SortedSetField()
     pr_comments = lfields.SortedSetField()
+    commit_comments = lfields.SortedSetField()
     pr_commits = lfields.SortedSetField()
 
     @staticmethod
@@ -44,6 +45,8 @@ class BaseActivity(ModelWithDynamicFieldMixin, lmodel.RedisModel):
             identifier, score = data, None
         code, pk = identifier.split(':')
         obj = ActivityManager.MAPPING[code].load_object(pk)
+        if not obj:
+            return None
         if score is not None:
             obj.activity_score = score
         obj.activity_identifier = identifier
