@@ -239,11 +239,13 @@
                                 {% endif %}
                                 <em>{{ commit.sha|short_sha }}</em>
                             </a>
-                            {% if commit.deleted %}
+                            {% if not commit.fetched_at %}
+                                (not fetched yet)
+                            {% elif commit.deleted %}
                                 (deleted or in another repository1)
                             {% endif %}
                         {% else %}
-                            (commit <em>{{ entry.commit_sha|short_sha }}</em> deleted or in another repository)
+                            (commit <em>{{ entry.commit_sha|short_sha }}</em> not fetched yet, deleted or in another repository)
                         {% endif %}
                     {% endwith %}
                     </blockquote>

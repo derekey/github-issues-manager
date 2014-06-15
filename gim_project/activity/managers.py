@@ -355,6 +355,7 @@ class ActivityManagerPCC(ActivityManager):
         """
         # ensure to use "all" to benefit from the prefetch_related in get_load_queryset
         obj.issue = list(obj.commit.related_commits.all())[0].issue
+        obj.issue_id = obj.issue.id
         obj.issue._repository_cache = obj.repository
 
     @classmethod

@@ -3,10 +3,10 @@ __all__ = []
 from datetime import timedelta
 
 from django.db import models
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save
 
 from core.models import (Repository, Issue, IssueComment, IssueEvent,
-                         PullRequestComment, IssueCommits)
+                         PullRequestComment, IssueCommits, CommitComment)
 from core.utils import contribute_to_model
 
 from events.models import Event, EventPart
@@ -65,6 +65,19 @@ post_save.connect(update_activity_for_fk_link, sender=Event, weak=False,
                   dispatch_uid='update_activity_for_fk_link_Event')
 post_save.connect(update_activity_for_fk_link, sender=IssueCommits, weak=False,
                   dispatch_uid='update_activity_for_fk_link_IssueCommits')
+
+
+def update_activity_for_commit_comment(sender, instance, created, **kwargs):
+    try:
+        instance.issue = instance.commit.related_commits.all()[0].issue
+        instance.issue_id = instance.issue.id
+    except IndexError:
+        return
+
+    update_activity_for_fk_link(sender, instance, created, **kwargs)
+
+post_save.connect(update_activity_for_commit_comment, sender=CommitComment, weak=False,
+                  dispatch_uid='update_activity_for_commit_comment')
 
 
 def update_activity_for_event_part(sender, instance, created, **kwargs):
