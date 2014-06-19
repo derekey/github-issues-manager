@@ -54,3 +54,6 @@ class GithubWebHook(View):
 
     def event_commit_comment(self, payload):
         return self.event_manager.event_commit_comment(payload['comment'])
+
+    def event_push(self, payload):
+        return self.event_manager.event_push(payload)
