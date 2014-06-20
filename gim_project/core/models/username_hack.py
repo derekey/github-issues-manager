@@ -7,7 +7,7 @@ def longer_username(sender, *args, **kwargs):
     # You can't just do `if sender == django.contrib.auth.models.User`
     # because you would have to import the model
     # You have to test using __name__ and __module__
-    if sender.__name__ == "GithubUser" and sender.__module__ == "core.models":
+    if sender.__name__ == "GithubUser" and sender.__module__ == "core.models.users":
         field = sender._meta.get_field("username")
         field.max_length = 255
         field.validators = [v for v in field.validators if not isinstance(v, validators.RegexValidator)]

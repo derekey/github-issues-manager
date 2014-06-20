@@ -57,7 +57,7 @@ class GithubObjectManager(BaseManager):
         To use instead of "all" when needed
         """
         return self.get_query_set().exclude(
-                        github_status__in=self.model.GITHUB_STATUS_NOT_READY)
+                        github_status__in=self.model.GITHUB_STATUS_CHOICES.NOT_READY)
 
     def exclude_deleting(self):
         """
