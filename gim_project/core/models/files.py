@@ -4,6 +4,7 @@ __all__ = [
 ]
 
 from django.db import models
+from django.utils.functional import cached_property
 
 from ..managers import (
     PullRequestFileManager,
@@ -95,3 +96,7 @@ class CommitFile(FileMixin, WithCommitMixin, GithubObject):
     @property
     def github_url(self):
         return self.repository.github_url + '/blob/%s/%s' % (self.commit.sha, self.path)
+
+    @cached_property
+    def tree(self):
+        return self.commit.sha

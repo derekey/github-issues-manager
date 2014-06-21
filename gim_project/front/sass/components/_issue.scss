@@ -511,7 +511,7 @@ $repo-name-height: 20px;
         .files-list-sticky-wrapper {
             height: auto !important;
         }
-        .pr-files-list-container {
+        .code-files-list-container {
             left: 0;
             width: $file-list-width !important;
             bottom: 0;
@@ -527,7 +527,7 @@ $repo-name-height: 20px;
                 @include box-shadow(rgba(black, 0.07) 2px 0 1px -1px);
             }
         }
-        .pr-files-list {
+        .code-files-list {
             max-height: none;
             position: absolute;
             top: 85px;
@@ -696,13 +696,13 @@ $repo-name-height: 20px;
         }
     } // .pr-entry-point
 
-    .box-section.pr-comments {
+    .box-section.code-comments {
         padding-top: 5px;
         padding-bottom: 0;
         position: relative;
     }
 
-    .pr-file {
+    .code-file {
         .box-toolbar {
             margin-top: 8px;
             margin-right: 8px;
@@ -736,7 +736,7 @@ $repo-name-height: 20px;
         }
     }
 
-    .pr-entry-point, .pr-file {
+    .pr-entry-point, .code-file {
         div.collapse.in {
             height: auto !important;
             overflow: visible;
@@ -778,7 +778,7 @@ $repo-name-height: 20px;
         margin: 5px 10px;
     }
 
-    .pr-comments-group .box-content {
+    .code-comments-group .box-content {
         margin: 5px 10px;
         padding-right: 70px;
     }
@@ -887,7 +887,7 @@ $repo-name-height: 20px;
     }
 }
 .issue-commits, .issue-review, .issue-files {
-    > .content, .pr-files-list-container {
+    > .content, .code-files-list-container {
         padding: 15px;
         background: white;
         border-bottom: solid 1px $box-border-color;
@@ -908,7 +908,7 @@ $repo-name-height: 20px;
             }
         }
     }
-    .pr-files-list {
+    .code-files-list {
         clear: both;
         margin-bottom: -12px;
         max-height: 150px;
@@ -968,7 +968,7 @@ $repo-name-height: 20px;
 }
 
 .issue-files {
-    .pr-files-list-container {
+    .code-files-list-container {
         @include box-sizing(border-box);
         &.stuck {
             min-height: $files-min-stuck-height;
@@ -976,7 +976,7 @@ $repo-name-height: 20px;
             z-index: 98;
             padding-bottom: 3px;
             @include calc(width, $stuck-width);
-            .pr-files-list {
+            .code-files-list {
                 margin-bottom: 0;
                 &.in {
                     margin-bottom: 7px;
@@ -986,7 +986,7 @@ $repo-name-height: 20px;
     }
 }
 
-.with-repository .issue-files .pr-files-list-container.stuck {
+.with-repository .issue-files .code-files-list-container.stuck {
     top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
 }
 
@@ -1104,11 +1104,11 @@ table.commits-list {
                 margin-top: $header-stuck-height + $repo-name-height + $header-top-padding;
             }
         }
-        .pr-files-list-container.stuck {
+        .code-files-list-container.stuck {
             margin-top: $header-stuck-height + $tabs-stuck-height;
         }
         .with-repository {
-            .pr-files-list-container.stuck {
+            .code-files-list-container.stuck {
                 margin-top: $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
             }
         }
@@ -1138,7 +1138,7 @@ table.commits-list {
                 top: 5% !important;
             }
             @media (min-width: 1023px) {
-                .issue-files .pr-files-list-container {
+                .issue-files .code-files-list-container {
                     position: absolute;
                     width: $file-list-width !important;
                     top: 0 !important;

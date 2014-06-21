@@ -1,0 +1,109 @@
+{% load frontutils %}
+{% comment %}
+- files: list of files
+- id_prefix
+- entry_points_dict
+- nb_additions
+- nb_deletions
+{% endcomment %}
+{% with nb_changed_files=files|length %}
+<div class="content code-files-list-container">
+    <nav>
+        {% if nb_changed_files > 1 %}
+            {% with base=id_prefix|add:'-files' %}
+                {% include "front/include_quicksearch.html" with id=base|add:'-search' target='#'|add:base|add:' .code-file, #'|add:base|add:' .code-files-list tr' content='.path' title="Fiter on file names" class="files-filter" only %}
+            {% endwith %}
+        {% endif %}
+        {% if nb_changed_files > 1 or entry_points_dict|length%}
+            <div class="btn-group">
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-bars"> </i></a>
+                <ul class="dropdown-menu pull-right files-navigator" role="menu" aria-label="Navigation options">
+                    {% if nb_changed_files > 1 %}
+                        <li class="horizontal-4 disabled"><a href='#'>Files:</a></li><!--
+                        --><li class="horizontal-4"><a data-toggle="collapse" data-target="#{{ id_prefix }}-files .code-file > .collapse" title="Open/close all files" href="#">Toggle</a></li><!--
+                        --><li class="horizontal-2 disabled"><a href="#" class="go-to-previous-file"><i class="fa fa-chevron-up fa-fw" title="Previous file"> </i></a></li><!--
+                        --><li class="horizontal-2"><a href="#" class="go-to-next-file"><i class="fa fa-chevron-down fa-fw" title="Next file"> </i></a></li>
+                    {% endif %}
+                    {% if nb_changed_files > 1 and entry_points_dict|length%}
+                        <li class="divider"></li>
+                    {% endif %}
+                    {% if entry_points_dict|length %}
+                        <li class="horizontal-4 disabled"><a href='#'>Comments:</a></li><!--
+                        --><li class="horizontal-4"><a data-toggle="collapse" data-target="#{{ id_prefix }}-files .code-file .code-comments.collapse" title="Open/close all comments" href="#">Toggle</a></li><!--
+                        --><li class="horizontal-2"><a href="#" class="go-to-previous-file-comment"><i class="fa fa-chevron-up fa-fw" title="Previous commented line"> </i></a></li><li class="horizontal-2"><a href="#" class="go-to-next-file-comment"><!--
+                        --><i class="fa fa-chevron-down fa-fw" title="Next commented line"> </i></a></li>
+                    {% endif %}
+                 </ul>
+            </div>
+        {% endif %}
+    </nav>
+    {% if nb_changed_files > 1 %}<a href="#" title="Click to toogle the list of files" class="files-list-summary" data-toggle="collapse" data-target="#{{ id_prefix }}-files-list">{% endif %}<strong>{{ nb_changed_files }} file{{ nb_changed_files|pluralize }} changed</strong> with <strong>{{ nb_additions }} addition{{ nb_additions|pluralize }}</strong> and <strong>{{ nb_deletions }} deletion{{ nb_deletions|pluralize }}</strong>{% if nb_changed_files > 1 %}&nbsp;&nbsp;<i class="fa fa-sort"></i></a>{% endif %}
+    {% if nb_changed_files > 1 %}
+    <div class="collapse in code-files-list" id="{{ id_prefix }}-files-list">
+        <table class="table table-condensed">
+        {% for file in files %}
+            <tr{% if forloop.first %} class="active"{% endif %} data-pos="{{ forloop.counter }}">
+                <td class="status-{{ file.status }}"><i class="fa fa-{% if file.status == 'added' %}plus{% elif file.status == 'removed'%}times{% elif file.status == 'renamed' %}arrows-h{% elif file.status == 'modified' %}pencil{% else %}file-o{% endif %}"> </i></td>
+                <td title="{{ file.path }}"><i class="fa fa-angle-right"> </i>&nbsp;<a class="path" href="#code-file-{{ file.id }}-target">{{ file.path }}</a></td>
+                <td>
+                    <ul class="unstyled">
+                        <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="fa fa-plus"></i> {{ file.nb_additions }}</li>
+                        <li class="label label-red" title="{{ file.nb_deletions }} deletion{{ file.nb_deletions|pluralize }}"><i class="fa fa-minus"></i> {{ file.nb_deletions }}</li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+</div>
+<ul class="unstyled chat-box timeline issue-activity">
+{% for file in files %}
+    <li>
+        <div class="box code-file" id="code-file-{{ file.id }}-target" data-pos="{{ forloop.counter }}">
+            <div class="box-header" data-toggle="collapse" data-target="#code-file-{{ file.id }}-content" title="Click to collapse/expand">
+                <ul class="box-toolbar">
+                    <li>
+                        <ul class="unstyled">
+                            <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="fa fa-plus"></i> {{ file.nb_additions }}</li>
+                            <li class="label label-red" title="{{ file.nb_deletions }} deletion{{ file.nb_deletions|pluralize }}"><i class="fa fa-minus"></i> {{ file.nb_deletions }}</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="{{ file.github_url }}" target='_blank' class="btn btn-mini btn-default" title="View file @{{ file.tree|short_sha }}">@{{ file.tree|short_sha }}</a>
+                    </li>
+                </ul>
+                <div class="title">
+                    <a href="#" id="code-file-{{ file.id }}" class="path">{{ file.path }}</a>
+                    <span>{{ file.status }}</span>
+                </div>
+            </div>
+            <div class="box-content collapse in" id="code-file-{{ file.id }}-content">
+                {% if file.patch %}
+                    <div class="box-section code-diff">
+                        {% include "front/repository/issues/code/include_diff.html" with parsed_diff=file.patch|parse_diff entry_points=entry_points_dict|dict_item:file.path path=file.path sha=file.tree %}
+                    </div>
+                {% else %}
+                    <div class="box-section no-diff">
+                        {% if file.status == 'added' %}
+                            File added too big, without content, or binary
+                        {% elif file.status == 'renamed' %}
+                            File renamed without changes
+                        {% elif file.status == 'deleted' %}
+                            Deleted file was empty
+                        {% elif file.status == 'modified' %}
+                            Diff too big (or binary)
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+{% endfor %}
+</ul>
+{% if view.request.is_ajax and nb_changed_files > 1 %}
+    <script type="text/javascript">
+        window.activate_quicksearches($('#{{ id_prefix }}-files-search input.quicksearch'));
+    </script>
+{% endif %}
+{% endwith %}

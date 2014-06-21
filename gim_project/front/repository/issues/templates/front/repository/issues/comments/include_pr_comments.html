@@ -1,8 +1,0 @@
-<div class="box-section pr-comments {{ classes }}">
-    <ul class="unstyled chat-box timeline">
-        {% for pr_comment in pr_comments %}
-            {% include "front/repository/issues/comments/include_pr_comment.html" with comment=pr_comment include_create_form=False %}
-        {% endfor %}
-        {% include "front/repository/issues/comments/include_pr_comment_create.html" %}
-    </ul>
-</div>
