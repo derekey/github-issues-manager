@@ -159,7 +159,10 @@ class Repository(GithubObjectWithId):
 
     def fetch_labels(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('labels', gh,
-                                defaults={'fk': {'repository': self}},
+                                defaults={
+                                    'fk': {'repository': self},
+                                    'related': {'*': {'fk': {'repository': self}}},
+                                },
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 
@@ -174,7 +177,10 @@ class Repository(GithubObjectWithId):
             return 0
         return self._fetch_many('milestones', gh,
                                 vary={'state': ('open', 'closed')},
-                                defaults={'fk': {'repository': self}},
+                                defaults={
+                                    'fk': {'repository': self},
+                                    'related': {'*': {'fk': {'repository': self}}},
+                                },
                                 force_fetch=force_fetch,
                                 parameters=parameters)
 

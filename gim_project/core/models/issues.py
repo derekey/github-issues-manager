@@ -314,7 +314,10 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     def fetch_commits(self, gh, force_fetch=False, parameters=None):
         return self._fetch_many('commits', gh,
-                                defaults={'fk': {'repository': self.repository}},
+                                defaults={
+                                    'fk': {'repository': self.repository},
+                                    'related': {'*': {'fk': {'repository': self.repository}}},
+                                },
                                 parameters=parameters,
                                 force_fetch=force_fetch)
 

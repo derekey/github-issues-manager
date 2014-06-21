@@ -35,6 +35,9 @@ class Commit(WithRepositoryMixin, GithubObject):
     comments_count = models.PositiveIntegerField(blank=True, null=True)
     tree = models.CharField(max_length=40, blank=True, null=True)
     deleted = models.BooleanField(default=False, db_index=True)
+    files_fetched_at = models.DateTimeField(blank=True, null=True)
+    nb_additions = models.PositiveIntegerField(blank=True, null=True)
+    nb_deletions = models.PositiveIntegerField(blank=True, null=True)
 
     objects = CommitManager()
 
@@ -53,9 +56,12 @@ class Commit(WithRepositoryMixin, GithubObject):
     github_matching = dict(GithubObjectWithId.github_matching)
     github_matching.update({
         'comment_count': 'comments_count',
+        'additions': 'nb_additions',
+        'deletions': 'nb_deletions',
     })
     github_ignore = GithubObject.github_ignore + ('deleted', 'comments_count',
-        ) + ('url', 'parents', 'comments_url', 'html_url', 'commit', )
+        'nb_additions', 'nb_deletions') + ('url', 'parents', 'comments_url',
+        'html_url', 'commit', )
 
     @property
     def github_url(self):
@@ -77,6 +83,13 @@ class Commit(WithRepositoryMixin, GithubObject):
     def update_comments_count(self):
         self.comments_count = self.commit_comments.count()
         self.save(update_fields=['comments_count'])
+
+    def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
+                                                        meta_base_name=None):
+        if defaults is None:
+            defaults = {}
+        defaults.setdefault('related', {}).setdefault('*', {}).setdefault('fk', {})['commit'] = self
+        return super(Commit, self).fetch(gh, defaults, force_fetch, parameters, meta_base_name)
 
 
 class IssueCommits(models.Model):
