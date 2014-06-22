@@ -878,7 +878,7 @@ $().ready(function() {
         }), // set_issue_waypoints
 
         set_tab_files_issue_waypoints: (function IssueDetail__set_tab_files_issue_waypoints ($node, $context) {
-            var $files_list_container = $node.find('.code-files-list-container');
+            var $files_list_container = $node.find('.code-files.active .code-files-list-container');
             if ($files_list_container.length) {
                 if (!$context) {
                     $context = IssueDetail.get_scroll_context($node);
@@ -894,7 +894,9 @@ $().ready(function() {
         unset_issue_waypoints: (function IssueDetail__unset_issue_waypoints ($node) {
             $node.find(' > article > .area-top header').waypoint('unsticky');
             $node.find('.pr-tabs').waypoint('unsticky');
-            $node.find('.code-files-list-container').waypoint('unsticky');
+            $node.find('.code-files-list-container').each(function() {
+                $(this).waypoint('unsticky');
+            });
         }), // unset_issue_waypoints
 
         is_modal: (function IssueDetail__is_modal ($node) {
@@ -984,14 +986,14 @@ $().ready(function() {
         }), // set_container_loading
 
         select_tab: (function IssueDetail__select_tab (panel, type) {
-            var $tab_link = panel.$node.find('.pr-' + type + '-tab > a');
+            var $tab_link = panel.$node.find('.' + type + '-tab > a');
             if ($tab_link.length) { $tab_link.focus().click(); }
             return false;
         }), // select_tab
-        select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'discussion'); },
-        select_commits_tab: function(panel) { return IssueDetail.select_tab(panel, 'commits'); },
-        select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'files'); },
-        select_review_tab: function(panel) { return IssueDetail.select_tab(panel, 'review'); },
+        select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'pr-discussion'); },
+        select_commits_tab: function(panel) { return IssueDetail.select_tab(panel, 'pr-commits'); },
+        select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'pr-files'); },
+        select_review_tab: function(panel) { return IssueDetail.select_tab(panel, 'pr-review'); },
 
         on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $target) {
             if ($target.data('files-list-loaded')) { return;}
@@ -1047,7 +1049,8 @@ $().ready(function() {
 
         toggle_files_list: (function IssueDetail__toggle_files_list () {
             var $node = $(this).closest('.issue-container'),
-                $link = $node.find('.code-files-list-container .files-list-summary');
+                $
+                $link = $node.find('.code-files.active .code-files-list-container .files-list-summary');
             if ($link.length) { $link.click(); }
         }), // toggle_files_list
 
@@ -1059,7 +1062,7 @@ $().ready(function() {
 
         go_to_previous_file: (function IssueDetail__go_to_previous_file () {
             var $node = $(this).closest('.issue-container'),
-                $files_list = $node.find('.code-files-list'),
+                $files_list = $node.find('.code-files.active .code-files-list'),
                 $current_line = $files_list.find('tr.active'),
                 $line = $current_line.prevAll('tr:not(.hidden)').first();
             if ($line.length) {
@@ -1070,7 +1073,7 @@ $().ready(function() {
 
         go_to_next_file: (function IssueDetail__go_to_next_file () {
             var $node = $(this).closest('.issue-container'),
-                $files_list = $node.find('.code-files-list'),
+                $files_list = $node.find('.code-files.active .code-files-list'),
                 $current_line = $files_list.find('tr.active'),
                 $line = $current_line.nextAll('tr:not(.hidden)').first();
             if ($line.length) {
@@ -1081,8 +1084,8 @@ $().ready(function() {
 
         on_files_filter_done: (function IssueDetail__on_files_filter_done () {
             var $node = $(this).closest('.issue-container');
-            if (!$node.find('.pr-files-tab.active').length) { return; }
-            var $files_list = $node.find('.code-files-list'),
+            if (!$node.find('.files-tab.active').length) { return; }
+            var $files_list = $node.find('.code-files.active .code-files-list'),
                 $first_link = $files_list.find('tr:not(.hidden) a').first();
             if (($first_link).length) {
                 $first_link.trigger({type: 'click', no_file_focus: true});
@@ -1090,7 +1093,7 @@ $().ready(function() {
         }), // on_files_filter_done
 
         set_active_file: (function IssueDetail__set_active_file ($node, pos, reset_active_comment) {
-            var $files_list = $node.find('.code-files-list'),
+            var $files_list = $node.find('.code-files.active .code-files-list'),
                 $line;
             if (!$files_list.length) { return; }
             $line = $files_list.find('tr:nth-child('+ pos +')');
@@ -1108,7 +1111,7 @@ $().ready(function() {
         set_active_file_visible: (function IssueDetail__set_active_file_visible ($files_list, $line) {
             var line_top, line_height, list_visible_height, list_scroll;
             if (typeof $files_list == 'undefined') {
-                $files_list = $node.find('.code-files-list');
+                $files_list = $node.find('.code-files.active .code-files-list');
             }
             // files list not opened: do nothing
             if (!$files_list.hasClass('in')) {
@@ -1139,7 +1142,7 @@ $().ready(function() {
         }), // set_active_file_visible
 
         visible_files_comments: (function IssueDetail__visible_files_comments ($node) {
-            var $files_list = $node.find('.code-files-list');
+            var $files_list = $node.find('.code-files.active .code-files-list');
             if ($files_list.length) {
                 return $files_list.find('tr:not(.hidden) a')
                             .toArray()
@@ -1167,7 +1170,8 @@ $().ready(function() {
 
         go_to_file_comment: (function IssueDetail__go_to_file_comment ($node, direction) {
             var $files_list_container = $node.find('.code-files-list-container'),
-                $files_list = $node.find('.code-files-list'),
+                $active_files_tab = $node.find('.code-files.active'),
+                $files_list = $active_files_tab.find('.code-files-list'),
                 comments = IssueDetail.visible_files_comments($node),
                 current, comment, $comment, $file_node, position, file_pos;
 
@@ -1212,8 +1216,8 @@ $().ready(function() {
             $files_list_container.data('active-comment', comment);
             IssueDetail.set_active_file($node, $file_node.data('pos'), false);
             IssueDetail.scroll_in_files_list($node, $comment, -50);  // -20=margin, -30 = 2 previous diff lines
-            $node.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
-            $node.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
+            $active_files_tab.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
+            $active_files_tab.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
         }), // go_to_file_comment
 
         scroll_in_review: (function IssueDetail__scroll_in_review ($node, $target, delta) {
@@ -1250,6 +1254,7 @@ $().ready(function() {
             var $tab = $(ev.target),
                 $target = $($tab.attr('href')),
                 tab_type = $target.data('tab'),
+                is_code_tab = $target.hasClass('code-files'),
                 $node = $tab.closest('.issue-container'),
                 is_empty = !!$target.children('.empty-area').length;
             // load content if not already available
@@ -1258,7 +1263,7 @@ $().ready(function() {
                     url: $target.data('url'),
                     success: function(data) {
                         $target.html(data);
-                        if (tab_type == 'issue-files') {
+                        if (is_code_tab) {
                             IssueDetail.on_files_list_loaded($node, $target);
                         }
                         $node.trigger('loaded.tab.' + tab_type);
@@ -1268,7 +1273,7 @@ $().ready(function() {
                     }
                 });
             } else {
-                if (tab_type == 'issue-files') {
+                if (is_code_tab) {
                     IssueDetail.on_files_list_loaded($node, $target);
                 }
             }
@@ -1356,7 +1361,7 @@ $().ready(function() {
             var decorator = function(e) {
                 if (PanelsSwpr.current_panel.obj != IssueDetail) { return; }
                 var $node = PanelsSwpr.current_panel.$node,
-                    $tab = $node.find('.pr-files-tab.active');
+                    $tab = $node.find('.files-tab.active');
                 if (!$tab.length) { return; }
                 return IssueDetail[method].call($tab);
             };
@@ -1462,6 +1467,51 @@ $().ready(function() {
                 $parent.toggleClass('view-deleted', $input.is(':checked'))
         }), // on_deleted_commits_toggle_change
 
+        on_commit_click: (function IssueDetail__on_commit_click (e) {
+            var $link = $(e.target),
+                repository = $link.data('repository'),
+                sha = $link.data('sha'),
+                url = $link.data('url'),
+                $node = $(this).closest('.issue-container'),
+                tab_name = 'commit-' + sha;
+            if (repository != $node.data('repository')) {
+                return;
+            }
+            // if the tab does not exists, create it
+            if (!$node.find('.' + tab_name + '-tab').length) {
+                var $tab_template = $node.find('.commit-tab.template'),
+                    $tab = $tab_template.clone(),
+                    $content_template = $node.find('.commit-files.template'),
+                    $content = $content_template.clone();
+
+                // prepare the tab
+                $tab.removeClass('template')
+                    .addClass(tab_name + '-tab')
+                    .attr('style', null);
+                $tab.find('a').attr('href', '#' + tab_name + '-files');
+                $tab.find('strong').text(sha.substring(0, 7));
+
+                // add the tab
+                $tab_template.parent().append($tab);
+
+                // prepare the content
+                $content.removeClass('template')
+                        .addClass(tab_name)
+                        .attr('id', tab_name + '-files')
+                        .attr('style', null)
+                        .data('url', url);
+
+                // add the content
+                $content_template.parent().append($content);
+
+            }
+
+            IssueDetail.select_tab(PanelsSwpr.current_panel, tab_name);
+
+            return false;
+
+        }), // on_commit_click
+
         init: (function IssueDetail__init () {
             // init modal container
             IssueDetail.$modal_body = IssueDetail.$modal.children('.modal-body'),
@@ -1513,6 +1563,7 @@ $().ready(function() {
 
             // commits options
             $document.on('change', '.deleted-commits-toggler input', IssueDetail.on_deleted_commits_toggle_change);
+            $document.on('click', '.cell-sha', Ev.stop_event_decorate(IssueDetail.on_commit_click));
 
             // files list summary
             $document.on('click', '.code-files-list a', Ev.stop_event_decorate(IssueDetail.on_files_list_click));
@@ -1703,7 +1754,7 @@ $().ready(function() {
                 }
             }
         });
-    });
+    }); // activate_quicksearches
     window.activate_quicksearches = activate_quicksearches;
     activate_quicksearches($('input.quicksearch'));
 
@@ -1891,7 +1942,7 @@ $().ready(function() {
             MarkdownManager.update_links();
             MarkdownManager.handle_issue_links();
         } // init
-    };
+    }; // MarkdownManager
     MarkdownManager.init();
 
 

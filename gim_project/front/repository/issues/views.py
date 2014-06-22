@@ -5,14 +5,13 @@ import json
 from math import ceil
 from time import sleep
 
-from django.core.urlresolvers import reverse_lazy
-from django.utils.datastructures import SortedDict
-from django.db import DatabaseError
-from django.views.generic import (UpdateView, CreateView, TemplateView,
-                                  DetailView, DeleteView)
 from django.contrib import messages
-from django.shortcuts import render
+from django.core.urlresolvers import reverse_lazy
+from django.db import DatabaseError
 from django.http import Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.shortcuts import get_object_or_404, render
+from django.utils.datastructures import SortedDict
+from django.views.generic import UpdateView, CreateView, TemplateView, DetailView
 
 from limpyd_jobs import STATUSES
 
@@ -735,12 +734,15 @@ class IssueView(UserIssuesView):
         # fetch other useful data
         edit_level = self.get_edit_level(current_issue)
         if current_issue:
-            context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
+            context['collaborators_ids'] = self.repository.collaborators.all()\
+                                                          .values_list('id', flat=True)
             activity = current_issue.get_activity()
-            involved = self.get_involved_people(current_issue, activity, context['collaborators_ids'])
+            involved = self.get_involved_people(current_issue, activity,
+                                                context['collaborators_ids'])
 
             if current_issue.is_pull_request:
-                context['entry_points_dict'] = self.get_entry_points_dict(current_issue)
+                context['entry_points_dict'] = self.get_entry_points_dict(
+                                                current_issue.all_entry_points)
 
         else:
             activity = []
@@ -772,7 +774,7 @@ class IssueView(UserIssuesView):
 
         return edit_level
 
-    def get_entry_points_dict(self, issue):
+    def get_entry_points_dict(self, entry_points):
         """
         Return a dict that will be used in the issue files template to display
         pull request comments (entry points).
@@ -781,7 +783,7 @@ class IssueView(UserIssuesView):
         PullRequestCommentEntryPoint object as value
         """
         entry_points_dict = {}
-        for entry_point in issue.all_entry_points:
+        for entry_point in entry_points:
             if not entry_point.position:
                 continue
             entry_points_dict.setdefault(entry_point.path, {})[entry_point.position] = entry_point
@@ -922,19 +924,13 @@ class CreatedIssueView(IssueView):
         return self._issue
 
 
-class SimpleAjaxIssueView(IssueView):
+class SimpleAjaxIssueView(WithAjaxRestrictionViewMixin, IssueView):
     """
     A base class to fetch some parts of an issue via ajax.
     If not directly overriden, the template must be specified when using this
     view in urls.py
     """
-    def dispatch(self, *args, **kwargs):
-        """
-        Accept only ajax
-        """
-        if not self.request.is_ajax():
-            return self.http_method_not_allowed(self.request)
-        return super(SimpleAjaxIssueView, self).dispatch(*args, **kwargs)
+    ajax_only = True
 
     def get_context_data(self, **kwargs):
         """
@@ -963,7 +959,23 @@ class FilesAjaxIssueView(SimpleAjaxIssueView):
 
     def get_context_data(self, **kwargs):
         context = super(FilesAjaxIssueView, self).get_context_data(**kwargs)
-        context['entry_points_dict'] = self.get_entry_points_dict(context['current_issue'])
+        context['entry_points_dict'] = self.get_entry_points_dict(
+                                    context['current_issue'].all_entry_points)
+        return context
+
+
+class CommitAjaxIssueView(SimpleAjaxIssueView):
+    """
+    Override SimpleAjaxIssueView to add commit and its comments
+    """
+    ajax_template_name = 'front/repository/issues/code/include_commit_files.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CommitAjaxIssueView, self).get_context_data(**kwargs)
+        context['current_commit'] = get_object_or_404(self.repository.commits,
+                                                      sha=self.kwargs['commit_sha'])
+        context['entry_points_dict'] = self.get_entry_points_dict(
+                                    context['current_commit'].all_entry_points)
         return context
 
 

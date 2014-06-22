@@ -155,8 +155,9 @@
             <ul class="nav nav-tabs pr-tabs">
                 <li class="pr-discussion-tab active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion <span class="badge badge-blue" title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}">{{ current_issue.comments_count }}</span> &amp; updates</a></li>
                 <li class="pr-commits-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-commits">Commits <span class="badge badge-blue">{{ current_issue.nb_commits }}</span></a></li>
-                <li class="pr-files-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed <span class="badge badge-blue">{{ current_issue.nb_changed_files }}</span></a></li>
+                <li class="files-tab pr-files-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed <span class="badge badge-blue">{{ current_issue.nb_changed_files }}</span></a></li>
                 <li class="pr-review-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-review">Review comments <span class="badge badge-blue">{{ current_issue.pr_comments_count }}</span></a></li>
+                <li class="files-tab commit-tab template" style="display: none"><a data-toggle="tab" href="#">Commit <strong></strong></a></li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active issue-discussion" data-tab="issue-discussion" id="issue-{{ current_issue.number }}-discussion">
@@ -223,7 +224,7 @@
                     {% include "front/repository/issues/commits/include_issue_commits.html" %}
                 {% endif %}
             </div>
-            <div class="tab-pane issue-files" data-tab="issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
+            <div class="tab-pane issue-files code-files" data-tab="issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
                 {% if current_issue.nb_additions|add:current_issue.nb_deletions > 300 or current_issue.nb_changed_files > 10 %}
                     <div class="content empty">
                         Loading {% if current_issue.nb_additions|add:current_issue.nb_deletions > 500 or current_issue.nb_changed_files > 20 %} big{% endif %}diff...
@@ -245,6 +246,12 @@
             </div>
             <div class="box-section code-diff template" style="display: none"></div>
             <div class="box-section code-comments collapse in template" style="display: none"><ul class="unstyled chat-box timeline"></ul></div>
+            <div class="tab-pane commit-files code-files template" style="display: none">
+                <div class="content empty">
+                    Loading diff...
+                </div>
+                <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
+            </div>
         </div>
         {% endif %}
     </article>

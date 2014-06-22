@@ -32,7 +32,7 @@
                     {% endwith %}
                 {% endif %}
             </td>
-            <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank' title="View commit{% if commit.comments_count %} with comments{% endif %} on Github">{{ commit.sha|short_sha }}</a></td>
+            <td class="cell-sha"><a href="{{ commit.github_url }}" data-repository="{{ commit.repository }}" data-sha="{{ commit.sha }}" data-url="{{ current_issue.ajax_commit_base_url|slice:'-41'|add:commit.sha|add:'/' }}" target='_blank' title="View commit{% if commit.comments_count %} with comments{% endif %} on Github">{{ commit.sha|short_sha }}</a></td>
         </tr>
     {% endfor %}
 </table>

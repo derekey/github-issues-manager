@@ -281,6 +281,11 @@ class _Issue(models.Model):
     def ajax_review_url(self):
         return reverse_lazy('front:repository:issue.review', kwargs=self.get_reverse_kwargs())
 
+    def ajax_commit_base_url(self):
+        kwargs = self.get_reverse_kwargs()
+        kwargs['commit_sha'] = '0' * 40
+        return reverse_lazy('front:repository:issue.commit', kwargs=kwargs)
+
     @property
     def type(self):
         return 'pull request' if self.is_pull_request else 'issue'
@@ -369,8 +374,7 @@ class _Issue(models.Model):
             self._all_entry_points = list(self.pr_comments_entry_points
                                 .annotate(nb_comments=models.Count('comments'))
                                 .filter(nb_comments__gt=0)
-                                .select_related('user', 'pr_comments',
-                                                'repository__owner')
+                                .select_related('user', 'repository__owner')
                                 .prefetch_related('comments__user'))
         return self._all_entry_points
 
@@ -584,6 +588,17 @@ class _Commit(models.Model):
                 result[1] = result[1][1:]
             return result
         return [self.message[:LEN], self.message[LEN:]]
+
+    @property
+    def all_entry_points(self):
+        if not hasattr(self, '_all_entry_points'):
+            self._all_entry_points = list(self.commit_comments_entry_point
+                                .annotate(nb_comments=models.Count('comments'))
+                                .filter(nb_comments__gt=0)
+                                .select_related('user', 'repository__owner')
+                                .prefetch_related('comments__user'))
+        return self._all_entry_points
+
 
 contribute_to_model(_Commit, core_models.Commit)
 
