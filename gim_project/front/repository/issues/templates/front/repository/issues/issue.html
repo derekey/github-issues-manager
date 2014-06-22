@@ -92,17 +92,17 @@
                 {% if current_issue.total_comments_count or current_issue_involved|length > 1  %}
                     <div class="issue-footer-infos">
                         <div>
-                            {% if current_issue.total_comments_count %}
                                 <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
                                     <i class="fa fa-comments-o"> </i> {{ current_issue.total_comments_count }}
                                 </a>
-                            {% endif %}
                             {% if current_issue_involved|length > 1 %}
-                                <ul class="unstyled issue-footer-info-part issue-involved">
-                                    {% for involved_user in current_issue_involved %}
-                                        <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
-                                    {% endfor %}
-                                </ul>
+                                <div class="issue-footer-info-part">
+                                    <ul class="unstyled issue-involved">
+                                        {% for involved_user in current_issue_involved %}
+                                            <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                             {% endif %}
                         </div>
                     </div>

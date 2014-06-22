@@ -1,4 +1,4 @@
-{% load frontutils %}
+{% load frontutils spaceless_except_pre %}{% spaceless_except_pre %}
 {% comment %}
 - files: list of files
 - id_prefix
@@ -107,3 +107,4 @@
     </script>
 {% endif %}
 {% endwith %}
+{% endspaceless_except_pre %}
