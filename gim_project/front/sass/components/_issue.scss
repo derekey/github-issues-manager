@@ -948,8 +948,11 @@ $repo-name-height: 20px;
             }
         }
         tr.active {
-            td:nth-child(2) i {
-                color: inherit;
+            td:nth-child(2) {
+                color: black;
+                i, a {
+                    color: inherit;
+                }
             }
         }
         tr:last-of-type td {
