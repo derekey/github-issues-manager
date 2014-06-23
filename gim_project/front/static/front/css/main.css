@@ -237,54 +237,59 @@ blockquote p:last-child {
   border-bottom-color: #333333;
 }
 
-/* line 77, ../../../sass/_bootstrap-correct.scss */
+/* line 79, ../../../sass/_bootstrap-correct.scss */
+.nav-tabs > li > a:hover, .nav-tabs > li > a:focus {
+  border-color: #DDD;
+}
+
+/* line 85, ../../../sass/_bootstrap-correct.scss */
 .modal-body {
   max-height: 500px;
 }
 
-/* line 82, ../../../sass/_bootstrap-correct.scss */
+/* line 90, ../../../sass/_bootstrap-correct.scss */
 .modal.full-screen {
   width: 90% !important;
   height: 90% !important;
   left: 5% !important;
   margin: 0 !important;
 }
-/* line 87, ../../../sass/_bootstrap-correct.scss */
+/* line 95, ../../../sass/_bootstrap-correct.scss */
 .modal.full-screen.in {
   top: 5% !important;
 }
-/* line 90, ../../../sass/_bootstrap-correct.scss */
+/* line 98, ../../../sass/_bootstrap-correct.scss */
 .modal.full-screen .modal-body {
   max-height: none !important;
 }
 
-/* line 96, ../../../sass/_bootstrap-correct.scss */
+/* line 104, ../../../sass/_bootstrap-correct.scss */
 [data-toggle="collapse"] {
   cursor: pointer;
 }
 
-/* line 101, ../../../sass/_bootstrap-correct.scss */
+/* line 109, ../../../sass/_bootstrap-correct.scss */
 .modal-backdrop ~ .modal-backdrop {
   z-index: 1060;
 }
-/* line 103, ../../../sass/_bootstrap-correct.scss */
+/* line 111, ../../../sass/_bootstrap-correct.scss */
 .modal-backdrop ~ .modal-backdrop ~ .modal-backdrop {
   z-index: 1080;
 }
-/* line 105, ../../../sass/_bootstrap-correct.scss */
+/* line 113, ../../../sass/_bootstrap-correct.scss */
 .modal-backdrop ~ .modal-backdrop ~ .modal-backdrop ~ .modal-backdrop {
   z-index: 1100;
 }
 
-/* line 110, ../../../sass/_bootstrap-correct.scss */
+/* line 118, ../../../sass/_bootstrap-correct.scss */
 .modal.in ~ .modal.in {
   z-index: 1070;
 }
-/* line 112, ../../../sass/_bootstrap-correct.scss */
+/* line 120, ../../../sass/_bootstrap-correct.scss */
 .modal.in ~ .modal.in ~ .modal.in {
   z-index: 1090;
 }
-/* line 114, ../../../sass/_bootstrap-correct.scss */
+/* line 122, ../../../sass/_bootstrap-correct.scss */
 .modal.in ~ .modal.in ~ .modal.in ~ .modal.in {
   z-index: 1110;
 }

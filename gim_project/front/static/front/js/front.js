@@ -1,8 +1,20 @@
 $().ready(function() {
+    function GetVendorAttribute(prefixedAttributes) {
+       var tmp = document.createElement("div");
+       var result = "";
+       for (var i = 0; i < prefixedAttributes.length; ++i) {
+           if (typeof tmp.style[prefixedAttributes[i]] != 'undefined') {
+              return prefixedAttributes[i];
+           }
+       }
+       return null;
+    }
 
     var $document = $(document),
         $body = $('body'),
-        main_repository = $body.data('repository');
+        main_repository = $body.data('repository')
+        transform_attribute = GetVendorAttribute(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"]);
+
 
     var Ev = {
         stop_event_decorate: (function stop_event_decorate(callback) {
@@ -840,6 +852,7 @@ $().ready(function() {
             $node.toggleClass('with-repository', $node.data('repository') != main_repository);
             // set waypoints
             IssueDetail.set_issue_waypoints($node, is_modal);
+            IssueDetail.scroll_tabs($node, true);
         }), // on_issue_loaded
 
         get_scroll_context: (function IssueDetail__get_scroll_context ($node, is_modal) {
@@ -871,14 +884,17 @@ $().ready(function() {
                     $tabs.waypoint('sticky', {
                         context: $context,
                         stuckClass: 'area-top stuck',
-                        offset: 47 + IssueDetail.get_repository_name_height($node) // stuck header height
+                        offset: 47 + IssueDetail.get_repository_name_height($node), // stuck header height
+                        handler: function(direction) {
+                            setTimeout(function() { IssueDetail.scroll_tabs($node); }, 500);
+                        }
                     })
                 }
             }, 500);
         }), // set_issue_waypoints
 
-        set_tab_files_issue_waypoints: (function IssueDetail__set_tab_files_issue_waypoints ($node, $context) {
-            var $files_list_container = $node.find('.code-files.active .code-files-list-container');
+        set_tab_files_issue_waypoints: (function IssueDetail__set_tab_files_issue_waypoints ($node, $target, $context) {
+            var $files_list_container = $target.find('.code-files-list-container');
             if ($files_list_container.length) {
                 if (!$context) {
                     $context = IssueDetail.get_scroll_context($node);
@@ -987,7 +1003,7 @@ $().ready(function() {
 
         select_tab: (function IssueDetail__select_tab (panel, type) {
             var $tab_link = panel.$node.find('.' + type + '-tab > a');
-            if ($tab_link.length) { $tab_link.focus().click(); }
+            if ($tab_link.length) { $tab_link.tab('show'); }
             return false;
         }), // select_tab
         select_discussion_tab: function(panel) { return IssueDetail.select_tab(panel, 'pr-discussion'); },
@@ -998,7 +1014,7 @@ $().ready(function() {
         on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $target) {
             if ($target.data('files-list-loaded')) { return;}
             $target.data('files-list-loaded', true);
-            IssueDetail.set_tab_files_issue_waypoints($node);
+            IssueDetail.set_tab_files_issue_waypoints($node, $target);
             $target.find('.code-files-list a.path').first().click();
         }), // on_files_list_loaded
 
@@ -1250,6 +1266,103 @@ $().ready(function() {
             $previous_target.data('scroll-position', $context.scrollTop());
         }), // before_load_tab
 
+        scroll_tabs: (function IssueDetail__scroll_tabs($node, force_arrows, $force_tab) {
+            var $tabs_scroller = $node.find('.pr-tabs'),
+                $tabs_holder = $tabs_scroller.children('ul'),
+                $tab = (typeof $force_tab == 'undefined')
+                        ? $tabs_holder.children('li.active')
+                        : $force_tab,
+                current_offset = $tabs_scroller.data('scroll-offset') || 0,
+                final_offset = current_offset,
+                tabs_holder_width = $tabs_scroller.innerWidth() - 50,  // padding for arrows !
+                full_width = tabs_holder_width + current_offset,
+                tab_position = $tab.position(),
+                tab_left = tab_position.left - 3,
+                tab_right = tab_position.left + $tab.outerWidth() + 3,
+                $all_tabs = $tabs_holder.children('li:visible'),
+                $last_tab = $all_tabs.last(),
+                last_tab_right = $last_tab.position().left + $last_tab.outerWidth() + 3,
+                show_left_arrow = false, count_left = 0,
+                show_right_arrow = false, count_right = 0;
+
+            if (tab_left < current_offset) {
+                final_offset = tab_left;
+            } else if (tab_right > full_width) {
+                final_offset = current_offset + tab_right - full_width;
+            }
+
+            if (final_offset != current_offset) {
+                if (transform_attribute) {
+                    $tabs_holder.css('transform', 'translateX(' + (-final_offset) + 'px)');
+                } else {
+                    $tabs_holder.css('left', (-final_offset) + 'px');
+                }
+                $tabs_scroller.data('scroll-offset', final_offset);
+            }
+
+            if (force_arrows || final_offset != current_offset) {
+
+                if (final_offset > 0) {
+                    show_left_arrow = true;
+                    for (var i = 0; i < $all_tabs.length; i++) {
+                        $tab = $($all_tabs[i]);
+                        tab_left = $tab.position().left - 3;
+                        if ( tab_left >= final_offset) {
+                            break;
+                        }
+                        count_left += 1;
+                    };
+                    $tabs_scroller.data('next-left-tab', count_left ? $all_tabs[i-1]: null)
+                                  .find('.scroll-left .badge').text(count_left);
+                }
+
+                full_width = tabs_holder_width + final_offset
+                if (last_tab_right > full_width) {
+                    show_right_arrow = true;
+                    for (var j = 0; j < $all_tabs.length; j++) {
+                        $tab = $($all_tabs[j]);
+                        tab_right = $tab.position().left  + $tab.outerWidth() + 3;
+                        if (tab_right <= full_width) {
+                            continue;
+                        }
+                        if (!count_right) {
+                            $tabs_scroller.data('next-right-tab', $all_tabs[j]);
+                        }
+                        count_right += 1;
+                    };
+                    $tabs_scroller.find('.scroll-right .badge').text(count_right);
+                    if (!count_right) {
+                        $tabs_scroller.data('next-right-tab', null);
+                    }
+                }
+
+                $tabs_scroller.toggleClass('no-scroll-left', !show_left_arrow)
+                              .toggleClass('no-scroll-right', !show_right_arrow);
+
+            }
+
+        }), // scroll_tabs
+
+        scroll_tabs_left: (function IssueDetail__scroll_tabs_left (ev) {
+            var $node = $(ev.target).closest('.issue-container'),
+                $tabs_scroller = $node.find('.pr-tabs'),
+                next_tab = $tabs_scroller.data('next-left-tab');
+            if (next_tab) {
+                IssueDetail.scroll_tabs($node, false, $(next_tab));
+            }
+            return false;
+        }), // scroll_tabs_left
+
+        scroll_tabs_right: (function IssueDetail__scroll_tabs_right (ev) {
+            var $node = $(ev.target).closest('.issue-container'),
+                $tabs_scroller = $node.find('.pr-tabs'),
+                next_tab = $tabs_scroller.data('next-right-tab');
+            if (next_tab) {
+                IssueDetail.scroll_tabs($node, false, $(next_tab));
+            }
+            return false;
+        }), // scroll_tabs_right
+
         load_tab: (function IssueDetail__load_tab (ev) {
             var $tab = $(ev.target),
                 $target = $($tab.attr('href')),
@@ -1257,6 +1370,7 @@ $().ready(function() {
                 is_code_tab = $target.hasClass('code-files'),
                 $node = $tab.closest('.issue-container'),
                 is_empty = !!$target.children('.empty-area').length;
+
             // load content if not already available
             if (is_empty) {
                 $.ajax({
@@ -1277,6 +1391,10 @@ $().ready(function() {
                     IssueDetail.on_files_list_loaded($node, $target);
                 }
             }
+
+            // make sure the active tab is fully visible
+            IssueDetail.scroll_tabs($node);
+
             // if the tabs holder is stuck, we'll scroll in a cool way
             var $tabs_holder = $node.find('.pr-tabs'),
                 $stuck_header, position, $stuck,
@@ -1378,6 +1496,7 @@ $().ready(function() {
 
         toggle_full_screen: (function IssueDetail__toggle_full_screen (panel) {
             panel.$node.toggleClass('big-issue');
+            IssueDetail.scroll_tabs(panel.$node, true);
             return false;
         }), // toggle_full_screen
 
@@ -1492,7 +1611,7 @@ $().ready(function() {
                 $tab.find('strong').text(sha.substring(0, 7));
 
                 // add the tab
-                $tab_template.parent().append($tab);
+                $tab.insertBefore($tab_template);
 
                 // prepare the content
                 $content.removeClass('template')
@@ -1502,7 +1621,7 @@ $().ready(function() {
                         .data('url', url);
 
                 // add the content
-                $content_template.parent().append($content);
+                $content.insertBefore($content_template);
 
             }
 
@@ -1543,6 +1662,9 @@ $().ready(function() {
             jwerty.key('shift+r', IssueDetail.on_current_panel_key_event('select_review_tab'));
             $document.on('show.tab', '.pr-tabs a', IssueDetail.before_load_tab);
             $document.on('shown.tab', '.pr-tabs a', IssueDetail.load_tab);
+
+            $document.on('click', '.pr-tabs:not(.no-scroll-left) .scroll-left', Ev.stop_event_decorate(IssueDetail.scroll_tabs_left));
+            $document.on('click', '.pr-tabs:not(.no-scroll-right) .scroll-right', Ev.stop_event_decorate(IssueDetail.scroll_tabs_right));
 
             // link from PR comment in "review" tab to same entry in "files changed" tab
             $document.on('click', '.go-to-diff-link', Ev.stop_event_decorate(IssueDetail.on_link_to_diff_comment));

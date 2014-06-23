@@ -73,6 +73,14 @@ $arrows: top, right, left, bottom;
     }
 }
 
+
+// better border when hovering a tab
+.nav-tabs > li > a {
+    &:hover, &:focus {
+        border-color: #DDD;
+    }
+}
+
 // augment modal max height
 .modal-body {
     max-height: 500px;
