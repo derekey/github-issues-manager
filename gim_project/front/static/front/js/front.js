@@ -915,6 +915,10 @@ $().ready(function() {
             });
         }), // unset_issue_waypoints
 
+        unset_tab_files_issue_waypoints: (function IssueDetail__unset_tab_files_issue_waypoints ($target) {
+            $target.find('.code-files-list-container').waypoint('unsticky');
+        }), // unset_tab_files_issue_waypoints
+
         is_modal: (function IssueDetail__is_modal ($node) {
             return !!$node.data('$modal');
         }), // is_modal
@@ -1289,6 +1293,9 @@ $().ready(function() {
                 final_offset = tab_left;
             } else if (tab_right > full_width) {
                 final_offset = current_offset + tab_right - full_width;
+            } else if (last_tab_right < full_width) {
+                final_offset = current_offset - (full_width - last_tab_right);
+                if (final_offset < 0) { final_offset = 0; }
             }
 
             if (final_offset != current_offset) {
@@ -1377,6 +1384,8 @@ $().ready(function() {
                     url: $target.data('url'),
                     success: function(data) {
                         $target.html(data);
+                        // adjust tabs if scrollbar
+                        IssueDetail.scroll_tabs($node);
                         if (is_code_tab) {
                             IssueDetail.on_files_list_loaded($node, $target);
                         }
@@ -1416,6 +1425,26 @@ $().ready(function() {
                 $node.trigger('loaded.tab.' + tab_type);
             }
         }), // load_tab
+
+        close_tab: (function IssueDetail__close_tab (ev) {
+            var $tab = $(ev.target).closest('li'),
+                $tab_link = $tab.children('a'),
+                $tab_content = $($tab_link.attr('href')),
+                is_active = $tab.hasClass('active'),
+                $prev_tab = is_active ? $tab.prev(':visible').children('a') : null,
+                $node = is_active ? null : $tab.closest('.issue-container');
+
+            $tab.remove();
+            if ($prev_tab) {
+                $prev_tab.tab('show');
+            } else {
+                IssueDetail.scroll_tabs($node, true);
+            }
+            IssueDetail.unset_tab_files_issue_waypoints($tab_content);
+            $tab_content.remove();
+
+            return false;
+        }), // close_tab
 
         on_current_panel_key_event: (function IssueDetail__on_current_panel_key_event (method) {
             var decorator = function(e) {
@@ -1665,6 +1694,8 @@ $().ready(function() {
 
             $document.on('click', '.pr-tabs:not(.no-scroll-left) .scroll-left', Ev.stop_event_decorate(IssueDetail.scroll_tabs_left));
             $document.on('click', '.pr-tabs:not(.no-scroll-right) .scroll-right', Ev.stop_event_decorate(IssueDetail.scroll_tabs_right));
+
+            $document.on('click', '.pr-tabs .closable i.fa-times', Ev.stop_event_decorate(IssueDetail.close_tab));
 
             // link from PR comment in "review" tab to same entry in "files changed" tab
             $document.on('click', '.go-to-diff-link', Ev.stop_event_decorate(IssueDetail.on_link_to_diff_comment));
