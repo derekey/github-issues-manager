@@ -813,10 +813,11 @@ $repo-name-height: 20px;
 
 }
 
-.pr-tabs {
+.issue-tabs {
     overflow: hidden;
     position: relative;
     padding: 0 25px;
+    display: none; // by default for issues
     > ul {
         margin-bottom: 0;
         padding-top: 5px;
@@ -953,7 +954,7 @@ $repo-name-height: 20px;
         }
     }
 }
-.with-repository .pr-tabs.stuck {
+.with-repository .issue-tabs.stuck {
     top: $header-top + $top-border + $header-stuck-height + $repo-name-height + $header-top-padding;
 }
 .issue-discussion {
@@ -1205,11 +1206,11 @@ table.commits-list {
             margin-left: -15px;  // left padding of parent area-top
             @include border-radius(6px 6px 0 0);
         }
-        .pr-tabs.stuck {
+        .issue-tabs.stuck {
             margin-top: $header-stuck-height;
         }
         .with-repository {
-            .pr-tabs.stuck {
+            .issue-tabs.stuck {
                 margin-top: $header-stuck-height + $repo-name-height + $header-top-padding;
             }
         }

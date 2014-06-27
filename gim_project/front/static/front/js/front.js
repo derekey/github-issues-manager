@@ -879,7 +879,7 @@ $().ready(function() {
                         $node.toggleClass('header-stuck', direction == 'down');
                     }
                 });
-                var $tabs = $node.find('.pr-tabs');
+                var $tabs = $node.find('.issue-tabs');
                 if ($tabs.length) {
                     $tabs.waypoint('sticky', {
                         context: $context,
@@ -909,7 +909,7 @@ $().ready(function() {
 
         unset_issue_waypoints: (function IssueDetail__unset_issue_waypoints ($node) {
             $node.find(' > article > .area-top header').waypoint('unsticky');
-            $node.find('.pr-tabs').waypoint('unsticky');
+            $node.find('.issue-tabs').waypoint('unsticky');
             $node.find('.code-files-list-container').each(function() {
                 $(this).waypoint('unsticky');
             });
@@ -1271,24 +1271,51 @@ $().ready(function() {
         }), // before_load_tab
 
         scroll_tabs: (function IssueDetail__scroll_tabs($node, force_arrows, $force_tab) {
-            var $tabs_scroller = $node.find('.pr-tabs'),
+            var $tabs_scroller = $node.find('.issue-tabs'),
                 $tabs_holder = $tabs_scroller.children('ul'),
-                $tab = (typeof $force_tab == 'undefined')
-                        ? $tabs_holder.children('li.active')
-                        : $force_tab,
-                current_offset = $tabs_scroller.data('scroll-offset') || 0,
-                final_offset = current_offset,
-                tabs_holder_width = $tabs_scroller.innerWidth() - 50,  // padding for arrows !
-                full_width = tabs_holder_width + current_offset,
-                tab_position = $tab.position(),
-                tab_left = tab_position.left - 3,
-                tab_right = tab_position.left + $tab.outerWidth() + 3,
                 $all_tabs = $tabs_holder.children('li:visible'),
-                $last_tab = $all_tabs.last(),
-                last_tab_right = $last_tab.position().left + $last_tab.outerWidth() + 3,
+                $tab,
+                current_offset, final_offset,
+                tabs_holder_width, full_width,
+                tab_position, tab_left, tab_right,
+                $last_tab, last_tab_right,
                 show_left_arrow = false, count_left = 0,
                 show_right_arrow = false, count_right = 0;
 
+            // manage tabs bar visibility
+            if ($all_tabs.length == 1) {
+                // tabs bar is visible but only one tab, hide the bar
+                $tabs_scroller.hide()
+                return;
+            } else if ($all_tabs.length == 0) {
+                // tabs bar seems hidden, count number of tabs that are "visible"
+                // (:visible doesn't work if a parent is hidden)
+                if ($tabs_holder.children('li:not(.template)').length < 2) {
+                    // ok max one tab visible, keep the tabs bar hidden
+                    return;
+                }
+                // more that one tab visible, display the tab bar
+                $tabs_scroller.show();
+                $all_tabs = $tabs_holder.children('li:visible');
+                force_arrows = true;
+            }
+
+            // do lots of computation...
+            $tab = (typeof $force_tab == 'undefined')
+                    ? $tabs_holder.children('li.active')
+                    : $force_tab;
+            current_offset = $tabs_scroller.data('scroll-offset') || 0;
+            final_offset = current_offset;
+            tabs_holder_width = $tabs_scroller.innerWidth() - 50;  // padding for arrows !
+            full_width = tabs_holder_width + current_offset;
+            tab_position = $tab.position();
+            tab_left = tab_position.left - 3;
+            tab_right = tab_position.left + $tab.outerWidth() + 3;
+            $last_tab = $all_tabs.last();
+            last_tab_right = $last_tab.position().left + $last_tab.outerWidth() + 3;
+
+
+            // fond wanted offset for tab we want to show
             if (tab_left < current_offset) {
                 final_offset = tab_left;
             } else if (tab_right > full_width) {
@@ -1298,6 +1325,7 @@ $().ready(function() {
                 if (final_offset < 0) { final_offset = 0; }
             }
 
+            // apply offset the the tabs bar
             if (final_offset != current_offset) {
                 if (transform_attribute) {
                     $tabs_holder.css('transform', 'translateX(' + (-final_offset) + 'px)');
@@ -1307,8 +1335,10 @@ $().ready(function() {
                 $tabs_scroller.data('scroll-offset', final_offset);
             }
 
+            // manage counters and arrows
             if (force_arrows || final_offset != current_offset) {
 
+                // update counter of hidden tabs on the left
                 if (final_offset > 0) {
                     show_left_arrow = true;
                     for (var i = 0; i < $all_tabs.length; i++) {
@@ -1323,6 +1353,7 @@ $().ready(function() {
                                   .find('.scroll-left .badge').text(count_left);
                 }
 
+                // update counter of hidden tabs on the right
                 full_width = tabs_holder_width + final_offset
                 if (last_tab_right > full_width) {
                     show_right_arrow = true;
@@ -1343,6 +1374,7 @@ $().ready(function() {
                     }
                 }
 
+                // toggle arrows visibility
                 $tabs_scroller.toggleClass('no-scroll-left', !show_left_arrow)
                               .toggleClass('no-scroll-right', !show_right_arrow);
 
@@ -1352,7 +1384,7 @@ $().ready(function() {
 
         scroll_tabs_left: (function IssueDetail__scroll_tabs_left (ev) {
             var $node = $(ev.target).closest('.issue-container'),
-                $tabs_scroller = $node.find('.pr-tabs'),
+                $tabs_scroller = $node.find('.issue-tabs'),
                 next_tab = $tabs_scroller.data('next-left-tab');
             if (next_tab) {
                 IssueDetail.scroll_tabs($node, false, $(next_tab));
@@ -1362,7 +1394,7 @@ $().ready(function() {
 
         scroll_tabs_right: (function IssueDetail__scroll_tabs_right (ev) {
             var $node = $(ev.target).closest('.issue-container'),
-                $tabs_scroller = $node.find('.pr-tabs'),
+                $tabs_scroller = $node.find('.issue-tabs'),
                 next_tab = $tabs_scroller.data('next-right-tab');
             if (next_tab) {
                 IssueDetail.scroll_tabs($node, false, $(next_tab));
@@ -1405,7 +1437,7 @@ $().ready(function() {
             IssueDetail.scroll_tabs($node);
 
             // if the tabs holder is stuck, we'll scroll in a cool way
-            var $tabs_holder = $node.find('.pr-tabs'),
+            var $tabs_holder = $node.find('.issue-tabs'),
                 $stuck_header, position, $stuck,
                 is_modal = IssueDetail.is_modal($node),
                 $context = IssueDetail.get_scroll_context($node, is_modal),
@@ -1689,13 +1721,13 @@ $().ready(function() {
             jwerty.key('shift+c', IssueDetail.on_current_panel_key_event('select_commits_tab'));
             jwerty.key('shift+f', IssueDetail.on_current_panel_key_event('select_files_tab'));
             jwerty.key('shift+r', IssueDetail.on_current_panel_key_event('select_review_tab'));
-            $document.on('show.tab', '.pr-tabs a', IssueDetail.before_load_tab);
-            $document.on('shown.tab', '.pr-tabs a', IssueDetail.load_tab);
+            $document.on('show.tab', '.issue-tabs a', IssueDetail.before_load_tab);
+            $document.on('shown.tab', '.issue-tabs a', IssueDetail.load_tab);
 
-            $document.on('click', '.pr-tabs:not(.no-scroll-left) .scroll-left', Ev.stop_event_decorate(IssueDetail.scroll_tabs_left));
-            $document.on('click', '.pr-tabs:not(.no-scroll-right) .scroll-right', Ev.stop_event_decorate(IssueDetail.scroll_tabs_right));
+            $document.on('click', '.issue-tabs:not(.no-scroll-left) .scroll-left', Ev.stop_event_decorate(IssueDetail.scroll_tabs_left));
+            $document.on('click', '.issue-tabs:not(.no-scroll-right) .scroll-right', Ev.stop_event_decorate(IssueDetail.scroll_tabs_right));
 
-            $document.on('click', '.pr-tabs .closable i.fa-times', Ev.stop_event_decorate(IssueDetail.close_tab));
+            $document.on('click', '.issue-tabs .closable i.fa-times', Ev.stop_event_decorate(IssueDetail.close_tab));
 
             // link from PR comment in "review" tab to same entry in "files changed" tab
             $document.on('click', '.go-to-diff-link', Ev.stop_event_decorate(IssueDetail.on_link_to_diff_comment));
