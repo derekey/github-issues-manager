@@ -10,14 +10,14 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template import loader, Context
 from django.template.defaultfilters import escape
-from django.utils.functional import cached_property, memoize
+from django.utils.functional import cached_property
 
 from markdown import markdown
 
 from limpyd import model as lmodel, fields as lfields
 
 from core import models as core_models, get_main_limpyd_database
-from core.utils import contribute_to_model
+from core.utils import contribute_to_model, cached_method
 
 from events.models import EventPart
 
@@ -351,7 +351,8 @@ class _Issue(models.Model):
 
         loader.get_template(template).render(context)
 
-    def all_commits(self, include_deleted=False):
+    @cached_method
+    def all_commits(self, include_deleted):
         qs = self.related_commits.select_related('commit__author',
                                                  'commit__committer',
                                                  'commit__repository__owner'
@@ -365,8 +366,6 @@ class _Issue(models.Model):
             result.append(c.commit)
 
         return result
-    all_commits._cache = {}
-    all_commits = memoize(all_commits, all_commits._cache, 2)
 
     @property
     def all_entry_points(self):

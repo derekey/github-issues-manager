@@ -3,6 +3,8 @@ __all__ = [
     'IssueCommits',
 ]
 
+from datetime import datetime
+
 from django.db import models
 
 from ..managers import (
@@ -90,6 +92,19 @@ class Commit(WithRepositoryMixin, GithubObject):
             defaults = {}
         defaults.setdefault('related', {}).setdefault('*', {}).setdefault('fk', {})['commit'] = self
         return super(Commit, self).fetch(gh, defaults, force_fetch, parameters, meta_base_name)
+
+    def save(self, *args, **kwargs):
+        """
+        Handle case where author/commiter computer have dates in the future: in
+        this case, set these dates to now, to avoid inexpected rendering
+        """
+        now = datetime.utcnow()
+        if self.authored_at and self.authored_at > now:
+            self.authored_at = now
+        if self.committed_at and self.committed_at > now:
+            self.committed_at = now
+
+        return super(self, Commit).save(*args, **kwargs)
 
 
 class IssueCommits(models.Model):
