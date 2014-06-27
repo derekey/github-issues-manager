@@ -2,14 +2,14 @@
 {% static 'front/img/default-avatar.png' as default_avatar %}
 <table class="table table-normal commits-list">
     {% for commit in commits %}
-        <tr>
+        <tr class="commit-link-holder" data-repository="{{ commit.repository }}" data-sha="{{ commit.sha }}" data-url="{{ current_issue.ajax_commit_base_url|slice:'-41'|add:commit.sha|add:'/' }}">
             <td class="cell-author">
                 <img class="avatar-tiny img-circle" src="{{ commit.author.avatar_url|default:default_avatar }}" alt="{{ commit.author|default:commit.author_name }}">
                 <span title="{{ commit.author|default:commit.author_name }}">{{ commit.author|default:commit.author_name }}</span>
             </td>
             <td class="cell-message">
                 {% if commit.comments_count %}
-                    <a class='label label-cyan comments-count' href="{{ commit.github_url }}" target='_blank' title="View commit with comments on Github">
+                    <a class='label label-cyan comments-count commit-link' href="{{ commit.github_url }}" target='_blank' title="View commit with comments">
                         <i class="fa fa-comments-o"></i> {{ commit.comments_count }}
                     </a>
                 {% endif %}
@@ -32,7 +32,7 @@
                     {% endwith %}
                 {% endif %}
             </td>
-            <td class="cell-sha"><a href="{{ commit.github_url }}" data-repository="{{ commit.repository }}" data-sha="{{ commit.sha }}" data-url="{{ current_issue.ajax_commit_base_url|slice:'-41'|add:commit.sha|add:'/' }}" target='_blank' title="View commit{% if commit.comments_count %} with comments{% endif %} on Github">{{ commit.sha|short_sha }}</a></td>
+            <td class="cell-sha"><a class="commit-link" href="{{ commit.github_url }}" target='_blank' title="View commit{% if commit.comments_count %} with comments{% endif %}">{{ commit.sha|short_sha }}</a></td>
         </tr>
     {% endfor %}
 </table>

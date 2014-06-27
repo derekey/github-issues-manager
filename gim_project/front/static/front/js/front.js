@@ -1649,14 +1649,26 @@ $().ready(function() {
 
         on_commit_click: (function IssueDetail__on_commit_click (e) {
             var $link = $(e.target),
-                repository = $link.data('repository'),
-                sha = $link.data('sha'),
-                url = $link.data('url'),
-                $node = $(this).closest('.issue-container'),
-                tab_name = 'commit-' + sha;
+                $holder = $link.closest('.commit-link-holder'),
+                repository, sha, url,
+                $node, tab_name;
+
+
+            if (!$holder.length) {
+                return;
+            }
+
+            repository = $holder.data('repository');
+            $node = $holder.closest('.issue-container');
+
             if (repository != $node.data('repository')) {
                 return;
             }
+
+            sha = $holder.data('sha');
+            url = $holder.data('url');
+            tab_name = 'commit-' + sha;
+
             // if the tab does not exists, create it
             if (!$node.find('.' + tab_name + '-tab').length) {
                 var $tab_template = $node.find('.commit-tab.template'),
@@ -1748,7 +1760,7 @@ $().ready(function() {
 
             // commits options
             $document.on('change', '.deleted-commits-toggler input', IssueDetail.on_deleted_commits_toggle_change);
-            $document.on('click', '.cell-sha', Ev.stop_event_decorate(IssueDetail.on_commit_click));
+            $document.on('click', '.commit-link', Ev.stop_event_decorate(IssueDetail.on_commit_click));
 
             // files list summary
             $document.on('click', '.code-files-list a', Ev.stop_event_decorate(IssueDetail.on_files_list_click));
