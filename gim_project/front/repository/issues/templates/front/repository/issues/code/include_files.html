@@ -38,7 +38,6 @@
         {% endif %}
     </nav>
     {% if nb_changed_files > 1 %}<a href="#" title="Click to toogle the list of files" class="files-list-summary" data-toggle="collapse" data-target="#{{ id_prefix }}-files-list">{% endif %}<strong>{{ nb_changed_files }} file{{ nb_changed_files|pluralize }} changed</strong> with <strong>{{ nb_additions }} addition{{ nb_additions|pluralize }}</strong> and <strong>{{ nb_deletions }} deletion{{ nb_deletions|pluralize }}</strong>{% if nb_changed_files > 1 %}&nbsp;&nbsp;<i class="fa fa-sort"></i></a>{% endif %}
-    {% if nb_changed_files > 1 %}
     <div class="collapse in code-files-list" id="{{ id_prefix }}-files-list">
         <table class="table table-condensed">
         {% for file in files %}
@@ -55,7 +54,6 @@
         {% endfor %}
         </table>
     </div>
-    {% endif %}
 </div>
 <ul class="unstyled chat-box timeline issue-activity">
 {% for file in files %}
