@@ -104,7 +104,7 @@ class Commit(WithRepositoryMixin, GithubObject):
         if self.committed_at and self.committed_at > now:
             self.committed_at = now
 
-        return super(self, Commit).save(*args, **kwargs)
+        return super(Commit, self).save(*args, **kwargs)
 
 
 class IssueCommits(models.Model):
