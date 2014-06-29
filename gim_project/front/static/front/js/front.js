@@ -1666,7 +1666,6 @@ $().ready(function() {
             }
 
             sha = $holder.data('sha');
-            url = $holder.data('url');
             tab_name = 'commit-' + sha;
 
             // if the tab does not exists, create it
@@ -1691,7 +1690,8 @@ $().ready(function() {
                         .addClass(tab_name)
                         .attr('id', tab_name + '-files')
                         .attr('style', null)
-                        .data('url', url);
+                        .data('url', $holder.data('url'))
+                        .data('comment-url', $holder.data('comment-url'));
 
                 // add the content
                 $content.insertBefore($content_template);
@@ -2378,20 +2378,23 @@ $().ready(function() {
         // CREATE THE PR-COMMENT FORM
         on_comment_create_placeholder_click: (function IssueEditor__on_comment_create_placeholder_click (ev) {
             var $placeholder = $(this).parent(),
-                $comment_box = IssueEditor.create_comment_form_from_template($placeholder.closest('.issue-container'));
+                $comment_box = IssueEditor.create_comment_form_from_template($placeholder, $placeholder.closest('.issue-container'));
             $comment_box.$form.prepend('<input type="hidden" name="entry_point_id" value="' + $placeholder.data('entry-point-id') + '"/>')
             $placeholder.after($comment_box.$node);
             $placeholder.hide();
             $comment_box.$textarea.focus();
         }), // on_comment_create_placeholder_click
 
-        create_comment_form_from_template: (function IssueEditor__create_comment_form_from_template ($issue) {
+        create_comment_form_from_template: (function IssueEditor__create_comment_form_from_template ($trigger, $issue) {
             var $template = $issue.find('.comment-create-container'),
                 $node = $template.clone(),
                 $form = $node.find('form'),
+                $tab_pane = $trigger.closest('.tab-pane'),
+                is_commit = $tab_pane.hasClass('commit-files'),
+                action = is_commit ? $tab_pane.data('comment-url') : $form.data('pr-url'),
                 $textarea;
             $node.removeClass('comment-create-container');
-            $form.attr('action', $form.data('pr-url'));
+            $form.attr('action', action);
             $textarea = $form.find('textarea');
             $textarea.val('');
             return {$node: $node, $form: $form, $textarea: $textarea};
@@ -2434,7 +2437,7 @@ $().ready(function() {
             }
             // create a box for the entry-point
             $box = $issue.find('.code-comments.template').clone().removeClass('template').removeAttr('style');
-            $comment_box = IssueEditor.create_comment_form_from_template($issue);
+            $comment_box = IssueEditor.create_comment_form_from_template($table, $issue);
             $comment_box.$form.prepend('<input type="hidden" name="path" value="' + path + '"/>' +
                                        '<input type="hidden" name="sha" value="' + sha + '"/>' +
                                        '<input type="hidden" name="position" value="' + position + '"/>');
@@ -2918,7 +2921,7 @@ $().ready(function() {
             $document.on('click', '.comment-edit-btn', Ev.stop_event_decorate(IssueEditor.on_comment_edit_click));
             $document.on('click', '.comment-delete-btn', Ev.stop_event_decorate(IssueEditor.on_comment_delete_click));
 
-            $document.on('click', 'td.code span.label', IssueEditor.on_new_entry_point_click);
+            $document.on('click', 'td.code span.btn-comment', IssueEditor.on_new_entry_point_click);
 
             IssueEditor.create.init();
         }) // init

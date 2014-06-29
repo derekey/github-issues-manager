@@ -351,6 +351,18 @@ class LinkedToIssueFormViewMixin(WithAjaxRestrictionViewMixin, DependsOnIssueVie
         return kwargs
 
 
+class LinkedToCommitFormViewMixin(WithAjaxRestrictionViewMixin):
+    """
+    A mixin for form views when the main object depends on a commit, and
+    using a form which is a subclass of LinkedToCommitFormMixin, to have the
+    current commit passed to the form
+    """
+    def get_form_kwargs(self):
+        kwargs = super(LinkedToCommitFormViewMixin, self).get_form_kwargs()
+        kwargs['commit'] = self.commit
+        return kwargs
+
+
 class DeferrableViewPart(object):
     deferred_template_name = 'front/base_deferred_block.html'
     auto_load = True

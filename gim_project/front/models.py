@@ -286,6 +286,14 @@ class _Issue(models.Model):
         kwargs['commit_sha'] = '0' * 40
         return reverse_lazy('front:repository:issue.commit', kwargs=kwargs)
 
+    def commit_comment_create_url(self):
+        if not hasattr(self, '_commit_comment_create_url'):
+            kwargs = self.get_reverse_kwargs()
+            kwargs['commit_sha'] = '0' * 40
+            self._commit_comment_create_url = reverse_lazy('front:repository:issue.commit_comment.create',
+                                                       kwargs=kwargs)
+        return self._commit_comment_create_url
+
     @property
     def type(self):
         return 'pull request' if self.is_pull_request else 'issue'
@@ -591,7 +599,7 @@ class _Commit(models.Model):
     @property
     def all_entry_points(self):
         if not hasattr(self, '_all_entry_points'):
-            self._all_entry_points = list(self.commit_comments_entry_point
+            self._all_entry_points = list(self.commit_comments_entry_points
                                 .annotate(nb_comments=models.Count('comments'))
                                 .filter(nb_comments__gt=0)
                                 .select_related('user', 'repository__owner')

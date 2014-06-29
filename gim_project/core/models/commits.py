@@ -40,6 +40,10 @@ class Commit(WithRepositoryMixin, GithubObject):
     files_fetched_at = models.DateTimeField(blank=True, null=True)
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
     nb_deletions = models.PositiveIntegerField(blank=True, null=True)
+    commit_comments_fetched_at = models.DateTimeField(blank=True, null=True)
+    commit_comments_etag = models.CharField(max_length=64, blank=True, null=True)
+    # this list is not ordered, we must memorize the last page
+    commit_comments_last_page = models.PositiveIntegerField(blank=True, null=True)
 
     objects = CommitManager()
 
@@ -105,6 +109,48 @@ class Commit(WithRepositoryMixin, GithubObject):
             self.committed_at = now
 
         return super(Commit, self).save(*args, **kwargs)
+
+    @property
+    def github_callable_identifiers_for_commit_comments(self):
+        return self.github_callable_identifiers + [
+            'comments',
+        ]
+
+    def fetch_comments(self, gh, force_fetch=False, parameters=None):
+        from .comments import CommitComment
+
+        final_parameters = {
+            'sort': CommitComment.github_date_field[1],
+            'direction': CommitComment.github_date_field[2],
+        }
+
+        if not force_fetch:
+            final_parameters['page'] = self.commit_comments_last_page or 1
+
+        if CommitComment.github_reverse_order:
+            force_fetch = True
+
+        if parameters:
+            final_parameters.update(parameters)
+        return self._fetch_many('commit_comments', gh,
+                                defaults={
+                                    'fk': {
+                                        'commit': self,
+                                        'repository': self.repository
+                                    },
+                                    'related': {'*': {
+                                        'fk': {
+                                            'commit': self,
+                                            'repository': self.repository
+                                        }
+                                    }}
+                                },
+                                parameters=final_parameters,
+                                force_fetch=force_fetch)
+
+    def fetch_all(self, gh, force_fetch=False, **kwargs):
+        super(Commit, self).fetch_all(gh, force_fetch=force_fetch)
+        self.fetch_comments(gh, force_fetch=force_fetch)
 
 
 class IssueCommits(models.Model):

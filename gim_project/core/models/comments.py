@@ -323,7 +323,7 @@ class PullRequestComment(CommentMixin, WithIssueMixin, GithubObjectWithId):
 
 class CommitCommentEntryPoint(CommentEntryPointMixin):
     repository = models.ForeignKey('Repository', related_name='commit_comments_entry_points')
-    commit = models.ForeignKey('Commit', related_name='commit_comments_entry_point', null=True)
+    commit = models.ForeignKey('Commit', related_name='commit_comments_entry_points', null=True)
     user = models.ForeignKey('GithubUser', related_name='commit_comments_entry_points', blank=True, null=True)
 
     objects = CommitCommentEntryPointManager()
@@ -416,12 +416,16 @@ class CommitComment(CommentMixin, WithCommitMixin, GithubObjectWithId):
         ordering = ('created_at', )
 
     @property
+    def sha(self):
+        return self.commit.sha if self.commit_id else self.commit_sha
+
+    @property
     def github_url(self):
         return self.repository.github_url + '/commit/%s#commitcomment-%s' % (
-                                                    self.commit_sha, self.github_id)
+                                                    self.sha, self.github_id)
 
     def __unicode__(self):
-        return u'on commit #%s' % self.commit_sha
+        return u'on commit #%s' % self.sha
 
     @property
     def github_callable_identifiers(self):
@@ -431,7 +435,7 @@ class CommitComment(CommentMixin, WithCommitMixin, GithubObjectWithId):
 
     @property
     def github_callable_create_identifiers(self):
-        return self.issue.github_callable_identifiers_for_commit_comments
+        return self.commit.github_callable_identifiers_for_commit_comments
 
     def save(self, *args, **kwargs):
         """
@@ -444,10 +448,13 @@ class CommitComment(CommentMixin, WithCommitMixin, GithubObjectWithId):
 
         if not self.commit_id:
             self.commit, _ = self.repository.commits.get_or_create(
-                sha=self.commit_sha,
+                sha=self.sha,
             )
             from ..tasks.commit import FetchCommitBySha
-            FetchCommitBySha.add_job('%s#%s' % (self.repository_id, self.commit_sha))
+            FetchCommitBySha.add_job('%s#%s' % (self.repository_id, self.sha))
+
+        elif not self.commit_sha:
+            self.commit_sha = self.commit.sha
 
         super(CommitComment, self).save(*args, **kwargs)
 

@@ -19,7 +19,7 @@ class LinkedToUserFormMixin(object):
 
 class LinkedToRepositoryFormMixin(forms.ModelForm):
     """
-    A simple mixin that getthe "repository" argument passed as parameter and
+    A simple mixin that get the "repository" argument passed as parameter and
     save it in the "repository" instance's attribute.
     Will also set the repository as attribute of the form's instance if there
     is any, unless "repository_attribute" is None
@@ -46,10 +46,10 @@ class LinkedToRepositoryFormMixin(forms.ModelForm):
 
 class LinkedToIssueFormMixin(LinkedToRepositoryFormMixin):
     """
-    A simple mixin that getthe "issue" argument passed as parameter and
+    A simple mixin that get the "issue" argument passed as parameter and
     save it in the "issue" instance's attribute.
     Will also set the issue as attribute of the form's instance if there
-    is any, unless "issue__attribute" is None
+    is any, unless "issue_attribute" is None
     Do the same the repository, as its a subclass of LinkedToRepositoryFormMixin
     """
     issue_attribute = 'issue'
@@ -73,6 +73,41 @@ class LinkedToIssueFormMixin(LinkedToRepositoryFormMixin):
                 exclude.remove('repository')
             if 'issue' in exclude:
                 exclude.remove('issue')
+        try:
+            self.instance.validate_unique(exclude=exclude)
+        except forms.ValidationError as e:
+            self._update_errors(e)
+
+
+class LinkedToCommitFormMixin(LinkedToRepositoryFormMixin):
+    """
+    A simple mixin that get the "commit" argument passed as parameter and
+    save it in the "commit" instance's attribute.
+    Will also set the commit as attribute of the form's instance if there
+    is any, unless "commit__attribute" is None
+    Do the same the repository, as its a subclass of LinkedToRepositoryFormMixin
+    """
+    commit_attribute = 'commit'
+
+    def __init__(self, *args, **kwargs):
+        self.commit = kwargs.pop('commit')
+
+        # pass the repository to the parent class
+        kwargs['repository'] = self.commit.repository
+        super(LinkedToCommitFormMixin, self).__init__(*args, **kwargs)
+
+        attr = '%s_id' % self.commit_attribute
+        if self.commit_attribute and getattr(self, 'instance', None) and hasattr(self.instance, attr):
+            if not getattr(self.instance, attr):
+                setattr(self.instance, self.commit_attribute, self.commit)
+
+    def validate_unique(self):
+        exclude = self._get_validation_exclusions()
+        if exclude:
+            if 'repository' in exclude:
+                exclude.remove('repository')
+            if 'commit' in exclude:
+                exclude.remove('commit')
         try:
             self.instance.validate_unique(exclude=exclude)
         except forms.ValidationError as e:

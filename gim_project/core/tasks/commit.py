@@ -23,6 +23,7 @@ class FetchCommitBySha(Job):
     queue_name = 'fetch-commit-by-sha'
     deleted = fields.InstanceHashField()
     force_fetch = fields.InstanceHashField()
+    fetch_comments = fields.InstanceHashField()
 
     permission = 'read'
 
@@ -48,6 +49,7 @@ class FetchCommitBySha(Job):
         repository = self.repository
 
         force_fetch = self.force_fetch.hget() == '1'
+        fetch_comments = self.fetch_comments.hget() == '1'
 
         try:
             commit = repository.commits.filter(sha=sha)[0]
@@ -61,7 +63,10 @@ class FetchCommitBySha(Job):
                 return None
 
         try:
-            commit.fetch(gh, force_fetch=force_fetch)
+            if fetch_comments:
+                commit.fetch_all(gh, force_fetch=force_fetch)
+            else:
+                commit.fetch(gh, force_fetch=force_fetch)
         except ApiNotFoundError:
             # the commit doesn't exist anymore, delete it
             if commit.pk:
