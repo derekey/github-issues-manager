@@ -2386,7 +2386,7 @@ $().ready(function() {
         }), // on_comment_create_placeholder_click
 
         create_comment_form_from_template: (function IssueEditor__create_comment_form_from_template ($trigger, $issue) {
-            var $template = $issue.find('.comment-create-container'),
+            var $template = $issue.find('.comment-create-container').first(),
                 $node = $template.clone(),
                 $form = $node.find('form'),
                 $tab_pane = $trigger.closest('.tab-pane'),

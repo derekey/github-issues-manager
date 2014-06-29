@@ -4956,6 +4956,27 @@ form.fill-up .select2-search-field input:focus {
   border: none !important;
 }
 
+/* divider with texts */
+/* line 185, ../../../sass/_core-admin-correct.scss */
+li.divider {
+  text-align: center;
+}
+/* line 187, ../../../sass/_core-admin-correct.scss */
+li.divider > span {
+  position: relative;
+  z-index: 1;
+  padding: 0px 20px;
+  background: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iNTAlIiB4Mj0iMTAwJSIgeTI9IjUwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0icmdiYSgyNDAsIDI0MCwgMjQwLCAwKSIvPjxzdG9wIG9mZnNldD0iMTAlIiBzdG9wLWNvbG9yPSJyZ2JhKDI0MCwgMjQwLCAyNDAsIDAuOSkiLz48c3RvcCBvZmZzZXQ9IjkwJSIgc3RvcC1jb2xvcj0icmdiYSgyNDAsIDI0MCwgMjQwLCAwLjkpIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSJyZ2JhKDI0MCwgMjQwLCAyNDAsIDApIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmFkKSIgLz48L3N2Zz4g');
+  background: -webkit-gradient(linear, 0% 50%, 100% 50%, color-stop(0%, rgba(240, 240, 240, 0)), color-stop(10%, rgba(240, 240, 240, 0.9)), color-stop(90%, rgba(240, 240, 240, 0.9)), color-stop(100%, rgba(240, 240, 240, 0)));
+  background: -webkit-linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.9) 10%, rgba(240, 240, 240, 0.9) 90%, rgba(240, 240, 240, 0) 100%);
+  background: -moz-linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.9) 10%, rgba(240, 240, 240, 0.9) 90%, rgba(240, 240, 240, 0) 100%);
+  background: -o-linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.9) 10%, rgba(240, 240, 240, 0.9) 90%, rgba(240, 240, 240, 0) 100%);
+  background: linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.9) 10%, rgba(240, 240, 240, 0.9) 90%, rgba(240, 240, 240, 0) 100%);
+  text-shadow: white 0 1px;
+  color: #78808A;
+  top: -11px;
+}
+
 /* line 11, ../../../sass/main.scss */
 del {
   text-decoration: line-through;

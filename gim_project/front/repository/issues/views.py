@@ -1013,6 +1013,15 @@ class CommitAjaxIssueView(CommitViewMixin, SimpleAjaxIssueView):
                 self.set_comment_urls(comment, context['current_issue'], kwargs)
 
         context['entry_points_dict'] = self.get_entry_points_dict(entry_points)
+
+        try:
+            context['final_entry_point'] = [ep for ep in entry_points if ep.path is None][0]
+        except IndexError:
+            context['final_entry_point'] = None
+
+        context['commit_comment_create_url'] = \
+            context['current_issue'].commit_comment_create_url().replace('0' * 40, self.commit.sha)
+
         return context
 
 
@@ -1325,19 +1334,27 @@ class PullRequestCommentView(BaseIssueCommentView):
         return context
 
 
-class CommitCommentView(BaseIssueCommentView):
+class CommitCommentView(CommitViewMixin, BaseIssueCommentView):
     url_name = 'issue.commit_comment'
     model = CommitComment
-    template_name = 'front/repository/issues/comments/include_code_comment.html'
+    template_name = 'front/repository/issues/comments/include_commit_comment.html'
     job_model = CommitCommentEditJob
 
     issue_related_name = 'commit__issues'
     repository_related_name = 'commit__issues__repository'
 
+    def get_object(self, *args, **kwargs):
+        obj = super(CommitCommentView, self).get_object(*args, **kwargs)
+        if obj:
+            # force urls, as we are in an issue
+            self.set_comment_urls(obj, self.issue)
+        return obj
+
     def get_context_data(self, **kwargs):
         context = super(CommitCommentView, self).get_context_data(**kwargs)
 
         context.update({
+            'current_commit': self.commit,
             'entry_point': self.object.entry_point,
         })
 
@@ -1430,7 +1447,7 @@ class CommentWithEntryPointCreateViewMixin(BaseCommentCreateView):
     def parent_object(self):
         raise NotImplementedError()
 
-    def get_entry_point(self):
+    def get_entry_point(self, sha=None):
         obj = self.parent_object
 
         if 'entry_point_id' in self.request.POST:
@@ -1446,13 +1463,15 @@ class CommentWithEntryPointCreateViewMixin(BaseCommentCreateView):
             else:
                 raise KeyError('position')
 
-            if len(self.request.POST['sha']) == 40:
-                sha = self.request.POST['sha']
-            else:
-                raise KeyError('sha')
+            if sha is None:
+                if len(self.request.POST['sha']) == 40:
+                    sha = self.request.POST['sha']
+                else:
+                    raise KeyError('sha')
 
             if self.request.POST.get('path', None) is None and self.null_path_allowed:
                 path = None
+                file = None
             else:
                 path = self.request.POST['path']
                 try:
@@ -1517,6 +1536,13 @@ class CommitCommentCreateView(CommitCommentEditMixin, CommentWithEntryPointCreat
     @property
     def parent_object(self):
         return self.commit
+
+    def get_entry_point(self):
+        return super(CommitCommentCreateView, self).get_entry_point(self.commit.sha)
+
+    def get_success_url(self):
+        url = super(CommitCommentCreateView, self).get_success_url()
+        return url + '?include_form=1'
 
 
 class CommentCheckRightsMixin(object):
