@@ -40,6 +40,7 @@ class Commit(WithRepositoryMixin, GithubObject):
     files_fetched_at = models.DateTimeField(blank=True, null=True)
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
     nb_deletions = models.PositiveIntegerField(blank=True, null=True)
+    nb_changed_files = models.PositiveIntegerField(blank=True, null=True)
     commit_comments_fetched_at = models.DateTimeField(blank=True, null=True)
     commit_comments_etag = models.CharField(max_length=64, blank=True, null=True)
     # this list is not ordered, we must memorize the last page
@@ -107,6 +108,11 @@ class Commit(WithRepositoryMixin, GithubObject):
             self.authored_at = now
         if self.committed_at and self.committed_at > now:
             self.committed_at = now
+
+        if self.pk and self.nb_changed_files is None:
+            self.nb_changed_files = self.files.count()
+            if 'update_fields' in kwargs:
+                kwargs['update_fields'].append('nb_changed_files')
 
         return super(Commit, self).save(*args, **kwargs)
 
