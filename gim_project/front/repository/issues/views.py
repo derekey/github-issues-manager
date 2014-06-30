@@ -974,6 +974,15 @@ class CommitViewMixin(object):
     issue_related_name = 'commit__issues'
     repository_related_name = 'commit__issues__repository'
 
+    def get_queryset(self):
+        """
+        Return a queryset based on the current repository and allowed rights.
+        Override the one from DependsOnIssueViewMixin to only depends on the
+        repository, not the issue, to allow managing comment on commits not in
+        the current issue.
+        """
+        return self.model._default_manager.filter(repository=self.repository)
+
     def set_comment_urls(self, comment, issue, kwargs=None):
         if not kwargs:
             kwargs = issue.get_reverse_kwargs()
@@ -1340,7 +1349,6 @@ class CommitCommentView(CommitViewMixin, BaseIssueCommentView):
     template_name = 'front/repository/issues/comments/include_commit_comment.html'
     job_model = CommitCommentEditJob
 
-    issue_related_name = 'commit__issues'
     repository_related_name = 'commit__issues__repository'
 
     def get_object(self, *args, **kwargs):
