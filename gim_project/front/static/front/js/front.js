@@ -1681,6 +1681,7 @@ $().ready(function() {
                     .attr('style', null);
                 $tab.find('a').attr('href', '#' + tab_name + '-files');
                 $tab.find('strong').text(sha.substring(0, 7));
+                $tab.find('.badge').text($holder.data('comments-count'));
 
                 // add the tab
                 $tab.insertBefore($tab_template);

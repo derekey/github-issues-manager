@@ -160,7 +160,7 @@
                         <li class="files-tab pr-files-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed <span class="badge badge-blue">{{ current_issue.nb_changed_files }}</span></a></li>
                         <li class="pr-review-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-review">Review comments <span class="badge badge-blue">{{ current_issue.pr_comments_count }}</span></a></li>
                     {% endif %}
-                    <li class="closable files-tab commit-tab template" style="display: none"><a data-toggle="tab" href="#">Commit <strong></strong> <i class="fa fa-times" title="Close this tab"> </i></a></li>
+                    <li class="closable files-tab commit-tab template" style="display: none"><a data-toggle="tab" href="#">Commit <strong></strong> <span class="badge badge-blue">0</span> <i class="fa fa-times" title="Close this tab"> </i></a></li>
                 </ul>
                 <a href='#' title="Show one tab one the right" class="arrow scroll-right"><span class="badge badge-gray">o</span><i class="fa fa-chevron-right"> </i></a>
             </div>
