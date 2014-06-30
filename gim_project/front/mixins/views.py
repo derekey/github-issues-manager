@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.forms.forms import NON_FIELD_ERRORS
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils.functional import cached_property
 
 from core.models import Repository, Issue
 from subscriptions.models import Subscription, SUBSCRIPTION_STATES
@@ -224,6 +225,13 @@ class WithSubscribedRepositoryViewMixin(DependsOnSubscribedViewMixin):
         context['current_repository'] = self.repository
         context['current_subscription'] = self.subscription
         return context
+
+    @cached_property
+    def collaborators_ids(self):
+        """
+        Return the ids of all collaborators
+        """
+        return self.repository.collaborators.all().values_list('id', flat=True)
 
 
 class SubscribedRepositoryViewMixin(WithSubscribedRepositoryViewMixin):

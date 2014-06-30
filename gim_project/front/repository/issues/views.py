@@ -736,11 +736,9 @@ class IssueView(UserIssuesView):
         # fetch other useful data
         edit_level = self.get_edit_level(current_issue)
         if current_issue:
-            context['collaborators_ids'] = self.repository.collaborators.all()\
-                                                          .values_list('id', flat=True)
             activity = current_issue.get_activity()
             involved = self.get_involved_people(current_issue, activity,
-                                                context['collaborators_ids'])
+                                                    self.collaborators_ids)
 
             if current_issue.is_pull_request:
                 context['entry_points_dict'] = self.get_entry_points_dict(
@@ -997,6 +995,11 @@ class CommitViewMixin(object):
     @cached_property
     def commit(self):
         return get_object_or_404(self.repository.commits, sha=self.kwargs['commit_sha'])
+
+    def get_context_data(self, **kwargs):
+        context = super(CommitViewMixin, self).get_context_data(**kwargs)
+        context['current_commit'] = self.commit
+        return context
 
 
 class CommitAjaxIssueView(CommitViewMixin, SimpleAjaxIssueView):
@@ -1284,7 +1287,6 @@ class BaseIssueCommentView(WithAjaxRestrictionViewMixin, DependsOnIssueViewMixin
 
         context.update({
             'use_current_user': False,
-            'collaborators_ids': self.repository.collaborators.all().values_list('id', flat=True),
             'include_create_form': self.request.GET.get('include_form', False),
         })
 
