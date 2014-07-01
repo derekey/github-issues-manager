@@ -811,7 +811,7 @@ $repo-name-height: 20px;
 
     }
 
-    &+ .issue-activity {
+    & ~ .issue-activity {
         padding-top: 0;
         margin-top: -17px;
         > li.divider {
@@ -1121,7 +1121,7 @@ table.commits-list {
         padding: 4px;
         vertical-align: top;
         &.cell-author {
-            width: 105px;
+            width: 16ex;
             white-space: nowrap;
             font-weight: bold;
             span {
@@ -1129,11 +1129,12 @@ table.commits-list {
                 @include ellipsis();
                 vertical-align: middle;
                 display: inline-block;
-                width: 80px;
+                width: 12ex;
                 margin-left: 3px;
             }
         }
         &.cell-message {
+            border-right: none;
             .label {
                 float: left;
                 margin-right: 4px;
@@ -1162,10 +1163,17 @@ table.commits-list {
             }
         }
         &.cell-sha {
-            width: 50px;
+            width: 10ex;
             text-align: center;
             font-family: $monoFontFamily;
-            font-size: 11px;
+        }
+        &.cell-stats {
+            white-space: nowrap;
+            text-align: right;
+            border-left: none;
+            li:not(:first-child) {
+                margin-left: 2px;
+            }
         }
         .comments-count {
             color: white;

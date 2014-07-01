@@ -33,6 +33,15 @@
                     {% endwith %}
                 {% endif %}
             </td>
+            {% with len_add=commit.nb_additions|default:0|slugify|length len_del=commit.nb_deletions|default:0|slugify|length len_fil=commit.nb_files|default:0|slugify|length %}
+            <td class="cell-stats" style="width:{{ len_add|add:len_del|add:len_fil|add:3 }}em">{% spaceless %}
+                {% if commit.nb_additions or commit.nb_deletions or commit.nb_changed_files %}
+                    <li class="label label-green" title="{{ commit.nb_additions }} addition{{ commit.nb_additions|pluralize }}"><i class="fa fa-plus"></i> {{ commit.nb_additions }}</li>
+                    <li class="label label-red" title="{{ commit.nb_deletions }} deletion{{ commit.nb_deletions|pluralize }}"><i class="fa fa-minus"></i> {{ commit.nb_deletions }}</li>
+                    <li class="label label-black" title="{{ commit.nb_changed_files }} changed file{{ commit.nb_changed_files|pluralize }}"><i class="fa fa-file-o"></i> {{ commit.nb_changed_files }}</li>
+                {% endif %}
+            {% endspaceless %}</td>
+            {% endwith %}
             <td class="cell-sha"><a class="commit-link" href="{{ commit.github_url }}" target='_blank' title="View commit{% if commit.comments_count %} with comments{% endif %}">{{ commit.sha|short_sha }}</a></td>
         </tr>
         {% endwith %}
