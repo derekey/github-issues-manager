@@ -57,7 +57,7 @@ class GithubObjectManager(BaseManager):
         To use instead of "all" when needed
         """
         return self.get_query_set().exclude(
-                        github_status__in=self.model.GITHUB_STATUS_NOT_READY)
+                        github_status__in=self.model.GITHUB_STATUS_CHOICES.NOT_READY)
 
     def exclude_deleting(self):
         """
@@ -323,12 +323,32 @@ class GithubObjectManager(BaseManager):
         if not obj:
             return None
 
-        if already_saved:
-            return obj
-
         # finally save lists now that we have an object
         for field, values in fields['many'].iteritems():
-            obj.update_related_field(field, [o.id for o in values])
+            if isinstance(values, dict):
+                # we have infos for how to create/update fields
+
+                # start by updating defaults with the created/updated object
+                defaults = values.get('defaults', {})
+                related_name = values.get('related_name')
+                if defaults and related_name:
+                    if related_name in defaults.get('fk', {}):
+                        defaults['fk'][related_name] = obj
+                    if related_name in defaults.get('related', {}).get('*', {}).get('fk', {}):
+                        # TODO: handle others than '*', but not used for now
+                        defaults['related']['*']['fk'][related_name] = obj
+
+                # then update/create related objects
+                values = values['model'].objects.create_or_update_from_list(
+                    data=values['data'],
+                    defaults=defaults,
+                    saved_objects=saved_objects
+                )
+            if not already_saved:
+                obj.update_related_field(field, [o.id for o in values])
+
+        if already_saved:
+            return obj
 
         # save object in the cache
         saved_objects.set_object(self.model, self.get_filters_from_identifiers(fields), obj)
@@ -401,10 +421,20 @@ class GithubObjectManager(BaseManager):
                             defaults_related.update(defaults['related']['*'])
 
                     if is_m2m or not direct:  # not sure: a list for a "not direct ?" (a through ?)
-                        fields['many'][field_name] = model.objects\
-                            .create_or_update_from_list(data=value,
-                                                        defaults=defaults_related,
-                                                        saved_objects=saved_objects)
+                        # fields['many'][field_name] = model.objects\
+                        #     .create_or_update_from_list(data=value,
+                        #                                 defaults=defaults_related,
+                        #                                 saved_objects=saved_objects)
+
+                        # pass info to create objects later instead of creating
+                        # them now as the model may need the current object to
+                        # be fully created (a CommitFile need the Commit)
+                        fields['many'][field_name] = {
+                            'model': model,
+                            'related_name': field.field.name if hasattr(field, 'field') else None,
+                            'data': value,
+                            'defaults': defaults_related,
+                        }
                     else:
                         fields['fk'][field_name] = model.objects\
                             .create_or_update_from_dict(data=value,
@@ -860,8 +890,7 @@ class CommentEntryPointManagerMixin(GithubObjectManager):
     """
 
     def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None,
-                            fetched_at_field='fetched_at', saved_objects=None,
-                                                            force_update=False):
+            fetched_at_field='fetched_at', saved_objects=None, force_update=False):
         from .models import GithubUser
 
         try:
@@ -911,6 +940,8 @@ class CommitManager(WithRepositoryManager):
     This manager is for the Commit model, with an enhanced
     get_object_fields_from_dict method, to get the issue and the repository,
     and to reformat data in a flat way to match the model.
+    Provides also an enhanced create_or_update_from_dict that will trigger a
+    FetchCommitBySha job if files where not provided
     """
 
     def get_object_fields_from_dict(self, data, defaults=None, saved_objects=None):
@@ -935,8 +966,31 @@ class CommitManager(WithRepositoryManager):
             if 'tree' in c:
                 data['tree'] = c['tree']['sha']
 
+        if 'stats' in data:
+            for field in ('additions', 'deletions'):
+                if field in data['stats']:
+                    data[field] = data['stats'][field]
+
         return super(CommitManager, self).get_object_fields_from_dict(
                                                 data, defaults, saved_objects)
+
+    def create_or_update_from_dict(self, data, modes=MODE_ALL, defaults=None,
+        fetched_at_field='fetched_at', saved_objects=None, force_update=False):
+        """
+        In addition to the default create_or_update_from_dict, check if files
+        where fetched and if not, launch a FetchCommitBySha to fetch them
+        """
+        obj = super(CommitManager, self).create_or_update_from_dict(data, modes,
+                        defaults, fetched_at_field, saved_objects, force_update)
+
+        if obj and not obj.files_fetched_at:
+            from .tasks import FetchCommitBySha
+            FetchCommitBySha.add_job(
+                '%s#%s' % (obj.repository_id, obj.sha),
+                force_fetch='1',
+            )
+
+        return obj
 
 
 class WithCommitManager(WithRepositoryManager):
@@ -962,7 +1016,7 @@ class WithCommitManager(WithRepositoryManager):
 
         repository = fields['fk'].get('repository')
 
-        # add the issue if needed
+        # add the commit if needed
         if not fields['fk'].get('commit'):
             if sha:
                 try:

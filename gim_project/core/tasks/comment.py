@@ -1,6 +1,7 @@
 __all__ = [
     'IssueCommentEditJob',
     'PullRequestCommentEditJob',
+    'CommitCommentEditJob',
     'SearchReferenceCommitForComment',
     'SearchReferenceCommitForPRComment',
     'SearchReferenceCommitForCommitComment',
@@ -35,6 +36,9 @@ class CommentEditJob(IssueCommentJob):
     mode = fields.InstanceHashField(indexable=True)
     created_pk = fields.InstanceHashField(indexable=True)
 
+    def obj_message_part(self, obj):
+        return '%s <strong>#%s</strong>' % (obj.issue.type, obj.issue.number)
+
     def run(self, queue):
         """
         Get the comment and create/update/delete it
@@ -64,14 +68,14 @@ class CommentEditJob(IssueCommentJob):
             message = None
 
             if e.code == 422:
-                message = u'Github refused to %s your comment on the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                    mode, comment.issue.type, comment.issue.number, comment.repository.full_name)
+                message = u'Github refused to %s your comment on the %s on <strong>%s</strong>' % (
+                    mode, self.obj_message_part(comment), comment.repository.full_name)
 
             elif e.code in (401, 403):
                 tries = self.tries.hget()
                 if tries and int(tries) >= 5:
-                    message = u'You seem to not have the right to %s a comment on the %s <strong>#%s</strong> on <strong>%s</strong>' % (
-                        mode, comment.issue.type, comment.issue.number, comment.repository.full_name)
+                    message = u'You seem to not have the right to %s a comment on the %s on <strong>%s</strong>' % (
+                        mode, self.obj_message_part(comment), comment.repository.full_name)
 
             if message:
                 messages.error(self.gh_user, message)
@@ -87,14 +91,17 @@ class CommentEditJob(IssueCommentJob):
             else:
                 raise
 
-        message = u'Your comment on the %s <strong>#%s</strong> on <strong>%s</strong> was correctly %sd' % (
-            comment.issue.type, comment.issue.number, comment.repository.full_name, mode)
+        message = u'Your comment on the %s on <strong>%s</strong> was correctly %sd' % (
+            self.obj_message_part(comment), comment.repository.full_name, mode)
         messages.success(self.gh_user, message)
 
-        from core.tasks.issue import FetchIssueByNumber
-        FetchIssueByNumber.add_job('%s#%s' % (comment.repository_id, comment.issue.number), gh=gh)
+        self.after_run(gh, comment)
 
         return None
+
+    def after_run(self, gh, obj):
+        from core.tasks.issue import FetchIssueByNumber
+        FetchIssueByNumber.add_job('%s#%s' % (obj.repository_id, obj.issue.number), gh=gh)
 
     def success_message_addon(self, queue, result):
         """
@@ -111,6 +118,18 @@ class IssueCommentEditJob(CommentEditJob):
 class PullRequestCommentEditJob(CommentEditJob):
     queue_name = 'edit-pr-comment'
     model = PullRequestComment
+
+
+class CommitCommentEditJob(CommentEditJob):
+    queue_name = 'edit-commit-comment'
+    model = CommitComment
+
+    def obj_message_part(self, obj):
+        return 'commit <strong>#%s</strong>' % (obj.commit.sha[:7])
+
+    def after_run(self, gh, obj):
+        from core.tasks.commit import FetchCommitBySha
+        FetchCommitBySha.add_job('%s#%s' % (obj.repository_id, obj.commit.sha), fetch_comments=1, gh=gh)
 
 
 class SearchReferenceCommitForComment(IssueCommentJob):

@@ -10,10 +10,11 @@ from django.conf import settings
 from django.template.defaultfilters import date as convert_date
 from django.utils.html import escape
 
-from core.models import Issue, IssueComment, PullRequestComment, GITHUB_STATUS_CHOICES
+from core.models import (Issue, GITHUB_STATUS_CHOICES,
+                         IssueComment, PullRequestComment, CommitComment)
 
 from front.mixins.forms import (LinkedToUserFormMixin, LinkedToIssueFormMixin,
-                                LinkedToRepositoryFormMixin)
+                                LinkedToCommitFormMixin, LinkedToRepositoryFormMixin)
 
 
 def validate_filled_string(value, name='comment'):
@@ -209,18 +210,21 @@ class IssueBodyForm(IssueBodyFormPart, IssueFormMixin):
 
 class IssueMilestoneForm(IssueMilestoneFormPart, IssueFormMixin):
     change_updated_at = 'fuzzy'
+
     class Meta(IssueFormMixin.Meta):
         fields = ['milestone']
 
 
 class IssueAssigneeForm(IssueAssigneeFormPart, IssueFormMixin):
     change_updated_at = 'fuzzy'
+
     class Meta(IssueFormMixin.Meta):
         fields = ['assignee']
 
 
 class IssueLabelsForm(IssueLabelsFormPart, IssueFormMixin):
     change_updated_at = 'fuzzy'
+
     class Meta(IssueFormMixin.Meta):
         fields = ['labels']
 
@@ -299,7 +303,27 @@ class PullRequestCommentEditForm(BaseCommentEditForm):
         model = PullRequestComment
 
 
+class CommitCommentCreateForm(LinkedToCommitFormMixin, BaseCommentEditForm):
+    class Meta(BaseCommentEditForm.Meta):
+        model = CommitComment
+
+    def __init__(self, *args, **kwargs):
+        self.entry_point = kwargs.pop('entry_point')
+        super(CommitCommentCreateForm, self).__init__(*args, **kwargs)
+        if not self.instance.entry_point_id:
+            self.instance.entry_point = self.entry_point
+
+
+class CommitCommentEditForm(LinkedToCommitFormMixin, BaseCommentEditForm):
+    user_attribute = None
+
+    class Meta(BaseCommentEditForm.Meta):
+        model = CommitComment
+
+
 class BaseCommentDeleteForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):
+    user_attribute = None
+
     class Meta:
         fields = []
 
@@ -309,14 +333,15 @@ class BaseCommentDeleteForm(LinkedToUserFormMixin, LinkedToIssueFormMixin):
 
 
 class IssueCommentDeleteForm(BaseCommentDeleteForm):
-    user_attribute = None
-
     class Meta(BaseCommentDeleteForm.Meta):
         model = IssueComment
 
 
 class PullRequestCommentDeleteForm(BaseCommentDeleteForm):
-    user_attribute = None
-
     class Meta(BaseCommentDeleteForm.Meta):
         model = PullRequestComment
+
+
+class CommitCommentDeleteForm(LinkedToCommitFormMixin, BaseCommentDeleteForm):
+    class Meta(BaseCommentDeleteForm.Meta):
+        model = CommitComment

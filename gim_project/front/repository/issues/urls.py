@@ -1,14 +1,14 @@
 from django.conf.urls import patterns, url
 
 from .views import (IssuesView, IssueView, UserIssuesView, CreatedIssueView,
-                    SimpleAjaxIssueView, FilesAjaxIssueView,
+                    SimpleAjaxIssueView, FilesAjaxIssueView, CommitAjaxIssueView,
                     IssueEditState, IssueEditTitle, IssueEditBody,
                     IssueEditMilestone, IssueEditAssignee, IssueEditLabels,
                     IssueCreateView, AskFetchIssueView,
-                    IssueCommentCreateView, PullRequestCommentCreateView,
-                    IssueCommentView, PullRequestCommentView,
-                    IssueCommentEditView, PullRequestCommentEditView,
-                    IssueCommentDeleteView, PullRequestCommentDeleteView,
+                    IssueCommentCreateView, PullRequestCommentCreateView, CommitCommentCreateView,
+                    IssueCommentView, PullRequestCommentView, CommitCommentView,
+                    IssueCommentEditView, PullRequestCommentEditView, CommitCommentEditView,
+                    IssueCommentDeleteView, PullRequestCommentDeleteView, CommitCommentDeleteView,
                     IssuesFilterCreators, IssuesFilterAssigned, IssuesFilterClosers)
 
 urlpatterns = patterns('',
@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     url(r'^(?P<issue_number>\d+)/files/$', FilesAjaxIssueView.as_view(), name='issue.files'),
     url(r'^(?P<issue_number>\d+)/commits/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/commits/include_issue_commits.html'), name='issue.commits'),
     url(r'^(?P<issue_number>\d+)/review/$', SimpleAjaxIssueView.as_view(ajax_template_name='front/repository/issues/comments/include_pr_review.html'), name='issue.review'),
+    url(r'^(?P<issue_number>\d+)/commit/(?P<commit_sha>[a-f0-9]{40})/$', CommitAjaxIssueView.as_view(), name='issue.commit'),
 
     # edit views
     url(r'^(?P<issue_number>\d+)/edit/state/$', IssueEditState.as_view(), name=IssueEditState.url_name),
@@ -48,4 +49,9 @@ urlpatterns = patterns('',
     url(r'^(?P<issue_number>\d+)/code-comment/(?P<comment_pk>\d+)/$', PullRequestCommentView.as_view(), name=PullRequestCommentView.url_name),
     url(r'^(?P<issue_number>\d+)/code-comment/(?P<comment_pk>\d+)/edit/$', PullRequestCommentEditView.as_view(), name=PullRequestCommentEditView.url_name),
     url(r'^(?P<issue_number>\d+)/code-comment/(?P<comment_pk>\d+)/delete/$', PullRequestCommentDeleteView.as_view(), name=PullRequestCommentDeleteView.url_name),
+
+    url(r'^(?P<issue_number>\d+)/commit/(?P<commit_sha>[a-f0-9]{40})/comment/add/$', CommitCommentCreateView.as_view(), name=CommitCommentCreateView.url_name),
+    url(r'^(?P<issue_number>\d+)/commit/(?P<commit_sha>[a-f0-9]{40})/comment/(?P<comment_pk>\d+)/$', CommitCommentView.as_view(), name=CommitCommentView.url_name),
+    url(r'^(?P<issue_number>\d+)/commit/(?P<commit_sha>[a-f0-9]{40})/comment/(?P<comment_pk>\d+)/edit/$', CommitCommentEditView.as_view(), name=CommitCommentEditView.url_name),
+    url(r'^(?P<issue_number>\d+)/commit/(?P<commit_sha>[a-f0-9]{40})/comment/(?P<comment_pk>\d+)/delete/$', CommitCommentDeleteView.as_view(), name=CommitCommentDeleteView.url_name),
 )

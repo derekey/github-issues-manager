@@ -45,11 +45,14 @@
         <strong>{{ comment.user.username }}</strong>
         {% if comment.user_id == comment.repository.owner_id %}
             <span class="label label-success" title="{{ comment.user.username }} is the project's owner">owner</span>
-        {% elif comment.user_id in collaborators_ids %}
+        {% elif comment.user_id in view.collaborators_ids %}
             <span class="label label-info" title="{{ comment.user.username }} is a collaborator on this project">collaborator</span>
         {% endif %}
         {% if comment.user_id == comment.issue.user_id %}
             <span class="label" title="{{ comment.user.username }} submitted this {{ comment.issue.type }}">submitter</span>
+        {% endif %}
+        {% if current_commit and comment.user_id == current_commit.author_id %}
+            <span class="label" title="{{ comment.user.username }} authored this commit">author</span>
         {% endif %}
     </span>
 {% endblock comment_info %}

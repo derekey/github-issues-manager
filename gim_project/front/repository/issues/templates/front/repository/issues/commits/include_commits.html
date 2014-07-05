@@ -2,14 +2,15 @@
 {% static 'front/img/default-avatar.png' as default_avatar %}
 <table class="table table-normal commits-list">
     {% for commit in commits %}
-        <tr>
+        {% with replace_sha='0000000000000000000000000000000000000000:'|add:commit.sha %}
+        <tr class="commit-link-holder" data-repository="{{ commit.repository }}" data-sha="{{ commit.sha }}" data-url="{{ current_issue.ajax_commit_base_url|replace:replace_sha }}" data-comment-url="{{ current_issue.commit_comment_create_url|replace:replace_sha }}" data-comments-count="{{ commit.comments_count }}">
             <td class="cell-author">
                 <img class="avatar-tiny img-circle" src="{{ commit.author.avatar_url|default:default_avatar }}" alt="{{ commit.author|default:commit.author_name }}">
                 <span title="{{ commit.author|default:commit.author_name }}">{{ commit.author|default:commit.author_name }}</span>
             </td>
             <td class="cell-message">
                 {% if commit.comments_count %}
-                    <a class='label label-cyan comments-count' href="{{ commit.github_url }}" target='_blank' title="View commit with comments on Github">
+                    <a class='label label-cyan comments-count commit-link' href="{{ commit.github_url }}" target='_blank' title="View commit with comments">
                         <i class="fa fa-comments-o"></i> {{ commit.comments_count }}
                     </a>
                 {% endif %}
@@ -32,7 +33,17 @@
                     {% endwith %}
                 {% endif %}
             </td>
-            <td class="cell-sha"><a href="{{ commit.github_url }}" target='_blank' title="View commit{% if commit.comments_count %} with comments{% endif %} on Github">{{ commit.sha|short_sha }}</a></td>
+            {% with len_add=commit.nb_additions|default:0|slugify|length len_del=commit.nb_deletions|default:0|slugify|length len_fil=commit.nb_files|default:0|slugify|length %}
+            <td class="cell-stats" style="width:{{ len_add|add:len_del|add:len_fil|add:3 }}em">{% spaceless %}
+                {% if commit.nb_additions or commit.nb_deletions or commit.nb_changed_files %}
+                    <li class="label label-green" title="{{ commit.nb_additions }} addition{{ commit.nb_additions|pluralize }}"><i class="fa fa-plus"></i> {{ commit.nb_additions }}</li>
+                    <li class="label label-red" title="{{ commit.nb_deletions }} deletion{{ commit.nb_deletions|pluralize }}"><i class="fa fa-minus"></i> {{ commit.nb_deletions }}</li>
+                    <li class="label label-black" title="{{ commit.nb_changed_files }} changed file{{ commit.nb_changed_files|pluralize }}"><i class="fa fa-file-o"></i> {{ commit.nb_changed_files }}</li>
+                {% endif %}
+            {% endspaceless %}</td>
+            {% endwith %}
+            <td class="cell-sha"><a class="commit-link" href="{{ commit.github_url }}" target='_blank' title="View commit{% if commit.comments_count %} with comments{% endif %}">{{ commit.sha|short_sha }}</a></td>
         </tr>
+        {% endwith %}
     {% endfor %}
 </table>

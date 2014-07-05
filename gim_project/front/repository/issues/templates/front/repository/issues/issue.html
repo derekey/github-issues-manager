@@ -92,17 +92,17 @@
                 {% if current_issue.total_comments_count or current_issue_involved|length > 1  %}
                     <div class="issue-footer-infos">
                         <div>
-                            {% if current_issue.total_comments_count %}
                                 <a class="issue-footer-info-part issue-comments-count" title="{{ current_issue.total_comments_count }} comment{{ current_issue.total_comments_count|pluralize }}" href="#issue-activity-{{ current_issue.number }}">
                                     <i class="fa fa-comments-o"> </i> {{ current_issue.total_comments_count }}
                                 </a>
-                            {% endif %}
                             {% if current_issue_involved|length > 1 %}
-                                <ul class="unstyled issue-footer-info-part issue-involved">
-                                    {% for involved_user in current_issue_involved %}
-                                        <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
-                                    {% endfor %}
-                                </ul>
+                                <div class="issue-footer-info-part">
+                                    <ul class="unstyled issue-involved">
+                                        {% for involved_user in current_issue_involved %}
+                                            <li><img class="avatar-tiny img-circle" src="{{ involved_user.user.avatar_url|default:default_avatar }}" title="{{ involved_user.user.username }}{% if involved_user.types|length %} ({{ involved_user.types|join:", "}}){% endif %}{% if involved_user.comments %}, {{ involved_user.comments }} comment{{ involved_user.comments|pluralize }}{% endif %}{% if involved_user.commits %}, {{ involved_user.commits }} commit{{ involved_user.commits|pluralize }}{% endif %}"></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                             {% endif %}
                         </div>
                     </div>
@@ -151,102 +151,113 @@
                 <p class="alert alert-warning">This issue is currently being pushed to github...</p>
             </div>
         {% endif %}
-        {% if current_issue.is_pull_request %}
-            <ul class="nav nav-tabs pr-tabs">
-                <li class="pr-discussion-tab active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion <span class="badge badge-blue" title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}">{{ current_issue.comments_count }}</span> &amp; updates</a></li>
-                <li class="pr-commits-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-commits">Commits <span class="badge badge-blue">{{ current_issue.nb_commits }}</span></a></li>
-                <li class="pr-files-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed <span class="badge badge-blue">{{ current_issue.nb_changed_files }}</span></a></li>
-                <li class="pr-review-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-review">Review comments <span class="badge badge-blue">{{ current_issue.pr_comments_count }}</span></a></li>
-            </ul>
+            <div class="issue-tabs no-scroll-left no-scroll-right">
+                <a href='#' title="Show one tab one the left" class="arrow scroll-left"><span class="badge badge-gray">0</span><i class="fa fa-chevron-left"> </i></a>
+                <ul class="nav nav-tabs">
+                    <li class="pr-discussion-tab active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion <span class="badge badge-blue" title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}">{{ current_issue.comments_count }}</span> &amp; updates</a></li>
+                    {% if current_issue.is_pull_request %}
+                        <li class="pr-commits-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-commits">Commits <span class="badge badge-blue">{{ current_issue.nb_commits }}</span></a></li>
+                        <li class="files-tab pr-files-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed <span class="badge badge-blue">{{ current_issue.nb_changed_files }}</span></a></li>
+                        <li class="pr-review-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-review">Review comments <span class="badge badge-blue">{{ current_issue.pr_comments_count }}</span></a></li>
+                    {% endif %}
+                    <li class="closable files-tab commit-tab template" style="display: none"><a data-toggle="tab" href="#">Commit <strong></strong> <span class="badge badge-blue">0</span> <i class="fa fa-times" title="Close this tab"> </i></a></li>
+                </ul>
+                <a href='#' title="Show one tab one the right" class="arrow scroll-right"><span class="badge badge-gray">o</span><i class="fa fa-chevron-right"> </i></a>
+            </div>
             <div class="tab-content">
                 <div class="tab-pane active issue-discussion" data-tab="issue-discussion" id="issue-{{ current_issue.number }}-discussion">
-        {% endif %}
-            <div class="content issue-body{% if not current_issue.body %} empty{% endif %} edit-place" data-field="body">
-                {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this {{ current_issue.type }} !{% endif %}
-                {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'body' }}" class="issue-edit-btn issue-edit-btn-body btn-loading" data-field="body" title="Edit the body"><i class="fa fa-edit"> </i><i class='fa fa-spinner fa-spin'> </i></a>{% endif %}
-            </div>
-            {% if current_issue.number %}
-            <aside>
-                <ul class="unstyled chat-box timeline issue-activity" id="issue-activity-{{ current_issue.number }}">
-                    {% for event in current_issue_activity %}
-                        {% if event.event %}{# IssueEvent #}
-                            {% if event.event == 'closed' %}
-                                {% include "front/repository/issues/activity/include_closed_comment.html" with comment=event %}
-                            {% elif event.event == 'merged' %}
-                                {% include "front/repository/issues/activity/include_merged_comment.html" with comment=event %}
-                            {% elif event.event == 'reopened' %}
-                                {% include "front/repository/issues/activity/include_reopened_comment.html" with comment=event %}
-                            {% comment %}
-                            {% elif event.event == 'assigned' %}
-                                {% include "front/repository/issues/activity/include_assigned_comment.html" with comment=event %}
-                            {% endcomment %}
-                            {% elif event.event == 'head_ref_deleted' %}
-                                {% include "front/repository/issues/activity/include_head_ref_deleted_comment.html" with comment=event %}
-                            {% elif event.event == 'head_ref_restored' %}
-                                {% include "front/repository/issues/activity/include_head_ref_restored_comment.html" with comment=event %}
-                            {% elif event.event == 'referenced' and event.commit_sha %}
-                                {% include "front/repository/issues/activity/include_referenced_in_commit_comment.html" with comment=event %}
-                            {% elif event.event == 'referenced_by_issue' %}
-                                {% include "front/repository/issues/activity/include_referenced_by_issue_comment.html" with comment=event %}
-                            {% elif event.event == 'referenced_by_issuecomment' %}
-                                {% include "front/repository/issues/activity/include_referenced_by_issuecomment_comment.html" with comment=event %}
-                            {% elif event.event == 'referenced_by_pullrequestcomment' %}
-                                {% include "front/repository/issues/activity/include_referenced_by_pullrequestcomment_comment.html" with comment=event %}
-                            {% elif event.event == 'referenced_by_milestone' %}
-                                {% include "front/repository/issues/activity/include_referenced_by_milestone_comment.html" with comment=event %}
-                            {% endif %}
-                        {% elif event.is_commits_group %}{# GroupedCommits #}
-                            {% include "front/repository/issues/commits/include_commits_groups.html" with groups=event|tolist id_prefix="pr-disc-" with_ago=True repository_source=current_issue.repository collapsed=True with_icon=True %}
-                        {% elif event.is_pr_comments_group %}{# GroupedPullRequestComments #}
-                            {% include "front/repository/issues/activity/include_pr_comments_group.html" with group=event with_ago=True %}
-                        {% elif event.is_commit_comments_group %}{# GroupedCommitComments #}
-                            {% include "front/repository/issues/activity/include_commit_comments_group.html" with group=event with_ago=True %}
-                        {% elif event.get_parts %}{# Event #}
-                            {% include "front/repository/issues/activity/include_change_event.html" %}
-                        {% else %}{# IssueComment #}
-                            {% include "front/repository/issues/comments/include_issue_comment.html" with comment=event include_create_form=False %}
+                    <div class="content issue-body{% if not current_issue.body %} empty{% endif %} edit-place" data-field="body">
+                        {% if current_issue.body %}{{ current_issue.html_content|safe }}{% else %}No description for this {{ current_issue.type }} !{% endif %}
+                        {% if current_issue_edit_level %}<a href="{{ current_issue|edit_field_url:'body' }}" class="issue-edit-btn issue-edit-btn-body btn-loading" data-field="body" title="Edit the body"><i class="fa fa-edit"> </i><i class='fa fa-spinner fa-spin'> </i></a>{% endif %}
+                    </div>
+                    {% if current_issue.number %}
+                    <aside>
+                        <ul class="unstyled chat-box timeline issue-activity" id="issue-activity-{{ current_issue.number }}">
+                            {% for event in current_issue_activity %}
+                                {% if event.event %}{# IssueEvent #}
+                                    {% if event.event == 'closed' %}
+                                        {% include "front/repository/issues/activity/include_closed_comment.html" with comment=event %}
+                                    {% elif event.event == 'merged' %}
+                                        {% include "front/repository/issues/activity/include_merged_comment.html" with comment=event %}
+                                    {% elif event.event == 'reopened' %}
+                                        {% include "front/repository/issues/activity/include_reopened_comment.html" with comment=event %}
+                                    {% comment %}
+                                    {% elif event.event == 'assigned' %}
+                                        {% include "front/repository/issues/activity/include_assigned_comment.html" with comment=event %}
+                                    {% endcomment %}
+                                    {% elif event.event == 'head_ref_deleted' %}
+                                        {% include "front/repository/issues/activity/include_head_ref_deleted_comment.html" with comment=event %}
+                                    {% elif event.event == 'head_ref_restored' %}
+                                        {% include "front/repository/issues/activity/include_head_ref_restored_comment.html" with comment=event %}
+                                    {% elif event.event == 'referenced' and event.commit_sha %}
+                                        {% include "front/repository/issues/activity/include_referenced_in_commit_comment.html" with comment=event %}
+                                    {% elif event.event == 'referenced_by_issue' %}
+                                        {% include "front/repository/issues/activity/include_referenced_by_issue_comment.html" with comment=event %}
+                                    {% elif event.event == 'referenced_by_issuecomment' %}
+                                        {% include "front/repository/issues/activity/include_referenced_by_issuecomment_comment.html" with comment=event %}
+                                    {% elif event.event == 'referenced_by_pullrequestcomment' %}
+                                        {% include "front/repository/issues/activity/include_referenced_by_pullrequestcomment_comment.html" with comment=event %}
+                                    {% elif event.event == 'referenced_by_milestone' %}
+                                        {% include "front/repository/issues/activity/include_referenced_by_milestone_comment.html" with comment=event %}
+                                    {% endif %}
+                                {% elif event.is_commits_group %}{# GroupedCommits #}
+                                    {% include "front/repository/issues/commits/include_commits_groups.html" with groups=event|tolist id_prefix="pr-disc-" with_ago=True repository_source=current_issue.repository collapsed=True with_icon=True %}
+                                {% elif event.is_pr_comments_group %}{# GroupedPullRequestComments #}
+                                    {% include "front/repository/issues/activity/include_pr_comments_group.html" with group=event with_ago=True %}
+                                {% elif event.is_commit_comments_group %}{# GroupedCommitComments #}
+                                    {% include "front/repository/issues/activity/include_commit_comments_group.html" with group=event with_ago=True %}
+                                {% elif event.get_parts %}{# Event #}
+                                    {% include "front/repository/issues/activity/include_change_event.html" %}
+                                {% else %}{# IssueComment #}
+                                    {% include "front/repository/issues/comments/include_issue_comment.html" with comment=event include_create_form=False %}
+                                {% endif %}
+                            {% endfor %}
+                            {% include "front/repository/issues/comments/include_issue_comment_create.html" with use_current_user=True %}
+                        </ul>
+                    </aside>
+                    {% endif %}
+                </div>
+                {% if current_issue.is_pull_request %}
+                    <div class="tab-pane issue-commits" data-tab="issue-commits" id="issue-{{ current_issue.number }}-commits" data-url="{{ current_issue.ajax_commits_url }}">
+                        {% if current_issue.nb_commits > 10 %}
+                            <div class="content empty">
+                                Loading commits...
+                            </div>
+                            <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
+                        {% else %}
+                            {% include "front/repository/issues/commits/include_issue_commits.html" %}
                         {% endif %}
-                    {% endfor %}
-                    {% include "front/repository/issues/comments/include_issue_comment_create.html" with use_current_user=True %}
-                </ul>
-            </aside>
-            {% endif %}
-        {% if current_issue.is_pull_request %}
-            </div>
-            <div class="tab-pane issue-commits" data-tab="issue-commits" id="issue-{{ current_issue.number }}-commits" data-url="{{ current_issue.ajax_commits_url }}">
-                {% if current_issue.nb_commits > 10 %}
-                    <div class="content empty">
-                        Loading commits...
                     </div>
-                    <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
-                {% else %}
-                    {% include "front/repository/issues/commits/include_issue_commits.html" %}
-                {% endif %}
-            </div>
-            <div class="tab-pane issue-files" data-tab="issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
-                {% if current_issue.nb_additions|add:current_issue.nb_deletions > 300 or current_issue.nb_changed_files > 10 %}
-                    <div class="content empty">
-                        Loading {% if current_issue.nb_additions|add:current_issue.nb_deletions > 500 or current_issue.nb_changed_files > 20 %} big{% endif %}diff...
+                    <div class="tab-pane issue-files code-files" data-tab="issue-files" id="issue-{{ current_issue.number }}-files" data-url="{{ current_issue.ajax_files_url }}">
+                        {% if current_issue.nb_additions|add:current_issue.nb_deletions > 300 or current_issue.nb_changed_files > 10 %}
+                            <div class="content empty">
+                                Loading {% if current_issue.nb_additions|add:current_issue.nb_deletions > 500 or current_issue.nb_changed_files > 20 %} big{% endif %}diff...
+                            </div>
+                            <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
+                        {% else %}
+                            {% include "front/repository/issues/code/include_issue_files.html" %}
+                        {% endif %}
                     </div>
-                    <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
-                {% else %}
-                    {% include "front/repository/issues/code/include_issue_files.html" %}
-                {% endif %}
-            </div>
-            <div class="tab-pane issue-review" data-tab="issue-review" id="issue-{{ current_issue.number }}-review" data-url="{{ current_issue.ajax_review_url }}">
-                {% if current_issue.pr_comments_entry_points.count > 10 %}
-                    <div class="content empty">
-                        Loading review comments...
+                    <div class="tab-pane issue-review" data-tab="issue-review" id="issue-{{ current_issue.number }}-review" data-url="{{ current_issue.ajax_review_url }}">
+                        {% if current_issue.pr_comments_entry_points.count > 10 %}
+                            <div class="content empty">
+                                Loading review comments...
+                            </div>
+                            <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
+                        {% else %}
+                            {% include "front/repository/issues/comments/include_pr_review.html" %}
+                        {% endif %}
                     </div>
-                    <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
-                {% else %}
-                    {% include "front/repository/issues/comments/include_pr_review.html" %}
                 {% endif %}
-            </div>
             <div class="box-section code-diff template" style="display: none"></div>
-            <div class="box-section pr-comments collapse in template" style="display: none"><ul class="unstyled chat-box timeline"></ul></div>
+            <div class="box-section code-comments collapse in template" style="display: none"><ul class="unstyled chat-box timeline"></ul></div>
+            <div class="tab-pane commit-files code-files template" style="display: none">
+                <div class="content empty">
+                    Loading diff...
+                </div>
+                <p class="empty-area"><i class="fa fa-spinner fa-spin"> </i></p>
+            </div>
         </div>
-        {% endif %}
     </article>
 {% else %}
     <p class="empty-area">{% if current_issue_state == 'notfound' %}404 :({% else %}...{% endif %}</p>

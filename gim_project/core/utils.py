@@ -1,4 +1,5 @@
 import gc
+from functools import wraps
 
 from django.db import models
 
@@ -85,3 +86,23 @@ def queryset_iterator(queryset, chunksize=1000):
             pk = row.pk
             yield row
         gc.collect()
+
+
+def cached_method(func):
+    """
+    Based on django.util.functional.memoize. Automatically memoizes instace methods for the lifespan
+    of an object.
+    Only works with methods taking non-keword arguments. Note that the args to the function must be
+    usable as dictionary keys. Also, the first argument MUST be self. This decorator will not work
+    for functions or class methods, only object methods.
+    https://djangosnippets.org/snippets/2874/
+    """
+    @wraps(func)
+    def wrapper(*args):
+        inst = args[0]
+        inst._memoized_values = getattr(inst, '_memoized_values', {})
+        key = (func, args[1:])
+        if key not in inst._memoized_values:
+            inst._memoized_values[key] = func(*args)
+        return inst._memoized_values[key]
+    return wrapper

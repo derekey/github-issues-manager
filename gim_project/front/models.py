@@ -10,14 +10,14 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template import loader, Context
 from django.template.defaultfilters import escape
-from django.utils.functional import cached_property, memoize
+from django.utils.functional import cached_property
 
 from markdown import markdown
 
 from limpyd import model as lmodel, fields as lfields
 
 from core import models as core_models, get_main_limpyd_database
-from core.utils import contribute_to_model
+from core.utils import contribute_to_model, cached_method
 
 from events.models import EventPart
 
@@ -281,6 +281,19 @@ class _Issue(models.Model):
     def ajax_review_url(self):
         return reverse_lazy('front:repository:issue.review', kwargs=self.get_reverse_kwargs())
 
+    def ajax_commit_base_url(self):
+        kwargs = self.get_reverse_kwargs()
+        kwargs['commit_sha'] = '0' * 40
+        return reverse_lazy('front:repository:issue.commit', kwargs=kwargs)
+
+    def commit_comment_create_url(self):
+        if not hasattr(self, '_commit_comment_create_url'):
+            kwargs = self.get_reverse_kwargs()
+            kwargs['commit_sha'] = '0' * 40
+            self._commit_comment_create_url = reverse_lazy('front:repository:issue.commit_comment.create',
+                                                       kwargs=kwargs)
+        return self._commit_comment_create_url
+
     @property
     def type(self):
         return 'pull request' if self.is_pull_request else 'issue'
@@ -346,7 +359,8 @@ class _Issue(models.Model):
 
         loader.get_template(template).render(context)
 
-    def all_commits(self, include_deleted=False):
+    @cached_method
+    def all_commits(self, include_deleted):
         qs = self.related_commits.select_related('commit__author',
                                                  'commit__committer',
                                                  'commit__repository__owner'
@@ -360,8 +374,6 @@ class _Issue(models.Model):
             result.append(c.commit)
 
         return result
-    all_commits._cache = {}
-    all_commits = memoize(all_commits, all_commits._cache, 2)
 
     @property
     def all_entry_points(self):
@@ -369,8 +381,7 @@ class _Issue(models.Model):
             self._all_entry_points = list(self.pr_comments_entry_points
                                 .annotate(nb_comments=models.Count('comments'))
                                 .filter(nb_comments__gt=0)
-                                .select_related('user', 'pr_comments',
-                                                'repository__owner')
+                                .select_related('user', 'repository__owner')
                                 .prefetch_related('comments__user'))
         return self._all_entry_points
 
@@ -584,6 +595,17 @@ class _Commit(models.Model):
                 result[1] = result[1][1:]
             return result
         return [self.message[:LEN], self.message[LEN:]]
+
+    @property
+    def all_entry_points(self):
+        if not hasattr(self, '_all_entry_points'):
+            self._all_entry_points = list(self.commit_comments_entry_points
+                                .annotate(nb_comments=models.Count('comments'))
+                                .filter(nb_comments__gt=0)
+                                .select_related('user', 'repository__owner')
+                                .prefetch_related('comments__user'))
+        return self._all_entry_points
+
 
 contribute_to_model(_Commit, core_models.Commit)
 

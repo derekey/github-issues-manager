@@ -5,25 +5,25 @@ import json
 from math import ceil
 from time import sleep
 
-from django.core.urlresolvers import reverse_lazy
-from django.utils.datastructures import SortedDict
-from django.db import DatabaseError
-from django.views.generic import (UpdateView, CreateView, TemplateView,
-                                  DetailView, DeleteView)
 from django.contrib import messages
-from django.shortcuts import render
+from django.core.urlresolvers import reverse_lazy
+from django.db import DatabaseError
 from django.http import Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.shortcuts import get_object_or_404, render
+from django.utils.datastructures import SortedDict
+from django.utils.functional import cached_property
+from django.views.generic import UpdateView, CreateView, TemplateView, DetailView
 
 from limpyd_jobs import STATUSES
 
 from core.models import (Issue, GithubUser, LabelType, Milestone,
                          PullRequestCommentEntryPoint, IssueComment,
-                         PullRequestComment)
+                         PullRequestComment, CommitComment)
 from core.tasks.issue import (IssueEditStateJob, IssueEditTitleJob,
                               IssueEditBodyJob, IssueEditMilestoneJob,
                               IssueEditAssigneeJob, IssueEditLabelsJob,
                               IssueCreateJob, FetchIssueByNumber)
-from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob
+from core.tasks.comment import IssueCommentEditJob, PullRequestCommentEditJob, CommitCommentEditJob
 
 from subscriptions.models import SUBSCRIPTION_STATES
 
@@ -31,6 +31,7 @@ from front.mixins.views import (WithQueryStringViewMixin,
                                 LinkedToRepositoryFormViewMixin,
                                 LinkedToIssueFormViewMixin,
                                 LinkedToUserFormViewMixin,
+                                LinkedToCommitFormViewMixin,
                                 DeferrableViewPart,
                                 WithSubscribedRepositoryViewMixin,
                                 WithAjaxRestrictionViewMixin,
@@ -43,9 +44,9 @@ from front.utils import make_querystring
 from .forms import (IssueStateForm, IssueTitleForm, IssueBodyForm,
                     IssueMilestoneForm, IssueAssigneeForm, IssueLabelsForm,
                     IssueCreateForm, IssueCreateFormFull,
-                    IssueCommentCreateForm, PullRequestCommentCreateForm,
-                    IssueCommentEditForm, PullRequestCommentEditForm,
-                    IssueCommentDeleteForm, PullRequestCommentDeleteForm)
+                    IssueCommentCreateForm, PullRequestCommentCreateForm, CommitCommentCreateForm,
+                    IssueCommentEditForm, PullRequestCommentEditForm, CommitCommentEditForm,
+                    IssueCommentDeleteForm, PullRequestCommentDeleteForm, CommitCommentDeleteForm)
 
 LIMIT_ISSUES = 300
 LIMIT_USERS = 30
@@ -735,12 +736,13 @@ class IssueView(UserIssuesView):
         # fetch other useful data
         edit_level = self.get_edit_level(current_issue)
         if current_issue:
-            context['collaborators_ids'] = self.repository.collaborators.all().values_list('id', flat=True)
             activity = current_issue.get_activity()
-            involved = self.get_involved_people(current_issue, activity, context['collaborators_ids'])
+            involved = self.get_involved_people(current_issue, activity,
+                                                    self.collaborators_ids)
 
             if current_issue.is_pull_request:
-                context['entry_points_dict'] = self.get_entry_points_dict(current_issue)
+                context['entry_points_dict'] = self.get_entry_points_dict(
+                                                current_issue.all_entry_points)
 
         else:
             activity = []
@@ -772,7 +774,7 @@ class IssueView(UserIssuesView):
 
         return edit_level
 
-    def get_entry_points_dict(self, issue):
+    def get_entry_points_dict(self, entry_points):
         """
         Return a dict that will be used in the issue files template to display
         pull request comments (entry points).
@@ -781,7 +783,7 @@ class IssueView(UserIssuesView):
         PullRequestCommentEntryPoint object as value
         """
         entry_points_dict = {}
-        for entry_point in issue.all_entry_points:
+        for entry_point in entry_points:
             if not entry_point.position:
                 continue
             entry_points_dict.setdefault(entry_point.path, {})[entry_point.position] = entry_point
@@ -922,19 +924,13 @@ class CreatedIssueView(IssueView):
         return self._issue
 
 
-class SimpleAjaxIssueView(IssueView):
+class SimpleAjaxIssueView(WithAjaxRestrictionViewMixin, IssueView):
     """
     A base class to fetch some parts of an issue via ajax.
     If not directly overriden, the template must be specified when using this
     view in urls.py
     """
-    def dispatch(self, *args, **kwargs):
-        """
-        Accept only ajax
-        """
-        if not self.request.is_ajax():
-            return self.http_method_not_allowed(self.request)
-        return super(SimpleAjaxIssueView, self).dispatch(*args, **kwargs)
+    ajax_only = True
 
     def get_context_data(self, **kwargs):
         """
@@ -963,7 +959,81 @@ class FilesAjaxIssueView(SimpleAjaxIssueView):
 
     def get_context_data(self, **kwargs):
         context = super(FilesAjaxIssueView, self).get_context_data(**kwargs)
-        context['entry_points_dict'] = self.get_entry_points_dict(context['current_issue'])
+        context['entry_points_dict'] = self.get_entry_points_dict(
+                                    context['current_issue'].all_entry_points)
+        return context
+
+
+class CommitViewMixin(object):
+    """
+    A simple mixin with a `commit` property to get the commit matching the sha
+    in the url
+    """
+    issue_related_name = 'commit__issues'
+    repository_related_name = 'commit__issues__repository'
+
+    def get_queryset(self):
+        """
+        Return a queryset based on the current repository and allowed rights.
+        Override the one from DependsOnIssueViewMixin to only depends on the
+        repository, not the issue, to allow managing comment on commits not in
+        the current issue.
+        """
+        return self.model._default_manager.filter(repository=self.repository)
+
+    def set_comment_urls(self, comment, issue, kwargs=None):
+        if not kwargs:
+            kwargs = issue.get_reverse_kwargs()
+            kwargs['commit_sha'] = self.commit.sha
+
+        kwargs = kwargs.copy()
+        kwargs['comment_pk'] = comment.id
+        comment.get_edit_url = reverse_lazy('front:repository:' + CommitCommentEditView.url_name, kwargs=kwargs)
+        comment.get_delete_url = reverse_lazy('front:repository:' + CommitCommentDeleteView.url_name, kwargs=kwargs)
+        comment.get_absolute_url = reverse_lazy('front:repository:' + CommitCommentView.url_name, kwargs=kwargs)
+
+    @cached_property
+    def commit(self):
+        return get_object_or_404(self.repository.commits, sha=self.kwargs['commit_sha'])
+
+    def get_context_data(self, **kwargs):
+        context = super(CommitViewMixin, self).get_context_data(**kwargs)
+        context['current_commit'] = self.commit
+        return context
+
+
+class CommitAjaxIssueView(CommitViewMixin, SimpleAjaxIssueView):
+    """
+    Override SimpleAjaxIssueView to add commit and its comments
+    """
+    ajax_template_name = 'front/repository/issues/code/include_commit_files.html'
+
+    issue_related_name = 'commit__issues'
+    repository_related_name = 'commit__issues__repository'
+
+    def get_context_data(self, **kwargs):
+        context = super(CommitAjaxIssueView, self).get_context_data(**kwargs)
+        context['current_commit'] = self.commit
+
+        entry_points = self.commit.all_entry_points
+
+        # force urls, as we are in an issue
+        kwargs = context['current_issue'].get_reverse_kwargs()
+        kwargs['commit_sha'] = self.commit.sha
+        for entry_point in entry_points:
+            for comment in entry_point.comments.all():
+                self.set_comment_urls(comment, context['current_issue'], kwargs)
+
+        context['entry_points_dict'] = self.get_entry_points_dict(entry_points)
+
+        try:
+            context['final_entry_point'] = [ep for ep in entry_points if ep.path is None][0]
+        except IndexError:
+            context['final_entry_point'] = None
+
+        context['commit_comment_create_url'] = \
+            context['current_issue'].commit_comment_create_url().replace('0' * 40, self.commit.sha)
+
         return context
 
 
@@ -1217,7 +1287,6 @@ class BaseIssueCommentView(WithAjaxRestrictionViewMixin, DependsOnIssueViewMixin
 
         context.update({
             'use_current_user': False,
-            'collaborators_ids': self.repository.collaborators.all().values_list('id', flat=True),
             'include_create_form': self.request.GET.get('include_form', False),
         })
 
@@ -1263,13 +1332,39 @@ class IssueCommentView(BaseIssueCommentView):
 class PullRequestCommentView(BaseIssueCommentView):
     url_name = 'issue.pr_comment'
     model = PullRequestComment
-    template_name = 'front/repository/issues/comments/include_pr_comment.html'
+    template_name = 'front/repository/issues/comments/include_code_comment.html'
     job_model = PullRequestCommentEditJob
 
     def get_context_data(self, **kwargs):
         context = super(PullRequestCommentView, self).get_context_data(**kwargs)
 
         context.update({
+            'entry_point': self.object.entry_point,
+        })
+
+        return context
+
+
+class CommitCommentView(CommitViewMixin, BaseIssueCommentView):
+    url_name = 'issue.commit_comment'
+    model = CommitComment
+    template_name = 'front/repository/issues/comments/include_commit_comment.html'
+    job_model = CommitCommentEditJob
+
+    repository_related_name = 'commit__issues__repository'
+
+    def get_object(self, *args, **kwargs):
+        obj = super(CommitCommentView, self).get_object(*args, **kwargs)
+        if obj:
+            # force urls, as we are in an issue
+            self.set_comment_urls(obj, self.issue)
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(CommitCommentView, self).get_context_data(**kwargs)
+
+        context.update({
+            'current_commit': self.commit,
             'entry_point': self.object.entry_point,
         })
 
@@ -1286,10 +1381,35 @@ class PullRequestCommentEditMixin(object):
     job_model = PullRequestCommentEditJob
 
 
+class CommitCommentEditMixin(LinkedToCommitFormViewMixin, CommitViewMixin):
+    model = CommitComment
+    job_model = CommitCommentEditJob
+
+    def obj_message_part(self):
+        return 'commit <strong>#%s</strong> (%s <strong>#%s</strong>)' % (
+            self.commit.sha[:7], self.issue.type, self.issue.number)
+
+    def get_success_url(self):
+        kwargs = self.issue.get_reverse_kwargs()
+        kwargs['commit_sha'] = self.commit.sha
+        kwargs['comment_pk'] = self.object.id
+        return reverse_lazy('front:repository:' + CommitCommentView.url_name, kwargs=kwargs)
+
+    def get_object(self, *args, **kwargs):
+        obj = super(CommitCommentEditMixin, self).get_object(*args, **kwargs)
+        if obj:
+            # force urls, as we are in an issue
+            self.set_comment_urls(obj, self.issue)
+        return obj
+
+
 class BaseCommentEditMixin(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin):
     ajax_only = True
     http_method_names = ['get', 'post']
     edit_mode = None
+
+    def obj_message_part(self):
+        return '%s <strong>#%s</strong>' % (self.issue.type, self.issue.number)
 
     def form_valid(self, form):
         """
@@ -1303,8 +1423,8 @@ class BaseCommentEditMixin(LinkedToUserFormViewMixin, LinkedToIssueFormViewMixin
                                gh=self.request.user.get_connection())
 
         messages.success(self.request,
-            u'Your comment on the %s <strong>#%d</strong> will be %s shortly' % (
-                                self.issue.type, self.issue.number, self.verb))
+            u'Your comment on the %s will be %s shortly' % (
+                                self.obj_message_part(), self.verb))
 
         return response
 
@@ -1324,50 +1444,67 @@ class IssueCommentCreateView(IssueCommentEditMixin, BaseCommentCreateView):
     form_class = IssueCommentCreateForm
 
 
-class PullRequestCommentCreateView(PullRequestCommentEditMixin, BaseCommentCreateView):
-    url_name = 'issue.pr_comment.create'
-    form_class = PullRequestCommentCreateForm
+class CommentWithEntryPointCreateViewMixin(BaseCommentCreateView):
+    null_path_allowed = False
+    sha_field = ''
 
-    def get_entry_point(self):
+    def get_diff_hunk(self, file, position):
+        if not file:
+            return ''
+        return'\n'.join(file.patch.split('\n')[:position+1])
+
+    @property
+    def parent_object(self):
+        raise NotImplementedError()
+
+    def get_entry_point(self, sha=None):
+        obj = self.parent_object
+
         if 'entry_point_id' in self.request.POST:
             entry_point_id = self.request.POST['entry_point_id']
-            self.entry_point = self.issue.pr_comments_entry_points.get(id=entry_point_id)
+            self.entry_point = getattr(obj, self.entry_point_related_name).get(id=entry_point_id)
         else:
-            # get and check entre-point params
+            # get and check entry-point params
 
-            if len(self.request.POST['position']) < 10:
+            if self.request.POST.get('position', None) is None and self.null_path_allowed:
+                position = None
+            elif len(self.request.POST['position']) < 10:
                 position = int(self.request.POST['position'])
             else:
                 raise KeyError('position')
 
-            if len(self.request.POST['sha']) == 40:
-                sha = self.request.POST['sha']
-            else:
-                raise KeyError('sha')
+            if sha is None:
+                if len(self.request.POST['sha']) == 40:
+                    sha = self.request.POST['sha']
+                else:
+                    raise KeyError('sha')
 
-            path = self.request.POST['path']
-            try:
-                file = self.issue.files.get(path=path)
-            except self.issue.files.model.DoesNotExist:
+            if self.request.POST.get('path', None) is None and self.null_path_allowed:
+                path = None
                 file = None
+            else:
+                path = self.request.POST['path']
+                try:
+                    file = obj.files.get(path=path)
+                except obj.files.model.DoesNotExist:
+                    file = None
 
             # get or create the entry_point
             now = datetime.utcnow()
-            self.entry_point, created = self.issue.pr_comments_entry_points\
-                .get_or_create(
-                    original_commit_sha=sha,
-                    path=path,
-                    original_position=position,
-                    defaults={
-                        'repository': self.issue.repository,
+            self.entry_point, created = getattr(obj, self.entry_point_related_name)\
+                .get_or_create(**{
+                    self.sha_field: sha,
+                    'path': path,
+                    self.position_field: position,
+                    'defaults': {
+                        'repository': obj.repository,
                         'commit_sha': sha,
                         'position': position,
                         'created_at': now,
                         'updated_at': now,
-                        'diff_hunk': '' if not file else '\n'.join(
-                                            file.patch.split('\n')[:position+1])
+                        'diff_hunk': self.get_diff_hunk(file, position)
                     }
-                )
+                })
 
     def post(self, *args, **kwargs):
         self.entry_point = None
@@ -1375,12 +1512,47 @@ class PullRequestCommentCreateView(PullRequestCommentEditMixin, BaseCommentCreat
             self.get_entry_point()
         except Exception:
             return self.http_method_not_allowed(self.request)
-        return super(PullRequestCommentCreateView, self).post(*args, **kwargs)
+        return super(CommentWithEntryPointCreateViewMixin, self).post(*args, **kwargs)
 
     def get_form_kwargs(self):
-        kwargs = super(PullRequestCommentCreateView, self).get_form_kwargs()
+        kwargs = super(CommentWithEntryPointCreateViewMixin, self).get_form_kwargs()
         kwargs['entry_point'] = self.entry_point
         return kwargs
+
+
+class PullRequestCommentCreateView(PullRequestCommentEditMixin, CommentWithEntryPointCreateViewMixin):
+    url_name = 'issue.pr_comment.create'
+    form_class = PullRequestCommentCreateForm
+
+    null_path_allowed = False
+    sha_field = 'original_commit_sha'
+    position_field = 'original_position'
+    entry_point_related_name = 'pr_comments_entry_points'
+
+    @property
+    def parent_object(self):
+        return self.issue
+
+
+class CommitCommentCreateView(CommitCommentEditMixin, CommentWithEntryPointCreateViewMixin):
+    url_name = 'issue.commit_comment.create'
+    form_class = CommitCommentCreateForm
+
+    null_path_allowed = True
+    sha_field = 'commit_sha'
+    position_field = 'position'
+    entry_point_related_name = 'commit_comments_entry_points'
+
+    @property
+    def parent_object(self):
+        return self.commit
+
+    def get_entry_point(self):
+        return super(CommitCommentCreateView, self).get_entry_point(self.commit.sha)
+
+    def get_success_url(self):
+        url = super(CommitCommentCreateView, self).get_success_url()
+        return url + '?include_form=1'
 
 
 class CommentCheckRightsMixin(object):
@@ -1414,6 +1586,11 @@ class PullRequestCommentEditView(PullRequestCommentEditMixin, BaseCommentEditVie
     form_class = PullRequestCommentEditForm
 
 
+class CommitCommentEditView(CommitCommentEditMixin, BaseCommentEditView):
+    url_name = 'issue.commit_comment.edit'
+    form_class = CommitCommentEditForm
+
+
 class BaseCommentDeleteView(BaseCommentEditView):
     edit_mode = 'delete'
     verb = 'deleted'
@@ -1428,3 +1605,8 @@ class IssueCommentDeleteView(IssueCommentEditMixin, BaseCommentDeleteView):
 class PullRequestCommentDeleteView(PullRequestCommentEditMixin, BaseCommentDeleteView):
     url_name = 'issue.pr_comment.delete'
     form_class = PullRequestCommentDeleteForm
+
+
+class CommitCommentDeleteView(CommitCommentEditMixin, BaseCommentDeleteView):
+    url_name = 'issue.commit_comment.delete'
+    form_class = CommitCommentDeleteForm

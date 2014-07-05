@@ -1,13 +1,14 @@
 @import "variables";
 @import "compass/typography/text/ellipsis";
 @import "compass/css3/box-sizing";
+@import "compass/css3/images";
 @import "compass/css3/transition";
 @import "mixins";
 @import "modal";
 @import "form_elements";
 @import "core-admin-forms-correct.scss";
 
-$stuck-width: "0.583333 * (100% - 160px) - #{$scrollbar-width}"; // 58.333% is col width, but fixed width is viewport so we remove the left col size (and the scrollbar)
+$stuck-width: "0.583333 * 100% - 0.583333 * 160px - #{$scrollbar-width}"; // 58.333% is col width, but fixed width is viewport so we remove the left col size (and the scrollbar)
 $top-border: 5px;
 $header-top-padding: 10px;
 $header-stuck-height: 47px;
@@ -174,6 +175,8 @@ $repo-name-height: 20px;
 
     .issue-involved {
         max-width: 190px;
+        max-height: 54px;
+        overflow-y: auto;
         margin-bottom: 0;
         li {
             display: inline-block;
@@ -506,12 +509,12 @@ $repo-name-height: 20px;
 }
 
 @media (min-width: 1023px) {
-    .issue-container.big-issue .issue-files {
+    .issue-container.big-issue .code-files {
         position: relative;
         .files-list-sticky-wrapper {
             height: auto !important;
         }
-        .pr-files-list-container {
+        .code-files-list-container {
             left: 0;
             width: $file-list-width !important;
             bottom: 0;
@@ -527,7 +530,7 @@ $repo-name-height: 20px;
                 @include box-shadow(rgba(black, 0.07) 2px 0 1px -1px);
             }
         }
-        .pr-files-list {
+        .code-files-list {
             max-height: none;
             position: absolute;
             top: 85px;
@@ -696,16 +699,19 @@ $repo-name-height: 20px;
         }
     } // .pr-entry-point
 
-    .box-section.pr-comments {
+    .box-section.code-comments {
+        @extend %scroll-highlight;
         padding-top: 5px;
         padding-bottom: 0;
         position: relative;
     }
 
-    .pr-file {
+    .code-file {
+        @extend %scroll-highlight;
         .box-toolbar {
             margin-top: 8px;
             margin-right: 8px;
+            text-align: right;
             > li {
                 line-height: normal;
                 padding: 0;
@@ -736,7 +742,7 @@ $repo-name-height: 20px;
         }
     }
 
-    .pr-entry-point, .pr-file {
+    .pr-entry-point, .code-file {
         div.collapse.in {
             height: auto !important;
             overflow: visible;
@@ -778,7 +784,7 @@ $repo-name-height: 20px;
         margin: 5px 10px;
     }
 
-    .pr-comments-group .box-content {
+    .code-comments-group .box-content {
         margin: 5px 10px;
         padding-right: 70px;
     }
@@ -796,6 +802,10 @@ $repo-name-height: 20px;
         }
     }
 
+    .issue-comment {
+        @extend %scroll-highlight;
+    }
+
     .comment-nav {
         float: right;
         margin: -2px -5px -1px 7px;
@@ -807,26 +817,126 @@ $repo-name-height: 20px;
 
     }
 
-}
-
-.pr-tabs {
-    margin-bottom: 0;
-    padding-top: 5px;
-    > li {
-        margin-left: 2px;
-        margin-right: 2px;
-        &:first-of-type {
-            margin-left: 10px;
-        }
-        > a {
-            padding-bottom: 8px;
-            padding-top: 5px;
-            > .badge:last-child {
-                margin-left: 3px;
+    & ~ .issue-activity {
+        padding-top: 0;
+        margin-top: -17px;
+        > li.divider {
+            span {
+                font-size: 14px;
+                top: -10px;
             }
         }
-        &.pr-discussion-tab > a > .badge:first-child {
-            margin-left: 0;
+    }
+
+}
+
+.issue-tabs {
+    overflow: hidden;
+    position: relative;
+    padding: 0 25px;
+    display: none; // by default for issues
+    > ul {
+        margin-bottom: 0;
+        padding-top: 5px;
+        padding-left: 3px;
+        white-space: nowrap;
+        position: relative;
+        width: 3000px; // to keep a border even when scrolled
+        @include transform(translateX(0));
+        left: 0; // left will be used if transform not supported
+        @include transition(transform 0.35s ease-in-out, left 0.35s ease-in-out);
+        > li {
+            margin-left: 1px;
+            margin-right: 1px;
+            white-space: nowrap;
+            display: inline-block;
+            float: none;
+            > a {
+                padding: 5px 8px 8px;
+                > .badge:last-of-type {
+                    margin-left: 3px;
+                }
+            }
+            &.pr-discussion-tab > a > .badge:first-child {
+                margin-left: 0;
+            }
+            &.commit-tab > a > strong {
+                margin-right: 3px;
+            }
+            &.closable {
+                a {
+                    position: relative;
+                    padding-right: 22px;
+                }
+                i.fa-times {
+                    position: absolute;
+                    right: 0px;
+                    top: 0px;
+                    bottom: 0px;
+                    line-height: 30px;
+                    padding: 0px 5px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    color: #CCC;
+                    &:hover {
+                        color: #666;
+                    }
+                }
+            }
+        }
+    }
+    > .arrow {
+        position: absolute;
+        display: block;
+        top: 6px;
+        bottom: 0;
+        padding-top: 8px;
+        width: 23px;
+        text-align: center;
+        border-bottom: solid 1px #ddd;
+        background-color: #f0f0F0;
+        background-color: rgba(240,240 ,240 ,1);
+        z-index: 1;
+        > .badge {
+            font-size: 8px;
+            position: absolute;
+            top: 1px;
+            min-width: 8px;
+            line-height: 8px;
+            height: 8px;
+            padding: 0px 1px;
+
+        }
+        > i, > .badge {
+            opacity: 1;
+            @include transition(opacity 0.35s ease-in-out);
+        }
+        &.scroll-left {
+            left: 0;
+            padding-left: 2px;
+            padding-right: 5px;
+            @include background(linear-gradient(right, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, rgba(240, 240, 240, 1) 100%));
+            > .badge {
+                left: 2px;
+            }
+        }
+        &.scroll-right {
+            right: 0;
+            padding-left: 5px;
+            padding-right: 2px;
+            @include background(linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, rgba(240, 240, 240, 1) 100%));
+            > .badge {
+                right: 2px;
+            }
+        }
+    }
+    &.no-scroll-left .scroll-left,
+    &.no-scroll-right .scroll-right {
+        > i {
+            opacity: 0.1;
+        }
+        > .badge {
+            opacity: 0;
         }
     }
     &.stuck {
@@ -834,24 +944,37 @@ $repo-name-height: 20px;
         max-height: $tabs-stuck-height;
         top: $header-top + $top-border + $header-stuck-height;
         z-index: 99;
-        padding: 2px 0; // override area-top
-        > li {
-            margin-bottom: 0;
-            > a {
-                @include border-radius(4px);
-                border-color: none;
-                padding-bottom: 5px;
-                &:hover, &:focus {
+        padding: 0 25px; // override area-top
+        > ul {
+            padding-top: 2px;
+            padding-bottom: 3px;
+            border-bottom: none;
+            > li {
+                margin-bottom: 0;
+                > a {
+                    @include border-radius(4px);
+                    border-color: none;
+                    padding-bottom: 4px;
+                    &:hover, &:focus {
+                        border-color: #ddd;
+                    }
+                }
+                &.active > a {
                     border-color: #ddd;
                 }
             }
-            &.active > a {
-                border-color: #ddd;
+        }
+        > .arrow {
+            top: -6px;
+            bottom: -1px;
+            padding-top: 16px;
+            > .badge {
+                top: 9px;
             }
         }
     }
 }
-.with-repository .pr-tabs.stuck {
+.with-repository .issue-tabs.stuck {
     top: $header-top + $top-border + $header-stuck-height + $repo-name-height + $header-top-padding;
 }
 .issue-discussion {
@@ -886,8 +1009,8 @@ $repo-name-height: 20px;
         }
     }
 }
-.issue-commits, .issue-review, .issue-files {
-    > .content, .pr-files-list-container {
+.issue-commits, .issue-review, .code-files {
+    > .content, .code-files-list-container {
         padding: 15px;
         background: white;
         border-bottom: solid 1px $box-border-color;
@@ -908,7 +1031,7 @@ $repo-name-height: 20px;
             }
         }
     }
-    .pr-files-list {
+    .code-files-list {
         clear: both;
         margin-bottom: -12px;
         max-height: 150px;
@@ -921,6 +1044,9 @@ $repo-name-height: 20px;
         table {
             margin-bottom: 0;
             table-layout: fixed;
+        }
+        tr {
+            @extend %active-background;
         }
         td:first-of-type {
             width: 12px;
@@ -935,18 +1061,10 @@ $repo-name-height: 20px;
                 color: #7fb3d4;
             }
         }
-        td:nth-child(2) i {
-            color: white;
-        }
         td:last-of-type {
             text-align: right;
             li {
                 margin-left: 4px;
-            }
-        }
-        tr.active {
-            td:nth-child(2) i {
-                color: inherit;
             }
         }
         tr:last-of-type td {
@@ -967,8 +1085,8 @@ $repo-name-height: 20px;
     }
 }
 
-.issue-files {
-    .pr-files-list-container {
+.code-files {
+    .code-files-list-container {
         @include box-sizing(border-box);
         &.stuck {
             min-height: $files-min-stuck-height;
@@ -976,7 +1094,7 @@ $repo-name-height: 20px;
             z-index: 98;
             padding-bottom: 3px;
             @include calc(width, $stuck-width);
-            .pr-files-list {
+            .code-files-list {
                 margin-bottom: 0;
                 &.in {
                     margin-bottom: 7px;
@@ -986,7 +1104,7 @@ $repo-name-height: 20px;
     }
 }
 
-.with-repository .issue-files .pr-files-list-container.stuck {
+.with-repository .code-files .code-files-list-container.stuck {
     top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
 }
 
@@ -996,7 +1114,7 @@ table.commits-list {
         padding: 4px;
         vertical-align: top;
         &.cell-author {
-            width: 105px;
+            width: 16ex;
             white-space: nowrap;
             font-weight: bold;
             span {
@@ -1004,11 +1122,12 @@ table.commits-list {
                 @include ellipsis();
                 vertical-align: middle;
                 display: inline-block;
-                width: 80px;
+                width: 12ex;
                 margin-left: 3px;
             }
         }
         &.cell-message {
+            border-right: none;
             .label {
                 float: left;
                 margin-right: 4px;
@@ -1037,10 +1156,21 @@ table.commits-list {
             }
         }
         &.cell-sha {
-            width: 50px;
+            width: 10ex;
             text-align: center;
             font-family: $monoFontFamily;
-            font-size: 11px;
+        }
+        &.cell-stats {
+            white-space: nowrap;
+            text-align: right;
+            border-left: none;
+            li:not(:first-child) {
+                margin-left: 2px;
+            }
+        }
+        .comments-count {
+            color: white;
+            font-weight: normal;
         }
     }
 } // table.commits-list
@@ -1096,19 +1226,19 @@ table.commits-list {
             margin-left: -15px;  // left padding of parent area-top
             @include border-radius(6px 6px 0 0);
         }
-        .pr-tabs.stuck {
+        .issue-tabs.stuck {
             margin-top: $header-stuck-height;
         }
         .with-repository {
-            .pr-tabs.stuck {
+            .issue-tabs.stuck {
                 margin-top: $header-stuck-height + $repo-name-height + $header-top-padding;
             }
         }
-        .pr-files-list-container.stuck {
+        .code-files-list-container.stuck {
             margin-top: $header-stuck-height + $tabs-stuck-height;
         }
         .with-repository {
-            .pr-files-list-container.stuck {
+            .code-files-list-container.stuck {
                 margin-top: $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
             }
         }
@@ -1138,7 +1268,7 @@ table.commits-list {
                 top: 5% !important;
             }
             @media (min-width: 1023px) {
-                .issue-files .pr-files-list-container {
+                .code-files .code-files-list-container {
                     position: absolute;
                     width: $file-list-width !important;
                     top: 0 !important;

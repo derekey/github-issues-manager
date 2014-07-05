@@ -1,0 +1,8 @@
+<div class="box-section code-comments {{ classes }}">
+    <ul class="unstyled chat-box timeline">
+        {% for comment in comments %}
+            {% include "front/repository/issues/comments/include_code_comment.html" with include_create_form=False %}
+        {% endfor %}
+        {% include "front/repository/issues/comments/include_code_comment_create.html" %}
+    </ul>
+</div>

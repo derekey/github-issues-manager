@@ -180,3 +180,17 @@ input.select2-input:focus {
 form.fill-up .select2-search-field input:focus {
     border: none !important;
 }
+
+/* divider with texts */
+li.divider {
+    text-align: center;
+    > span {
+        position: relative;
+        z-index: 1;
+        padding: 0px 20px;
+        @include background(linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.9) 10%, rgba(240, 240, 240, 0.9) 90%, rgba(240, 240, 240, 0) 100%));
+        @include text-shadow(white 0 1px);
+        color: #78808A;
+        top: -11px;
+    }
+}

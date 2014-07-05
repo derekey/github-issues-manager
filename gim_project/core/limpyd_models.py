@@ -113,6 +113,10 @@ class Token(lmodel.RedisModel):
             else:
                 self.available.hset(1)
 
+        # ask for a flag every 50 calls, to be sure to have one
+        if not (gh.x_ratelimit_remaining+1 or 5000) % 50:
+            self.ask_for_reset_flags()
+
         if is_error or log_unavailability:
             json_data = {
                 'request': {
