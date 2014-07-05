@@ -186,13 +186,13 @@
     width: 3px;
 }
 .box-section.issue-item {
+    @extend %active-background;
     padding-left: 13px;
-        &.active {
-            padding-left: 8px;
-            border-left: solid $active-color 5px;
-            background: $highlight-background-color;
-            border-top-color: #f0fcff;
-        }
+    &.active {
+        padding-left: 8px;
+        border-left: solid $active-color 5px;
+        border-top-color: #f0fcff;
+    }
 }
 
 

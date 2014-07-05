@@ -133,3 +133,19 @@ p.state-closed {
         }
     }
 }
+
+%scroll-highlight {
+    outline: solid rgba($active-color-r, $active-color-g, $active-color-b, 0) 2px;
+    @include transition(outline 0.7s ease);
+    &.scroll-highlight {
+        outline: solid $active-color 2px;
+    }
+}
+
+%active-background {
+    background-color: transparent;
+    @include transition(background-color 0.35s ease);
+    &.active {
+        background-color: $highlight-background-color;
+    }
+}

@@ -41,13 +41,14 @@ $().ready(function() {
             return false;
         }), // cancel
 
-        stop_event_decorate_dropdown: (function stop_event_decorate_dropdown(callback) {
+        stop_event_decorate_dropdown: (function stop_event_decorate_dropdown(callback, klass) {
             /* Return a function to use as a callback for clicks on dropdown items
                It will close the dropwdown before calling the callback, and will
                return false to tell to the main decorator to stop the event
             */
+            if (typeof klass === 'undefined') { klass = '.dropdown'; }
             var decorator = function(e) {
-                var dropdown = $(e.target).closest('.dropdown');
+                var dropdown = $(e.target).closest(klass);
                 if (dropdown.hasClass('open')) {
                     dropdown.children('.dropdown-toggle').dropdown('toggle');
                 }
@@ -874,6 +875,7 @@ $().ready(function() {
                 var $context = IssueDetail.get_scroll_context($node, is_modal);
                 $node.find(' > article > .area-top header').waypoint('sticky', {
                     context: $context,
+                    wrapper: '<div class="sticky-wrapper area-top-header-sticky-wrapper" />',
                     stuckClass: 'area-top stuck',
                     handler: function(direction) {
                         $node.toggleClass('header-stuck', direction == 'down');
@@ -883,6 +885,7 @@ $().ready(function() {
                 if ($tabs.length) {
                     $tabs.waypoint('sticky', {
                         context: $context,
+                        wrapper: '<div class="sticky-wrapper issue-tabs-sticky-wrapper" />',
                         stuckClass: 'area-top stuck',
                         offset: 47 + IssueDetail.get_repository_name_height($node), // stuck header height
                         handler: function(direction) {
@@ -893,8 +896,8 @@ $().ready(function() {
             }, 500);
         }), // set_issue_waypoints
 
-        set_tab_files_issue_waypoints: (function IssueDetail__set_tab_files_issue_waypoints ($node, $target, $context) {
-            var $files_list_container = $target.find('.code-files-list-container');
+        set_tab_files_issue_waypoints: (function IssueDetail__set_tab_files_issue_waypoints ($node, $tab_pane, $context) {
+            var $files_list_container = $tab_pane.find('.code-files-list-container');
             if ($files_list_container.length) {
                 if (!$context) {
                     $context = IssueDetail.get_scroll_context($node);
@@ -915,8 +918,8 @@ $().ready(function() {
             });
         }), // unset_issue_waypoints
 
-        unset_tab_files_issue_waypoints: (function IssueDetail__unset_tab_files_issue_waypoints ($target) {
-            $target.find('.code-files-list-container').waypoint('unsticky');
+        unset_tab_files_issue_waypoints: (function IssueDetail__unset_tab_files_issue_waypoints ($tab_pane) {
+            $tab_pane.find('.code-files-list-container').waypoint('unsticky');
         }), // unset_tab_files_issue_waypoints
 
         is_modal: (function IssueDetail__is_modal ($node) {
@@ -1015,45 +1018,77 @@ $().ready(function() {
         select_files_tab: function(panel) { return IssueDetail.select_tab(panel, 'pr-files'); },
         select_review_tab: function(panel) { return IssueDetail.select_tab(panel, 'pr-review'); },
 
-        on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $target) {
-            if ($target.data('files-list-loaded')) { return;}
-            $target.data('files-list-loaded', true);
-            IssueDetail.set_tab_files_issue_waypoints($node, $target);
-            $target.find('.code-files-list a.path').first().click();
+        on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $tab_pane) {
+            if ($tab_pane.data('files-list-loaded')) { return; }
+            $tab_pane.data('files-list-loaded', true);
+            IssueDetail.set_tab_files_issue_waypoints($node, $tab_pane);
+            $tab_pane.find('.code-files-list a.path').first().click();
         }), // on_files_list_loaded
 
         on_files_list_click: (function IssueDetail__on_files_list_click (ev) {
             var $link = $(this),
                 $target = $($link.attr('href')),
-                $node = $link.closest('.issue-container');
-            IssueDetail.scroll_in_files_list($node, $target, -20); // -20 = margin
-            IssueDetail.set_active_file($node, $link.closest('tr').data('pos'), true);
+                $node = $link.closest('.issue-container'),
+                $tab_pane = $link.closest('.tab-pane');
+            IssueDetail.scroll_in_files_list($node, $tab_pane, $target, -20); // -20 = margin
+            IssueDetail.set_active_file($tab_pane, $link.closest('tr').data('pos'), true);
             if (!ev.no_file_focus) {
                 $target.find('.box-header a.path').focus();
             }
             return false;
         }), // on_files_list_click
 
-        scroll_in_files_list: (function IssueDetail__scroll_in_files_list ($node, $target, delta) {
+        get_sticky_wrappers_classes_for_tab: (function IssueDetail__get_sticky_wrappers_for_tab ($node, $tab_pane) {
+            var wrapper_classes = {
+                node: ['area-top-header-sticky-wrapper', 'issue-tabs-sticky-wrapper'],
+                tab: ['files-list-sticky-wrapper']
+            };
+            return wrapper_classes;
+        }), // get_sticky_wrappers_for_tab
+
+        compute_sticky_wrappers_height: (function IssueDetail__compute_sticky_wrappers_height ($node, $tab_pane, wrapper_classes) {
+            var wrappers = [], i, j, height=0;
+            for (i = 0; i < wrapper_classes.node.length; i++) {
+                wrappers.push($node.find('.' + wrapper_classes.node[i]));
+            };
+            for (j = 0; j < wrapper_classes.tab.length; j++) {
+                wrappers.push($tab_pane.find('.' + wrapper_classes.tab[j]));
+            };
+            height = $(wrappers)
+                        .toArray()
+                        .reduce(function(height, wrapper) {
+                            var $wrapper = $(wrapper),
+                                $stickable = $wrapper.children().first();
+                            return height + ($stickable.hasClass('stuck') ? $stickable : $wrapper).outerHeight();
+                        }, 0);
+            return height;
+        }), // compute_sticky_wrappers_height
+
+        scroll_in_files_list: (function IssueDetail__scroll_in_files_list ($node, $tab_pane, $target, delta) {
             var is_modal = IssueDetail.is_modal($node),
                 $context = IssueDetail.get_scroll_context($node, is_modal),
-                is_list_on_top = !parseInt($node.find('.code-files-list-container').css('border-right-width'), 10),
+                is_list_on_top = !Math.round(parseFloat($tab_pane.find('.code-files-list-container').css('border-right-width'))),
                 // is_full_screen = ($node.hasClass('big-issue')),
-                stuck_height = $node.find('.sticky-wrapper' + (is_list_on_top ? '' : ':not(.files-list-sticky-wrapper)'))
-                               .toArray()
-                               .reduce(function(height, wrapper) {
-                                    var $wrapper = $(wrapper),
-                                        $stickable = $wrapper.children().first();
-                                    return height + ($stickable.hasClass('stuck') ? $stickable : $wrapper).outerHeight();
-                                }, 0),
-                position = (is_modal ? $target.position().top : $target.offset().top)
-                         + (is_modal ? 0 : $context.scrollTop())
-                         - stuck_height
-                         + (is_modal ? (is_list_on_top ? 60 : 440) : 5) // manual finding... :(
-                         - 47 // topbar
-                         + (delta || 0);
+                sticky_wrappers = IssueDetail.get_sticky_wrappers_classes_for_tab($node, $tab_pane),
+                stuck_height, position;
 
-            $context.scrollTop(position);
+            if (!is_list_on_top && sticky_wrappers.tab.indexOf('files-list-sticky-wrapper') >= 0) {
+                sticky_wrappers.tab.splice( sticky_wrappers.tab.indexOf('files-list-sticky-wrapper'));
+            }
+
+            stuck_height = IssueDetail.compute_sticky_wrappers_height($node, $tab_pane, sticky_wrappers);
+
+            position = (is_modal ? $target.position().top : $target.offset().top)
+                     + (is_modal ? 0 : $context.scrollTop())
+                     - stuck_height
+                     + (is_modal ? (is_list_on_top ? 65 : 445) : 10) // manual finding... :(
+                     - 47 // topbar
+                     + (delta || 0);
+
+            $context.scrollTop(Math.round(0.5 + position));
+
+            $target.addClass('scroll-highlight');
+            setTimeout(function() { $target.removeClass('scroll-highlight');}, 700);
         }), // scroll_in_files_list
 
         on_files_list_toggle: (function IssueDetail__on_files_list_toggle (ev) {
@@ -1063,26 +1098,27 @@ $().ready(function() {
                 $container.parent().height($container.outerHeight());
             }
             if ($files_list.hasClass('in')) {
-               IssueDetail.set_active_file_visible($files_list);
+               IssueDetail.set_active_file_visible($files_list.closest('.tab-pane'), $files_list);
             }
         }), // on_files_list_toggle
 
         toggle_files_list: (function IssueDetail__toggle_files_list () {
             var $node = $(this).closest('.issue-container'),
-                $
-                $link = $node.find('.code-files.active .code-files-list-container .files-list-summary');
+                $tab_pane = $node.find('.tab-pane.active'),
+                $link = $tab_pane.find('.code-files-list-container .files-list-summary');
             if ($link.length) { $link.click(); }
         }), // toggle_files_list
 
         on_file_mouseenter: (function IssueDetail__on_file_mouseenter (ev) {
             var $file_node = $(this),
-                $node = $file_node.closest('.issue-container');
-            IssueDetail.set_active_file($node, $file_node.data('pos'), false);
+                $tab_pane = $file_node.closest('.tab-pane');
+            IssueDetail.set_active_file($tab_pane, $file_node.data('pos'), false);
         }), // on_file_mouseenter
 
         go_to_previous_file: (function IssueDetail__go_to_previous_file () {
             var $node = $(this).closest('.issue-container'),
-                $files_list = $node.find('.code-files.active .code-files-list'),
+                $tab_pane = $node.find('.tab-pane.active'),
+                $files_list = $tab_pane.find('.code-files-list'),
                 $current_line = $files_list.find('tr.active'),
                 $line = $current_line.prevAll('tr:not(.hidden)').first();
             if ($line.length) {
@@ -1093,7 +1129,8 @@ $().ready(function() {
 
         go_to_next_file: (function IssueDetail__go_to_next_file () {
             var $node = $(this).closest('.issue-container'),
-                $files_list = $node.find('.code-files.active .code-files-list'),
+                $tab_pane = $node.find('.tab-pane.active'),
+                $files_list = $tab_pane.find('.code-files-list'),
                 $current_line = $files_list.find('tr.active'),
                 $line = $current_line.nextAll('tr:not(.hidden)').first();
             if ($line.length) {
@@ -1103,35 +1140,35 @@ $().ready(function() {
         }), // go_to_next_file
 
         on_files_filter_done: (function IssueDetail__on_files_filter_done () {
-            var $node = $(this).closest('.issue-container');
-            if (!$node.find('.files-tab.active').length) { return; }
-            var $files_list = $node.find('.code-files.active .code-files-list'),
+            var $tab_pane = $(this).closest('.tab-pane');
+            if (!$tab_pane.find('.files-tab.active').length) { return; }
+            var $files_list = $tab_pane.find('.code-files-list'),
                 $first_link = $files_list.find('tr:not(.hidden) a').first();
             if (($first_link).length) {
                 $first_link.trigger({type: 'click', no_file_focus: true});
             }
         }), // on_files_filter_done
 
-        set_active_file: (function IssueDetail__set_active_file ($node, pos, reset_active_comment) {
-            var $files_list = $node.find('.code-files.active .code-files-list'),
+        set_active_file: (function IssueDetail__set_active_file ($tab_pane, pos, reset_active_comment) {
+            var $files_list = $tab_pane.find('.code-files-list'),
                 $line;
             if (!$files_list.length) { return; }
             $line = $files_list.find('tr:nth-child('+ pos +')');
             $files_list.find('tr.active').removeClass('active');
             $line.addClass('active');
-            IssueDetail.set_active_file_visible($files_list, $line);
-            $node.find('.go-to-previous-file').parent().toggleClass('disabled', $line.prevAll('tr:not(.hidden)').length === 0);
-            $node.find('.go-to-next-file').parent().toggleClass('disabled', $line.nextAll('tr:not(.hidden)').length === 0);
+            IssueDetail.set_active_file_visible($tab_pane, $files_list, $line);
+            $tab_pane.find('.go-to-previous-file').parent().toggleClass('disabled', $line.prevAll('tr:not(.hidden)').length === 0);
+            $tab_pane.find('.go-to-next-file').parent().toggleClass('disabled', $line.nextAll('tr:not(.hidden)').length === 0);
             if (reset_active_comment) {
                 $files_list.closest('.code-files-list-container').data('active-comment', null);
-                $node.find('.go-to-previous-file-comment, .go-to-next-file-comment').parent().removeClass('disabled');
+                $tab_pane.find('.go-to-previous-file-comment, .go-to-next-file-comment').parent().removeClass('disabled');
             }
         }), // set_active_file
 
-        set_active_file_visible: (function IssueDetail__set_active_file_visible ($files_list, $line) {
+        set_active_file_visible: (function IssueDetail__set_active_file_visible ($tab_pane, $files_list, $line) {
             var line_top, line_height, list_visible_height, list_scroll;
             if (typeof $files_list == 'undefined') {
-                $files_list = $node.find('.code-files.active .code-files-list');
+                $files_list = $tab_pane.find('.code-files-list');
             }
             // files list not opened: do nothing
             if (!$files_list.hasClass('in')) {
@@ -1148,7 +1185,7 @@ $().ready(function() {
             list_scroll = $files_list.scrollTop();
             // above the visible part of the list: set it visible at top
             if (line_top < 0) {
-                $files_list.scrollTop(list_scroll + line_top);
+                $files_list.scrollTop(Math.round(0.5 + list_scroll + line_top));
                 return;
             }
             line_height = $line.height();
@@ -1158,11 +1195,11 @@ $().ready(function() {
                 return;
             }
             // below the visible part: set it visible at the bottom
-            $files_list.scrollTop(list_scroll + line_top - list_visible_height + line_height);
+            $files_list.scrollTop(Math.round(0.5 + list_scroll + line_top - list_visible_height + line_height));
         }), // set_active_file_visible
 
-        visible_files_comments: (function IssueDetail__visible_files_comments ($node) {
-            var $files_list = $node.find('.code-files.active .code-files-list');
+        visible_files_comments: (function IssueDetail__visible_files_comments ($tab_pane) {
+            var $files_list = $tab_pane.find('.code-files-list');
             if ($files_list.length) {
                 return $files_list.find('tr:not(.hidden) a')
                             .toArray()
@@ -1177,22 +1214,24 @@ $().ready(function() {
         }), // visible_files_comments
 
         go_to_previous_file_comment: (function IssueDetail__go_to_previous_file_comment () {
-            var $node = $(this).closest('.issue-container');
-            IssueDetail.go_to_file_comment($node, 'previous');
+            var $node = $(this).closest('.issue-container'),
+                $tab_pane = $node.find('.tab-pane.active');
+            IssueDetail.go_to_file_comment($tab_pane, 'previous');
             return false;
         }), // go_to_previous_file_comment
 
         go_to_next_file_comment: (function IssueDetail__go_to_next_file_comment () {
-            var $node = $(this).closest('.issue-container');
-            IssueDetail.go_to_file_comment($node, 'next');
+            var $node = $(this).closest('.issue-container'),
+                $tab_pane = $node.find('.tab-pane.active');
+            IssueDetail.go_to_file_comment($tab_pane, 'next');
             return false;
         }), // go_to_next_file_comment
 
-        go_to_file_comment: (function IssueDetail__go_to_file_comment ($node, direction) {
-            var $files_list_container = $node.find('.code-files-list-container'),
-                $active_files_tab = $node.find('.code-files.active'),
-                $files_list = $active_files_tab.find('.code-files-list'),
-                comments = IssueDetail.visible_files_comments($node),
+        go_to_file_comment: (function IssueDetail__go_to_file_comment ($tab_pane, direction) {
+            var $files_list_container = $tab_pane.find('.code-files-list-container'),
+                $node = $tab_pane.closest('.issue-container'),
+                $files_list = $tab_pane.find('.code-files-list'),
+                comments = IssueDetail.visible_files_comments($tab_pane),
                 current, comment, $comment, $file_node, position, file_pos;
 
             if (!comments.length) { return; }
@@ -1234,22 +1273,25 @@ $().ready(function() {
             $comment = $(comment);
             $file_node = $comment.closest('.code-file');
             $files_list_container.data('active-comment', comment);
-            IssueDetail.set_active_file($node, $file_node.data('pos'), false);
-            IssueDetail.scroll_in_files_list($node, $comment, -50);  // -20=margin, -30 = 2 previous diff lines
-            $active_files_tab.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
-            $active_files_tab.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
+            IssueDetail.set_active_file($tab_pane, $file_node.data('pos'), false);
+            IssueDetail.scroll_in_files_list($node, $tab_pane, $comment, -50);  // -20=margin, -30 = 2 previous diff lines
+            $tab_pane.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
+            $tab_pane.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
         }), // go_to_file_comment
 
-        scroll_in_review: (function IssueDetail__scroll_in_review ($node, $target, delta) {
+        go_to_global_comments: (function IssueDetail__go_to_global_comments () {
+            var $tab_pane = $(this).closest('.tab-pane'),
+                $node = $(this).closest('.issue-container'),
+                $global_comments = $tab_pane.find('.global-comments');
+            IssueDetail.scroll_in_files_list($node, $tab_pane, $global_comments, -50);  // -20=margin, -30 = 2 previous diff lines
+            return false;
+        }), // go_to_global_comments
+
+        scroll_in_review: (function IssueDetail__scroll_in_review ($node, $tab_pane, $target, delta) {
             var is_modal = IssueDetail.is_modal($node),
                 $context = IssueDetail.get_scroll_context($node, is_modal),
-                stuck_height = $node.find('.sticky-wrapper:not(.files-list-sticky-wrapper)')
-                               .toArray()
-                               .reduce(function(height, wrapper) {
-                                    var $wrapper = $(wrapper),
-                                        $stickable = $wrapper.children().first();
-                                    return height + ($stickable.hasClass('stuck') ? $stickable : $wrapper).outerHeight();
-                                }, 0),
+                sticky_wrappers = IssueDetail.get_sticky_wrappers_classes_for_tab($node, $tab_pane),
+                stuck_height = IssueDetail.compute_sticky_wrappers_height($node, $tab_pane, sticky_wrappers),
                 position = (is_modal ? $target.position().top : $target.offset().top)
                          + (is_modal ? 0 : $context.scrollTop())
                          - stuck_height
@@ -1257,7 +1299,7 @@ $().ready(function() {
                          - 47 // topbar;
                          + (delta || 0);
 
-                $context.scrollTop(position);
+                $context.scrollTop(Math.round(0.5 + position));
         }), // scroll_in_review
 
         before_load_tab: (function IssueDetail__before_load_tab (ev) {
@@ -1404,32 +1446,32 @@ $().ready(function() {
 
         load_tab: (function IssueDetail__load_tab (ev) {
             var $tab = $(ev.target),
-                $target = $($tab.attr('href')),
-                tab_type = $target.data('tab'),
-                is_code_tab = $target.hasClass('code-files'),
+                $tab_pane = $($tab.attr('href')),
+                tab_type = $tab_pane.data('tab'),
+                is_code_tab = $tab_pane.hasClass('code-files'),
                 $node = $tab.closest('.issue-container'),
-                is_empty = !!$target.children('.empty-area').length;
+                is_empty = !!$tab_pane.children('.empty-area').length;
 
             // load content if not already available
             if (is_empty) {
                 $.ajax({
-                    url: $target.data('url'),
+                    url: $tab_pane.data('url'),
                     success: function(data) {
-                        $target.html(data);
+                        $tab_pane.html(data);
                         // adjust tabs if scrollbar
                         IssueDetail.scroll_tabs($node);
                         if (is_code_tab) {
-                            IssueDetail.on_files_list_loaded($node, $target);
+                            IssueDetail.on_files_list_loaded($node, $tab_pane);
                         }
                         $node.trigger('loaded.tab.' + tab_type);
                     },
                     error: function() {
-                        $target.children('.empty-area').html('Loading failed :(');
+                        $tab_pane.children('.empty-area').html('Loading failed :(');
                     }
                 });
             } else {
                 if (is_code_tab) {
-                    IssueDetail.on_files_list_loaded($node, $target);
+                    IssueDetail.on_files_list_loaded($node, $tab_pane);
                 }
             }
 
@@ -1441,7 +1483,7 @@ $().ready(function() {
                 $stuck_header, position, $stuck,
                 is_modal = IssueDetail.is_modal($node),
                 $context = IssueDetail.get_scroll_context($node, is_modal),
-                scroll_position = $target.data('scroll-position');
+                scroll_position = $tab_pane.data('scroll-position');
             if (scroll_position) {
                 $context.scrollTop(scroll_position);
             } else if ($tabs_holder.hasClass('stuck')) {
@@ -1451,7 +1493,11 @@ $().ready(function() {
                          - $stuck_header.height()
                          - $tabs_holder.height()
                          - 3 // adjust
-                $context.scrollTop(position);
+                $context.scrollTop(Math.round(0.5 + position));
+            }
+            if (is_code_tab) {
+                // seems to be a problem with waypoints on many files-list-containers
+                $.waypoints('refresh');
             }
             if (!is_empty) {
                 $node.trigger('loaded.tab.' + tab_type);
@@ -1461,7 +1507,7 @@ $().ready(function() {
         close_tab: (function IssueDetail__close_tab (ev) {
             var $tab = $(ev.target).closest('li'),
                 $tab_link = $tab.children('a'),
-                $tab_content = $($tab_link.attr('href')),
+                $tab_pane = $($tab_link.attr('href')),
                 is_active = $tab.hasClass('active'),
                 $prev_tab = is_active ? $tab.prev(':visible').children('a') : null,
                 $node = is_active ? null : $tab.closest('.issue-container');
@@ -1472,8 +1518,8 @@ $().ready(function() {
             } else {
                 IssueDetail.scroll_tabs($node, true);
             }
-            IssueDetail.unset_tab_files_issue_waypoints($tab_content);
-            $tab_content.remove();
+            IssueDetail.unset_tab_files_issue_waypoints($tab_pane);
+            $tab_pane.remove();
 
             return false;
         }), // close_tab
@@ -1549,7 +1595,8 @@ $().ready(function() {
 
         focus_search_input: (function IssueDetail__focus_search_input () {
             var $node = $(this).closest('.issue-container'),
-                $files_list_container = $node.find('.code-files-list-container'),
+                $tab_pane = $node.find('.tab-pane.active'),
+                $files_list_container = $tab_pane.find('.code-files-list-container'),
                 $search_input = $files_list_container.find('input.quicksearch');
             $search_input.focus();
             return false;
@@ -1596,14 +1643,15 @@ $().ready(function() {
                 url = $link.closest('.issue-comment').data('url'),
                 $node = $link.closest('.issue-container');
             $node.one('loaded.tab.issue-files', function() {
-                var $comment_node = $node.find('.issue-files .issue-comment[data-url="' + url + '"]');
+                var $tab_pane = $node.find('.tab-pane.active'),
+                    $comment_node = $node.find('.issue-files .issue-comment[data-url="' + url + '"]');
                 if ($comment_node.length) {
                     var relative_position = -20;  // some margin
                     if (IssueDetail.is_modal($node)) {
                         var $container = $comment_node.closest('.code-comments');
                         relative_position += $container.position().top;
                     }
-                    IssueDetail.scroll_in_files_list($node, $comment_node, relative_position);
+                    IssueDetail.scroll_in_files_list($node, $tab_pane, $comment_node, relative_position);
                 } else {
                     alert('This comment is not linked to active code anymore');
                 }
@@ -1622,12 +1670,13 @@ $().ready(function() {
                     return;
                 }
                 var do_scroll = function() {
-                    var relative_position = -20; // some margin
+                    var $tab_pane = $node.find('.tab-pane.active'),
+                        relative_position = -20; // some margin
                     if (IssueDetail.is_modal($node)) {
                         var $container = $comment_node.closest('.code-comments');
                         relative_position += $container.position().top;
                     }
-                    IssueDetail.scroll_in_review($node, $comment_node, relative_position);
+                    IssueDetail.scroll_in_review($node, $tab_pane, $comment_node, relative_position);
 
                 }; // do_scroll
                 var $container = $comment_node.closest('.collapse');
@@ -1672,8 +1721,8 @@ $().ready(function() {
             if (!$node.find('.' + tab_name + '-tab').length) {
                 var $tab_template = $node.find('.commit-tab.template'),
                     $tab = $tab_template.clone(),
-                    $content_template = $node.find('.commit-files.template'),
-                    $content = $content_template.clone();
+                    $tab_pane_template = $node.find('.commit-files.template'),
+                    $tab_pane = $tab_pane_template.clone();
 
                 // prepare the tab
                 $tab.removeClass('template')
@@ -1687,7 +1736,7 @@ $().ready(function() {
                 $tab.insertBefore($tab_template);
 
                 // prepare the content
-                $content.removeClass('template')
+                $tab_pane.removeClass('template')
                         .addClass(tab_name)
                         .attr('id', tab_name + '-files')
                         .attr('style', null)
@@ -1695,7 +1744,7 @@ $().ready(function() {
                         .data('comment-url', $holder.data('comment-url'));
 
                 // add the content
-                $content.insertBefore($content_template);
+                $tab_pane.insertBefore($tab_pane_template);
 
             }
 
@@ -1775,6 +1824,7 @@ $().ready(function() {
             $document.on('quicksearch.after', '.files-filter input.quicksearch', IssueDetail.on_files_filter_done);
             $document.on('click', 'li:not(.disabled) a.go-to-previous-file-comment', Ev.stop_event_decorate(IssueDetail.go_to_previous_file_comment));
             $document.on('click', 'li:not(.disabled) a.go-to-next-file-comment', Ev.stop_event_decorate(IssueDetail.go_to_next_file_comment));
+            $document.on('click', '.go-to-global-comments', Ev.stop_event_decorate_dropdown(IssueDetail.go_to_global_comments, '.btn-group'));
             jwerty.key('p/k', IssueDetail.on_files_list_key_event('go_to_previous_file'));
             jwerty.key('n/j', IssueDetail.on_files_list_key_event('go_to_next_file'));
             jwerty.key('shift+p/shift+k', IssueDetail.on_files_list_key_event('go_to_previous_file_comment'));

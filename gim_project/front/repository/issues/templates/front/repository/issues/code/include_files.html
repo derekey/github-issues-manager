@@ -33,6 +33,10 @@
                         --><li class="horizontal-2"><a href="#" class="go-to-previous-file-comment"><i class="fa fa-chevron-up fa-fw" title="Previous commented line"> </i></a></li><li class="horizontal-2"><a href="#" class="go-to-next-file-comment"><!--
                         --><i class="fa fa-chevron-down fa-fw" title="Next commented line"> </i></a></li>
                     {% endif %}
+                    {% if with_non_files_comments %}
+                        <li class="divider"></li>
+                        <li><a href="#" class="go-to-global-comments" title="Go to the end of files to see global comments on this commit">Global comments</a></li>
+                    {% endif %}
                  </ul>
             </div>
         {% endif %}
@@ -43,7 +47,7 @@
         {% for file in files %}
             <tr{% if forloop.first %} class="active"{% endif %} data-pos="{{ forloop.counter }}">
                 <td class="status-{{ file.status }}"><i class="fa fa-{% if file.status == 'added' %}plus{% elif file.status == 'removed'%}times{% elif file.status == 'renamed' %}arrows-h{% elif file.status == 'modified' %}pencil{% else %}file-o{% endif %}"> </i></td>
-                <td title="{{ file.path }}"><i class="fa fa-angle-right"> </i>&nbsp;<a class="path" href="#code-file-{{ file.id }}-target">{{ file.path }}</a></td>
+                <td title="{{ file.path }}"><a class="path" href="#code-file-{{ file.id }}-target">{{ file.path }}</a></td>
                 <td>
                     <ul class="unstyled">
                         <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="fa fa-plus"></i> {{ file.nb_additions }}</li>

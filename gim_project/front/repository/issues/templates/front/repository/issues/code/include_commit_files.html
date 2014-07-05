@@ -1,6 +1,6 @@
-{% include "front/repository/issues/code/include_files.html" with files=current_commit.files.all id_prefix='commit-'|add:current_commit.sha nb_additions=current_commit.nb_additions nb_deletions=current_commit.nb_deletions %}
+{% include "front/repository/issues/code/include_files.html" with files=current_commit.files.all id_prefix='commit-'|add:current_commit.sha nb_additions=current_commit.nb_additions nb_deletions=current_commit.nb_deletions with_non_files_comments=True %}
 
-<ul class="unstyled chat-box timeline issue-activity">
+<ul class="unstyled chat-box timeline issue-activity global-comments">
     <li class="divider"><span>Global comments on this commit</span></li>
     {% if final_entry_point %}
         {% for comment in final_entry_point.comments.all %}

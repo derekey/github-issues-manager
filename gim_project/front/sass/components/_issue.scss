@@ -700,12 +700,14 @@ $repo-name-height: 20px;
     } // .pr-entry-point
 
     .box-section.code-comments {
+        @extend %scroll-highlight;
         padding-top: 5px;
         padding-bottom: 0;
         position: relative;
     }
 
     .code-file {
+        @extend %scroll-highlight;
         .box-toolbar {
             margin-top: 8px;
             margin-right: 8px;
@@ -800,6 +802,10 @@ $repo-name-height: 20px;
         }
     }
 
+    .issue-comment {
+        @extend %scroll-highlight;
+    }
+
     .comment-nav {
         float: right;
         margin: -2px -5px -1px 7px;
@@ -818,11 +824,6 @@ $repo-name-height: 20px;
             span {
                 font-size: 14px;
                 top: -10px;
-                opacity: 0;
-                @include transition(opacity 0.35s ease-in-out);
-            }
-            &:hover span {
-                opacity: 1;
             }
         }
     }
@@ -1044,6 +1045,9 @@ $repo-name-height: 20px;
             margin-bottom: 0;
             table-layout: fixed;
         }
+        tr {
+            @extend %active-background;
+        }
         td:first-of-type {
             width: 12px;
             color: #767676;
@@ -1057,21 +1061,10 @@ $repo-name-height: 20px;
                 color: #7fb3d4;
             }
         }
-        td:nth-child(2) i {
-            color: white;
-        }
         td:last-of-type {
             text-align: right;
             li {
                 margin-left: 4px;
-            }
-        }
-        tr.active {
-            td:nth-child(2) {
-                color: black;
-                i, a {
-                    color: inherit;
-                }
             }
         }
         tr:last-of-type td {
