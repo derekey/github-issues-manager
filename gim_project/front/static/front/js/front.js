@@ -3441,5 +3441,10 @@ $().ready(function() {
         $(this).css('height', 'auto');
     });
 
+    // if a link is on a collapse header, deactivate the collapse on click
+    $document.on('click', '[data-toggle=collapse] a:not([href=#])', function(ev) {
+        ev.stopPropagation();
+    });
+
 });
 
