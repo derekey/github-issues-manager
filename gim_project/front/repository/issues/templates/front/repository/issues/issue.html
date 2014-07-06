@@ -19,7 +19,10 @@
     <article data-issue-id="{{ current_issue.pk }}" data-number="{{ current_issue.number|default_if_none:'' }}" data-repository="{{ current_issue.repository.full_name }}">
         <div class="area-top state-{{ current_issue.state }}">
             <header>
-                <div class="btn btn-default repository-name">{{ current_issue.repository.full_name }}</div>
+                <div class="btn btn-default repository-name">
+                    {% if current_repository.private %}<i class="fa fa-lock" title="This repository is private"> </i>{% endif %}
+                    {{ current_issue.repository.full_name }}
+                </div>
                 <div class="avatar">
                     <img class="avatar-small img-circle" src="{{ current_issue.user.avatar_url|default:default_avatar }}" alt="{{ current_issue.user.username }}" title="Created by {{ current_issue.user.username }}">
                 </div>

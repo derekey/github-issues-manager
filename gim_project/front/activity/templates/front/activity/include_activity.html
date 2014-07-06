@@ -24,7 +24,10 @@
                         <div class="box-header">
                             <span class="title">
                                 <div class="avatar"><img class="avatar-micro" src="{{ entry.issue.repository.owner.avatar_url|default:default_avatar }}" /></div>
-                                <a href="{{ entry.issue.repository.get_absolute_url }}">{{ entry.issue.repository }}</a>
+                                <a href="{{ entry.issue.repository.get_absolute_url }}">
+                                    {% if entry.issue.repository.private %}<i class="fa fa-lock" title="This repository is private"> </i>{% endif %}
+                                    {{ entry.issue.repository }}
+                                </a>
                             </span>
                         </div>
                         <div class="box-content">

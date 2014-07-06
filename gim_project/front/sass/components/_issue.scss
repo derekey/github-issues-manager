@@ -44,6 +44,11 @@ $repo-name-height: 20px;
                 left: 0;
                 right: 0;
                 display: none;
+                i {
+                    font-size: inherit;
+                    float: none;
+                    margin: 0;
+                }
             }
             .avatar {
                 @include avatar-small-container;
