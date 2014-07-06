@@ -29,6 +29,9 @@
                 <li><a href="{% url "front:dashboard:repositories:choose" %}">Manage your subscriptions</a></li>
             </ul>
         </li>
+        <li>
+            <a href="{{ current_repository.github_url }}" title="View current repository on github" target='_blank'><i class="fa fa-github"> </i></a>
+        </li>
     </ul>
     <ul class="nav repository-views">
         {% for main_view in repository_main_views %}
