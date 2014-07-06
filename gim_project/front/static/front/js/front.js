@@ -896,7 +896,7 @@ $().ready(function() {
             }, 500);
         }), // set_issue_waypoints
 
-        set_tab_files_issue_waypoints: (function IssueDetail__set_tab_files_issue_waypoints ($node, $tab_pane, $context) {
+        set_tab_files_waypoints: (function IssueDetail__set_tab_files_waypoints ($node, $tab_pane, $context) {
             var $files_list_container = $tab_pane.find('.code-files-list-container');
             if ($files_list_container.length) {
                 if (!$context) {
@@ -908,7 +908,21 @@ $().ready(function() {
                     offset: 47 + 37 + IssueDetail.get_repository_name_height($node)  // 47 for stuck header height + 37 for stuck tabs height
                 });
             }
-        }), // set_tab_files_issue_waypoints
+        }), // set_tab_files_waypoints
+
+        set_tab_review_waypoints: (function IssueDetail__set_tab_review_issue_waypoints ($node, $tab_pane, $context) {
+            var $review_header = $tab_pane.find('.review-header');
+            if ($review_header.length) {
+                if (!$context) {
+                    $context = IssueDetail.get_scroll_context($node);
+                }
+                $review_header.waypoint('sticky', {
+                    context: $context,
+                    wrapper: '<div class="sticky-wrapper review-header-sticky-wrapper" />',
+                    offset: 47 + 37 + IssueDetail.get_repository_name_height($node)  // 47 for stuck header height + 37 for stuck tabs height
+                });
+            }
+        }), // set_tab_review_issue_waypoints
 
         unset_issue_waypoints: (function IssueDetail__unset_issue_waypoints ($node) {
             $node.find(' > article > .area-top header').waypoint('unsticky');
@@ -916,11 +930,14 @@ $().ready(function() {
             $node.find('.code-files-list-container').each(function() {
                 $(this).waypoint('unsticky');
             });
+            $node.find('.review-header').each(function() {
+                $(this).waypoint('unsticky');
+            });
         }), // unset_issue_waypoints
 
-        unset_tab_files_issue_waypoints: (function IssueDetail__unset_tab_files_issue_waypoints ($tab_pane) {
+        unset_tab_files_waypoints: (function IssueDetail__unset_tab_files_waypoints ($tab_pane) {
             $tab_pane.find('.code-files-list-container').waypoint('unsticky');
-        }), // unset_tab_files_issue_waypoints
+        }), // unset_tab_files_waypoints
 
         is_modal: (function IssueDetail__is_modal ($node) {
             return !!$node.data('$modal');
@@ -1021,7 +1038,7 @@ $().ready(function() {
         on_files_list_loaded: (function IssueDetail__on_files_list_loaded ($node, $tab_pane) {
             if ($tab_pane.data('files-list-loaded')) { return; }
             $tab_pane.data('files-list-loaded', true);
-            IssueDetail.set_tab_files_issue_waypoints($node, $tab_pane);
+            IssueDetail.set_tab_files_waypoints($node, $tab_pane);
             $tab_pane.find('.code-files-list a.path').first().click();
         }), // on_files_list_loaded
 
@@ -1037,6 +1054,12 @@ $().ready(function() {
             }
             return false;
         }), // on_files_list_click
+
+        on_review_loaded: (function IssueDetail__on_review_loaded ($node, $tab_pane) {
+            if ($tab_pane.data('review-loaded')) { return; }
+            $tab_pane.data('review-loaded', true);
+            IssueDetail.set_tab_review_waypoints($node, $tab_pane);
+        }), // on_review_loaded
 
         get_sticky_wrappers_classes_for_tab: (function IssueDetail__get_sticky_wrappers_for_tab ($node, $tab_pane) {
             var wrapper_classes = {
@@ -1087,9 +1110,14 @@ $().ready(function() {
 
             $context.scrollTop(Math.round(0.5 + position));
 
-            $target.addClass('scroll-highlight');
-            setTimeout(function() { $target.removeClass('scroll-highlight');}, 700);
+            IssueDetail.highlith_on_scroll($target);
         }), // scroll_in_files_list
+
+        highlith_on_scroll: (function IssueDetail__highlith_on_scroll($target, delay) {
+            if (typeof delay == 'undefined') { delay = 700; }
+            $target.addClass('scroll-highlight');
+            setTimeout(function() { $target.removeClass('scroll-highlight'); }, delay);
+        }), // highlith_on_scroll
 
         on_files_list_toggle: (function IssueDetail__on_files_list_toggle (ev) {
             var $files_list = $(this),
@@ -1216,20 +1244,19 @@ $().ready(function() {
         go_to_previous_file_comment: (function IssueDetail__go_to_previous_file_comment () {
             var $node = $(this).closest('.issue-container'),
                 $tab_pane = $node.find('.tab-pane.active');
-            IssueDetail.go_to_file_comment($tab_pane, 'previous');
+            IssueDetail.go_to_file_comment($node, $tab_pane, 'previous');
             return false;
         }), // go_to_previous_file_comment
 
         go_to_next_file_comment: (function IssueDetail__go_to_next_file_comment () {
             var $node = $(this).closest('.issue-container'),
                 $tab_pane = $node.find('.tab-pane.active');
-            IssueDetail.go_to_file_comment($tab_pane, 'next');
+            IssueDetail.go_to_file_comment($node, $tab_pane, 'next');
             return false;
         }), // go_to_next_file_comment
 
-        go_to_file_comment: (function IssueDetail__go_to_file_comment ($tab_pane, direction) {
+        go_to_file_comment: (function IssueDetail__go_to_file_comment ($node, $tab_pane, direction) {
             var $files_list_container = $tab_pane.find('.code-files-list-container'),
-                $node = $tab_pane.closest('.issue-container'),
                 $files_list = $tab_pane.find('.code-files-list'),
                 comments = IssueDetail.visible_files_comments($tab_pane),
                 current, comment, $comment, $file_node, position, file_pos;
@@ -1275,9 +1302,67 @@ $().ready(function() {
             $files_list_container.data('active-comment', comment);
             IssueDetail.set_active_file($tab_pane, $file_node.data('pos'), false);
             IssueDetail.scroll_in_files_list($node, $tab_pane, $comment, -50);  // -20=margin, -30 = 2 previous diff lines
-            $tab_pane.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index === 0);
-            $tab_pane.find('.go-to-next-file-comment').parent().toggleClass('disabled', index === comments.length - 1);
+            $comment.focus();
+            $tab_pane.find('.go-to-previous-file-comment').parent().toggleClass('disabled', index < 1);
+            $tab_pane.find('.go-to-next-file-comment').parent().toggleClass('disabled', index >= comments.length - 1);
         }), // go_to_file_comment
+
+        go_to_previous_review_comment: (function IssueDetail__go_to_previous_review_comment () {
+            var $node = $(this).closest('.issue-container'),
+                $tab_pane = $node.find('.tab-pane.active');
+            IssueDetail.go_to_review_comment($node, $tab_pane, 'previous');
+            return false;
+        }), // go_to_previous_review_comment
+
+        go_to_next_review_comment: (function IssueDetail__go_to_next_review_comment () {
+            var $node = $(this).closest('.issue-container'),
+                $tab_pane = $node.find('.tab-pane.active');
+            IssueDetail.go_to_review_comment($node, $tab_pane, 'next');
+            return false;
+        }), // go_to_next_review_comment
+
+        go_to_review_comment: (function IssueDetail__go_to_review_comment ($node, $tab_pane, direction) {
+            var current_index = $tab_pane.data('current-index'),
+                $all_blocks = $tab_pane.find('.pr-entry-point'),
+                step = direction == 'next' ? 1 : -1,
+                index = (typeof current_index == 'undefined' ? -1 : current_index) + step,
+                $final_node, $container, do_scroll;
+
+            if (index < 0 || index >= $all_blocks.length) { return; }
+
+            for (var i = index; 0 <= i < $all_blocks.length; i+=step) {
+                if (!$($all_blocks[i]).hasClass('hidden')) {
+                    break;
+                }
+                index ++;
+            };
+
+            if (index < 0 || index >= $all_blocks.length) { return; }
+
+            $final_node = $($all_blocks[index]);
+            do_scroll = function() {
+                IssueDetail.scroll_in_review($node, $tab_pane, $final_node, -20);
+            };
+            $container = $final_node.children('.collapse');
+            if (!$container.hasClass('in')) {
+                $container.one('shown.collapse', do_scroll);
+                $container.collapse('show');
+            } else {
+               do_scroll();
+            }
+            IssueDetail.mark_current_review_comment($tab_pane, $final_node);
+
+        }), // go_to_review_comment
+
+        mark_current_review_comment: (function IssueDetail__mark_current_review_comment ($tab_pane, $target) {
+            var $all_blocks = $tab_pane.find('.pr-entry-point'),
+                $block = $target.closest('.pr-entry-point'),
+                index = $all_blocks.toArray().indexOf($block[0]);
+            $target.focus();
+            $tab_pane.data('current-index', index);
+            $tab_pane.find('.go-to-previous-review-comment').parent().toggleClass('disabled', index < 1);
+            $tab_pane.find('.go-to-next-review-comment').parent().toggleClass('disabled', index >= $all_blocks.length - 1);
+        }), // mark_current_review_comment
 
         go_to_global_comments: (function IssueDetail__go_to_global_comments () {
             var $tab_pane = $(this).closest('.tab-pane'),
@@ -1295,11 +1380,14 @@ $().ready(function() {
                 position = (is_modal ? $target.position().top : $target.offset().top)
                          + (is_modal ? 0 : $context.scrollTop())
                          - stuck_height
-                         + (is_modal ? 80 : 5) // manual finding... :(
+                         + (is_modal ? 60 : 5) // manual finding... :(
+                         - 55 // review-header
                          - 47 // topbar;
                          + (delta || 0);
 
                 $context.scrollTop(Math.round(0.5 + position));
+
+            IssueDetail.highlith_on_scroll($target);
         }), // scroll_in_review
 
         before_load_tab: (function IssueDetail__before_load_tab (ev) {
@@ -1449,6 +1537,7 @@ $().ready(function() {
                 $tab_pane = $($tab.attr('href')),
                 tab_type = $tab_pane.data('tab'),
                 is_code_tab = $tab_pane.hasClass('code-files'),
+                is_review_tab = $tab_pane.hasClass('issue-review'),
                 $node = $tab.closest('.issue-container'),
                 is_empty = !!$tab_pane.children('.empty-area').length;
 
@@ -1463,6 +1552,9 @@ $().ready(function() {
                         if (is_code_tab) {
                             IssueDetail.on_files_list_loaded($node, $tab_pane);
                         }
+                        if (is_review_tab) {
+                            IssueDetail.on_review_loaded($node, $tab_pane);
+                        }
                         $node.trigger('loaded.tab.' + tab_type);
                     },
                     error: function() {
@@ -1472,6 +1564,9 @@ $().ready(function() {
             } else {
                 if (is_code_tab) {
                     IssueDetail.on_files_list_loaded($node, $tab_pane);
+                }
+                if (is_review_tab) {
+                    IssueDetail.on_review_loaded($node, $tab_pane);
                 }
             }
 
@@ -1518,7 +1613,8 @@ $().ready(function() {
             } else {
                 IssueDetail.scroll_tabs($node, true);
             }
-            IssueDetail.unset_tab_files_issue_waypoints($tab_pane);
+            // we can only remove files tabs (commits)
+            IssueDetail.unset_tab_files_waypoints($tab_pane);
             $tab_pane.remove();
 
             return false;
@@ -1592,6 +1688,17 @@ $().ready(function() {
             };
             return Ev.key_decorate(decorator);
         }), // on_files_list_key_event
+
+        on_review_key_event:  (function IssueDetail__on_review_key_event (method) {
+            var decorator = function(e) {
+                if (PanelsSwpr.current_panel.obj != IssueDetail) { return; }
+                var $node = PanelsSwpr.current_panel.$node,
+                    $tab = $node.find('.pr-review-tab.active');
+                if (!$tab.length) { return; }
+                return IssueDetail[method].call($tab);
+            };
+            return Ev.key_decorate(decorator);
+        }), // on_review_key_event
 
         focus_search_input: (function IssueDetail__focus_search_input () {
             var $node = $(this).closest('.issue-container'),
@@ -1672,6 +1779,7 @@ $().ready(function() {
                 var do_scroll = function() {
                     var $tab_pane = $node.find('.tab-pane.active'),
                         relative_position = -20; // some margin
+                    IssueDetail.mark_current_review_comment($tab_pane, $comment_node);
                     if (IssueDetail.is_modal($node)) {
                         var $container = $comment_node.closest('.code-comments');
                         relative_position += $container.position().top;
@@ -1829,6 +1937,13 @@ $().ready(function() {
             jwerty.key('n/j', IssueDetail.on_files_list_key_event('go_to_next_file'));
             jwerty.key('shift+p/shift+k', IssueDetail.on_files_list_key_event('go_to_previous_file_comment'));
             jwerty.key('shift+n/shift+j', IssueDetail.on_files_list_key_event('go_to_next_file_comment'));
+
+
+            // review navigation
+            $document.on('click', 'li:not(.disabled) a.go-to-previous-review-comment', Ev.stop_event_decorate(IssueDetail.go_to_previous_review_comment));
+            $document.on('click', 'li:not(.disabled) a.go-to-next-review-comment', Ev.stop_event_decorate(IssueDetail.go_to_next_review_comment));
+            jwerty.key('p/k/shift+p/shift+k', IssueDetail.on_review_key_event('go_to_previous_review_comment'));
+            jwerty.key('n/j/shift+n/shift+j', IssueDetail.on_review_key_event('go_to_next_review_comment'));
         }) // init
     }; // IssueDetail
     IssueDetail.init();

@@ -651,6 +651,13 @@ $repo-name-height: 20px;
         }
     }
     .pr-entry-point {
+        @extend %scroll-highlight;
+        &.outdated {
+            border: solid $state-closed-color 1px;
+        }
+        .outdated {
+            color: $state-closed-color;
+        }
         & > .box-header {
             position: relative;
             min-height: 65px;
@@ -1010,7 +1017,7 @@ $repo-name-height: 20px;
     }
 }
 .issue-commits, .issue-review, .code-files {
-    > .content, .code-files-list-container {
+    > .content, .code-files-list-container, .review-header {
         padding: 15px;
         background: white;
         border-bottom: solid 1px $box-border-color;
@@ -1087,13 +1094,10 @@ $repo-name-height: 20px;
 
 .code-files {
     .code-files-list-container {
-        @include box-sizing(border-box);
         &.stuck {
             min-height: $files-min-stuck-height;
-            top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height;
             z-index: 98;
             padding-bottom: 3px;
-            @include calc(width, $stuck-width);
             .code-files-list {
                 margin-bottom: 0;
                 &.in {
@@ -1104,8 +1108,35 @@ $repo-name-height: 20px;
     }
 }
 
-.with-repository .code-files .code-files-list-container.stuck {
-    top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
+.issue-review .review-header {
+    position: relative;
+    > nav {
+        float: none;
+        position: absolute;
+        top: 9px;
+        right: 10px;
+    }
+    &.stuck {
+        position: fixed;
+        height: 49px;
+    }
+}
+
+.code-files .code-files-list-container, .issue-review .review-header {
+    @include box-sizing(border-box);
+    &.stuck {
+        top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height;
+        z-index: 98;
+        @include calc(width, $stuck-width);
+    }
+}
+
+.with-repository {
+    .code-files .code-files-list-container, .issue-review .review-header {
+        &.stuck {
+            top: $header-top + $top-border + $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
+        }
+    }
 }
 
 table.commits-list {
@@ -1234,12 +1265,16 @@ table.commits-list {
                 margin-top: $header-stuck-height + $repo-name-height + $header-top-padding;
             }
         }
-        .code-files-list-container.stuck {
-            margin-top: $header-stuck-height + $tabs-stuck-height;
+        .code-files-list-container, .review-header {
+            &.stuck {
+                margin-top: $header-stuck-height + $tabs-stuck-height;
+            }
         }
         .with-repository {
-            .code-files-list-container.stuck {
-                margin-top: $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
+            .code-files-list-container, .review-header {
+                &.stuck {
+                    margin-top: $header-stuck-height + $tabs-stuck-height + $repo-name-height + $header-top-padding;
+                }
             }
         }
         .sticky-wrapper > * {
