@@ -770,10 +770,10 @@ $repo-name-height: 20px;
             width: 100%;
             @include box-sizing(border-box);
             height: 5em;
-            @include transition(height 0.5s ease 2s);
-        }
-        textarea:focus {
-            height: 15em;
+            @include transition(height 0.35s);
+            &.focused {
+                height: 15em;
+            }
         }
         .alert {
             margin-bottom: 10px;

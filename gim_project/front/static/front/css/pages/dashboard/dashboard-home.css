@@ -1557,14 +1557,13 @@ div.selector span {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   height: 5em;
-  -webkit-transition: height 0.5s ease;
-  -webkit-transition-delay: 2s;
-  -moz-transition: height 0.5s ease 2s;
-  -o-transition: height 0.5s ease 2s;
-  transition: height 0.5s ease 2s;
+  -webkit-transition: height 0.35s;
+  -moz-transition: height 0.35s;
+  -o-transition: height 0.35s;
+  transition: height 0.35s;
 }
-/* line 775, ../../../../../sass/components/_issue.scss */
-.issue-activity .comment-form textarea:focus {
+/* line 774, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-form textarea.focused {
   height: 15em;
 }
 /* line 778, ../../../../../sass/components/_issue.scss */

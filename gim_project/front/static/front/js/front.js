@@ -2504,6 +2504,10 @@ $().ready(function() {
             $textarea.focus();
         }), // on_comment_submit_failed
 
+        on_comment_textarea_focus: (function IssueEditor__on_comment_textarea_focus () {
+            $(this).addClass('focused');
+        }), // on_comment_textarea_focus
+
         on_comment_edit_click: (function IssueEditor__on_comment_edit_click (ev) {
             var $link = $(this),
                 $comment_node = $link.closest('li.issue-comment');
@@ -3080,6 +3084,7 @@ $().ready(function() {
             $document.on('click', '.comment-create-placeholder button', IssueEditor.on_comment_create_placeholder_click);
 
             $document.on('submit', '.comment-form', IssueEditor.on_comment_submit);
+            $document.on('focus', '.comment-form textarea', IssueEditor.on_comment_textarea_focus);
 
             $document.on('click', '.comment-create-form button[type=button]', IssueEditor.on_comment_create_cancel_click);
             $document.on('click', '.comment-edit-form button[type=button], .comment-delete-form button[type=button]', IssueEditor.on_comment_edit_or_delete_cancel_click);
