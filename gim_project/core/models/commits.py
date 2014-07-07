@@ -104,14 +104,20 @@ class Commit(WithRepositoryMixin, GithubObject):
         this case, set these dates to now, to avoid inexpected rendering
         """
         now = datetime.utcnow()
+
         if self.authored_at and self.authored_at > now:
             self.authored_at = now
+            if 'update_fields' in kwargs and 'authored_at' not in kwargs['update_fields']:
+                kwargs['update_fields'].append('authored_at')
+
         if self.committed_at and self.committed_at > now:
             self.committed_at = now
+            if 'update_fields' in kwargs and 'committed_at' not in kwargs['update_fields']:
+                kwargs['update_fields'].append('committed_at')
 
-        if self.pk and self.nb_changed_files is None:
+        if self.pk and not self.nb_changed_files:
             self.nb_changed_files = self.files.count()
-            if 'update_fields' in kwargs:
+            if 'update_fields' in kwargs and 'nb_changed_files' not in kwargs['update_fields']:
                 kwargs['update_fields'].append('nb_changed_files')
 
         return super(Commit, self).save(*args, **kwargs)
