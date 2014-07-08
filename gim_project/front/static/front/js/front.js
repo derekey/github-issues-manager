@@ -3135,6 +3135,10 @@ $().ready(function() {
                 issues: '.box-section',
                 repositories: '.activity-repository'
             },
+            count_silent: {
+                issues: '.box-section.silent',
+                repositories: '.activity-repository.silent .box-section'
+            },
             find_empty: ':not(:has(.chat-box > li))',
             filter_checkboxes: '.activity-filter input',
             filter_links: '.activity-filter a'
@@ -3156,10 +3160,6 @@ $().ready(function() {
             return $node.closest(Activity.selectors.main);
         }), // get_main_node
 
-        get_entry_score: (function Activity__get_entry_score ($entry) {
-            return $entry.data('score');
-        }), // get_entry_score
-
         get_existing_entries_for_score: (function Activity__get_existing_entries_for_score($pivot, where, score) {
             var result = [], $check = $pivot, $same_score_entries;
             if (!score) { return };
@@ -3173,11 +3173,11 @@ $().ready(function() {
             return result;
         }), // get_existing_entries_for_score
 
-        add_loaded_entries: (function Activity__add_loaded_entries($main_node, data, limits, $placeholder, callback) {
+        add_loaded_entries: (function Activity__add_loaded_entries($main_node, data, limits, $placeholder, silent, callback) {
             var $container = $('<div />'),
                 mode = $main_node.data('mode'),
                 idents = {}, $check, $same_score_entries,
-                $entries, $entry, is_min, is_max;
+                $entries, $entry, is_min, is_max, count = 0;
 
             // put data in a temporary container to manage them
             $container.append(data);
@@ -3220,19 +3220,35 @@ $().ready(function() {
                 }
             }
 
-            // remove old "recent" marks
-            $main_node.find(Activity.selectors.containers[mode] + '.recent').removeClass('recent');
+            count = $container.find(Activity.selectors.entries.all).length;
+
+            if (!silent) {
+                // remove old "recent" marks
+                $main_node.find(Activity.selectors.containers[mode] + '.recent:not(.silent)').removeClass('recent');
+            }
 
             // insert data if there is still
-            if ($container.find(Activity.selectors.entries.all).length) {
-                $entries = $container.children().replaceAll($placeholder);
-                setTimeout(function() { $entries.addClass('recent'); }, 10);
+            if (count) {
+                $entries = $container.children();
+                if (silent) {
+                    $entries.addClass('silent');
+                    $entries.insertAfter($placeholder);
+                } else {
+                    $entries.replaceAll($placeholder);
+                    setTimeout(function() { $entries.addClass('recent'); }, 10);
+                }
                 if (callback) { callback('ok'); }
             } else {
-                Activity.update_placeholder($placeholder, 'nothing', callback);
+                if (!silent) {
+                    Activity.update_placeholder($placeholder, 'nothing', callback);
+                } else {
+                    if (callback) { callback('nothing'); }
+                }
             }
 
             Activity.toggle_empty_parts($main_node);
+
+            return count;
         }), // add_loaded_entries
 
         placeholders: {
@@ -3264,17 +3280,24 @@ $().ready(function() {
                 delay: -1,
                 classes: 'more box-footer',
                 link: '#'
+            },
+            new_activity: {
+                message: '<span>New activity</span> available, click to see them!',
+                icon: 'fa fa-refresh',
+                delay: -1,
+                classes: 'timeline-refresh',
+                link: '#'
             }
         }, // placeholders
 
         update_placeholder: (function Activity__update_placeholder($placeholder, type, callback, replace_type) {
             var params = Activity.placeholders[type];
-            $placeholder[0].className = 'placeholder visible ' + type + (params.classes ? ' ' + params.classes : '');  // use className to remove all previous
             var html = '<i class="' + params.icon + '"> </i> ' + params.message;
             if (params.link) {
                 html = '<a href="' + params.link + '">' + html + '</a>';
             }
             $placeholder.html(html);
+            $placeholder[0].className = 'placeholder visible ' + type + (params.classes ? ' ' + params.classes : '');  // use className to remove all previous
             if (params.delay != -1) {
                 setTimeout(function() {
                     if (replace_type) {
@@ -3291,7 +3314,7 @@ $().ready(function() {
             }
         }), // update_placeholder
 
-        load_data: (function Activity__load_data($main_node, limits, $placeholder, callback, retry_placeholder) {
+        load_data: (function Activity__load_data($main_node, limits, $placeholder, silent, callback, retry_placeholder) {
             var data = { partial: 1};
 
             if (limits.min) { data.min = limits.min; }
@@ -3302,38 +3325,107 @@ $().ready(function() {
                 data: data,
                 dataType: 'html',
                 success: function(data) {
-                    Activity.add_loaded_entries($main_node, data, limits, $placeholder, callback);
+                    Activity.add_loaded_entries($main_node, data, limits, $placeholder, silent, callback);
                 },
                 error: function() {
-                    Activity.update_placeholder($placeholder, 'error', callback, retry_placeholder);
+                    if (silent) {
+                        callback('error');
+                    } else {
+                        Activity.update_placeholder($placeholder, 'error', callback, retry_placeholder);
+                    }
                 }
             });
 
         }), // load_data
 
         on_refresh_button_click: (function Activity__on_refresh_button_click () {
-            var $this = $(this), $main_node, mode, $placeholder, $first_entry, score;
+            var $main_node, $refresh_buttons, mode, $placeholder, $first_entry, score, $silent_entries;
 
-            if ($this.hasClass('disabled')) { return false; }
-            $this.addClass('disabled');
+            $main_node = Activity.get_main_node($(this));
 
-            $main_node = Activity.get_main_node($this);
+            $refresh_buttons = $main_node.find('.timeline-refresh');
+
+            if ($refresh_buttons.hasClass('disabled')) { return false; }
+            $refresh_buttons.addClass('disabled');
+
             $main_node.children('.box-content').scrollTop(1).scrollTop(0);
-
-            $placeholder = $('<div class="placeholder loading"><i class="' + Activity.placeholders.loading.icon + '"> </i> ' + Activity.placeholders.loading.message + '</div>');
             mode = $main_node.data('mode');
-            $main_node.find(Activity.selectors.containers[mode]).first().before($placeholder);
-            setTimeout(function() { $placeholder.addClass('visible'); }, 10);
 
-            $first_entry = $main_node.find(Activity.selectors.entries.first);
-            score = $first_entry.data('score');
+            $silent_entries = $main_node.find(Activity.selectors.containers[mode] + '.silent');
 
-            Activity.load_data($main_node, {min: score}, $placeholder, function(is_success) {
-                $this.removeClass('disabled');
-            });
+            if ($silent_entries.length) {
+
+                $main_node.find('.placeholder.new_activity').remove();
+                $main_node.find(Activity.selectors.containers[mode] + '.recent:not(.silent)').removeClass('recent');
+                $silent_entries.removeClass('silent').addClass('recent');
+                $refresh_buttons.removeClass('disabled');
+
+            } else {
+
+                $placeholder = $('<div class="placeholder loading"><i class="' + Activity.placeholders.loading.icon + '"> </i> ' + Activity.placeholders.loading.message + '</div>');
+                $main_node.find(Activity.selectors.containers[mode]).first().before($placeholder);
+                setTimeout(function() { $placeholder.addClass('visible'); }, 10);
+
+                Activity.get_fresh_data($main_node, $placeholder, false, function(result_type) {
+                    $refresh_buttons.removeClass('disabled');
+                });
+            }
 
             return false;
         }), // on_refresh_button_click
+
+        display_silent_activity: (function Activity__display_silent_activity() {
+
+        }), // display_silent_activity
+
+        get_fresh_data: (function Activity__get_fresh_data($main_node, $placeholder, silent, callback) {
+            var score = $main_node.find(Activity.selectors.entries.first).data('score');
+            Activity.load_data($main_node, {min: score}, $placeholder, silent, callback);
+        }), // get_fresh_data
+
+        check_new_activity: (function Activity__check_new_activity($main_node) {
+            var $placeholder = $('<div class="placeholder silent-checking"></div>'),
+                $new_activity_placeholder = $main_node.find('.placeholder.new_activity'),
+                mode = $main_node.data('mode');
+
+            $main_node.find(Activity.selectors.containers[mode]).first().before($placeholder);
+
+            Activity.get_fresh_data($main_node, $placeholder, true, function(result_type) {
+                if (result_type == 'ok') {
+                    if ($new_activity_placeholder.length) {
+                        $placeholder.remove();
+                    } else {
+                        Activity.update_placeholder($placeholder, 'new_activity');
+                        $new_activity_placeholder = $placeholder;
+                    }
+                    var count =  $silent_entries = $main_node.find(Activity.selectors.count_silent[mode]).length;
+                    $new_activity_placeholder.find('span').text(count + ' new entr' + (count > 1 ? 'ies' : 'y'));
+                    $new_activity_placeholder.addClass('flash');
+                    setTimeout(function() {
+                        $new_activity_placeholder.removeClass('flash');
+                    }, 1000);
+                } else {
+                    $placeholder.remove();
+                }
+            });
+
+        }), // check_new_activity
+
+        delay_check_new_activity: (function Activity__delay_check_new_activity($main_node) {
+            if (typeof $main_node.selector == 'undefined') {
+                // node is passed as a string when html loaded for the first time
+                $main_node = $($main_node);
+                if (!$main_node.length) {
+                    setTimeout(function() {
+                        Activity.delay_check_new_activity($main_node.selector);
+                    }, 1000);
+                    return;
+                }
+            }
+            setInterval(function() {
+                Activity.check_new_activity($main_node);
+            }, 30000);
+        }), // delay_check_new_activity
 
         on_more_button_click: (function Activity__on_more_button_click () {
             var $this = $(this), $main_node,
@@ -3359,7 +3451,7 @@ $().ready(function() {
                 limits.min = $next_entry.data('score');
             }
 
-            Activity.load_data($main_node, limits, $placeholder, null, is_missing_btn ? 'missing' : 'more');
+            Activity.load_data($main_node, limits, $placeholder, false, null, is_missing_btn ? 'missing' : 'more');
 
             return false;
         }), // on_more_button_click
@@ -3421,8 +3513,8 @@ $().ready(function() {
             }, 60000);
 
             var $feeds = $(Activity.selectors.main);
-            for (var i = 0; i < $feeds.length; i++) {
-                Activity.toggle_empty_parts($($feeds[i]));
+            for (var j = 0; j < $feeds.length; j++) {
+                Activity.toggle_empty_parts($($feeds[j]));
             }
         }), // init_feeds
 
@@ -3440,6 +3532,7 @@ $().ready(function() {
         }) // init
     }; // Activity
     Activity.init();
+    window.Activity = Activity;
 
     // if there is a collapse inside another, we don't want fixed heights, so always remove them
     $document.on('shown.collapse', '.collapse', function() {

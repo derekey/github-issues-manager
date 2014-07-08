@@ -32,7 +32,7 @@
             {% include "front/repository/issues/comments/include_code_comments.html" with comments=entry_point.comments.all classes="" with_link_to_diff=entry_point.position %}
             {% if not entry_point.position %}
                 <div class="box-section outdated">
-                    Note: these comments are related to outdated code, which has been updated since the comments were posted.
+                    Note: these comments are related to outdated code, which has been updated since they were posted.
                </div>
             {% endif %}
         </div>

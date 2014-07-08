@@ -10,4 +10,9 @@
             <div class="empty-area">It seems that there is no activity at all!</div>
         {% endif %}
     </div>{# .box-content #}
+    {% if not partial_activity %}
+        <script type="text/javascript">
+            Activity.delay_check_new_activity('#main_activity');
+        </script>
+    {% endif %}
 </div>{# #main_activity.box #}
