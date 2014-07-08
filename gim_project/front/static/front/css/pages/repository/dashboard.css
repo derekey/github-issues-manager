@@ -2382,118 +2382,124 @@ table.commits-list td .comments-count {
   }
 }
 
+/* line 4, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .activity-repository {
+  border-top: 1px solid #CDCDCD;
+}
 /* line 5, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .activity-repository.hidden {
   display: none;
 }
-/* line 8, ../../../../../sass/widgets/_activity.scss */
-.activity-feed .activity-repository:not(:first-child) {
-  border-top: 1px solid #CDCDCD;
-}
-/* line 12, ../../../../../sass/widgets/_activity.scss */
+/* line 10, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .activity-repository .box-header .title {
   font-size: 14px;
 }
-/* line 15, ../../../../../sass/widgets/_activity.scss */
+/* line 13, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .activity-repository .box-header .avatar {
   margin-right: 1ex;
 }
-/* line 20, ../../../../../sass/widgets/_activity.scss */
+/* line 18, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section {
   padding: 5px;
   padding-left: 2px;
 }
-/* line 23, ../../../../../sass/widgets/_activity.scss */
+/* line 21, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section.hidden {
   display: none;
 }
-/* line 26, ../../../../../sass/widgets/_activity.scss */
+/* line 24, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 {
   position: relative;
   line-height: 18px;
   font-size: 16px;
 }
-/* line 30, ../../../../../sass/widgets/_activity.scss */
+/* line 28, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 span {
   display: block;
 }
-/* line 32, ../../../../../sass/widgets/_activity.scss */
+/* line 30, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 span:first-of-type {
   float: left;
 }
-/* line 34, ../../../../../sass/widgets/_activity.scss */
+/* line 32, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 span:first-of-type.open {
   color: #8cc079;
 }
-/* line 37, ../../../../../sass/widgets/_activity.scss */
+/* line 35, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 span:first-of-type.closed {
   color: #b35d5d;
 }
-/* line 42, ../../../../../sass/widgets/_activity.scss */
+/* line 40, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section h3 i.fa-code {
   float: right;
   margin-right: 15px;
   margin-left: 10px;
   font-size: inherit;
 }
-/* line 49, ../../../../../sass/widgets/_activity.scss */
+/* line 47, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .info {
   margin-bottom: 5px;
 }
-/* line 52, ../../../../../sass/widgets/_activity.scss */
+/* line 50, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .info .name .label {
   margin-right: 5px;
 }
-/* line 56, ../../../../../sass/widgets/_activity.scss */
+/* line 54, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .chat-box > li {
   margin-top: 5px;
   margin-bottom: 5px;
 }
-/* line 60, ../../../../../sass/widgets/_activity.scss */
+/* line 58, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .chat-box > li > .box-content > p {
   margin: 0;
 }
-/* line 62, ../../../../../sass/widgets/_activity.scss */
+/* line 60, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .chat-box > li > .box-content > p:first-child {
   margin-right: 45px;
 }
-/* line 65, ../../../../../sass/widgets/_activity.scss */
+/* line 63, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .chat-box > li > .box-content > p > span[data-toggle=collapse] {
   margin-left: 5px;
   position: relative;
   top: -2px;
 }
-/* line 72, ../../../../../sass/widgets/_activity.scss */
+/* line 70, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .chat-box > li > .box-content > blockquote {
   margin-top: 4px;
   margin-bottom: 2px;
   padding-left: 7px;
 }
-/* line 79, ../../../../../sass/widgets/_activity.scss */
+/* line 77, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .chat-box > li > .box-content > div:last-of-type .part-body > div.in, .activity-feed .box-section .chat-box > li > .box-content > div:last-of-type .part-title > div.in {
   margin-bottom: -16px;
 }
-/* line 87, ../../../../../sass/widgets/_activity.scss */
+/* line 85, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-section .fa-stack {
   position: absolute;
   right: 10px;
   margin-top: -3px;
 }
-/* line 94, ../../../../../sass/widgets/_activity.scss */
+/* line 92, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-toolbar label {
   padding-right: 30px;
 }
-/* line 97, ../../../../../sass/widgets/_activity.scss */
+/* line 95, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-toolbar .fa-stack {
   position: absolute;
   right: 15px;
   margin-top: -2px;
 }
-/* line 101, ../../../../../sass/widgets/_activity.scss */
+/* line 99, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .box-toolbar .fa-stack i {
   color: inherit;
 }
-/* line 106, ../../../../../sass/widgets/_activity.scss */
+/* line 103, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .box-toolbar .timeline-refresh span {
+  color: #8cc079;
+  margin-left: 1em;
+  font-style: italic;
+}
+/* line 109, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder {
   text-align: center;
   line-height: 30px;
@@ -2505,54 +2511,63 @@ table.commits-list td .comments-count {
   -ms-border-radius: 0;
   -o-border-radius: 0;
   border-radius: 0;
-  -webkit-transition: height 0.35s;
-  -moz-transition: height 0.35s;
-  -o-transition: height 0.35s;
-  transition: height 0.35s;
+  background: transparent;
+  -webkit-transition: height 0.35s, background-color 0.35s ease;
+  -moz-transition: height 0.35s, background-color 0.35s ease;
+  -o-transition: height 0.35s, background-color 0.35s ease;
+  transition: height 0.35s, background-color 0.35s ease;
   border-top: 1px solid #CDCDCD;
 }
-/* line 113, ../../../../../sass/widgets/_activity.scss */
+/* line 116, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder a {
   color: inherit;
 }
-/* line 116, ../../../../../sass/widgets/_activity.scss */
+/* line 119, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder i {
   font-size: inherit;
 }
-/* line 118, ../../../../../sass/widgets/_activity.scss */
+/* line 121, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder i.fa-spinner {
   position: relative;
   top: 2px;
 }
-/* line 124, ../../../../../sass/widgets/_activity.scss */
+/* line 128, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .placeholder.flash {
+  background-color: #e6f1f4;
+}
+/* line 131, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder.loading {
   color: #bbbbbb;
 }
-/* line 127, ../../../../../sass/widgets/_activity.scss */
+/* line 134, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder.error {
   color: #b35d5d;
 }
-/* line 131, ../../../../../sass/widgets/_activity.scss */
+/* line 138, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder.box-footer a {
   display: block;
 }
-/* line 135, ../../../../../sass/widgets/_activity.scss */
+/* line 142, ../../../../../sass/widgets/_activity.scss */
 .activity-feed .placeholder.visible {
   height: 30px;
 }
-/* line 139, ../../../../../sass/widgets/_activity.scss */
-.activity-feed .placeholder:first-child {
-  border-top: none;
+/* line 146, ../../../../../sass/widgets/_activity.scss */
+.activity-feed .placeholder.silent-checking {
+  display: none;
 }
-/* line 144, ../../../../../sass/widgets/_activity.scss */
+/* line 151, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-repositories > .box-header {
+  margin-bottom: -1px;
+}
+/* line 154, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .activity-repository {
   position: relative;
 }
-/* line 146, ../../../../../sass/widgets/_activity.scss */
+/* line 156, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .activity-repository .box-section {
   padding-left: 8px;
 }
-/* line 149, ../../../../../sass/widgets/_activity.scss */
+/* line 159, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .activity-repository::before {
   content: '';
   position: absolute;
@@ -2566,23 +2581,31 @@ table.commits-list td .comments-count {
   -o-transition: background-color 0.7s;
   transition: background-color 0.7s;
 }
-/* line 160, ../../../../../sass/widgets/_activity.scss */
+/* line 170, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .activity-repository.recent::before {
   background-color: #7bc8d7;
 }
-/* line 166, ../../../../../sass/widgets/_activity.scss */
+/* line 174, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-repositories .activity-repository.silent {
+  display: none;
+}
+/* line 179, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-repositories .placeholder:last-child {
   border-bottom: 1px solid #CDCDCD;
 }
-/* line 172, ../../../../../sass/widgets/_activity.scss */
+/* line 185, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-issues .placeholder {
   border-bottom: 1px solid #CDCDCD;
 }
-/* line 174, ../../../../../sass/widgets/_activity.scss */
+/* line 187, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-issues .placeholder:first-child {
+  border-top: none;
+}
+/* line 190, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-issues .placeholder:last-child {
   border: none;
 }
-/* line 178, ../../../../../sass/widgets/_activity.scss */
+/* line 194, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-issues .box-section {
   -webkit-transition: border-color 0.7s;
   -moz-transition: border-color 0.7s;
@@ -2590,11 +2613,15 @@ table.commits-list td .comments-count {
   transition: border-color 0.7s;
   border-left: solid 4px transparent;
 }
-/* line 181, ../../../../../sass/widgets/_activity.scss */
+/* line 197, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.for-issues .box-section.recent {
   border-left-color: #7bc8d7;
 }
-/* line 204, ../../../../../sass/widgets/_activity.scss */
+/* line 200, ../../../../../sass/widgets/_activity.scss */
+.activity-feed.for-issues .box-section.silent {
+  display: none;
+}
+/* line 223, ../../../../../sass/widgets/_activity.scss */
 .activity-feed.hide-model-Event-create .model-Event-create, .activity-feed.hide-model-Event-update .model-Event-update, .activity-feed.hide-model-IssueEvent-closed .model-IssueEvent-closed, .activity-feed.hide-model-IssueEvent-merged .model-IssueEvent-merged, .activity-feed.hide-model-IssueEvent-reopened .model-IssueEvent-reopened, .activity-feed.hide-model-IssueComment .model-IssueComment, .activity-feed.hide-model-PullRequestComment .model-PullRequestComment, .activity-feed.hide-model-IssueCommits .model-IssueCommits, .activity-feed.hide-model-IssueCommits-deleted .model-IssueCommits-deleted, .activity-feed.hide-model-CommitComment .model-CommitComment, .activity-feed.hide-model-IssueEvent-assigned .model-IssueEvent-assigned, .activity-feed.hide-model-IssueEvent-head_ref_deleted .model-IssueEvent-head_ref_deleted, .activity-feed.hide-model-IssueEvent-head_ref_restored .model-IssueEvent-head_ref_restored, .activity-feed.hide-model-IssueEvent-referenced .model-IssueEvent-referenced, .activity-feed.hide-model-IssueEvent-referenced_by_issue .model-IssueEvent-referenced_by_issue, .activity-feed.hide-model-IssueEvent-referenced_by_issuecomment .model-IssueEvent-referenced_by_issuecomment, .activity-feed.hide-model-IssueEvent-referenced_by_pullrequestcomment .model-IssueEvent-referenced_by_pullrequestcomment, .activity-feed.hide-model-IssueEvent-referenced_by_milestone .model-IssueEvent-referenced_by_milestone {
   display: none;
 }

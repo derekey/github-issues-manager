@@ -10,4 +10,9 @@
             <div class="empty-area">No activity for this repository</div>
         {% endif %}
     </div>{# .box-content #}
+    {% if not partial_activity %}
+        <script type="text/javascript">
+            Activity.delay_check_new_activity('#repository-activity');
+        </script>
+    {% endif %}
 </div>{# .box#activity #}
