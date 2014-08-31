@@ -1,21 +1,103 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+eggs-upstream/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+reports/
+sdist/
+var/
+MANIFEST
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+install/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+
+# PyCharm IDE
+.idea/
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Eclipse
+.settings/
+
+# Rope
+.ropeproject
+
+# Sublime-Text:
+/*.sublime-project
+/*.sublime-workspace
+
+# Settings
+local_settings.py
+local_conf.json
+
+# Django stuff:
 *.log
 *.pot
-*.pyc
-local_settings.py
-local_conf.py
-/bin/
-/include/
-/lib/
-/local/
-/share/
-/src/
+gim/media/
+
+
+# Ignore the directory created by the "collectstatic" command
+gim/static/
+
+# Sphinx documentation
+docs/_build/
+
+# Front-end assets
+.sass-cache/
+
+# TextMate 2
+.tm_properties
+
+# Jenkins reports
+reports/
+
+# Mac Os
+.DS_Store
+
+# Sqlite database
+db/
 *.db
 *.db-journal
-*.sublime-workspace
-*.sublime-project
-.sass-cache
-/static/
-eggs/
-eggs-upstream/
-develop-eggs/
-.installed.cfg
+
+# Venv
+venv/
+
+# Vagrant
+Vagrantfile
+.vagrant/
+
+# Supervisor (dev)
+supervisor/
