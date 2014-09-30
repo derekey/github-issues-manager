@@ -1,0 +1,62 @@
+{% extends "front/dashboard/base.html" %}
+{% load staticfiles frontutils %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
+
+{% block body_id %}dashboard_subscriptions{% endblock %}
+{% block title %}Subscritions | {{ block.super }}{% endblock title %}
+{% block extra_css %}
+    <link href="{% static "front/css/pages/dashboard/available-repositories.css" %}" rel="stylesheet">
+{% endblock extra_css %}
+
+{% block dashboard-header %}
+    <form action="{% url "front:dashboard:repositories:ask-fetch" %}" method="post" id="ask-fetch">
+        <button type="submit" class="btn btn-large btn-blue btn-loading">Update available repositories <i class='fa fa-spinner fa-spin'> </i></button>
+        <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+    </form>
+    <div class="header">
+        <h3><i class="fa fa-check-circle"> </i> Manage your subscriptions</h3>
+        <h5>Choose for which repositories you want to manage issues.</h5>
+    </div>
+{% endblock dashboard-header %}
+
+{% block dashboard-main %}{% spaceless %}
+    <div class="row-fluid">
+        <div class="span10 offset1">
+
+{% if still_fetching %}
+    <div class="alert alert-info">
+        We're still fetching your available repositories, please refresh in a few seconds
+        <button type="button" class="close" title="Close" data-dismiss="alert">&times;</button>
+    </div>
+{% endif %}
+
+<div class="box" id="available-repositories">
+    <div class="box-header">
+        <ul class="nav nav-tabs nav-tabs-left">
+            {% for tab in tabs %}
+                <li{% if forloop.first %} class="active"{% endif %} data-mode="{{ tab.class.slug }}">
+                    <a href="#choose-{{ tab.class.slug }}" data-toggle="tab">{{ tab.class.title }}<span class="label label-{% if tab.count %}blue{% else %}gray{% endif %}">{{ tab.count }}</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="box-content">
+        <div class="tab-content">
+            {% for tab in tabs %}
+                <div class="tab-pane tab-{{ tab.class.slug }}{% if forloop.first %} active{% endif %}" data-mode="{{ tab.class.slug }}" id="choose-{{ tab.class.slug }}">
+                    {{ tab.part|safe }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+        </div>{# .span10 #}
+    </div>{# .row-fluid #}
+{% endspaceless %}{% endblock dashboard-main %}
+
+{% block js_footer %}
+    {{ block.super }}
+    <script src="{% static "front/js/repository-chooser.js" %}" type="text/javascript"></script>
+{% endblock js_footer %}

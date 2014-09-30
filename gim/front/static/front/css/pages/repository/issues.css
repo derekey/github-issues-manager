@@ -1,0 +1,2872 @@
+/* line 3, ../../../../../sass/widgets/_avatar.scss */
+.avatar img {
+  display: inline-block;
+}
+
+/* line 6, ../../../../../sass/widgets/_avatar.scss */
+.avatar-small {
+  display: inline-block;
+  overflow: hidden;
+  height: 36px;
+  width: 36px;
+  max-height: 36px;
+  max-width: 36px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px -1px;
+}
+
+/* line 15, ../../../../../sass/widgets/_avatar.scss */
+.avatar-tiny {
+  display: inline-block;
+  overflow: hidden;
+  height: 24px;
+  width: 24px;
+  max-height: 24px;
+  max-width: 24px;
+}
+
+/* line 23, ../../../../../sass/widgets/_avatar.scss */
+.avatar-micro {
+  display: inline-block;
+  overflow: hidden;
+  height: 16px;
+  width: 16px;
+  max-height: 16px;
+  max-width: 16px;
+}
+
+/* line 1, ../../../../../sass/components/_issues_mixins.scss */
+.issue-item, .issue-container > article > .area-top {
+  position: relative;
+}
+/* line 3, ../../../../../sass/components/_issues_mixins.scss */
+.issue-item:after, .issue-container > article > .area-top:after {
+  content: "";
+  position: absolute;
+  right: 0px;
+  top: -1px;
+  bottom: -1px;
+  width: 5px;
+}
+/* line 12, ../../../../../sass/components/_issues_mixins.scss */
+.state-open.issue-item:after, .issue-container > article > .state-open.area-top:after {
+  background-color: #8cc079;
+}
+/* line 17, ../../../../../sass/components/_issues_mixins.scss */
+.state-closed.issue-item:after, .issue-container > article > .state-closed.area-top:after {
+  background-color: #b35d5d;
+}
+
+/* line 23, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul > li, .part-label_type ul > li, .issue-item .issue-item-labels > li, .issue-container .issue-labels > ul > li, .part-labels ul > a, .part-label_type ul > a, .issue-item .issue-item-labels > a, .issue-container .issue-labels > ul > a, .select2-labels .select2-result-label span, .edit-field-labels .select2-container-multi .select2-choices .select2-search-choice span {
+  display: inline-block;
+  white-space: nowrap;
+  margin: 1px 0;
+  padding: 0 3px;
+  color: inherit;
+  border-bottom: solid #ccc 3px;
+}
+
+/* line 32, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul, .part-label_type ul, .issue-item .issue-item-labels, .issue-container .issue-labels > ul {
+  margin: 0;
+  padding: 0;
+  padding-right: 5px;
+}
+/* line 39, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul > li > a, .part-label_type ul > li > a, .issue-item .issue-item-labels > li > a, .issue-container .issue-labels > ul > li > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* line 46, ../../../../../sass/components/_issues_mixins.scss */
+.issue-item .issue-item-assignee i {
+  position: relative;
+  top: 2px;
+  margin-right: 2px;
+}
+
+/* line 54, ../../../../../sass/components/_issues_mixins.scss */
+p.state-closed {
+  color: #b35d5d;
+}
+
+/* line 58, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span[data-toggle=collapse], .part-title > span[data-toggle=collapse], table.commits-list td.cell-message p > span[data-toggle=collapse] {
+  display: inline-block;
+  height: 12px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  -ms-border-radius: 1px;
+  -o-border-radius: 1px;
+  border-radius: 1px;
+  background: #ddd;
+  line-height: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 1px 3px;
+}
+
+/* line 70, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul, .part-label_type ul {
+  display: inline-block;
+  margin-top: 0;
+  padding-right: 0;
+}
+/* line 74, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul li, .part-label_type ul li {
+  margin-top: 0;
+}
+/* line 79, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels > span, .part-label_type > span {
+  float: left;
+  margin-right: 5px;
+}
+
+/* line 84, ../../../../../sass/components/_issues_mixins.scss */
+.part-body, .part-title {
+  margin: 0 -10px;
+}
+/* line 85, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span:first-child, .part-title > span:first-child {
+  display: block;
+  margin: 5px 5px 5px 10px;
+}
+/* line 88, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span:first-child.collapsible, .part-title > span:first-child.collapsible {
+  float: left;
+}
+/* line 93, ../../../../../sass/components/_issues_mixins.scss */
+.part-body table.diff, .part-title table.diff {
+  font-size: 12px;
+  border-top: solid 1px #D8D8D8;
+  border-bottom: solid 1px #D8D8D8;
+  margin-bottom: 10px;
+  table-layout: fixed;
+}
+/* line 99, ../../../../../sass/components/_issues_mixins.scss */
+.part-body table.diff tbody tr, .part-title table.diff tbody tr {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+/* line 104, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span[data-toggle=collapse], .part-title > span[data-toggle=collapse] {
+  position: relative;
+  top: 2px;
+}
+/* line 109, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse, .part-title > div.collapse {
+  clear: both;
+}
+/* line 111, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse table.diff, .part-title > div.collapse table.diff {
+  margin-bottom: 0px;
+}
+/* line 114, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse.in, .part-title > div.collapse.in {
+  margin-bottom: 10px;
+}
+
+/* line 123, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body table.diff, .box-content:last-of-type > .part-title table.diff {
+  margin-bottom: -6px;
+}
+/* line 127, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body > div.collapse table.diff, .box-content:last-of-type > .part-title > div.collapse table.diff {
+  margin-bottom: 0px;
+}
+/* line 130, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body > div.collapse.in, .box-content:last-of-type > .part-title > div.collapse.in {
+  margin-bottom: -6px;
+}
+
+/* line 137, ../../../../../sass/components/_issues_mixins.scss */
+.issue-activity .pr-entry-point, .issue-activity .box-section.code-comments, .issue-activity .code-file, .issue-activity .issue-comment {
+  outline: solid rgba(123, 200, 215, 0) 2px;
+  -webkit-transition: outline 0.7s ease;
+  -moz-transition: outline 0.7s ease;
+  -o-transition: outline 0.7s ease;
+  transition: outline 0.7s ease;
+}
+/* line 140, ../../../../../sass/components/_issues_mixins.scss */
+.issue-activity .scroll-highlight.pr-entry-point, .issue-activity .scroll-highlight.box-section.code-comments, .issue-activity .scroll-highlight.code-file, .issue-activity .scroll-highlight.issue-comment {
+  outline: solid #7bc8d7 2px;
+}
+
+/* line 145, ../../../../../sass/components/_issues_mixins.scss */
+.box-section.issue-item, .issue-commits .code-files-list tr, .issue-review .code-files-list tr, .code-files .code-files-list tr {
+  background-color: transparent;
+  -webkit-transition: background-color 0.35s ease;
+  -moz-transition: background-color 0.35s ease;
+  -o-transition: background-color 0.35s ease;
+  transition: background-color 0.35s ease;
+}
+/* line 148, ../../../../../sass/components/_issues_mixins.scss */
+.active.box-section.issue-item, .issue-commits .code-files-list tr.active, .issue-review .code-files-list tr.active, .code-files .code-files-list tr.active {
+  background-color: #e6f1f4;
+}
+
+/* line 2, ../../../../../sass/components/_issues.scss */
+.issues-list > .alert {
+  margin: 0;
+  padding-right: 14px;
+}
+/* line 5, ../../../../../sass/components/_issues.scss */
+.issues-list > .alert .btn {
+  margin: 8px auto 0;
+  display: block;
+  max-width: 13em;
+}
+/* line 10, ../../../../../sass/components/_issues.scss */
+.issues-list > .alert + .box {
+  border-top-width: 1px;
+}
+/* line 14, ../../../../../sass/components/_issues.scss */
+.issues-list .box {
+  margin-bottom: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  border-top-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+}
+/* line 21, ../../../../../sass/components/_issues.scss */
+.issues-list .box-content {
+  margin-bottom: -1px;
+}
+/* line 24, ../../../../../sass/components/_issues.scss */
+.issues-list a.js-filter-trigger {
+  cursor: default;
+}
+/* line 27, ../../../../../sass/components/_issues.scss */
+.issues-list a.box-header {
+  padding-left: 7px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+}
+/* line 30, ../../../../../sass/components/_issues.scss */
+.issues-list a.box-header .title {
+  font-size: 13px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-transform: capitalize;
+}
+/* line 37, ../../../../../sass/components/_issues.scss */
+.issues-list a.box-header .box-toolbar > li {
+  line-height: 27px;
+  padding-right: 5px;
+}
+/* line 44, ../../../../../sass/components/_issues.scss */
+.issues-list .issues-group:first-child .box-header {
+  border-top: 0;
+}
+/* line 47, ../../../../../sass/components/_issues.scss */
+.issues-list .issues-group.active a.box-header {
+  padding-left: 2px;
+  border-left: solid #7bc8d7 5px;
+}
+/* line 53, ../../../../../sass/components/_issues.scss */
+.issues-list.without-details .issue-item {
+  padding: 5px;
+  padding-left: 8px;
+  min-height: 20px;
+}
+/* line 57, ../../../../../sass/components/_issues.scss */
+.issues-list.without-details .issue-item.active {
+  padding-left: 3px;
+}
+/* line 60, ../../../../../sass/components/_issues.scss */
+.issues-list.without-details .issue-item .issue-item-header, .issues-list.without-details .issue-item .avatar, .issues-list.without-details .issue-item .issue-item-footer {
+  display: none;
+}
+/* line 63, ../../../../../sass/components/_issues.scss */
+.issues-list.without-details .issue-item .news-content {
+  margin-left: 0;
+  margin-right: 0;
+}
+/* line 67, ../../../../../sass/components/_issues.scss */
+.issues-list.without-details .issue-item .news-title {
+  margin-bottom: 0;
+  min-height: 0;
+}
+
+/* line 75, ../../../../../sass/components/_issues.scss */
+.issue-item {
+  padding: 5px;
+  padding-top: 0;
+  position: relative;
+  min-height: 80px;
+  color: #707070;
+  cursor: pointer;
+}
+/* line 84, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-header {
+  margin-top: -1px;
+  margin-bottom: 5px;
+  overflow: auto;
+  font-size: 11px;
+  line-height: 15px;
+}
+/* line 90, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-header a {
+  color: inherit;
+}
+/* line 94, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-pull-request, .issue-item .issue-item-milestone, .issue-item .issue-item-times {
+  text-shadow: 0 1px rgba(255, 255, 255, 0.5);
+}
+/* line 97, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-pull-request {
+  float: left;
+  padding: 1px 0 2px;
+  text-align: center;
+  width: 30px;
+  line-height: 14px;
+  margin-left: 3px;
+  background: #eee;
+  -webkit-border-radius: 0 0 2px 2px;
+  -moz-border-radius: 0 0 2px 2px;
+  -ms-border-radius: 0 0 2px 2px;
+  -o-border-radius: 0 0 2px 2px;
+  border-radius: 0 0 2px 2px;
+}
+/* line 106, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-pull-request i {
+  font-size: 14px;
+}
+/* line 110, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-milestone {
+  margin-left: 50px;
+  margin-right: 95px;
+  padding: 0;
+  overflow: hidden;
+}
+/* line 115, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-milestone a {
+  font-weight: bold;
+  display: inline-block;
+  padding: 1px 5px 2px;
+  background: #eee;
+  -webkit-border-radius: 0 0 2px 2px;
+  -moz-border-radius: 0 0 2px 2px;
+  -ms-border-radius: 0 0 2px 2px;
+  -o-border-radius: 0 0 2px 2px;
+  border-radius: 0 0 2px 2px;
+}
+/* line 122, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-milestone i {
+  position: relative;
+  top: 2px;
+  margin-right: 5px;
+}
+/* line 128, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-times {
+  float: right;
+  white-space: nowrap;
+  padding: 1px 5px 2px;
+  background: #eee;
+  -webkit-border-radius: 0 0 0 2px;
+  -moz-border-radius: 0 0 0 2px;
+  -ms-border-radius: 0 0 0 2px;
+  -o-border-radius: 0 0 0 2px;
+  border-radius: 0 0 0 2px;
+  cursor: default;
+}
+/* line 135, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-times i {
+  font-size: inherit;
+  color: #bbb;
+  width: auto;
+  margin: 0 1px 0 2px;
+}
+/* line 142, ../../../../../sass/components/_issues.scss */
+.issue-item .news-content {
+  margin-right: 5px;
+}
+/* line 145, ../../../../../sass/components/_issues.scss */
+.issue-item .news-title {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+/* line 148, ../../../../../sass/components/_issues.scss */
+.issue-item .news-title .label {
+  margin-left: 3px;
+}
+/* line 152, ../../../../../sass/components/_issues.scss */
+.issue-item .avatar {
+  margin-bottom: 5px;
+}
+/* line 155, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-link {
+  outline: none !important;
+  text-decoration: none !important;
+}
+/* line 159, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-footer {
+  overflow: auto;
+}
+/* line 162, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-footer.with-labels {
+  clear: both;
+}
+/* line 165, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-comments-count {
+  float: right;
+  margin-right: 5px;
+  line-height: 24px;
+  cursor: default;
+}
+/* line 170, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-comments-count i {
+  margin-right: 2px;
+}
+/* line 174, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-assignee {
+  float: right;
+  margin-right: 5px;
+}
+/* line 179, ../../../../../sass/components/_issues.scss */
+.issue-item .issue-item-labels {
+  padding-right: 5px;
+}
+
+/* line 185, ../../../../../sass/components/_issues.scss */
+.issues-list.without-details .issue-item:after {
+  width: 3px;
+}
+
+/* line 188, ../../../../../sass/components/_issues.scss */
+.box-section.issue-item {
+  padding-left: 13px;
+}
+/* line 191, ../../../../../sass/components/_issues.scss */
+.box-section.issue-item.active {
+  padding-left: 8px;
+  border-left: solid #7bc8d7 5px;
+  border-top-color: #f0fcff;
+}
+
+/* line 200, ../../../../../sass/components/_issues.scss */
+.issues-quicksearch {
+  margin: 0;
+  padding: 0;
+}
+/* line 203, ../../../../../sass/components/_issues.scss */
+.issues-quicksearch label {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  width: 100%;
+  display: block;
+  height: 28px;
+  background: white;
+}
+/* line 212, ../../../../../sass/components/_issues.scss */
+.issues-quicksearch .add-on, .issues-quicksearch input, .issues-quicksearch .btn {
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  position: absolute;
+  top: 0;
+}
+/* line 218, ../../../../../sass/components/_issues.scss */
+.issues-quicksearch .add-on {
+  border-right: solid 1px #d4d4d4;
+  left: 0;
+  width: 16px;
+  z-index: 10;
+}
+/* line 224, ../../../../../sass/components/_issues.scss */
+.issues-quicksearch input {
+  display: block;
+  width: 100%;
+  left: 0;
+  right: 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-left: 33px;
+  padding-right: 31px;
+  background: transparent;
+  height: 28px;
+  z-index: 20;
+}
+/* line 236, ../../../../../sass/components/_issues.scss */
+.issues-quicksearch .btn {
+  border-left: solid 1px #d4d4d4;
+  right: 0;
+  margin-right: 0;
+  padding: 4px 6px;
+  z-index: 30;
+}
+
+/* line 3, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy {
+  border: 3px solid #808080;
+}
+/* line 6, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-body {
+  background: #f5f5f5;
+}
+/* line 10, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header, .modal.fancy .modal-footer {
+  background: #eaeaea;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #eaeaea));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: linear-gradient(top, #fdfdfd, #eaeaea);
+}
+/* line 12, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header h1, .modal.fancy .modal-header h2, .modal.fancy .modal-header h3, .modal.fancy .modal-header h4, .modal.fancy .modal-header h5, .modal.fancy .modal-header h6, .modal.fancy .modal-footer h1, .modal.fancy .modal-footer h2, .modal.fancy .modal-footer h3, .modal.fancy .modal-footer h4, .modal.fancy .modal-footer h5, .modal.fancy .modal-footer h6 {
+  margin: 0;
+}
+/* line 17, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header {
+  -moz-border-radius-topleft: 4px;
+  -webkit-border-top-left-radius: 4px;
+  border-top-left-radius: 4px;
+  -moz-border-radius-topright: 4px;
+  -webkit-border-top-right-radius: 4px;
+  border-top-right-radius: 4px;
+}
+/* line 22, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header {
+  border-bottom: 1px solid #CDCDCD;
+}
+
+/* \f020 doesn't work in Safari. all shifted one down */
+/* line 8, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 0;
+}
+/* line 10, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 16, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up input, form.fill-up textarea, form.fill-up select {
+  width: 100%;
+}
+/* line 20, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .padded .control-group:last-child {
+  margin-bottom: 0;
+}
+/* line 24, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up.form-horizontal .form-actions {
+  padding-left: 20px;
+}
+/* line 30, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .radio, form.fill-up .checkbox {
+  padding-left: 0;
+}
+/* line 35, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .form-actions {
+  margin-bottom: 0;
+}
+/* line 39, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .box form {
+  padding: 0;
+}
+/* line 43, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up form {
+  margin-bottom: 0;
+}
+/* line 61, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append, form.fill-up .input-prepend {
+  height: 26px;
+  line-height: 26px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+/* line 56, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append .add-on i, form.fill-up .input-prepend .add-on i {
+  line-height: 16px;
+}
+/* line 65, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append *, form.fill-up .input-prepend * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 72, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append a.add-on, form.fill-up .input-append span.add-on, form.fill-up .input-prepend a.add-on, form.fill-up .input-prepend span.add-on {
+  min-width: 26px;
+  color: #5a6573;
+  position: absolute;
+  height: 100%;
+  z-index: 2;
+  -webkit-box-shadow: inset 0 1px 2px white;
+  -moz-box-shadow: inset 0 1px 2px white;
+  box-shadow: inset 0 1px 2px white;
+  border: 1px solid #ccc;
+  background: #eaeaea;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #eaeaea));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: linear-gradient(top, #fdfdfd, #eaeaea);
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+/* line 86, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append a.add-on:active, form.fill-up .input-append span.add-on:active, form.fill-up .input-prepend a.add-on:active, form.fill-up .input-prepend span.add-on:active {
+  background: #eee;
+}
+/* line 91, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on, form.fill-up .input-prepend ul.add-on {
+  list-style: none;
+  position: absolute;
+  z-index: 2;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  top: 1px;
+  right: 2px;
+}
+/* line 104, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li, form.fill-up .input-prepend ul.add-on li {
+  float: left;
+  margin-left: 10px;
+  line-height: 32px;
+  height: 32px;
+}
+/* line 110, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li a, form.fill-up .input-append ul.add-on li button, form.fill-up .input-prepend ul.add-on li a, form.fill-up .input-prepend ul.add-on li button {
+  vertical-align: middle;
+}
+/* line 113, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li a.btn, form.fill-up .input-append ul.add-on li button.btn, form.fill-up .input-prepend ul.add-on li a.btn, form.fill-up .input-prepend ul.add-on li button.btn {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+}
+/* line 118, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li .btn, form.fill-up .input-prepend ul.add-on li .btn {
+  padding: 0;
+  line-height: 25px;
+  height: 25px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-right: 5px;
+}
+/* line 129, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append input[type="text"], form.fill-up .input-append input[type="password"], form.fill-up .input-append input[type="email"], form.fill-up .input-append input[type="number"], form.fill-up .input-prepend input[type="text"], form.fill-up .input-prepend input[type="password"], form.fill-up .input-prepend input[type="email"], form.fill-up .input-prepend input[type="number"] {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+/* line 138, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .box .input-append, form.fill-up .box .input-prepend {
+  margin-bottom: 0;
+}
+/* line 144, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append .add-on:last-child {
+  right: 0;
+}
+/* line 146, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append input[type="text"], form.fill-up .input-append input[type="password"], form.fill-up .input-append input[type="email"], form.fill-up .input-append input[type="number"] {
+  padding-right: 25px;
+}
+/* line 152, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-prepend .add-on:first-child {
+  left: 0;
+}
+/* line 154, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-prepend input[type="text"], form.fill-up .input-prepend input[type="password"], form.fill-up .input-prepend input[type="email"], form.fill-up .input-prepend input[type="number"] {
+  padding-left: 35px;
+}
+/* line 163, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader {
+  width: 100%;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: 1px solid #ccc;
+  height: 28px;
+  background: #fff;
+}
+/* line 171, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader span.filename {
+  border-right: none;
+  width: 120px;
+  height: 24px;
+  margin: 2px 0px 2px 2px;
+  line-height: 24px;
+}
+/* line 180, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader.hover span.action {
+  background: #8dbfd8;
+}
+/* line 186, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader.active span.action {
+  background: #4194bd;
+}
+/* line 191, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader span.action {
+  height: 24px;
+  line-height: 24px;
+  float: right;
+  width: 22px;
+  text-align: center;
+  height: 22px;
+  margin-top: 2px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+  background: #549fc4;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzdhYjRkMSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzU0OWZjNCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7ab4d1), color-stop(100%, #549fc4));
+  background-image: -webkit-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: -moz-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: -o-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: linear-gradient(top, #7ab4d1, #549fc4);
+  color: white;
+  text-shadow: none;
+  font-size: 16px;
+  line-height: 20px;
+}
+/* line 212, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector {
+  position: relative;
+  padding-left: 5px;
+  overflow: hidden;
+  width: 100%;
+  font-size: 12px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  background: whitesmoke;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2Y1ZjVmNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #f5f5f5));
+  background-image: -webkit-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: -moz-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: -o-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: linear-gradient(top, #ffffff, #f5f5f5);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid #ccc;
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
+  color: #666;
+}
+/* line 220, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector:after {
+  content: "\f0dd";
+  top: 2px;
+  right: 2px;
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  text-decoration: inherit;
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  text-align: center;
+  line-height: 18px;
+  font-size: 14px;
+  color: #888;
+}
+/* line 227, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0px 25px 0px 2px;
+  cursor: pointer;
+  color: #666;
+  text-shadow: 0 1px 0 #fff;
+  height: 26px;
+  line-height: 26px;
+  background: transparent;
+}
+/* line 244, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector.disabled span {
+  color: #bbb;
+}
+/* line 249, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector select {
+  position: absolute;
+  opacity: 0;
+  height: 25px;
+  border: none;
+  background: none;
+  top: 0;
+  left: 0;
+  font-size: 12px;
+  border: solid 1px #fff;
+}
+/* line 265, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea, form.fill-up input[type="text"], form.fill-up input[type="password"], form.fill-up input[type="datetime"], form.fill-up input[type="datetime-local"], form.fill-up input[type="date"], form.fill-up input[type="month"], form.fill-up input[type="time"], form.fill-up input[type="week"], form.fill-up input[type="number"], form.fill-up input[type="email"], form.fill-up input[type="url"], form.fill-up input[type="search"], form.fill-up input[type="tel"], form.fill-up input[type="color"], form.fill-up .uneditable-input {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  font-size: 12px;
+  color: #858585;
+  padding: 0 0 0 5px;
+  border: 1px solid #d7d7d7;
+  display: inline-block;
+  background: #fdfdfd;
+  height: 26px;
+}
+/* line 276, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea:focus, form.fill-up input[type="text"]:focus, form.fill-up input[type="password"]:focus, form.fill-up input[type="datetime"]:focus, form.fill-up input[type="datetime-local"]:focus, form.fill-up input[type="date"]:focus, form.fill-up input[type="month"]:focus, form.fill-up input[type="time"]:focus, form.fill-up input[type="week"]:focus, form.fill-up input[type="number"]:focus, form.fill-up input[type="email"]:focus, form.fill-up input[type="url"]:focus, form.fill-up input[type="search"]:focus, form.fill-up input[type="tel"]:focus, form.fill-up input[type="color"]:focus, form.fill-up .uneditable-input:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: 1px solid #68A6CE;
+}
+/* line 282, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea {
+  height: auto;
+}
+/* line 286, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up label {
+  font-size: 12px;
+  color: #5F5F5F;
+}
+/* line 56, ../../../../../core-admin/stylesheets/_arrow.scss */
+form.fill-up .search-dropdown {
+  position: relative;
+  background: #fbfbfb;
+  border: 1px solid #cccccc;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+/* line 72, ../../../../../core-admin/stylesheets/_arrow.scss */
+form.fill-up .search-dropdown:after, form.fill-up .search-dropdown:before {
+  bottom: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+/* line 82, ../../../../../core-admin/stylesheets/_arrow.scss */
+form.fill-up .search-dropdown:after {
+  border-bottom-color: #fbfbfb;
+  border-width: 7px;
+  left: 50%;
+  margin-left: -7px;
+}
+/* line 94, ../../../../../core-admin/stylesheets/_arrow.scss */
+form.fill-up .search-dropdown:before {
+  border-bottom-color: #cccccc;
+  border-width: 8px;
+  left: 50%;
+  margin-left: -8px;
+}
+/* line 296, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .search-dropdown {
+  margin-top: 15px;
+}
+/* line 299, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .search-dropdown .box-section:first-child {
+  border-top: none;
+  -moz-border-radius-topleft: 3px;
+  -webkit-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -webkit-border-top-right-radius: 3px;
+  border-top-right-radius: 3px;
+}
+/* line 308, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit {
+  position: relative;
+}
+/* line 311, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit button {
+  background: transparent;
+  border: none;
+  position: absolute;
+  right: 2px;
+  top: 7px;
+}
+/* line 319, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit i {
+  color: #909090;
+}
+
+/* line 2, ../../../../../sass/_core-admin-forms-correct.scss */
+[class*="span"] > div.selector {
+  width: 100% !important;
+}
+
+/* line 5, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  height: auto;
+  line-height: normal;
+}
+/* line 9, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector:after {
+  top: 0;
+}
+/* line 12, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector span {
+  width: auto !important;
+  height: 24px;
+  line-height: 24px;
+}
+
+/* line 20, ../../../../../sass/components/_issue.scss */
+.issue-container {
+  position: relative;
+}
+/* line 21, ../../../../../sass/components/_issue.scss */
+.issue-container .stuck {
+  position: fixed;
+  width: -moz-calc(0.583333 * 100% - 0.583333 * 160px - 13px) ;
+  width: -o-calc(0.583333 * 100% - 0.583333 * 160px - 13px) ;
+  width: -webkit-calc(0.583333 * 100% - 0.583333 * 160px - 13px) ;
+  width: calc(0.583333 * 100% - 0.583333 * 160px - 13px) ;
+  right: 13px;
+}
+/* line 29, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top {
+  -webkit-box-shadow: rgba(0, 0, 0, 0.07) 0 1px 1px -1px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.07) 0 1px 1px -1px;
+  box-shadow: rgba(0, 0, 0, 0.07) 0 1px 1px -1px;
+  padding-bottom: 5px;
+  min-height: 95px;
+  margin-bottom: 0;
+}
+/* line 31, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header {
+  overflow: auto;
+  padding-top: 2px;
+  padding-bottom: 1px;
+}
+/* line 36, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header .repository-name {
+  text-align: center;
+  margin: 0px;
+  font-size: 14px;
+  height: 20px;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: none;
+}
+/* line 47, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header .repository-name i {
+  font-size: inherit;
+  float: none;
+  margin: 0;
+}
+/* line 53, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header .avatar {
+  width: 40px;
+  height: 44px;
+  max-width: 40px;
+  overflow: hidden;
+  line-height: 40px;
+  text-align: center;
+  float: left;
+}
+/* line 57, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header h3 {
+  margin-top: 4px;
+  margin-left: 50px;
+  margin-right: 65px;
+}
+/* line 62, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header.stuck {
+  top: 52px;
+  max-height: 47px;
+  z-index: 100;
+  margin: 0;
+  padding: 2px 5px 0 2px;
+}
+/* line 68, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header.stuck h3 {
+  overflow: hidden;
+  white-space: nowrap;
+  overflow: hidden;
+  -ms-text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  margin-right: 25px;
+}
+/* line 73, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header.stuck:hover {
+  max-height: none !important;
+}
+/* line 75, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top header.stuck:hover h3 {
+  overflow: visible;
+  white-space: normal;
+}
+/* line 82, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top section {
+  margin-left: 50px;
+}
+/* line 84, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top section > h5, .issue-container > article > .area-top section > p, .issue-container > article > .area-top section > div {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+/* line 89, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top footer {
+  overflow: auto;
+  margin-right: -5px;
+  display: table;
+  width: 100%;
+}
+/* line 94, ../../../../../sass/components/_issue.scss */
+.issue-container > article > .area-top footer > * {
+  display: table-cell;
+  vertical-align: top;
+}
+/* line 106, ../../../../../sass/components/_issue.scss */
+.issue-container.with-repository > article > .area-top header {
+  padding-top: 22px;
+}
+/* line 108, ../../../../../sass/components/_issue.scss */
+.issue-container.with-repository > article > .area-top header .repository-name {
+  display: block;
+}
+/* line 111, ../../../../../sass/components/_issue.scss */
+.issue-container.with-repository > article > .area-top header.stuck {
+  max-height: 77px;
+  padding-top: 32px;
+}
+/* line 117, ../../../../../sass/components/_issue.scss */
+.issue-container.with-repository .issue-nav {
+  top: 41px;
+}
+/* line 121, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-pull-request {
+  position: absolute;
+  top: 65px;
+  left: 15px;
+  width: 40px;
+  text-align: center;
+  font-size: 24px;
+}
+/* line 130, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-milestone .no-milestone,
+.issue-container .issue-assigne .no-assignee {
+  color: #ccc;
+}
+/* line 135, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-footer-infos > div {
+  overflow: auto;
+  border: 1px solid #ccc;
+  -webkit-box-shadow: 0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eeeeee;
+  -moz-box-shadow: 0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eeeeee;
+  box-shadow: 0 0 6px -1px rgba(0, 0, 0, 0.15) inset, 1px 1px 0 #eeeeee;
+  float: right;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  margin-right: 1px;
+  margin-bottom: 1px;
+  margin-left: 10px;
+}
+/* line 146, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-footer-info-part {
+  margin: 0;
+  padding: 2px 6px;
+  line-height: 26px;
+  border-left: solid 1px #f0f0f0;
+  border-right: solid 1px #ddd;
+  display: table-cell;
+  vertical-align: middle;
+}
+/* line 154, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-footer-info-part:first-child {
+  -webkit-border-radius: 4px 0 0 4px;
+  -moz-border-radius: 4px 0 0 4px;
+  -ms-border-radius: 4px 0 0 4px;
+  -o-border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
+  border-left: none;
+}
+/* line 158, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-footer-info-part:last-child {
+  -webkit-border-radius: 0 4px 4px 0;
+  -moz-border-radius: 0 4px 4px 0;
+  -ms-border-radius: 0 4px 4px 0;
+  -o-border-radius: 0 4px 4px 0;
+  border-radius: 0 4px 4px 0;
+  border-right: none;
+}
+/* line 162, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-footer-info-part:first-child:last-child {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+/* line 167, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-comments-count {
+  top: 0;
+  color: inherit;
+  white-space: nowrap;
+}
+/* line 173, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-labels {
+  padding-top: 7px;
+}
+/* line 175, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-labels > ul {
+  display: inline;
+}
+/* line 181, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-involved {
+  max-width: 190px;
+  max-height: 54px;
+  overflow-y: auto;
+  margin-bottom: 0;
+}
+/* line 186, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-involved li {
+  display: inline-block;
+}
+/* line 191, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-big-infos {
+  background: #e6f1f4;
+  padding: 15px;
+  border-bottom: solid 1px #cdcdcd;
+  overflow: auto;
+}
+/* line 196, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-big-infos ul {
+  float: right;
+}
+/* line 198, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-big-infos ul li {
+  display: inline-block;
+  margin-left: 5px;
+}
+/* line 204, ../../../../../sass/components/_issue.scss */
+.issue-container .pr-merge-status {
+  margin-top: 15px;
+}
+/* line 206, ../../../../../sass/components/_issue.scss */
+.issue-container .pr-merge-status .alert {
+  display: inline-block;
+  padding-right: 14px;
+  margin: 0;
+}
+/* line 212, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-buttons {
+  float: right;
+}
+/* line 214, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-buttons .btn {
+  padding: 8px 14px;
+  font-size: 13px;
+  line-height: 18px;
+  margin-left: 15px;
+}
+/* line 220, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-buttons form {
+  margin-bottom: 0;
+  display: inline-block;
+}
+/* line 226, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-body {
+  padding: 15px;
+  padding-right: 30px;
+  background: white;
+  border-bottom: solid 1px #cdcdcd;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+  position: relative;
+}
+/* line 234, ../../../../../sass/components/_issue.scss */
+.issue-container .content.empty {
+  color: #bbbbbb;
+}
+/* line 238, ../../../../../sass/components/_issue.scss */
+.issue-container.big-issue {
+  position: absolute !important;
+  float: none !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: auto !important;
+  top: 47px !important;
+  bottom: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  z-index: 200;
+  background-color: #f0f0f0 !important;
+  background: url('/static/front/css/images/bg.png?1376415792') !important;
+}
+/* line 252, ../../../../../sass/components/_issue.scss */
+.issue-container.big-issue .stuck {
+  width: -moz-calc(100% - 13px) !important;
+  width: -o-calc(100% - 13px) !important;
+  width: -webkit-calc(100% - 13px) !important;
+  width: calc(100% - 13px) !important;
+}
+/* line 256, ../../../../../sass/components/_issue.scss */
+.issue-container.big-issue .issue-involved {
+  max-width: 300px;
+}
+/* line 262, ../../../../../sass/components/_issue.scss */
+.issue-container a.issue-edit-btn i {
+  float: none;
+  color: #ccc;
+  font-size: inherit;
+  font-weight: inherit;
+}
+/* line 268, ../../../../../sass/components/_issue.scss */
+.issue-container a.issue-edit-btn.loading i.fa-edit {
+  display: none;
+}
+/* line 271, ../../../../../sass/components/_issue.scss */
+.issue-container a.issue-edit-btn, .issue-container a.issue-edit-btn:hover {
+  text-decoration: none;
+}
+/* line 274, ../../../../../sass/components/_issue.scss */
+.issue-container a.issue-edit-btn.issue-edit-btn-title {
+  margin-left: 5px;
+}
+/* line 277, ../../../../../sass/components/_issue.scss */
+.issue-container a.issue-edit-btn.issue-edit-btn-body {
+  font-size: 18px;
+  position: absolute;
+  top: 3px;
+  right: 7px;
+}
+/* line 285, ../../../../../sass/components/_issue.scss */
+.issue-container a.issue-edit-btn.issue-edit-btn-milestone, .issue-container a.issue-edit-btn.issue-edit-btn-assignee, .issue-container a.issue-edit-btn.issue-edit-btn-labels {
+  font-size: 16px;
+  position: relative;
+  top: 1px;
+  margin-left: 3px;
+}
+/* line 293, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-title {
+  position: absolute;
+  left: 130px;
+  right: 75px;
+  height: 35px;
+}
+/* line 298, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-title div.edit-buttons {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+/* line 302, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-title div.edit-buttons .btn-cancel {
+  margin-left: 7px;
+}
+/* line 306, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-title div.edit-field {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 88px;
+}
+/* line 311, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-title div.edit-field input {
+  width: 100%;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+}
+/* line 316, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-title input {
+  font-family: inherit;
+  font-size: 14px;
+}
+/* line 322, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-body {
+  display: block;
+  padding: 10px;
+  padding-right: 25px;
+  background: white;
+  border-bottom: solid 1px #cdcdcd;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+}
+/* line 330, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-body div.edit-field {
+  display: block;
+  padding: 5px 5px 0;
+}
+/* line 334, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-body textarea {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+  min-height: 180px;
+  height: auto;
+  background: white;
+  border: none;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+/* line 348, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-body div.edit-buttons {
+  display: block;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: solid 1px #cdcdcd;
+}
+/* line 354, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-body button {
+  width: auto;
+  font-size: inherit;
+  margin: 0;
+}
+/* line 358, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-body button.btn-cancel {
+  font-weight: normal;
+}
+/* line 366, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-milestone,
+.issue-container .issue-edit-assignee,
+.issue-container .issue-edit-labels {
+  display: block;
+}
+/* line 368, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-milestone div.edit-field,
+.issue-container .issue-edit-assignee div.edit-field,
+.issue-container .issue-edit-labels div.edit-field {
+  min-width: 200px;
+}
+/* line 372, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-milestone div.edit-buttons button,
+.issue-container .issue-edit-assignee div.edit-buttons button,
+.issue-container .issue-edit-labels div.edit-buttons button {
+  margin-left: 6px;
+}
+/* line 374, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-milestone div.edit-buttons button:first-of-type,
+.issue-container .issue-edit-assignee div.edit-buttons button:first-of-type,
+.issue-container .issue-edit-labels div.edit-buttons button:first-of-type {
+  margin-left: 3px;
+}
+/* line 380, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-labels {
+  display: block !important;
+  position: relative;
+  overflow: auto;
+}
+/* line 385, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-labels div.edit-field,
+.issue-container .issue-edit-labels div.edit-buttons {
+  vertical-align: top;
+}
+/* line 388, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-labels div.edit-field {
+  width: -moz-calc(100% - 72px) ;
+  width: -o-calc(100% - 72px) ;
+  width: -webkit-calc(100% - 72px) ;
+  width: calc(100% - 72px) ;
+}
+/* line 390, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-labels div.edit-field select {
+  width: 100%;
+}
+/* line 394, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-labels div.edit-buttons {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+/* line 399, ../../../../../sass/components/_issue.scss */
+.issue-container .issue-edit-labels ~ div.issue-footer-infos {
+  display: block;
+  margin-top: 7px;
+}
+
+/* line 408, ../../../../../sass/components/_issue.scss */
+.select2-milestone .select2-result-sub li > div > div {
+  white-space: nowrap;
+  overflow: hidden;
+  -ms-text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+}
+
+/* line 413, ../../../../../sass/components/_issue.scss */
+.select2-labels .select2-results {
+  max-height: 400px;
+  display: block;
+}
+/* line 416, ../../../../../sass/components/_issue.scss */
+.select2-labels .select2-results > li li:not(.select2-selected) {
+  display: inline-block;
+}
+/* line 418, ../../../../../sass/components/_issue.scss */
+.select2-labels .select2-results > li li:not(.select2-selected) .select2-result-label {
+  padding-left: 5px !important;
+}
+
+/* line 429, ../../../../../sass/components/_issue.scss */
+.edit-field-labels .select2-container-multi .select2-choices {
+  min-height: 27px;
+  padding: 0 4px 1px 0;
+}
+/* line 430, ../../../../../sass/components/_issue.scss */
+.edit-field-labels .select2-container-multi .select2-choices * {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+/* line 435, ../../../../../sass/components/_issue.scss */
+.edit-field-labels .select2-container-multi .select2-choices .select2-search-field {
+  padding: 4px 0px 0px 4px;
+  margin: 0;
+}
+/* line 438, ../../../../../sass/components/_issue.scss */
+.edit-field-labels .select2-container-multi .select2-choices .select2-search-field input {
+  margin: 0;
+  padding: 0;
+  height: 20px;
+}
+/* line 444, ../../../../../sass/components/_issue.scss */
+.edit-field-labels .select2-container-multi .select2-choices .select2-search-choice {
+  margin: 2px 0 0 4px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none !important;
+  padding: 0 0 0 18px !important;
+}
+/* line 450, ../../../../../sass/components/_issue.scss */
+.edit-field-labels .select2-container-multi .select2-choices .select2-search-choice span {
+  margin-left: -18px;
+  padding-left: 18px;
+  padding-right: 3px;
+  line-height: 20px;
+}
+/* line 458, ../../../../../sass/components/_issue.scss */
+.edit-field-labels .select2-container-multi .select2-choices .select2-search-choice-close {
+  top: 5px;
+}
+
+/* line 465, ../../../../../sass/components/_issue.scss */
+#issue-create-form input[type=submit] {
+  display: none;
+}
+/* line 468, ../../../../../sass/components/_issue.scss */
+#issue-create-form .select2-container {
+  margin-bottom: 10px;
+}
+/* line 470, ../../../../../sass/components/_issue.scss */
+#issue-create-form .select2-container .select2-choice {
+  height: 29px;
+}
+/* line 475, ../../../../../sass/components/_issue.scss */
+#issue-create-form .edit-field > input, #issue-create-form .edit-field > textarea {
+  color: #555;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 4px 6px;
+  line-height: 20px;
+}
+/* line 482, ../../../../../sass/components/_issue.scss */
+#issue-create-form .edit-field > input {
+  height: 28px;
+}
+/* line 485, ../../../../../sass/components/_issue.scss */
+#issue-create-form .edit-field > textarea {
+  min-height: 180px;
+}
+/* line 488, ../../../../../sass/components/_issue.scss */
+#issue-create-form .edit-field:last-of-type .select2-container {
+  margin-bottom: 0;
+}
+
+/* line 494, ../../../../../sass/components/_issue.scss */
+#issue-create-modal .modal-body > .empty-area {
+  position: static;
+  margin: 0;
+}
+/* line 498, ../../../../../sass/components/_issue.scss */
+#issue-create-modal .modal-header {
+  position: relative;
+}
+/* line 500, ../../../../../sass/components/_issue.scss */
+#issue-create-modal .modal-header > h6 > span {
+  font-style: italic;
+}
+/* line 505, ../../../../../sass/components/_issue.scss */
+#issue-create-modal .modal-footer button {
+  font-size: inherit;
+}
+
+/* line 510, ../../../../../sass/components/_issue.scss */
+.issue-create-nav {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+}
+
+@media (min-width: 1023px) {
+  /* line 517, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files {
+    position: relative;
+  }
+  /* line 519, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files .files-list-sticky-wrapper {
+    height: auto !important;
+  }
+  /* line 522, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files .code-files-list-container {
+    left: 0;
+    width: 400px !important;
+    bottom: 0;
+    padding-top: 50px;
+    height: auto;
+    border-right: 1px solid #ddd;
+  }
+  /* line 529, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files .code-files-list-container:not(.stuck) {
+    position: absolute;
+    top: 0;
+  }
+  /* line 533, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files .code-files-list-container.stuck {
+    border-right-color: #ccc;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.07) 2px 0 1px -1px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.07) 2px 0 1px -1px;
+    box-shadow: rgba(0, 0, 0, 0.07) 2px 0 1px -1px;
+  }
+  /* line 538, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files .code-files-list {
+    max-height: none;
+    position: absolute;
+    top: 85px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    height: auto !important;
+    margin: 5px 0 0 !important;
+  }
+  /* line 548, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files .files-list-summary {
+    cursor: default;
+    position: absolute;
+    top: 14px;
+  }
+  /* line 552, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files .files-list-summary i.fa-sort {
+    display: none;
+  }
+  /* line 556, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files .issue-activity {
+    margin-left: 400px;
+  }
+  /* line 559, ../../../../../sass/components/_issue.scss */
+  .issue-container.big-issue .code-files table.diff tr:not(.diff-comments) td.code span {
+    left: 400px;
+  }
+}
+/* line 566, ../../../../../sass/components/_issue.scss */
+.issue-nav {
+  position: absolute;
+  right: 23px;
+  top: 21px;
+  z-index: 120;
+}
+/* line 571, ../../../../../sass/components/_issue.scss */
+.issue-nav i {
+  cursor: pointer;
+  color: #707070;
+}
+
+/* line 578, ../../../../../sass/components/_issue.scss */
+.header-stuck .issue-nav {
+  top: 60px;
+  position: fixed;
+}
+/* line 583, ../../../../../sass/components/_issue.scss */
+.header-stuck.with-repository .issue-nav {
+  top: 90px;
+}
+
+/* line 589, ../../../../../sass/components/_issue.scss */
+.issue-activity {
+  padding: 15px 15px;
+}
+/* line 591, ../../../../../sass/components/_issue.scss */
+.issue-activity .time {
+  color: #949494 !important;
+  font-weight: normal;
+}
+/* line 594, ../../../../../sass/components/_issue.scss */
+.issue-activity .time i {
+  margin-right: 3px;
+}
+/* line 598, ../../../../../sass/components/_issue.scss */
+.issue-activity a.time:hover {
+  text-decoration: none;
+}
+/* line 600, ../../../../../sass/components/_issue.scss */
+.issue-activity a.time:hover span {
+  text-decoration: underline;
+}
+/* line 604, ../../../../../sass/components/_issue.scss */
+.issue-activity > li > .box .box-toolbar > li {
+  margin-left: 10px;
+}
+/* line 606, ../../../../../sass/components/_issue.scss */
+.issue-activity > li > .box .box-toolbar > li:first-child {
+  margin-left: 5px;
+}
+/* line 610, ../../../../../sass/components/_issue.scss */
+.issue-activity .box-header > .fa-stack {
+  float: left;
+  margin-top: 7px;
+  margin-left: 7px;
+}
+/* line 615, ../../../../../sass/components/_issue.scss */
+.issue-activity .chat-box-entry {
+  margin-left: 50px;
+}
+/* line 617, ../../../../../sass/components/_issue.scss */
+.issue-activity .chat-box-entry > .info .label {
+  margin-right: 4px;
+}
+/* line 621, ../../../../../sass/components/_issue.scss */
+.issue-activity .chat-box-entry.event > .info {
+  color: #393939;
+}
+/* line 623, ../../../../../sass/components/_issue.scss */
+.issue-activity .chat-box-entry.event > .info > .label {
+  margin-left: -4px;
+  margin-right: 4px;
+}
+/* line 632, ../../../../../sass/components/_issue.scss */
+.issue-activity .chat-box-entry.event.event-referenced-by-issue > .content > span.label, .issue-activity .chat-box-entry.event.event-referenced-by-issuecomment > .content > span.label, .issue-activity .chat-box-entry.event.event-referenced-by-pullrequestcomment > .content > span.label, .issue-activity .chat-box-entry.event.event-referenced-by-milestone > .content > span.label {
+  float: right;
+  margin-top: 1px;
+}
+/* line 638, ../../../../../sass/components/_issue.scss */
+.issue-activity .chat-box-entry.event.event-referenced-in-commit .comment-commits table {
+  border-top: none;
+}
+/* line 640, ../../../../../sass/components/_issue.scss */
+.issue-activity .chat-box-entry.event.event-referenced-in-commit .comment-commits table tr:first-child {
+  border-top: none;
+}
+/* line 642, ../../../../../sass/components/_issue.scss */
+.issue-activity .chat-box-entry.event.event-referenced-in-commit .comment-commits table tr:first-child td {
+  border-top: none;
+}
+/* line 651, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-commits-group .box-header > .title, .issue-activity .pr-commits-group .box-header > .box-toolbar > li {
+  font-size: 13px;
+}
+/* line 654, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-commits-group .box-header > .title {
+  font-weight: normal;
+}
+/* line 660, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point.outdated {
+  border: solid #b35d5d 1px;
+}
+/* line 663, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point .outdated {
+  color: #b35d5d;
+}
+/* line 666, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header {
+  position: relative;
+  min-height: 65px;
+}
+/* line 669, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header .title {
+  font-size: 13px;
+  font-weight: normal;
+  margin-right: 160px;
+}
+/* line 673, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header .title > span {
+  display: block;
+}
+/* line 677, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header .box-toolbar {
+  font-weight: normal;
+  color: #949494;
+  float: none;
+  position: absolute;
+  top: 2px;
+  right: 5px;
+}
+/* line 684, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header .box-toolbar li.link {
+  float: none;
+  clear: both;
+  text-align: right;
+  top: -5px;
+  line-height: 21px;
+  display: block;
+}
+/* line 693, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header .comments-count {
+  padding-right: 5px;
+}
+/* line 695, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header .comments-count i {
+  margin-right: 2px;
+}
+/* line 699, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header .time {
+  margin-left: 5px;
+}
+/* line 701, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-header .time i.fa-caret-right {
+  font-size: 11px;
+  color: #bbb;
+  width: auto;
+  margin: 0px 4px;
+}
+/* line 709, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point > .box-content.collapse.in {
+  position: static;
+}
+/* line 714, ../../../../../sass/components/_issue.scss */
+.issue-activity .box-section.code-comments {
+  padding-top: 5px;
+  padding-bottom: 0;
+  position: relative;
+}
+/* line 723, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-file .box-toolbar {
+  margin-top: 8px;
+  margin-right: 8px;
+  text-align: right;
+}
+/* line 727, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-file .box-toolbar > li {
+  line-height: normal;
+  padding: 0;
+  margin: 0;
+  float: none;
+}
+/* line 732, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-file .box-toolbar > li:first-of-type {
+  margin-bottom: 3px;
+}
+/* line 734, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-file .box-toolbar > li:first-of-type li:first-of-type {
+  margin-right: 3px;
+}
+/* line 738, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-file .box-toolbar > li a.btn {
+  display: block;
+}
+/* line 743, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-file > .box-content.collapse.in {
+  position: static;
+}
+/* line 746, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-file .title span {
+  display: block;
+  font-weight: normal;
+}
+/* line 750, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-file .no-diff {
+  color: #bbbbbb;
+  background: white;
+  padding: 10px;
+}
+/* line 758, ../../../../../sass/components/_issue.scss */
+.issue-activity .pr-entry-point div.collapse.in, .issue-activity .code-file div.collapse.in {
+  height: auto !important;
+  overflow: visible;
+}
+/* line 763, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-commits {
+  margin: -5px -10px;
+}
+/* line 767, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-form {
+  margin: 5px 0;
+}
+/* line 769, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-form textarea {
+  width: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 5em;
+  -webkit-transition: height 0.35s;
+  -moz-transition: height 0.35s;
+  -o-transition: height 0.35s;
+  transition: height 0.35s;
+}
+/* line 774, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-form textarea.focused {
+  height: 15em;
+}
+/* line 778, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-form .alert {
+  margin-bottom: 10px;
+}
+/* line 784, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-delete-form .auto-align {
+  padding-bottom: 10px;
+  border-bottom: solid 1px #cdcdcd;
+}
+/* line 790, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-create-placeholder {
+  margin-left: 50px;
+  margin-bottom: 15px;
+}
+/* line 795, ../../../../../sass/components/_issue.scss */
+.issue-activity .change-event .box-content {
+  margin: 5px 10px;
+}
+/* line 799, ../../../../../sass/components/_issue.scss */
+.issue-activity .code-comments-group .box-content {
+  margin: 5px 10px;
+  padding-right: 70px;
+}
+/* line 804, ../../../../../sass/components/_issue.scss */
+.issue-activity .go-to-review-link {
+  position: absolute;
+  right: 20px;
+  margin-top: -1px;
+}
+/* line 810, ../../../../../sass/components/_issue.scss */
+.issue-activity .commit-comments-group .box-content {
+  margin: 5px 10px;
+}
+/* line 812, ../../../../../sass/components/_issue.scss */
+.issue-activity .commit-comments-group .box-content .comment-commits {
+  margin-top: 5px;
+}
+/* line 821, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-nav {
+  float: right;
+  margin: -2px -5px -1px 7px;
+}
+/* line 825, ../../../../../sass/components/_issue.scss */
+.issue-activity .comment-nav a.loading i.fa-edit, .issue-activity .comment-nav a.loading i.fa-times {
+  display: none;
+}
+/* line 832, ../../../../../sass/components/_issue.scss */
+.issue-activity ~ .issue-activity {
+  padding-top: 0;
+  margin-top: -17px;
+}
+/* line 836, ../../../../../sass/components/_issue.scss */
+.issue-activity ~ .issue-activity > li.divider span {
+  font-size: 14px;
+  top: -10px;
+}
+
+/* line 845, ../../../../../sass/components/_issue.scss */
+.issue-tabs {
+  overflow: hidden;
+  position: relative;
+  padding: 0 25px;
+  display: none;
+}
+/* line 850, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul {
+  margin-bottom: 0;
+  padding-top: 5px;
+  padding-left: 3px;
+  white-space: nowrap;
+  position: relative;
+  width: 3000px;
+  -webkit-transform: translateX(0);
+  -moz-transform: translateX(0);
+  -ms-transform: translateX(0);
+  -o-transform: translateX(0);
+  transform: translateX(0);
+  left: 0;
+  -webkit-transition: -webkit-transform 0.35s ease-in-out, left 0.35s ease-in-out;
+  -moz-transition: -moz-transform 0.35s ease-in-out, left 0.35s ease-in-out;
+  -o-transition: -o-transform 0.35s ease-in-out, left 0.35s ease-in-out;
+  transition: transform 0.35s ease-in-out, left 0.35s ease-in-out;
+}
+/* line 860, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul > li {
+  margin-left: 1px;
+  margin-right: 1px;
+  white-space: nowrap;
+  display: inline-block;
+  float: none;
+}
+/* line 866, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul > li > a {
+  padding: 5px 8px 8px;
+}
+/* line 868, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul > li > a > .badge:last-of-type {
+  margin-left: 3px;
+}
+/* line 872, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul > li.pr-discussion-tab > a > .badge:first-child {
+  margin-left: 0;
+}
+/* line 875, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul > li.commit-tab > a > strong {
+  margin-right: 3px;
+}
+/* line 879, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul > li.closable a {
+  position: relative;
+  padding-right: 22px;
+}
+/* line 883, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul > li.closable i.fa-times {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  line-height: 30px;
+  padding: 0px 5px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #CCC;
+}
+/* line 893, ../../../../../sass/components/_issue.scss */
+.issue-tabs > ul > li.closable i.fa-times:hover {
+  color: #666;
+}
+/* line 900, ../../../../../sass/components/_issue.scss */
+.issue-tabs > .arrow {
+  position: absolute;
+  display: block;
+  top: 6px;
+  bottom: 0;
+  padding-top: 8px;
+  width: 23px;
+  text-align: center;
+  border-bottom: solid 1px #ddd;
+  background-color: #f0f0F0;
+  background-color: #f0f0f0;
+  z-index: 1;
+}
+/* line 912, ../../../../../sass/components/_issue.scss */
+.issue-tabs > .arrow > .badge {
+  font-size: 8px;
+  position: absolute;
+  top: 1px;
+  min-width: 8px;
+  line-height: 8px;
+  height: 8px;
+  padding: 0px 1px;
+}
+/* line 922, ../../../../../sass/components/_issue.scss */
+.issue-tabs > .arrow > i, .issue-tabs > .arrow > .badge {
+  opacity: 1;
+  -webkit-transition: opacity 0.35s ease-in-out;
+  -moz-transition: opacity 0.35s ease-in-out;
+  -o-transition: opacity 0.35s ease-in-out;
+  transition: opacity 0.35s ease-in-out;
+}
+/* line 926, ../../../../../sass/components/_issue.scss */
+.issue-tabs > .arrow.scroll-left {
+  left: 0;
+  padding-left: 2px;
+  padding-right: 5px;
+  background: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjEwMCUiIHkxPSI1MCUiIHgyPSIwJSIgeTI9IjUwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0icmdiYSgyNDAsIDI0MCwgMjQwLCAwKSIvPjxzdG9wIG9mZnNldD0iMzAlIiBzdG9wLWNvbG9yPSJyZ2JhKDI0MCwgMjQwLCAyNDAsIDAuOCkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmMGYwZjAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyYWQpIiAvPjwvc3ZnPiA=');
+  background: -webkit-gradient(linear, 100% 50%, 0% 50%, color-stop(0%, rgba(240, 240, 240, 0)), color-stop(30%, rgba(240, 240, 240, 0.8)), color-stop(100%, #f0f0f0));
+  background: -webkit-linear-gradient(right, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, #f0f0f0 100%);
+  background: -moz-linear-gradient(right, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, #f0f0f0 100%);
+  background: -o-linear-gradient(right, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, #f0f0f0 100%);
+  background: linear-gradient(right, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, #f0f0f0 100%);
+}
+/* line 931, ../../../../../sass/components/_issue.scss */
+.issue-tabs > .arrow.scroll-left > .badge {
+  left: 2px;
+}
+/* line 935, ../../../../../sass/components/_issue.scss */
+.issue-tabs > .arrow.scroll-right {
+  right: 0;
+  padding-left: 5px;
+  padding-right: 2px;
+  background: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iNTAlIiB4Mj0iMTAwJSIgeTI9IjUwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0icmdiYSgyNDAsIDI0MCwgMjQwLCAwKSIvPjxzdG9wIG9mZnNldD0iMzAlIiBzdG9wLWNvbG9yPSJyZ2JhKDI0MCwgMjQwLCAyNDAsIDAuOCkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmMGYwZjAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyYWQpIiAvPjwvc3ZnPiA=');
+  background: -webkit-gradient(linear, 0% 50%, 100% 50%, color-stop(0%, rgba(240, 240, 240, 0)), color-stop(30%, rgba(240, 240, 240, 0.8)), color-stop(100%, #f0f0f0));
+  background: -webkit-linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, #f0f0f0 100%);
+  background: -moz-linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, #f0f0f0 100%);
+  background: -o-linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, #f0f0f0 100%);
+  background: linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.8) 30%, #f0f0f0 100%);
+}
+/* line 940, ../../../../../sass/components/_issue.scss */
+.issue-tabs > .arrow.scroll-right > .badge {
+  right: 2px;
+}
+/* line 947, ../../../../../sass/components/_issue.scss */
+.issue-tabs.no-scroll-left .scroll-left > i, .issue-tabs.no-scroll-right .scroll-right > i {
+  opacity: 0.1;
+}
+/* line 950, ../../../../../sass/components/_issue.scss */
+.issue-tabs.no-scroll-left .scroll-left > .badge, .issue-tabs.no-scroll-right .scroll-right > .badge {
+  opacity: 0;
+}
+/* line 954, ../../../../../sass/components/_issue.scss */
+.issue-tabs.stuck {
+  background: #f0f0F0;
+  max-height: 37px;
+  top: 99px;
+  z-index: 99;
+  padding: 0 25px;
+}
+/* line 960, ../../../../../sass/components/_issue.scss */
+.issue-tabs.stuck > ul {
+  padding-top: 2px;
+  padding-bottom: 3px;
+  border-bottom: none;
+}
+/* line 964, ../../../../../sass/components/_issue.scss */
+.issue-tabs.stuck > ul > li {
+  margin-bottom: 0;
+}
+/* line 966, ../../../../../sass/components/_issue.scss */
+.issue-tabs.stuck > ul > li > a {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  border-color: none;
+  padding-bottom: 4px;
+}
+/* line 970, ../../../../../sass/components/_issue.scss */
+.issue-tabs.stuck > ul > li > a:hover, .issue-tabs.stuck > ul > li > a:focus {
+  border-color: #ddd;
+}
+/* line 974, ../../../../../sass/components/_issue.scss */
+.issue-tabs.stuck > ul > li.active > a {
+  border-color: #ddd;
+}
+/* line 979, ../../../../../sass/components/_issue.scss */
+.issue-tabs.stuck > .arrow {
+  top: -6px;
+  bottom: -1px;
+  padding-top: 16px;
+}
+/* line 983, ../../../../../sass/components/_issue.scss */
+.issue-tabs.stuck > .arrow > .badge {
+  top: 9px;
+}
+
+/* line 989, ../../../../../sass/components/_issue.scss */
+.with-repository .issue-tabs.stuck {
+  top: 129px;
+}
+
+/* line 993, ../../../../../sass/components/_issue.scss */
+.issue-discussion .issue-body {
+  margin-top: 0;
+}
+
+/* line 998, ../../../../../sass/components/_issue.scss */
+.issue-commits .deleted-commits-toggler {
+  font-size: inherit;
+  display: inline-block;
+  float: right;
+  line-height: normal;
+  vertical-align: middle;
+}
+/* line 1004, ../../../../../sass/components/_issue.scss */
+.issue-commits .deleted-commits-toggler input {
+  vertical-align: middle;
+  margin-right: 1ex;
+}
+/* line 1008, ../../../../../sass/components/_issue.scss */
+.issue-commits .deleted-commits-toggler span {
+  vertical-align: middle;
+}
+/* line 1012, ../../../../../sass/components/_issue.scss */
+.issue-commits .all-commits {
+  display: none;
+}
+/* line 1016, ../../../../../sass/components/_issue.scss */
+.issue-commits.view-deleted .all-commits {
+  display: block;
+}
+/* line 1019, ../../../../../sass/components/_issue.scss */
+.issue-commits.view-deleted .active-commits {
+  display: none;
+}
+
+/* line 1025, ../../../../../sass/components/_issue.scss */
+.issue-commits > .content, .issue-commits .code-files-list-container, .issue-commits .review-header, .issue-review > .content, .issue-review .code-files-list-container, .issue-review .review-header, .code-files > .content, .code-files .code-files-list-container, .code-files .review-header {
+  padding: 15px;
+  background: white;
+  border-bottom: solid 1px #cdcdcd;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px -1px;
+}
+/* line 1030, ../../../../../sass/components/_issue.scss */
+.issue-commits > .content > nav, .issue-commits .code-files-list-container > nav, .issue-commits .review-header > nav, .issue-review > .content > nav, .issue-review .code-files-list-container > nav, .issue-review .review-header > nav, .code-files > .content > nav, .code-files .code-files-list-container > nav, .code-files .review-header > nav {
+  margin-left: 10px;
+  float: right;
+  position: relative;
+  top: -6px;
+}
+/* line 1035, ../../../../../sass/components/_issue.scss */
+.issue-commits > .content > nav > .btn-group, .issue-commits .code-files-list-container > nav > .btn-group, .issue-commits .review-header > nav > .btn-group, .issue-review > .content > nav > .btn-group, .issue-review .code-files-list-container > nav > .btn-group, .issue-review .review-header > nav > .btn-group, .code-files > .content > nav > .btn-group, .code-files .code-files-list-container > nav > .btn-group, .code-files .review-header > nav > .btn-group {
+  margin-left: 6px;
+}
+/* line 1038, ../../../../../sass/components/_issue.scss */
+.issue-commits > .content > nav > div.quicksearch-widget, .issue-commits .code-files-list-container > nav > div.quicksearch-widget, .issue-commits .review-header > nav > div.quicksearch-widget, .issue-review > .content > nav > div.quicksearch-widget, .issue-review .code-files-list-container > nav > div.quicksearch-widget, .issue-review .review-header > nav > div.quicksearch-widget, .code-files > .content > nav > div.quicksearch-widget, .code-files .code-files-list-container > nav > div.quicksearch-widget, .code-files .review-header > nav > div.quicksearch-widget {
+  display: inline-block;
+}
+/* line 1040, ../../../../../sass/components/_issue.scss */
+.issue-commits > .content > nav > div.quicksearch-widget input[type='text'], .issue-commits .code-files-list-container > nav > div.quicksearch-widget input[type='text'], .issue-commits .review-header > nav > div.quicksearch-widget input[type='text'], .issue-review > .content > nav > div.quicksearch-widget input[type='text'], .issue-review .code-files-list-container > nav > div.quicksearch-widget input[type='text'], .issue-review .review-header > nav > div.quicksearch-widget input[type='text'], .code-files > .content > nav > div.quicksearch-widget input[type='text'], .code-files .code-files-list-container > nav > div.quicksearch-widget input[type='text'], .code-files .review-header > nav > div.quicksearch-widget input[type='text'] {
+  width: 100px;
+}
+/* line 1046, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list, .issue-review .code-files-list, .code-files .code-files-list {
+  clear: both;
+  margin-bottom: -12px;
+  max-height: 150px;
+  overflow-y: auto;
+  -webkit-transition: height 0.01s ease;
+  -moz-transition: height 0.01s ease;
+  -o-transition: height 0.01s ease;
+  transition: height 0.01s ease;
+}
+/* line 1052, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list.in, .issue-review .code-files-list.in, .code-files .code-files-list.in {
+  margin-top: 15px;
+  margin-bottom: -5px;
+}
+/* line 1056, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list table, .issue-review .code-files-list table, .code-files .code-files-list table {
+  margin-bottom: 0;
+  table-layout: fixed;
+}
+/* line 1063, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list td:first-of-type, .issue-review .code-files-list td:first-of-type, .code-files .code-files-list td:first-of-type {
+  width: 12px;
+  color: #767676;
+}
+/* line 1066, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list td:first-of-type.status-added, .issue-review .code-files-list td:first-of-type.status-added, .code-files .code-files-list td:first-of-type.status-added {
+  color: #8cc079;
+}
+/* line 1069, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list td:first-of-type.status-removed, .issue-review .code-files-list td:first-of-type.status-removed, .code-files .code-files-list td:first-of-type.status-removed {
+  color: #b35d5d;
+}
+/* line 1072, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list td:first-of-type.status-renamed, .issue-review .code-files-list td:first-of-type.status-renamed, .code-files .code-files-list td:first-of-type.status-renamed {
+  color: #7fb3d4;
+}
+/* line 1076, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list td:last-of-type, .issue-review .code-files-list td:last-of-type, .code-files .code-files-list td:last-of-type {
+  text-align: right;
+}
+/* line 1078, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list td:last-of-type li, .issue-review .code-files-list td:last-of-type li, .code-files .code-files-list td:last-of-type li {
+  margin-left: 4px;
+}
+/* line 1082, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list tr:last-of-type td, .issue-review .code-files-list tr:last-of-type td, .code-files .code-files-list tr:last-of-type td {
+  border-bottom: 1px solid #DDD;
+}
+/* line 1085, ../../../../../sass/components/_issue.scss */
+.issue-commits .code-files-list ul, .issue-review .code-files-list ul, .code-files .code-files-list ul {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+/* line 1090, ../../../../../sass/components/_issue.scss */
+.issue-commits .empty-area, .issue-review .empty-area, .code-files .empty-area {
+  position: static;
+  height: 200px;
+  margin-top: 100px;
+}
+/* line 1094, ../../../../../sass/components/_issue.scss */
+.issue-commits .empty-area i, .issue-review .empty-area i, .code-files .empty-area i {
+  font-size: inherit;
+}
+
+/* line 1102, ../../../../../sass/components/_issue.scss */
+.code-files .code-files-list-container.stuck {
+  min-height: 49px;
+  z-index: 98;
+  padding-bottom: 3px;
+}
+/* line 1106, ../../../../../sass/components/_issue.scss */
+.code-files .code-files-list-container.stuck .code-files-list {
+  margin-bottom: 0;
+}
+/* line 1108, ../../../../../sass/components/_issue.scss */
+.code-files .code-files-list-container.stuck .code-files-list.in {
+  margin-bottom: 7px;
+}
+
+/* line 1116, ../../../../../sass/components/_issue.scss */
+.issue-review .review-header {
+  position: relative;
+}
+/* line 1118, ../../../../../sass/components/_issue.scss */
+.issue-review .review-header > nav {
+  float: none;
+  position: absolute;
+  top: 9px;
+  right: 10px;
+}
+/* line 1124, ../../../../../sass/components/_issue.scss */
+.issue-review .review-header.stuck {
+  position: fixed;
+  height: 49px;
+}
+
+/* line 1130, ../../../../../sass/components/_issue.scss */
+.code-files .code-files-list-container, .issue-review .review-header {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 1132, ../../../../../sass/components/_issue.scss */
+.code-files .code-files-list-container.stuck, .issue-review .review-header.stuck {
+  top: 136px;
+  z-index: 98;
+  width: -moz-calc(0.583333 * 100% - 0.583333 * 160px - 13px) ;
+  width: -o-calc(0.583333 * 100% - 0.583333 * 160px - 13px) ;
+  width: -webkit-calc(0.583333 * 100% - 0.583333 * 160px - 13px) ;
+  width: calc(0.583333 * 100% - 0.583333 * 160px - 13px) ;
+}
+
+/* line 1141, ../../../../../sass/components/_issue.scss */
+.with-repository .code-files .code-files-list-container.stuck, .with-repository .issue-review .review-header.stuck {
+  top: 166px;
+}
+
+/* line 1148, ../../../../../sass/components/_issue.scss */
+table.commits-list td {
+  line-height: 22px;
+  padding: 4px;
+  vertical-align: top;
+}
+/* line 1152, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-author {
+  width: 16ex;
+  white-space: nowrap;
+  font-weight: bold;
+}
+/* line 1156, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-author span {
+  overflow: hidden;
+  white-space: nowrap;
+  overflow: hidden;
+  -ms-text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  display: inline-block;
+  width: 12ex;
+  margin-left: 3px;
+}
+/* line 1165, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-message {
+  border-right: none;
+}
+/* line 1167, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-message .label {
+  float: left;
+  margin-right: 4px;
+  margin-top: 3px;
+}
+/* line 1171, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-message .label.comments-count {
+  float: right;
+  margin-right: 3px;
+  margin-left: 1em;
+}
+/* line 1177, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-message p {
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  font-size: 11px;
+  margin: 0;
+  white-space: pre-wrap;
+}
+/* line 1182, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-message p:first-of-type {
+  margin-top: 3px;
+  font-size: 12px;
+}
+/* line 1186, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-message p > span[data-toggle=collapse] {
+  font-family: "Open Sans",HelveticaNeue,Helvetica,Arial;
+  position: relative;
+  top: -2px;
+}
+/* line 1194, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-sha {
+  width: 10ex;
+  text-align: center;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+}
+/* line 1199, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-stats {
+  white-space: nowrap;
+  text-align: right;
+  border-left: none;
+}
+/* line 1203, ../../../../../sass/components/_issue.scss */
+table.commits-list td.cell-stats li:not(:first-child) {
+  margin-left: 2px;
+}
+/* line 1207, ../../../../../sass/components/_issue.scss */
+table.commits-list td .comments-count {
+  color: white;
+  font-weight: normal;
+}
+
+/* line 1214, ../../../../../sass/components/_issue.scss */
+.files-navigator {
+  width: 20em;
+}
+/* line 1216, ../../../../../sass/components/_issue.scss */
+.files-navigator li a {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+/* line 1220, ../../../../../sass/components/_issue.scss */
+.files-navigator li.horizontal-4.disabled {
+  text-align: right;
+}
+
+/* line 1225, ../../../../../sass/components/_issue.scss */
+.code-diff {
+  overflow: auto;
+  padding: 0;
+  border-top: 0;
+}
+/* line 1229, ../../../../../sass/components/_issue.scss */
+.code-diff table.diff {
+  margin-bottom: 0;
+}
+
+/* line 1235, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body, #modal-issue-created .modal-body {
+  padding: 0;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+  border-radius: 6px;
+  background: #f0f0f0;
+}
+/* line 1240, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .header-stuck .issue-nav, #modal-issue-created .modal-body .header-stuck .issue-nav {
+  right: -moz-calc(50% - 260px) ;
+  right: -o-calc(50% - 260px) ;
+  right: -webkit-calc(50% - 260px) ;
+  right: calc(50% - 260px) ;
+  top: -moz-calc(10% + 9px) ;
+  top: -o-calc(10% + 9px) ;
+  top: -webkit-calc(10% + 9px) ;
+  top: calc(10% + 9px) ;
+}
+/* line 1245, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .header-stuck.with-repository .issue-nav, #modal-issue-created .modal-body .header-stuck.with-repository .issue-nav {
+  top: -moz-calc(10% + 39px) ;
+  top: -o-calc(10% + 39px) ;
+  top: -webkit-calc(10% + 39px) ;
+  top: calc(10% + 39px) ;
+}
+/* line 1250, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .stuck, #modal-issue-created .modal-body .stuck {
+  width: 547px;
+  right: auto;
+  top: 10%;
+}
+/* line 1255, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body article > .area-top header h3, #modal-issue-created .modal-body article > .area-top header h3 {
+  margin-right: 40px;
+}
+/* line 1258, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body > .issue-container.big-issue, #modal-issue-created .modal-body > .issue-container.big-issue {
+  top: 0 !important;
+}
+/* line 1261, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body > .issue-container > article > .area-top header.stuck, #modal-issue-created .modal-body > .issue-container > article > .area-top header.stuck {
+  margin-left: -15px;
+  -webkit-border-radius: 6px 6px 0 0;
+  -moz-border-radius: 6px 6px 0 0;
+  -ms-border-radius: 6px 6px 0 0;
+  -o-border-radius: 6px 6px 0 0;
+  border-radius: 6px 6px 0 0;
+}
+/* line 1265, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .issue-tabs.stuck, #modal-issue-created .modal-body .issue-tabs.stuck {
+  margin-top: 47px;
+}
+/* line 1269, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .with-repository .issue-tabs.stuck, #modal-issue-created .modal-body .with-repository .issue-tabs.stuck {
+  margin-top: 77px;
+}
+/* line 1274, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .code-files-list-container.stuck, #modal-issue-view .modal-body .review-header.stuck, #modal-issue-created .modal-body .code-files-list-container.stuck, #modal-issue-created .modal-body .review-header.stuck {
+  margin-top: 84px;
+}
+/* line 1280, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .with-repository .code-files-list-container.stuck, #modal-issue-view .modal-body .with-repository .review-header.stuck, #modal-issue-created .modal-body .with-repository .code-files-list-container.stuck, #modal-issue-created .modal-body .with-repository .review-header.stuck {
+  margin-top: 114px;
+}
+/* line 1285, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .sticky-wrapper > *, #modal-issue-created .modal-body .sticky-wrapper > * {
+  top: 10%;
+}
+/* line 1288, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .modal-body .stuck, #modal-issue-created .modal-body .stuck {
+  -webkit-transition: top 0.35s;
+  -moz-transition: top 0.35s;
+  -o-transition: top 0.35s;
+  transition: top 0.35s;
+}
+/* line 1293, ../../../../../sass/components/_issue.scss */
+#modal-issue-view.full-screen .modal-body, #modal-issue-created.full-screen .modal-body {
+  height: 100%;
+}
+/* line 1296, ../../../../../sass/components/_issue.scss */
+#modal-issue-view.full-screen .modal-body .header-stuck .issue-nav, #modal-issue-created.full-screen .modal-body .header-stuck .issue-nav {
+  right: -moz-calc(5% + 20px) ;
+  right: -o-calc(5% + 20px) ;
+  right: -webkit-calc(5% + 20px) ;
+  right: calc(5% + 20px) ;
+  top: -moz-calc(5% + 9px) ;
+  top: -o-calc(5% + 9px) ;
+  top: -webkit-calc(5% + 9px) ;
+  top: calc(5% + 9px) ;
+}
+/* line 1301, ../../../../../sass/components/_issue.scss */
+#modal-issue-view.full-screen .modal-body .header-stuck.with-repository .issue-nav, #modal-issue-created.full-screen .modal-body .header-stuck.with-repository .issue-nav {
+  top: -moz-calc(5% + 39px) ;
+  top: -o-calc(5% + 39px) ;
+  top: -webkit-calc(5% + 39px) ;
+  top: calc(5% + 39px) ;
+}
+/* line 1306, ../../../../../sass/components/_issue.scss */
+#modal-issue-view.full-screen .modal-body .stuck, #modal-issue-created.full-screen .modal-body .stuck {
+  width: 90% !important;
+  top: 5% !important;
+}
+@media (min-width: 1023px) {
+  /* line 1311, ../../../../../sass/components/_issue.scss */
+  #modal-issue-view.full-screen .modal-body .code-files .code-files-list-container, #modal-issue-created.full-screen .modal-body .code-files .code-files-list-container {
+    position: absolute;
+    width: 400px !important;
+    top: 0 !important;
+  }
+  /* line 1315, ../../../../../sass/components/_issue.scss */
+  #modal-issue-view.full-screen .modal-body .code-files .code-files-list-container.stuck, #modal-issue-created.full-screen .modal-body .code-files .code-files-list-container.stuck {
+    position: fixed;
+    top: 5% !important;
+    left: 5% !important;
+    left: -moz-calc(5% + 1px) !important;
+    left: -o-calc(5% + 1px) !important;
+    left: -webkit-calc(5% + 1px) !important;
+    left: calc(5% + 1px) !important;
+    bottom: 5% !important;
+    bottom: -moz-calc(5% - 1px) !important;
+    bottom: -o-calc(5% - 1px) !important;
+    bottom: -webkit-calc(5% - 1px) !important;
+    bottom: calc(5% - 1px) !important;
+  }
+}
+/* line 1327, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .empty-area, #modal-issue-created .empty-area {
+  position: static;
+  height: 200px;
+  margin-top: 100px;
+}
+/* line 1331, ../../../../../sass/components/_issue.scss */
+#modal-issue-view .empty-area i, #modal-issue-created .empty-area i {
+  font-size: inherit;
+}
+
+/* line 1, ../../../../../sass/modals/_shortcuts.scss */
+#shortcuts-window {
+  width: 90%;
+  top: 5%;
+  bottom: 5%;
+  margin-left: -45%;
+}
+/* line 6, ../../../../../sass/modals/_shortcuts.scss */
+#shortcuts-window .modal-body {
+  max-height: none;
+  position: absolute;
+  top: 50px;
+  bottom: 10px;
+  left: 0px;
+  right: 0px;
+  padding-top: 0;
+}
+/* line 15, ../../../../../sass/modals/_shortcuts.scss */
+#shortcuts-window tr td:first-of-type {
+  white-space: nowrap;
+}
+
+/* line 1, ../../../../../sass/modals/_gotoissue.scss */
+#go-to-issue-window {
+  width: 360px;
+  margin-left: -180px;
+}
+/* line 4, ../../../../../sass/modals/_gotoissue.scss */
+#go-to-issue-window form {
+  text-align: center;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+/* line 23, ../../../../../sass/pages/repository/issues.scss */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* line 27, ../../../../../sass/pages/repository/issues.scss */
+#main {
+  height: 100%;
+  overflow: hidden;
+  padding-right: 0;
+  padding-left: 0;
+  padding-top: 0;
+}
+
+/* line 34, ../../../../../sass/pages/repository/issues.scss */
+body#repository_issues #main-inner {
+  padding: 0;
+  padding-top: 47px;
+  height: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: relative;
+  padding-left: 160px;
+}
+
+/* line 45, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-container, #main-issue-container {
+  margin-left: 0;
+  margin-right: 0;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  border-top: solid #FAFAFA 5px;
+}
+
+/* line 53, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters {
+  width: 160px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  border-right: solid 1px #666666;
+  float: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+}
+
+/* line 64, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-container {
+  width: 41.66667%;
+  border-right: solid 1px #666666;
+  overflow: auto;
+}
+
+/* line 69, ../../../../../sass/pages/repository/issues.scss */
+#main-issue-container {
+  width: 58.33333%;
+  overflow: auto;
+}
+/* line 72, ../../../../../sass/pages/repository/issues.scss */
+#main-issue-container .empty-area i {
+  font-size: inherit;
+}
+
+/* line 79, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters {
+  background: #11161A;
+}
+/* line 81, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .primary-sidebar {
+  width: 100%;
+  margin-top: 47px;
+}
+/* line 85, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .primary-sidebar .nav > li > a {
+  color: #bbb;
+}
+/* line 88, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .primary-sidebar .nav > li:hover > a, #issues-filters .primary-sidebar .nav > li > a:focus, #issues-filters .primary-sidebar .nav > li > a.with-selection {
+  color: white;
+}
+/* line 93, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .clear-all-filters > a {
+  padding-left: 5px;
+}
+/* line 96, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .selection {
+  display: block;
+  padding: 0;
+  padding-left: 5px;
+  line-height: 10px;
+  font-weight: normal;
+}
+/* line 105, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters a.clear-filter {
+  position: absolute;
+  top: 22px;
+  left: 10px;
+  padding: 0;
+  margin: 0;
+}
+/* line 113, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .filter-labels > li > a > span {
+  border-bottom: solid 1px transparent;
+}
+/* line 118, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .deferred li {
+  padding: 0 5px 0 20px;
+}
+/* line 122, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .quicksearch-widget {
+  margin: 5px 10px;
+}
+/* line 125, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .quicksearch-widget label {
+  margin-bottom: 0;
+  position: relative;
+  background: white;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+/* line 131, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .quicksearch-widget .add-on, #issues-filters .quicksearch-widget .btn {
+  padding: 1px 0 1px 2px;
+  position: absolute;
+  top: 1px;
+  bottom: 0;
+  border: none;
+}
+/* line 136, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .quicksearch-widget .add-on:after, #issues-filters .quicksearch-widget .add-on:before, #issues-filters .quicksearch-widget .btn:after, #issues-filters .quicksearch-widget .btn:before {
+  display: none;
+}
+/* line 141, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .quicksearch-widget .add-on {
+  -webkit-border-radius: 4px 0 0 4px;
+  -moz-border-radius: 4px 0 0 4px;
+  -ms-border-radius: 4px 0 0 4px;
+  -o-border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
+  left: 0;
+  z-index: 10;
+}
+/* line 146, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .quicksearch-widget .btn {
+  -webkit-border-radius: 0 4px 4px 0;
+  -moz-border-radius: 0 4px 4px 0;
+  -ms-border-radius: 0 4px 4px 0;
+  -o-border-radius: 0 4px 4px 0;
+  border-radius: 0 4px 4px 0;
+  right: 0;
+  z-index: 20;
+  padding: 0;
+}
+/* line 151, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .quicksearch-widget .btn i {
+  height: 22px;
+  line-height: 22px;
+}
+/* line 156, ../../../../../sass/pages/repository/issues.scss */
+#issues-filters .quicksearch-widget input {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 24px;
+  display: block;
+  width: 100%;
+  background: transparent;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  padding-left: 23px;
+  padding-right: 23px;
+}
+
+/* line 175, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+/* line 183, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-search {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  border-bottom: solid 1px #cdcdcd;
+}
+
+/* line 192, ../../../../../sass/pages/repository/issues.scss */
+#issues-list {
+  position: absolute;
+  top: 77px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+}
+
+/* line 203, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options .navbar-inner {
+  border-top: none;
+}
+/* line 206, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options .nav {
+  float: none;
+  margin-right: 0;
+}
+/* line 210, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options .nav > li[class*="span"] {
+  width: 33.33333%;
+  margin-left: 0;
+  margin-right: 0;
+}
+/* line 214, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options .nav > li[class*="span"] a {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+/* line 221, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options a.no-selection {
+  line-height: 40px;
+}
+/* line 224, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options a.no-selection span {
+  vertical-align: middle;
+}
+/* line 226, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options a.no-selection span.caret {
+  margin-top: -5px;
+}
+
+/* line 231, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options .dropdown-toggle > span:not(.selection) {
+  text-align: center;
+  display: block;
+  padding-left: 5px;
+}
+
+/* line 237, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options span.selection {
+  display: block;
+  font-weight: normal;
+  text-transform: none;
+  font-size: smaller;
+  color: #999999;
+  text-align: center;
+}
+/* line 245, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options span.selection i {
+  font-size: smaller;
+}
+
+/* line 249, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options .navbar-inner {
+  padding-left: 0;
+  padding-right: 0;
+  border-left: none;
+  border-right: none;
+}
+
+/* line 257, ../../../../../sass/pages/repository/issues.scss */
+#issues-list-options .divider-vertical {
+  margin-left: -1px;
+  margin-right: -1px;
+  height: 46px;
+}

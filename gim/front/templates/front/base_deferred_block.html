@@ -1,0 +1,7 @@
+{% load macros %}
+{% macro deferred-tag %}{% block deferred-tag %}div{% endblock %}{% endmacro %}
+<{% usemacro deferred-tag %} class="{% block deferred-classes %}{% endblock %} deferrable deferred{% if auto_load %} auto{% endif %}" id="{% block deferred-id %}{% endblock %}" data-url="{{ defer_url }}" data-params='{% block deferred-params %}{% endblock %}'>
+    {% block deferred-placeholder %}
+        <div class="empty-area"><i class="fa fa-spinner fa-spin"> </i></div>
+    {% endblock %}
+</{% usemacro deferred-tag %}>

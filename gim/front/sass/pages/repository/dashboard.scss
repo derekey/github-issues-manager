@@ -1,0 +1,316 @@
+@import "bootstrap/variables";
+@import "variables";
+@import "modal";
+
+@import "compass/css3/transition";
+@import "compass/css3/border-radius";
+@import "compass/css3/box-shadow";
+@import "compass/css3/text-shadow";
+
+@import "widgets/avatar";
+
+@import "components/issues_mixins";
+@import "components/issue";
+@import "components/dashboard-2cols";
+
+@import "widgets/activity";
+@import "widgets/datepicker";
+
+@import "form_elements";
+@import "core-admin-forms-correct.scss";
+
+@import "modals/gotoissue";
+
+$counters-height: 180px;
+$counters-small-height: 154px;
+
+.area-top {
+    .header {
+        h3 a i {
+            float: none;
+            color: #ccc;
+            position: relative;
+            top: 1px;
+        }
+        h5 {
+            margin-left: 32px;
+        }
+        .hook-block {
+            position: absolute;
+            right: 0;
+            top: 5px;
+            i {
+                font-size: inherit;
+                color: inherit;
+                float: none;
+                margin-top: 0;
+            }
+            a i {
+                margin-right: 0;
+            }
+        }
+    }
+    @media (max-height: $dashboard-small-height) {
+        .issues-by-day {
+            overflow: hidden;
+            height: 32px;
+        }
+    }
+}
+
+
+#milestones {
+    a[data-toggle=collapse].collapsed h3::after {
+        content: '…';
+        font-weight: normal;
+    }
+    .box-section {
+        overflow: auto;
+        padding: 15px {
+            bottom: 0;
+        }
+        & > .date,
+        & > .issues-link,
+        & > .edit-link {
+            float: right;
+            font-style: italic;
+            opacity: 0;
+            @include transition(opacity 0.35s);
+            margin-top: -10px;
+        }
+        & > .issues-link {
+            margin-right: 1em;
+        }
+        & > div.progress {
+            clear: both;
+            @include transition(height 0.35s);
+            a {
+                display: block;
+                color: inherit;
+            }
+            span {
+                opacity: 0;
+                font-weight: bold;
+                @include transition(opacity 0.35s);
+            }
+        }
+        & > blockquote {
+            margin: -10px 0 15px;
+            float: left;
+        }
+        & .github-link {
+            color: #ccc;
+            position: relative;
+            top: 5px;
+            margin-left: 1ex;
+            opacity: 0;
+            @include transition(opacity 0.35s);
+        }
+        & > a[data-toggle=collapse] {
+            overflow: auto;
+            & > h3 {
+                float: left;
+                margin: 0 {
+                    bottom: 5px;
+                }
+                font-size: 16px;
+                line-height: normal;
+            }
+
+            &:not(.collapsed) {
+                & ~ .date,
+                & ~ .issues-link,
+                & ~ .edit-link {
+                    opacity: 1;
+                    margin-bottom: 10px;
+                }
+                & ~ div.progress {
+                    height: 20px;
+                    span {
+                        opacity: 1;
+                    }
+                }
+                & ~ a.github-link {
+                    opacity: 1;
+                }
+            }
+        }
+
+    }
+}
+
+#counters {
+    .action-nav-button {
+        width: 100%;
+        a {
+            white-space: normal;
+            position: relative;
+            height: 70px;
+            span {
+                position: absolute;
+                left: 5px;
+                right: 5px;
+                bottom: 5px;
+                line-height: 1.5ex;
+            }
+        }
+        @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+            margin-bottom: 7px;
+        }
+    }
+    @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+        $margin: 6px;
+        .span4 {
+            margin-left: $margin;
+            @include calc(width, '100% / 3 - #{$margin} * 2 / 3');
+            &:first-child {
+                margin-left: 0;
+            }
+            &.offset2 {
+                @include calc(margin-left, '100% / 6 + #{$margin}');
+            }
+        }
+    }
+    .label.left {
+        background: transparent;
+        color: inherit;
+        @include text-shadow(none);
+    }
+    top: 0;
+    height: $counters-height;
+}
+
+#labels {
+    top: $counters-height;
+    @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+        top: $counters-small-height;
+    }
+    .box-section {
+        padding: 5px {
+            top: 20px;
+        }
+        &.only {
+            padding-top: 5px;
+        }
+        &.empty {
+            padding: 10px;
+            .empty-area {
+                font-size: 125%;
+            }
+        }
+        &.without-labels {
+            padding-top: 5px;
+            ul.labels {
+                text-align: center !important;
+            }
+        }
+        position: relative;
+        .label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            @include border-top-radius(0);
+            @include border-left-radius(0);
+        }
+        ul {
+            li {
+                span {
+                    margin-left: 5px;
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+    .box-header + .box-content {
+        border-top: none;
+    }
+    .box-footer {
+        text-align: center;
+    }
+}
+
+ul.labels {
+    text-align: justify;
+    margin: 0;
+    li {
+        display: inline-block;
+        margin: 5px 10px;
+        padding-bottom: 2px;
+        border-bottom: solid 3px transparent;
+    }
+}
+
+#milestones {
+    bottom: 0;
+}
+
+
+#milestones, #labels {
+    @include calc(height, '50% - #{$counters-height / 2 + 15px}');
+    @media (max-height: $dashboard-small-height), (max-width: $dashboard-small-width) {
+        @include calc(height, '50% - #{$counters-small-height / 2 + 5px}');
+    }
+    .box-header .box-toolbar > li {
+        padding-right: 0;
+        margin-left: 0;
+    }
+}
+
+body > main > .row-header .area-top {
+    position: relative;
+    & > .header {
+        position: relative;
+        z-index: 2;
+    }
+    & > .issues-by-day {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+#milestone-form {
+    .field-due_on {
+        float: left;
+        div.input-prepend {
+            width: 140px;
+        }
+        > label {
+            float: left;
+            margin-top: 2px;
+            margin-right: 1em;
+        }
+        input {
+            text-align: center;
+            padding-left: 25px;
+        }
+        .add-on {
+            min-width: 26px;
+            &:first-of-type {
+                padding-top: 3px;
+            }
+        }
+    }
+    .field-open {
+        float: right;
+        margin-top: 1px;
+        .ibutton-label-on {
+            @include std-bg(lighten($state-open-color, 10%), $state-open-color);
+        }
+        .ibutton-label-off {
+            @include std-bg(lighten($state-closed-color, 10%), $state-closed-color);
+        }
+        label {
+            color: white;
+        }
+        > label {
+            display: none;
+        }
+    }
+    input[type=submit] {
+        display: none;
+    }
+}
+.datepicker-due_on {
+    margin-left: 30px;
+}

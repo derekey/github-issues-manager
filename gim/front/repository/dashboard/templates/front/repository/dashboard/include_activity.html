@@ -1,0 +1,18 @@
+<div class="box col-part full-col deferrable activity-feed for-{{ activity_mode }}" id="repository-activity" data-url="{{ defer_url }}" data-mode='{{ activity_mode }}'>
+    <div class="box-header">
+        <span class="title">Last activity</span>
+        {% include "front/activity/include_toolbar.html" %}
+    </div>
+    <div class="box-content">
+        {% if activity|length %}
+            {% include "front/activity/include_activity.html" %}
+        {% else %}
+            <div class="empty-area">No activity for this repository</div>
+        {% endif %}
+    </div>{# .box-content #}
+    {% if not partial_activity %}
+        <script type="text/javascript">
+            Activity.delay_check_new_activity('#repository-activity');
+        </script>
+    {% endif %}
+</div>{# .box#activity #}

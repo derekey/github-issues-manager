@@ -1,0 +1,780 @@
+/* line 3, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy {
+  border: 3px solid #808080;
+}
+/* line 6, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-body {
+  background: #f5f5f5;
+}
+/* line 10, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header, .modal.fancy .modal-footer {
+  background: #eaeaea;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #eaeaea));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: linear-gradient(top, #fdfdfd, #eaeaea);
+}
+/* line 12, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header h1, .modal.fancy .modal-header h2, .modal.fancy .modal-header h3, .modal.fancy .modal-header h4, .modal.fancy .modal-header h5, .modal.fancy .modal-header h6, .modal.fancy .modal-footer h1, .modal.fancy .modal-footer h2, .modal.fancy .modal-footer h3, .modal.fancy .modal-footer h4, .modal.fancy .modal-footer h5, .modal.fancy .modal-footer h6 {
+  margin: 0;
+}
+/* line 17, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header {
+  -moz-border-radius-topleft: 4px;
+  -webkit-border-top-left-radius: 4px;
+  border-top-left-radius: 4px;
+  -moz-border-radius-topright: 4px;
+  -webkit-border-top-right-radius: 4px;
+  border-top-right-radius: 4px;
+}
+/* line 22, ../../../../../core-admin/stylesheets/modal.scss */
+.modal.fancy .modal-header {
+  border-bottom: 1px solid #CDCDCD;
+}
+
+/* \f020 doesn't work in Safari. all shifted one down */
+/* line 8, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 0;
+}
+/* line 10, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 16, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up input, form.fill-up textarea, form.fill-up select {
+  width: 100%;
+}
+/* line 20, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .padded .control-group:last-child {
+  margin-bottom: 0;
+}
+/* line 24, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up.form-horizontal .form-actions {
+  padding-left: 20px;
+}
+/* line 30, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .radio, form.fill-up .checkbox {
+  padding-left: 0;
+}
+/* line 35, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .form-actions {
+  margin-bottom: 0;
+}
+/* line 39, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .box form {
+  padding: 0;
+}
+/* line 43, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up form {
+  margin-bottom: 0;
+}
+/* line 61, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append, form.fill-up .input-prepend {
+  height: 26px;
+  line-height: 26px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+/* line 56, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append .add-on i, form.fill-up .input-prepend .add-on i {
+  line-height: 16px;
+}
+/* line 65, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append *, form.fill-up .input-prepend * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 72, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append a.add-on, form.fill-up .input-append span.add-on, form.fill-up .input-prepend a.add-on, form.fill-up .input-prepend span.add-on {
+  min-width: 26px;
+  color: #5a6573;
+  position: absolute;
+  height: 100%;
+  z-index: 2;
+  -webkit-box-shadow: inset 0 1px 2px white;
+  -moz-box-shadow: inset 0 1px 2px white;
+  box-shadow: inset 0 1px 2px white;
+  border: 1px solid #ccc;
+  background: #eaeaea;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #eaeaea));
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: linear-gradient(top, #fdfdfd, #eaeaea);
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+/* line 86, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append a.add-on:active, form.fill-up .input-append span.add-on:active, form.fill-up .input-prepend a.add-on:active, form.fill-up .input-prepend span.add-on:active {
+  background: #eee;
+}
+/* line 91, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on, form.fill-up .input-prepend ul.add-on {
+  list-style: none;
+  position: absolute;
+  z-index: 2;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  top: 1px;
+  right: 2px;
+}
+/* line 104, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li, form.fill-up .input-prepend ul.add-on li {
+  float: left;
+  margin-left: 10px;
+  line-height: 32px;
+  height: 32px;
+}
+/* line 110, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li a, form.fill-up .input-append ul.add-on li button, form.fill-up .input-prepend ul.add-on li a, form.fill-up .input-prepend ul.add-on li button {
+  vertical-align: middle;
+}
+/* line 113, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li a.btn, form.fill-up .input-append ul.add-on li button.btn, form.fill-up .input-prepend ul.add-on li a.btn, form.fill-up .input-prepend ul.add-on li button.btn {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+}
+/* line 118, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append ul.add-on li .btn, form.fill-up .input-prepend ul.add-on li .btn {
+  padding: 0;
+  line-height: 25px;
+  height: 25px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-right: 5px;
+}
+/* line 129, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append input[type="text"], form.fill-up .input-append input[type="password"], form.fill-up .input-append input[type="email"], form.fill-up .input-append input[type="number"], form.fill-up .input-prepend input[type="text"], form.fill-up .input-prepend input[type="password"], form.fill-up .input-prepend input[type="email"], form.fill-up .input-prepend input[type="number"] {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+/* line 138, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .box .input-append, form.fill-up .box .input-prepend {
+  margin-bottom: 0;
+}
+/* line 144, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append .add-on:last-child {
+  right: 0;
+}
+/* line 146, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-append input[type="text"], form.fill-up .input-append input[type="password"], form.fill-up .input-append input[type="email"], form.fill-up .input-append input[type="number"] {
+  padding-right: 25px;
+}
+/* line 152, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-prepend .add-on:first-child {
+  left: 0;
+}
+/* line 154, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-prepend input[type="text"], form.fill-up .input-prepend input[type="password"], form.fill-up .input-prepend input[type="email"], form.fill-up .input-prepend input[type="number"] {
+  padding-left: 35px;
+}
+/* line 163, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader {
+  width: 100%;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: 1px solid #ccc;
+  height: 28px;
+  background: #fff;
+}
+/* line 171, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader span.filename {
+  border-right: none;
+  width: 120px;
+  height: 24px;
+  margin: 2px 0px 2px 2px;
+  line-height: 24px;
+}
+/* line 180, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader.hover span.action {
+  background: #8dbfd8;
+}
+/* line 186, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader.active span.action {
+  background: #4194bd;
+}
+/* line 191, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.uploader span.action {
+  height: 24px;
+  line-height: 24px;
+  float: right;
+  width: 22px;
+  text-align: center;
+  height: 22px;
+  margin-top: 2px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+  background: #549fc4;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzdhYjRkMSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzU0OWZjNCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7ab4d1), color-stop(100%, #549fc4));
+  background-image: -webkit-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: -moz-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: -o-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: linear-gradient(top, #7ab4d1, #549fc4);
+  color: white;
+  text-shadow: none;
+  font-size: 16px;
+  line-height: 20px;
+}
+/* line 212, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector {
+  position: relative;
+  padding-left: 5px;
+  overflow: hidden;
+  width: 100%;
+  font-size: 12px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  background: whitesmoke;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2Y1ZjVmNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #f5f5f5));
+  background-image: -webkit-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: -moz-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: -o-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: linear-gradient(top, #ffffff, #f5f5f5);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid #ccc;
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
+  color: #666;
+}
+/* line 220, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector:after {
+  content: "\f0dd";
+  top: 2px;
+  right: 2px;
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  text-decoration: inherit;
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  text-align: center;
+  line-height: 18px;
+  font-size: 14px;
+  color: #888;
+}
+/* line 227, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0px 25px 0px 2px;
+  cursor: pointer;
+  color: #666;
+  text-shadow: 0 1px 0 #fff;
+  height: 26px;
+  line-height: 26px;
+  background: transparent;
+}
+/* line 244, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector.disabled span {
+  color: #bbb;
+}
+/* line 249, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up div.selector select {
+  position: absolute;
+  opacity: 0;
+  height: 25px;
+  border: none;
+  background: none;
+  top: 0;
+  left: 0;
+  font-size: 12px;
+  border: solid 1px #fff;
+}
+/* line 265, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea, form.fill-up input[type="text"], form.fill-up input[type="password"], form.fill-up input[type="datetime"], form.fill-up input[type="datetime-local"], form.fill-up input[type="date"], form.fill-up input[type="month"], form.fill-up input[type="time"], form.fill-up input[type="week"], form.fill-up input[type="number"], form.fill-up input[type="email"], form.fill-up input[type="url"], form.fill-up input[type="search"], form.fill-up input[type="tel"], form.fill-up input[type="color"], form.fill-up .uneditable-input {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  font-size: 12px;
+  color: #858585;
+  padding: 0 0 0 5px;
+  border: 1px solid #d7d7d7;
+  display: inline-block;
+  background: #fdfdfd;
+  height: 26px;
+}
+/* line 276, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea:focus, form.fill-up input[type="text"]:focus, form.fill-up input[type="password"]:focus, form.fill-up input[type="datetime"]:focus, form.fill-up input[type="datetime-local"]:focus, form.fill-up input[type="date"]:focus, form.fill-up input[type="month"]:focus, form.fill-up input[type="time"]:focus, form.fill-up input[type="week"]:focus, form.fill-up input[type="number"]:focus, form.fill-up input[type="email"]:focus, form.fill-up input[type="url"]:focus, form.fill-up input[type="search"]:focus, form.fill-up input[type="tel"]:focus, form.fill-up input[type="color"]:focus, form.fill-up .uneditable-input:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: 1px solid #68A6CE;
+}
+/* line 282, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up textarea {
+  height: auto;
+}
+/* line 286, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up label {
+  font-size: 12px;
+  color: #5F5F5F;
+}
+/* line 56, ../../../../../core-admin/stylesheets/_arrow.scss */
+form.fill-up .search-dropdown {
+  position: relative;
+  background: #fbfbfb;
+  border: 1px solid #cccccc;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+/* line 72, ../../../../../core-admin/stylesheets/_arrow.scss */
+form.fill-up .search-dropdown:after, form.fill-up .search-dropdown:before {
+  bottom: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+/* line 82, ../../../../../core-admin/stylesheets/_arrow.scss */
+form.fill-up .search-dropdown:after {
+  border-bottom-color: #fbfbfb;
+  border-width: 7px;
+  left: 50%;
+  margin-left: -7px;
+}
+/* line 94, ../../../../../core-admin/stylesheets/_arrow.scss */
+form.fill-up .search-dropdown:before {
+  border-bottom-color: #cccccc;
+  border-width: 8px;
+  left: 50%;
+  margin-left: -8px;
+}
+/* line 296, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .search-dropdown {
+  margin-top: 15px;
+}
+/* line 299, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .search-dropdown .box-section:first-child {
+  border-top: none;
+  -moz-border-radius-topleft: 3px;
+  -webkit-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -webkit-border-top-right-radius: 3px;
+  border-top-right-radius: 3px;
+}
+/* line 308, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit {
+  position: relative;
+}
+/* line 311, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit button {
+  background: transparent;
+  border: none;
+  position: absolute;
+  right: 2px;
+  top: 7px;
+}
+/* line 319, ../../../../../core-admin/stylesheets/form_elements.scss */
+form.fill-up .input-with-submit i {
+  color: #909090;
+}
+
+/* line 2, ../../../../../sass/_core-admin-forms-correct.scss */
+[class*="span"] > div.selector {
+  width: 100% !important;
+}
+
+/* line 5, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  height: auto;
+  line-height: normal;
+}
+/* line 9, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector:after {
+  top: 0;
+}
+/* line 12, ../../../../../sass/_core-admin-forms-correct.scss */
+div.selector span {
+  width: auto !important;
+  height: 24px;
+  line-height: 24px;
+}
+
+/* line 23, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul > li, .part-label_type ul > li, .part-labels ul > a, .part-label_type ul > a, .select2-labels .select2-result-label span, .for-mode3 .select2-container-multi .select2-choices .select2-search-choice span {
+  display: inline-block;
+  white-space: nowrap;
+  margin: 1px 0;
+  padding: 0 3px;
+  color: inherit;
+  border-bottom: solid #ccc 3px;
+}
+
+/* line 32, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul, .part-label_type ul {
+  margin: 0;
+  padding: 0;
+  padding-right: 5px;
+}
+/* line 39, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul > li > a, .part-label_type ul > li > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* line 54, ../../../../../sass/components/_issues_mixins.scss */
+p.state-closed {
+  color: #b35d5d;
+}
+
+/* line 58, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span[data-toggle=collapse], .part-title > span[data-toggle=collapse] {
+  display: inline-block;
+  height: 12px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  -ms-border-radius: 1px;
+  -o-border-radius: 1px;
+  border-radius: 1px;
+  background: #ddd;
+  line-height: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 1px 3px;
+}
+
+/* line 70, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul, .part-label_type ul {
+  display: inline-block;
+  margin-top: 0;
+  padding-right: 0;
+}
+/* line 74, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels ul li, .part-label_type ul li {
+  margin-top: 0;
+}
+/* line 79, ../../../../../sass/components/_issues_mixins.scss */
+.part-labels > span, .part-label_type > span {
+  float: left;
+  margin-right: 5px;
+}
+
+/* line 84, ../../../../../sass/components/_issues_mixins.scss */
+.part-body, .part-title {
+  margin: 0 -10px;
+}
+/* line 85, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span:first-child, .part-title > span:first-child {
+  display: block;
+  margin: 5px 5px 5px 10px;
+}
+/* line 88, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span:first-child.collapsible, .part-title > span:first-child.collapsible {
+  float: left;
+}
+/* line 93, ../../../../../sass/components/_issues_mixins.scss */
+.part-body table.diff, .part-title table.diff {
+  font-size: 12px;
+  border-top: solid 1px #D8D8D8;
+  border-bottom: solid 1px #D8D8D8;
+  margin-bottom: 10px;
+  table-layout: fixed;
+}
+/* line 99, ../../../../../sass/components/_issues_mixins.scss */
+.part-body table.diff tbody tr, .part-title table.diff tbody tr {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+/* line 104, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > span[data-toggle=collapse], .part-title > span[data-toggle=collapse] {
+  position: relative;
+  top: 2px;
+}
+/* line 109, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse, .part-title > div.collapse {
+  clear: both;
+}
+/* line 111, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse table.diff, .part-title > div.collapse table.diff {
+  margin-bottom: 0px;
+}
+/* line 114, ../../../../../sass/components/_issues_mixins.scss */
+.part-body > div.collapse.in, .part-title > div.collapse.in {
+  margin-bottom: 10px;
+}
+
+/* line 123, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body table.diff, .box-content:last-of-type > .part-title table.diff {
+  margin-bottom: -6px;
+}
+/* line 127, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body > div.collapse table.diff, .box-content:last-of-type > .part-title > div.collapse table.diff {
+  margin-bottom: 0px;
+}
+/* line 130, ../../../../../sass/components/_issues_mixins.scss */
+.box-content:last-of-type > .part-body > div.collapse.in, .box-content:last-of-type > .part-title > div.collapse.in {
+  margin-bottom: -6px;
+}
+
+/* line 10, ../../../../../sass/pages/repository/dashboard-editor.scss */
+#labels-editor .btn-edit-label-type {
+  padding-right: 6px;
+}
+/* line 12, ../../../../../sass/pages/repository/dashboard-editor.scss */
+#labels-editor .btn-edit-label-type a {
+  position: relative;
+  top: -1px;
+}
+
+/* line 19, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type .box-header .title .label {
+  margin-left: 1em;
+  line-height: 13px;
+}
+
+/* line 24, ../../../../../sass/pages/repository/dashboard-editor.scss */
+#label-type-edit-form {
+  width: 90%;
+  margin-left: -45%;
+}
+/* line 28, ../../../../../sass/pages/repository/dashboard-editor.scss */
+#label-type-edit-form form input[type=submit] {
+  display: none;
+}
+/* line 31, ../../../../../sass/pages/repository/dashboard-editor.scss */
+#label-type-edit-form form > div > label + input[type=text] + .note {
+  margin-top: -10px;
+}
+
+/* line 37, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode1, .for-mode2, .for-mode3 {
+  display: none;
+}
+
+/* line 42, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.mode1 .for-mode1,
+.mode2 .for-mode2,
+.mode3 .for-mode3 {
+  display: block;
+}
+
+/* line 47, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.edit-mode-dropdown .select2-results {
+  max-height: none;
+}
+/* line 50, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.edit-mode-dropdown li.select2-highlighted .note {
+  color: white;
+}
+
+/* line 55, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type-samples {
+  margin-top: 5px;
+}
+/* line 57, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type-samples .note {
+  margin-bottom: 0;
+}
+/* line 60, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type-samples li {
+  cursor: pointer;
+}
+
+/* line 67, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.modal-footer .btn + div.popover + .btn {
+  margin-bottom: 0px;
+  margin-left: 5px;
+}
+/* line 71, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.modal-footer .alert {
+  text-align: center;
+}
+/* line 75, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.modal-footer .popover-content label {
+  margin-bottom: 0;
+}
+/* line 77, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.modal-footer .popover-content label + .errorlist {
+  margin-left: 5px;
+}
+
+/* line 85, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form input[name=order] {
+  width: 45px;
+  margin-right: 5px;
+}
+/* line 89, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form input[name=name] {
+  width: 132px;
+  margin-right: 5px;
+}
+/* line 94, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form:not(.show-order) input[name=order] {
+  display: none;
+}
+/* line 97, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form:not(.show-order) input[name=name] {
+  width: 182px;
+}
+/* line 101, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form input[name=color] {
+  width: 46px;
+  padding-left: 3px;
+}
+/* line 106, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form .sp-replacer {
+  padding: 3px;
+  vertical-align: top;
+}
+/* line 110, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-edit-form .sp-preview {
+  width: 26px;
+  height: 18px;
+}
+
+/* line 116, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type .labels li.new-label {
+  padding: 0px;
+  border: medium none;
+  margin-top: 3px;
+  margin-bottom: 4px;
+}
+/* line 123, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type .labels li.new-label > a.btn {
+  line-height: 19px;
+  margin-top: 1px;
+}
+/* line 129, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type .labels li .popover .popover-title {
+  overflow: hidden;
+}
+/* line 131, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type .labels li .popover .popover-title strong {
+  border-bottom: solid transparent 3px;
+  line-height: 1.8em;
+}
+/* line 137, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type .labels li .popover .popover-content label {
+  float: left;
+}
+/* line 140, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type .labels li .popover .popover-content .errorlist li {
+  margin: 0;
+  margin-left: 5px;
+}
+/* line 146, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.label-type .labels li .popover .popover .popover-content {
+  white-space: nowrap;
+}
+
+/* line 153, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.select2-labels .select2-results {
+  max-height: 400px;
+  display: block;
+}
+/* line 156, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.select2-labels .select2-results > li:not(.select2-selected) {
+  display: inline-block;
+}
+/* line 158, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.select2-labels .select2-results > li:not(.select2-selected) .select2-result-label {
+  padding-left: 5px !important;
+}
+
+/* line 169, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices {
+  min-height: 27px;
+  padding: 0 4px 1px 0;
+}
+/* line 170, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices * {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+/* line 175, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-field {
+  padding: 4px 0px 0px 4px;
+  margin: 0;
+}
+/* line 178, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-field input {
+  margin: 0;
+  padding: 0;
+  height: 20px;
+}
+/* line 184, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-choice {
+  margin: 2px 0 0 4px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none !important;
+  padding: 0 0 0 18px !important;
+}
+/* line 190, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-choice span {
+  margin-left: -18px;
+  padding-left: 18px;
+  padding-right: 3px;
+  line-height: 20px;
+}
+/* line 198, ../../../../../sass/pages/repository/dashboard-editor.scss */
+.for-mode3 .select2-container-multi .select2-choices .select2-search-choice-close {
+  top: 5px;
+}

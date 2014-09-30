@@ -1,0 +1,28 @@
+{% load querystring frontutils issues_tags %}{% spaceless %}
+<li class="accordion-group dark-nav">
+    <span class="glow"></span>
+    <a class="accordion-toggle collapsed{% if issues_filter.objects.user_filter_type == 'assigned' and issues_filter.parts.username %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-{{ view.relation }}">
+        Assignees
+        <i class="fa fa-caret-down"></i>
+
+        {% if issues_filter.objects.user_filter_type == 'assigned' and issues_filter.parts.username %}
+                <span class="selection">
+                    {% if issues_filter.parts.username == '__none__' %}
+                        (&nbsp;No&nbsp;one&nbsp;assigned&nbsp;)
+                    {% elif issues_filter.parts.username == '__any__' %}
+                        (&nbsp;Someone&nbsp;assigned&nbsp;)
+                    {% else %}
+                        {{ issues_filter.parts.username }}
+                    {% endif %}
+                </span>
+            </a>
+            <a class="clear-filter" href="{{ root_issues_url }}{{ issues_filter.querystring }}" title="Clear this filter"><i class="fa fa-times"> </i>
+        {% endif %}
+    </a>
+    {% if deferred %}
+        {% include "front/repository/issues/filters/include_users_list_deferred.html" %}
+    {% else %}
+        {% include "front/repository/issues/filters/include_assigned_list.html" %}
+    {% endif %}
+</li>
+{% endspaceless %}

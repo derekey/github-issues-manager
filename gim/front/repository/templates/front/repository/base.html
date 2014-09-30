@@ -1,0 +1,112 @@
+{% extends "front/base.html" %}
+{% load staticfiles repository_tags %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
+
+{% block body_classes %}repository{% endblock %}
+{% block body_attributes %} data-repository="{{ current_repository.full_name }}" data-repository-id="{{ current_repository.id }}"{% endblock %}
+{% block title %}{{ current_repository }} | {{ view.name }}{% endblock title %}
+
+{% block header_nav %}{% spaceless %}
+    <ul class="nav">
+        <li class="dropdown">
+            <a id="repository-switcher" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+                {% if current_repository.private %}<i class="fa fa-lock" title="This repository is private"> </i>{% endif %}
+                {{ current_repository }}
+                <b class="caret"></b>
+            </a>
+            {% regroup subscribed_repositories by owner as groups %}
+            <ul class="dropdown-menu" id="repository-switcher-content" role="menu" aria-labelledby="repository-switcher">
+                <li>
+                    {% include "front/include_quicksearch.html" with id="repository-switcher-filter" target="#repository-switcher-content li.subscriptions-group li" only %}
+                </li>
+                {% for group in groups %}
+                    <li class="subscriptions-group">
+                        <strong><img class="avatar-micro img-circle" src="{{ group.grouper.avatar_url|default:default_avatar }}" /> {{ group.grouper.username }}</strong>
+                        <ul class="unstyled">
+                            {% for repository in group.list %}
+                                <li{% if repository.id == current_repository.id %} class="active"{% endif %}><a role="menuitem" href="{{ repository.get_absolute_url }}"><span>{{ group.grouper.username }}/</span>{{ repository.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                        <hr class="divider" />
+                    </li>
+                {% endfor %}
+                <li><a href="{% url "front:dashboard:repositories:choose" %}">Manage your subscriptions</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="{{ current_repository.github_url }}" title="View current repository on github" target='_blank'><i class="fa fa-github"> </i></a>
+        </li>
+    </ul>
+    <ul class="nav repository-views">
+        {% for main_view in repository_main_views %}
+            {% if main_view.display_in_menu %}
+                <li{% if main_view.is_current %} class="active"{% endif %}>
+                    <a role="menuitem" href="{{ main_view.url }}{% if main_view.qs %}?{{ main_view.qs }}{% endif %}" title="{{ main_view.title }}">
+                        {% if main_view.url_name == 'dashboard' %}
+                            <i class="fa fa-tachometer fa-fw"> </i>
+                        {% elif main_view.url_name == 'issues' %}
+                            <i class="fa fa-sitemap fa-fw"> </i>
+                        {% elif main_view.url_name == 'board' %}
+                            <i class="fa fa-columns fa-fw"> </i>
+                        {% endif %}
+                        <span> {{ main_view.title }}</span>
+                    </a>
+                </li>
+        {% endif %}
+        {% endfor %}
+        {% if display_add_issue_btn %}
+            <li class="add-issue-btn"><a role="menuitem" href="#" title="Create an issue on this repository"><i class="fa fa-plus fa-fw"> </i> <span>Add issue</span></a></li>
+        {% endif %}
+    </ul>
+{% endspaceless %}{% endblock header_nav %}
+
+{% block modal-windows %}
+    {{ block.super }}
+    {% include "front/modal_issue_view.html" %}
+    <div id="go-to-issue-window" class="modal hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
+            <h3>Go to issue</h3>
+        </div>
+        <div class="modal-body">
+            <form class="form-inline">
+                <div class="input-prepend input-append">
+                    <span class="add-on">#</span>
+                    <input type="text" name='number' placeholder="Type an issue number" />
+                    <button class="btn btn-blue" type="submit">Go!</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="issue-create-modal" class="modal fancy hide fade" data-keyboard="false" data-backdrop="static">
+        <div class="modal-header">
+            <nav class="issue-create-nav dropdown">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"> </i></button>
+                <ul class="dropdown-menu pull-right" role="menu" aria-label="Issue menu">
+                    <li><a href="#" class="resize-issue"><i class="fa fa-arrows-alt fa-fw"> </i> Toggle full screen</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#" data-dismiss="modal"><i class="fa fa-times fa-fw"> </i> Close window</a></li>
+                </ul>
+            </nav>
+            <h6>New issue on <span></span></h6>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+            <div class="row-fluid auto-align">
+                <div class="span6">
+                    <button class="btn btn-blue submit btn-loading">Create the issue <i class='fa fa-spinner fa-spin'> </i></button>
+                </div>
+                <div class="span6">
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js_footer %}
+    {{ block.super }}
+    <script type='text/javascript'>
+        var create_issue_url = "{{ current_repository.get_create_issue_url }}";
+    </script>
+{% endblock js_footer %}

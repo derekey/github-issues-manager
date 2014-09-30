@@ -1,0 +1,50 @@
+{% extends "front/base.html" %}
+{% load staticfiles %}
+
+{% block body_id %}home{% endblock %}
+{% block title %}Home{% endblock title %}
+
+{% block extra_css %}
+    <link href="{% static "front/css/pages/home.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+
+<div class="welcome">Welcome on {{ brand.long_name }}</div>
+
+<div class="login box">
+    <div class="box-header">
+        <span class="title"><i class="fa fa-sign-in"></i> Login</span>
+    </div>
+    <div class="box-content padded">
+        <p class="main-line">
+            You need a <strong>Github</strong> account to get access to <strong>{{ brand.short_name }}</strong>.
+        </p>
+        <a class="btn btn-blue btn-large btn-block" href="{% url "front:auth:login" %}">
+            <i class="fa fa-github"> </i>  Login with Github
+        </a>
+
+        <p><strong><em>Important note:</em></strong></p>
+        <blockquote>
+            <p>
+                We ask for the "<strong>Repositories</strong>" access,
+                with will give us full access to your public <em>and</em> private repositories.
+            </p>
+            <p>
+                This level of permission will allow us to:
+                <ul>
+                    <li>Get the repositories you are allowed to read/update</li>
+                </ul>
+                and
+                <ul>
+                    <li>Create/update issues</li>
+                    <li>Create/update comments</li>
+                </ul>
+                this, on your behalf, and only when you'll ask for it by doing such action on the application.
+            </p>
+        </blockquote>
+    </div>
+</div>
+
+
+{% endblock main %}

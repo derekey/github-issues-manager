@@ -1,0 +1,20 @@
+{% load frontutils %}
+    <table class="table table-normal diff" data-path="{{ path }}" data-sha="{{ sha }}">
+        {% for class, old, new, code, position in parsed_diff %}{% spaceless %}
+            <tr class="{{ class }}" data-position="{{ position }}">
+                <td class="line-number" data-line-number="{{ old }}"><span>{{ old }}</span></td>
+                <td class="line-number" data-line-number="{{ new }}"><span>{{ new }}</span></td>
+                <td class="code">{% if class != 'comment' %}<span class="label label-blue btn-comment" title="Comment this line"><i class="fa fa-comment"></i></span>{% endif %}{{ code }}</td>
+            </tr>
+            {% endspaceless %}
+            {% if entry_points and position in entry_points %}
+                {% with entry_point=entry_points|dict_item:position %}
+    </table>
+</div>
+{% include "front/repository/issues/comments/include_code_comments.html" with comments=entry_point.comments.all classes="collapse in" %}
+<div class="box-section code-diff">
+    <table class="table table-normal diff" data-path="{{ path }}" data-sha="{{ sha }}">
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+    </table>

@@ -1,0 +1,196 @@
+@import "compass/css3/box-shadow";
+@import "compass/css3/text-shadow";
+@import "mixin_helpers";
+@import "badges";
+@import "variables";
+
+// allow a box-header to be a link
+.box {
+    a.box-header {
+        display: block;
+        &:focus {
+            outline: none;
+        }
+    }
+   .box-header:not(:first-child) {
+        border-top: solid 1px #ddd;
+        @include border-top-radius(0);
+    }
+    // add a disabled state on box toolbars
+    .box-header, .box-footer {
+        a.disabled {
+            color: $light-text-color !important;
+        }
+    }
+ }
+
+.chat-box {
+    font-size: 13px;
+    // white background for chatbox content
+    &.timeline {
+        .content {
+            background: white;
+        }
+    }
+    // correct height if no body
+    .arrow-box-left, .arrow-box-right {
+        min-height: 30px;
+    }
+}
+
+// style for active elements in dropdowns
+.dropdown-menu {
+    li {
+        font-size: 12px;
+        &.active {
+            a {
+                color: #475967;
+                &:hover {
+                    color: #404040;
+                }
+            }
+            a, a:hover {
+                @include std-bg(#e5e5e5 0%, lighten(#e5e5e5, 3));
+            }
+        }
+        a > i:first-child {
+            color: inherit;
+        }
+    }
+}
+
+// info/success/error/warning style for badges and labels
+$label-match-colors: success green, important red, info blue, warning purple, inverse gray;
+@each $pair in $label-match-colors {
+    .label-#{nth($pair, 1)} {
+        @extend .label-#{nth($pair, 2)};
+    }
+}
+
+// info/success/error/warning style for tooltips
+$tooltip-match-colors: success 3, important 4, info 1, warning 8, inverse 2;
+@each $pair in $tooltip-match-colors {
+    $color: nth(nth($badge-colors, nth($pair, 2)), 2);
+    .tooltip.#{nth($pair, 1)} {
+        .tooltip-inner {
+            @include label($color);
+        }
+        @each $arrow in $arrows {
+            &.#{$arrow} .tooltip-arrow {
+                border-#{$arrow}-color: darken($color, 10);
+            }
+        }
+    }
+}
+
+// better shadow for news-titles
+.news-title {
+    @include text-shadow(white 0 1px);
+}
+
+// Make colors of area-top a little darker
+.area-top {
+    .header {
+        h3, h5 {
+            color: #5f5f5f;
+        }
+    }
+}
+
+// replace the white color of active item in navbar menu
+.navbar-inverse .nav .dropdown .active {
+    & > a, & > a:hover, & > a:focus {
+        color: inherit;
+    }
+}
+
+// correct border of multiple parts of progress bars
+.progress {
+    .bar {
+        @include border-radius(0);
+        border-right-width : 0 !important;
+        &:first-child {
+            @include border-radius(8px 0 0 8px);
+        }
+        &:last-child {
+            @include border-radius(0 8px 8px 0);
+            border-right-width : 1px !important;
+        }
+        &:first-child:last-child {
+            @include border-radius(8px);
+        }
+        & + .bar {
+            @include box-shadow(none);
+        }
+    }
+}
+
+// add a way to not have italic text on switches
+.ibutton-container.no-text-transform > {
+    .ibutton-label-on, .ibutton-label-off {
+        text-transform: none;
+    }
+}
+
+// disabled color of buttons
+.btn-disabled, .btn:disabled, .btn[disabled], .btn.disabled {
+    color: #ddd !important;
+}
+
+// allow buttons to have labels and badges on each corner
+.action-nav-normal {
+    .badge, .label {
+        &.top {
+            top: 3px;
+            bottom: auto;
+        }
+        &.bottom {
+            top: auto;
+            bottom: 3px;
+        }
+        &.right {
+            right: 3px;
+            left: auto;
+        }
+        &.left {
+            right: auto;
+            left: 3px;
+        }
+    }
+}
+
+.toolbar-link .dropdown-menu li.with-checkbox {
+    label {
+        margin: 0;
+        font-size: inherit;
+        font-weight: inherit;
+    }
+    input {
+        vertical-align: top;
+    }
+    span {
+        vertical-align: middle;
+    }
+}
+
+/* fill-up add border and shadow even on select2, remove ! */
+input.select2-input:focus {
+    @include box-shadow(none !important);
+}
+form.fill-up .select2-search-field input:focus {
+    border: none !important;
+}
+
+/* divider with texts */
+li.divider {
+    text-align: center;
+    > span {
+        position: relative;
+        z-index: 1;
+        padding: 0px 20px;
+        @include background(linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.9) 10%, rgba(240, 240, 240, 0.9) 90%, rgba(240, 240, 240, 0) 100%));
+        @include text-shadow(white 0 1px);
+        color: #78808A;
+        top: -11px;
+    }
+}

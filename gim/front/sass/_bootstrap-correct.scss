@@ -1,0 +1,126 @@
+@import "bootstrap/variables";
+@import "compass/css3/border-radius";
+@import "compass/css3/text-shadow";
+@import "variables";
+
+// correct left margin of inputs with prepend and append
+input-prepend.input-append {
+    .add-on,.btn {
+        &:first-child {
+            margin-left: 0;
+        }
+    }
+}
+
+// bockquote inherit from their parents
+blockquote p {
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    margin-bottom: 10px;
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+// navars without rounded corners
+.navbar.navbar-no-rounded .navbar-inner {
+    @include border-radius(0)
+}
+
+// allow multiple items in a dropdown menu to be near each other horizontally
+// use the same 12 columns as bootstrap: use horizontal-{1-12} to define the width
+@for $i from 1 through 12 {
+    .dropdown-menu > li.horizontal-#{$i} {
+        display: inline-block;
+        text-align: center;
+        width: (100% / 12 * $i);
+    }
+}
+
+// reset accordion: no border or margin
+.accordion-group {
+    margin-bottom: 0;
+    border: none;
+    @include border-radius(0)
+}
+
+// correct margin arround alert
+.container-fluid > .alert {
+    margin-left: 22px;
+    margin-right: 22px;
+}
+
+// allow tooltip to have a class to change color
+$tooltip-class-colors: success $successText, important $errorText, info $infoText, warning $orange, inverse $grayDark;
+$arrows: top, right, left, bottom;
+%tooltip-bootstrap-correct-extend {
+    font-size: $baseFontSize * .846;
+    @include text-shadow(0 -1px 0 rgba(0,0,0,.25));
+}
+@each $pair in $tooltip-class-colors {
+    $color: nth($pair, 2);
+    .tooltip.#{nth($pair, 1)} {
+        .tooltip-inner {
+            background-color: $color;
+            @extend %tooltip-bootstrap-correct-extend;
+        }
+        @each $arrow in $arrows {
+            &.#{$arrow} .tooltip-arrow {
+                border-#{$arrow}-color: $color;
+            }
+        }
+    }
+}
+
+
+// better border when hovering a tab
+.nav-tabs > li > a {
+    &:hover, &:focus {
+        border-color: #DDD;
+    }
+}
+
+// augment modal max height
+.modal-body {
+    max-height: 500px;
+}
+
+// full-screen mode for modals
+.modal.full-screen {
+    width: 90% !important;
+    height: 90% !important;
+    left: 5% !important;
+    margin: 0 !important;
+    &.in {
+        top: 5% !important;
+    }
+    .modal-body {
+        max-height: none !important;
+    }
+}
+
+// always a pointer for collapse triggers
+[data-toggle="collapse"] {
+    cursor: pointer;
+}
+
+// manage zindex if two modals opened
+.modal-backdrop ~ .modal-backdrop {
+    z-index: 1060;
+    ~ .modal-backdrop {
+        z-index: 1080;
+        ~ .modal-backdrop {
+            z-index: 1100;
+        }
+    }
+}
+.modal.in ~ .modal.in {
+    z-index: 1070;
+    ~ .modal.in {
+        z-index: 1090;
+        ~ .modal.in {
+            z-index: 1110;
+        }
+    }
+}

@@ -1,0 +1,103 @@
+{% extends "front/repository/dashboard/base.html" %}
+{% load staticfiles jsonify %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link href="{% static "front/css/select.2.css" %}" rel="stylesheet">
+    <link href="{% static "front/css/spectrum.css" %}" rel="stylesheet">
+    <link href="{% static "front/css/pages/repository/dashboard-editor.css" %}" rel="stylesheet">
+{% endblock extra_css %}
+
+{% block body_id %}labels-editor{% endblock %}
+
+{% block dashboard-subtitle %}<h5>Labels and groups editor</h5>{% endblock %}
+
+{% block dashboard-content %}
+<div class="row-fluid">
+    <div class="box span3">
+        <div class="box-header">
+            <span class="title">About groups</span>
+        </div>
+        <div class="box-content padded">
+            <p><strong>What is a group ?</strong></p>
+            <p>Groups are a way to organize your labels into logical sets.</p>
+            <p>When you create a group, you can choose which labels to include by picking them, or by using a pattern.</p>
+            <p><strong>An example</strong></p>
+            <p>For example, the pattern <strong>workflow:{order}:{label}</strong> will automatically include labels like these:</p>
+            {# ul>li({workflow:$:}+strong)*5 #}
+            <ul>
+                <li>workflow:0:<strong>backlog</strong></li>
+                <li>workflow:1:<strong>assigned</strong></li>
+                <li>workflow:2:<strong>accepted</strong></li>
+                <li>workflow:3:<strong>working</strong></li>
+                <li>workflow:4:<strong>fixed</strong></li>
+            </ul>
+            <p>In this example, the whole labels are visible on github, but only the emphased part will be visible here.</p>
+            <p>And the number is used for ordering.</p>
+            <p><strong>Is it useful ?</strong></p>
+            <p>By grouping labels, you add some logic, and these groups are separated from the non-grouped labels in the search bar of the issues list.</p>
+            <p>And you can use them to group the list of issues. With the previous example, you can filter issues and then group them by workflow.</p>
+        </div>
+    </div>
+    <div class="span9">
+
+    <div id="labels-editor-content">
+        {% include "front/repository/dashboard/labels-editor/include-content.html" %}
+    </div>
+
+    <div id="label-type-edit-form" class="modal fancy hide fade" data-keyboard="false">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
+            <h6>Group editor</h6>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <div class="row-fluid auto-align">
+                <div class="span6">
+                    <button class="btn btn-default btn-loading" id="label-type-test-button" data-toggle="popover" data-placement="top" data-content="<i class='fa fa-spinner fa-spin'> </i> Loading..." data-title="Matching labels" >Test it ! <i class='fa fa-spinner fa-spin'> </i></button>
+                    <button class="btn btn-blue submit btn-loading">Save the group <i class='fa fa-spinner fa-spin'> </i></button>
+                </div>
+                <div class="span6">
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-red btn-loading delete" data-title="" data-content="<button class='btn btn-red confirm-deletion'>Confirm deletion</button> <button class='btn btn-default cancel-deletion'>Cancel</button>" data-html="true" data-toggle="popover">Delete <i class='fa fa-spinner fa-spin'> </i></button>
+                </div>
+            </div>
+        </div>
+    </div>{# #label-type-edit-form #}
+
+    <div id="label-edit-form" class="hide" data-edit-url="{{ base_label_edit_url }}" data-delete-url="{{ base_label_delete_url }}" data-create-url="{{ label_create_url }}">
+        <form method="post" class="fill-up label-edit-form hide-order" data-id="%(id)s">
+            {% csrf_token %}
+            <input name='label_type' type='hidden' value="%(label_type_id)s" />
+            <input name='order' type='text' value="%(order)s" placeholder="Order" title="Enter a number"/>
+            <input name='name' type='text' value="%(name)s" placeholder="Name" />
+            <input name='color' type='text' value="%(color)s" placeholder="Color" maxlength="6" title="Color"/>
+            <div class="row-fluid auto-align">
+                <div class="span4">
+                    <button type='submit' class="btn btn-blue submit btn-loading">Save <i class='fa fa-spinner fa-spin'> </i></button>
+                </div>
+                <div class="span8">
+                    <button type='button' class="btn btn-default cancel">Cancel</button>
+                    <button type='button' class="btn btn-red delete btn-loading" data-title="" data-content="<button type='button' class='btn btn-red confirm-deletion'>Confirm deletion</button> <button type='button' class='btn btn-default cancel-deletion'>Cancel</button>" data-html="true" data-toggle="popover">Delete <i class='fa fa-spinner fa-spin'> </i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    </div>
+
+{% endblock dashboard-content %}
+
+{% block js_footer %}
+    {{ block.super }}
+    <script src="{% static "front/js/select.2.js" %}" type="text/javascript"></script>
+    <script src="{% static "front/js/spectrum.js" %}" type="text/javascript"></script>
+    <script src="{% static "front/js/repository-labels-editor.js" %}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $().ready(function() {
+            LabelTypeForm.init();
+        });
+    </script>
+{% endblock js_footer %}

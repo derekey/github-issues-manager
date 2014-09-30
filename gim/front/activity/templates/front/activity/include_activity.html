@@ -1,0 +1,352 @@
+{% load frontutils staticfiles macros spaceless_except_pre %}{% spaceless_except_pre %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
+{% macro tags issue user %}
+    {% if user == issue.repository.owner %}<span class="label label-success" title="{{ user.username }} is the project's owner">owner</span>{% endif %}
+    {% if user == issue.user %}<span class="label" title="{{ user.username }} submitted this {{ issue.type }}">submitter</span>{% endif %}
+{% endmacro %}
+{% macro datetime dateobj %}
+    <span class="time ago" title="{{ dateobj|date:"DATETIME_FORMAT" }}" data-datetime="{{ dateobj|date:'r' }}">{{ dateobj|ago }}</span>
+{% endmacro %}
+{% for entry in activity %}
+    {% if activity_mode == 'repositories' or activity_mode == 'issues' %}
+        {% ifchanged entry.issue_id %}
+            {% if not forloop.first %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% if activity_mode == 'repositories' %}
+                {% ifchanged entry.issue.repository_id %}
+                    {% if not forloop.first %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="activity-repository">
+                        <div class="box-header">
+                            <span class="title">
+                                <div class="avatar"><img class="avatar-micro" src="{{ entry.issue.repository.owner.avatar_url|default:default_avatar }}" /></div>
+                                <a href="{{ entry.issue.repository.get_absolute_url }}">
+                                    {% if entry.issue.repository.private %}<i class="fa fa-lock" title="This repository is private"> </i>{% endif %}
+                                    {{ entry.issue.repository }}
+                                </a>
+                            </span>
+                        </div>
+                        <div class="box-content">
+                {% endifchanged %}
+            {% endif %}
+            <div class="box-section" data-number="{{ entry.issue.number }}" data-repository="{{ entry.issue.repository.full_name }}">
+                <h3>
+                    <a href="{{ entry.issue.get_absolute_url }}">
+                        {% if entry.issue.is_pull_request %}<i class="fa fa-code" title="It's a pull request"> </i> {% endif %}
+                        <span class="{{ entry.issue.state }}" title="{{ entry.issue.state }}">#{{ entry.issue.number }}</span>
+                        <span style="margin-left:{{ entry.issue.number|slugify|length|add:2 }}ex">{{ entry.issue.title }}</span>
+                    </a>
+                </h3>
+                <ul class="chat-box">
+        {% endifchanged %}
+    {% endif %}
+    {% with model=entry|model %}
+        <li class="arrow-box-left model-{{ model }}{% if model == 'Event' %}-{% if entry.is_update %}update{% else %}create{% endif %}{% elif model == 'IssueEvent' %}-{{ entry.event }}{% elif model == 'IssueCommits' and entry.deleted %}-deleted{% endif %}" data-ident="{{ entry.activity_identifier }}"{% if entry.activity_score %} data-score="{{ entry.activity_score }}"{% endif %}>
+        {% if model == 'Event' %}
+            <div class="info">
+                {% if entry.is_update %}
+                    <div class="avatar"><img class="avatar-small" src="{{ default_avatar }}" /></div>
+                    <span class="name"><strong>The {{ entry.issue.type }} was updated</strong></span>
+                {% else %}
+                    <div class="avatar"><img class="avatar-small" src="{{ entry.issue.user.avatar_url|default:default_avatar }}" /></div>
+                    <span class="name">
+                        <strong>{{ entry.issue.user }}</strong>
+                        {% usemacro tags entry.issue entry.issue.user %}
+                    </span>
+                {% endif %}
+                {% usemacro datetime entry.created_at %}
+            </div>
+            <div class="box-content">
+                {% if entry.is_update %}
+                    <span class="fa-stack">
+                        <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
+                        <i class="fa fa-pencil-square fa-stack-1x"></i>
+                    </span>
+                {% else %}
+                    <span class="fa-stack">
+                        <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
+                        <i class="fa fa-plus-square fa-stack-1x text-open"></i>
+                    </span>
+                    <p>
+                        Created this {{ entry.issue.type }}
+                        {% if entry.issue.body %}
+                            <span data-toggle="collapse" data-target="#issue-body-{{ entry.id }}" title="View description">…</span>
+                            </p>
+                            <blockquote class="issue-body collapse" id="issue-body-{{ entry.id }}">
+                                {{ entry.issue.html_content|safe }}
+                            </blockquote>
+                        {% else %}
+                            (<em>No description</em>)</p>
+                        {% endif %}
+                {% endif %}
+
+                {% for part in entry.get_parts %}
+                    {% with rendered_content=part.render_as_html|safe %}
+                        {% if rendered_content %}
+                            <div>
+                                {{ rendered_content }}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endfor  %}
+            </div>
+        {% elif model == 'PullRequestComment' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.user }}</strong>
+                    {% usemacro tags entry.issue entry.user %}
+                </span>
+                {% usemacro datetime entry.created_at %}
+            </div>
+            <span class="fa-stack">
+                <i class="fa fa-comment-o fa-stack-2x"></i>
+                <i class="fa fa-code fa-stack-1x"></i>
+            </span>
+            <div class="box-content">
+                <p>Commented code on this pull request<span data-toggle="collapse" data-target="#pr-comment-{{ entry.id }}" title="Toggle comment">…</span></p>
+                <blockquote class="issue-comment collapse" id="pr-comment-{{ entry.id }}">
+                    {{ entry.html_content|safe }}
+                </blockquote>
+            </div>
+        {% elif model == 'CommitComment' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.user }}</strong>
+                    {% usemacro tags entry.issue entry.user %}
+                </span>
+                {% usemacro datetime entry.created_at %}
+            </div>
+            <span class="fa-stack">
+                <i class="fa fa-comment-o fa-stack-2x"></i>
+                <i class="fa fa-git fa-stack-1x"></i>
+            </span>
+            <div class="box-content">
+                <p>Commented a commit on this pull request<span data-toggle="collapse" data-target="#commit-comment-{{ entry.id }}" title="Toggle comment">…</span></p>
+                <blockquote class="issue-comment collapse" id="commit-comment-{{ entry.id }}">
+                    {{ entry.html_content|safe }}
+                </blockquote>
+            </div>
+        {% elif model == 'IssueCommits' %}
+            {% with author_name=entry.commit.author.username|default:entry.commit.author_name %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.commit.author.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ author_name }}</strong>
+                    {% usemacro tags entry.issue entry.commit.author %}
+                </span>
+                {% usemacro datetime entry.commit.authored_at %}
+            </div>
+            <span class="fa-stack">
+                <i class="fa fa-git-square fa-stack-2x"></i>
+            </span>
+            <div class="box-content">
+                <p>Had a commit added to this pull request{% if entry.deleted %} <strong><em>(now outdated)</em></strong>{% endif %}:</p>
+                <blockquote>
+                    {% with commit=entry.commit|copy_fks_from:entry %}
+                        <a href="{{ commit.github_url }}" target='_blank' title='View on Github'>
+                            {% if commit.message %}
+                                "<strong>{{ commit.splitted_message.0 }}</strong>" -
+                            {% endif %}
+                            <em>{{ commit.sha|short_sha }}</em>
+                        </a>
+                        {% if commit.deleted %}
+                            (deleted or in another repository)
+                        {% endif %}
+                    {% endwith %}
+                </blockquote>
+            </div>
+            {% endwith %}
+        {% elif model == 'IssueEvent' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.user }}</strong>
+                    {% usemacro tags entry.issue entry.user %}
+                </span>
+                {% usemacro datetime entry.created_at %}
+            </div>
+            {% if entry.event == 'closed' %}
+                <span class="fa-stack">
+                    <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
+                    <i class="fa fa-square fa-stack-1x text-closed"></i>
+                </span>
+                <div class="box-content">
+                    <p class="box-content">
+                        Closed this {{ entry.issue.type }}
+                        {% if entry.commit_sha and entry.related_object_id %}from a commit{% if entry.deleted %} <strong><em>(now outdated)</em></strong>{% endif %}:{% endif %}
+                    </p>
+                    {% if entry.commit_sha and entry.related_object_id %}
+                        <blockquote>
+                            {% with commit=entry.related_object|copy_fks_from:entry %}
+                                <a href="{{ commit.github_url }}" target='_blank' title='View on Github'>
+                                    {% if commit.message %}
+                                        "<strong>{{ commit.splitted_message.0 }}</strong>" -
+                                    {% endif %}
+                                    <em>{{ commit.sha|short_sha }}</em>
+                                </a>
+                                {% if commit.deleted %}
+                                    (deleted or in another repository)
+                                {% endif %}
+                            {% endwith %}
+                        </blockquote>
+                    {% endif %}
+                </div>
+            {% elif entry.event == 'merged' %}
+                <span class="fa-stack">
+                    <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
+                    <i class="fa fa-check-square fa-stack-1x"></i>
+                </span>
+                <p class="box-content">Merged this pull request</p>
+            {% elif entry.event == 'reopened' %}
+                <span class="fa-stack">
+                    <i class="fa {% if issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-2x"></i>
+                    <i class="fa fa-square-o fa-stack-1x text-open"></i>
+                </span>
+                <p class="box-content">Reopened this {{ entry.issue.type }}</p>
+            {% elif entry.event == 'assigned' %}
+                <span class="fa-stack">
+                    <i class="fa fa-share fa-stack-1x"></i>
+                </span>
+                <p class="box-content">Was assigned to this {{ entry.issue.type }}</p>
+            {% elif entry.event == 'head_ref_deleted' %}
+                <span class="fa-stack">
+                    <i class="fa fa-code-fork fa-stack-2x"></i>
+                    <i class="fa fa-times fa-stack-1x text-closed"></i>
+                </span>
+                <p class="box-content">Deleted the branch "{{ entry.issue.head_label }}"</p>
+            {% elif entry.event == 'head_ref_restored' %}
+                <span class="fa-stack">
+                    <i class="fa fa-code-fork fa-stack-2x"></i>
+                    <i class="fa fa-plus fa-stack-1x text-open"></i>
+                </span>
+                <p class="box-content">Restored the branch "{{ entry.issue.head_label }}"</p>
+            {% elif entry.event == 'referenced' and entry.commit_sha %}
+                <span class="fa-stack">
+                    <i class="fa fa-quote-left fa-stack-2x"></i>
+                    <i class="fa fa-git-square fa-stack-1x"></i>
+                </span>
+                <div class="box-content">
+                    <p>Referenced this {{ entry.issue.type }} from a commit:</p>
+                    <blockquote>
+                    {% with commit=entry.related_object|copy_fks_from:entry %}
+                        {% if commit %}
+                            <a href="{{ commit.github_url }}" target='_blank' title='View on Github'>
+                                {% if commit.message %}
+                                    "<strong>{{ commit.splitted_message.0 }}</strong>" -
+                                {% endif %}
+                                <em>{{ commit.sha|short_sha }}</em>
+                            </a>
+                            {% if not commit.fetched_at %}
+                                (not fetched yet)
+                            {% elif commit.deleted %}
+                                (deleted or in another repository1)
+                            {% endif %}
+                        {% else %}
+                            (commit <em>{{ entry.commit_sha|short_sha }}</em> not fetched yet, deleted or in another repository)
+                        {% endif %}
+                    {% endwith %}
+                    </blockquote>
+                </div>
+            {% elif entry.event == 'referenced_by_issue' %}
+                {% with related_issue=entry.related_object|copy_fks_from:entry.issue %}
+                    <span class="fa-stack">
+                        <i class="fa fa-quote-left fa-stack-2x"></i>
+                        <i class="fa {% if related_issue and related_issue.is_pull_request %}fa-file-code-o{% else %}fa-file-text-o{% endif %} fa-stack-1x"></i>
+                    </span>
+                    <div class="box-content">
+                        <p>Referenced this {{ entry.issue.type }} from
+                        {% if related_issue %}
+                            {% if related_issue.is_pull_request %}a pull request{% else %}an issue{% endif %}:</p>
+                            <blockquote>
+                                <a class="referenced_issue" href="{{ related_issue.get_absolute_url }}" target='_blank' data-number="{{ related_issue.number }}" data-repository="{{related_issue.repository.full_name }}"><strong><span class="text-{{ related_issue.state }}">#{{ related_issue.number }}</span> {{ related_issue.title }}</strong></a>
+                            </blockquote>
+                        {% else %}
+                            an issue</p>
+                        {% endif %}
+                    </div>
+                {% endwith %}
+            {% elif entry.event == 'referenced_by_issuecomment' or entry.event == 'referenced_by_pullrequestcomment' %}
+                <span class="fa-stack">
+                    <i class="fa fa-quote-left fa-stack-2x"></i>
+                    <i class="fa fa-comment-o fa-stack-1x"></i>
+                </span>
+                <div class="box-content">
+                    <p>Referenced this {{ entry.issue.type }} from
+                    {% if entry.event == 'referenced_by_issuecomment' %}
+                        a comment on
+                    {% elif entry.event == 'referenced_by_pullrequestcomment' %}
+                        a code comment on
+                    {% endif %}
+                    {% with related_issue=entry.related_object.issue|copy_fks_from:entry.issue %}
+                        {% if related_issue %}
+                            {% if related_issue.is_pull_request %}a pull request{% else %}an issue{% endif %}:</p>
+                            <blockquote>
+                                <a class="referenced_issue" href="{{ related_issue.get_absolute_url }}" target='_blank' data-number="{{ related_issue.number }}" data-repository="{{related_issue.repository.full_name }}"><strong><span class="text-{{ related_issue.state }}">#{{ related_issue.number }}</span> {{ related_issue.title }}</strong></a>
+                            </blockquote>
+                        {% else %}
+                            an issue</p>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            {% elif entry.event == 'referenced_by_milestone' %}
+                <span class="fa-stack">
+                    <i class="fa fa-quote-left fa-stack-2x"></i>
+                    <i class="fa fa-tasks fa-stack-1x"></i>
+                </span>
+                <div class="box-content">
+                    <p>Referenced this issue from a milestone:</p>
+                    {% with milestone=entry.related_object|copy_fks_from:entry.issue %}
+                        <blockquote>
+                        {% if milestone %}
+                            <a href="{{ milestone.github_url }}" target='_blank' title="View on Github"><strong>{{ milestone.title }}</strong></a>
+                        {% else %}
+                            (milestone deleted or in another repository)
+                        {% endif %}
+                        </blockquote>
+                    {% endwith %}
+                </div>
+            {% else %}
+                <div class="box-content">
+                    {{ entry }}
+                </div>
+            {% endif %}
+        {% elif model == 'IssueComment' %}
+            <div class="avatar"><img class="avatar-small" src="{{ entry.user.avatar_url|default:default_avatar }}" /></div>
+            <div class="info">
+                <span class="name">
+                    <strong>{{ entry.user }}</strong>
+                    {% usemacro tags entry.issue entry.user %}
+                </span>
+                {% usemacro datetime entry.created_at %}
+            </div>
+            <span class="fa-stack">
+                <i class="fa fa-comment-o fa-stack-2x"></i>
+            </span>
+            <div class="box-content">
+                <p>Commented on this {{ entry.issue.type }}<span data-toggle="collapse" data-target="#comment-{{ entry.id }}" title="Toggle comment">…</span></p>
+                <blockquote class="issue-comment collapse" id="comment-{{ entry.id }}">
+                    {{ entry.html_content|safe }}
+                </blockquote>
+            </div>
+        {% endif %}
+        </li>
+    {% endwith %}
+{% endfor %}
+{% if activity_mode == 'repositories' or activity_mode == 'issues' %}
+    </ul>
+</div>
+    {% if activity_mode == 'repositories' %}
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% if more_activity %}
+    <div class="placeholder visible more{% if partial_activity and activity_args.min %} missing{% endif %} box-footer"><a href='#'><i class="fa fa-plus"> </i> Load {% if partial_activity and activity_args.min %}missing{% else %}more{% endif %}</a></div>
+{% endif %}
+{% endspaceless_except_pre %}

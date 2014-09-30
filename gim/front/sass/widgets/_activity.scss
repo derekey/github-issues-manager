@@ -1,0 +1,226 @@
+@import "variables";
+
+.activity-feed {
+    .activity-repository {
+        &.hidden {
+            display: none;
+        }
+        border-top: 1px solid #CDCDCD;
+        .box-header {
+            .title {
+                font-size: 14px;
+            }
+            .avatar {
+                margin-right: 1ex;
+            }
+        }
+    }
+    .box-section {
+        padding: 5px;
+        padding-left: 2px;
+        &.hidden {
+            display: none;
+        }
+        h3 {
+            position: relative;
+            line-height: 18px;
+            font-size: 16px;
+            span {
+                display: block;
+                &:first-of-type {
+                    float: left;
+                    &.open {
+                        color: $state-open-color;
+                    }
+                    &.closed {
+                        color: $state-closed-color;
+                    }
+                }
+            }
+            i.fa-code {
+                float: right;
+                margin-right: 15px;
+                margin-left: 10px;
+                font-size: inherit;
+            }
+        }
+        .info {
+            margin-bottom: 5px;
+        }
+        .info .name .label {
+            margin-right: 5px;
+        }
+        .chat-box {
+            & > li {
+                margin-top: 5px;
+                margin-bottom: 5px;
+                & > .box-content {
+                    & > p {
+                        margin: 0;
+                        &:first-child {
+                            margin-right: 45px;
+                        }
+                        & > span[data-toggle=collapse] {
+                            @extend %toggle;
+                            margin-left: 5px;
+                            position: relative;
+                            top: -2px;
+                        }
+                    }
+                    & > blockquote {
+                        margin-top: 4px;
+                        margin-bottom: 2px;
+                        padding-left: 7px;
+                    }
+                    > div:last-of-type {
+                        .part-body, .part-title {
+                            > div.in {
+                                margin-bottom: -16px
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .fa-stack {
+            position: absolute;
+            right: 10px;
+            margin-top: -3px;
+        }
+    }
+    .box-toolbar {
+        label {
+            padding-right: 30px;
+        }
+        .fa-stack {
+            position: absolute;
+            right: 15px;
+            margin-top: -2px;
+            i {
+                color: inherit;
+            }
+        }
+        .timeline-refresh span {
+            color: $state-open-color;
+            margin-left: 1em;
+            font-style: italic;
+        }
+    }
+    .placeholder {
+        text-align: center;
+        line-height: 30px;
+        height: 1px;
+        overflow: hidden;
+        color: $content-text-color;
+        @include border-radius(0);
+        a {
+            color: inherit;
+        }
+        i {
+            font-size: inherit;
+            &.fa-spinner {
+                position: relative;
+                top: 2px;
+            }
+        }
+        background: transparent;
+        @include transition(height 0.35s, background-color 0.35s ease);
+        &.flash {
+        background-color: $highlight-background-color;
+        }
+        &.loading {
+            color: $light-text-color;
+        }
+        &.error {
+            color: $state-closed-color;
+        }
+        &.box-footer {
+            a {
+                display: block;
+            }
+        }
+        &.visible {
+            height: 30px;
+        }
+        border-top: 1px solid #CDCDCD;
+        &.silent-checking {
+            display: none;
+        }
+    }
+    &.for-repositories {
+        > .box-header {
+            margin-bottom: -1px;
+        }
+        .activity-repository {
+            position: relative;
+            .box-section {
+                padding-left: 8px;
+            }
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: 4px;
+                background-color: transparent;
+                @include transition(background-color 0.70s);
+            }
+            &.recent {
+                &::before {
+                    background-color: $active-color;
+                }
+            }
+            &.silent {
+                display: none;
+            }
+        }
+        .placeholder {
+            &:last-child {
+                border-bottom: 1px solid #CDCDCD;
+            }
+        }
+    }
+    &.for-issues {
+        .placeholder {
+             border-bottom: 1px solid #CDCDCD;
+             &:first-child {
+                border-top: none;
+             }
+             &:last-child {
+                border: none;
+             }
+       }
+        .box-section {
+            @include transition(border-color 0.70s);
+            border-left: solid 4px transparent;
+            &.recent {
+                border-left-color: $active-color;
+            }
+            &.silent {
+                display: none;
+            }
+        }
+    }
+
+    &.hide-model-Event-create .model-Event-create,
+    &.hide-model-Event-update .model-Event-update,
+    &.hide-model-IssueEvent-closed .model-IssueEvent-closed,
+    &.hide-model-IssueEvent-merged .model-IssueEvent-merged,
+    &.hide-model-IssueEvent-reopened .model-IssueEvent-reopened,
+    &.hide-model-IssueComment .model-IssueComment,
+    &.hide-model-PullRequestComment .model-PullRequestComment,
+    &.hide-model-IssueCommits .model-IssueCommits,
+    &.hide-model-IssueCommits-deleted .model-IssueCommits-deleted,
+    &.hide-model-CommitComment .model-CommitComment,
+    &.hide-model-IssueEvent-assigned .model-IssueEvent-assigned,
+    &.hide-model-IssueEvent-head_ref_deleted .model-IssueEvent-head_ref_deleted,
+    &.hide-model-IssueEvent-head_ref_restored .model-IssueEvent-head_ref_restored,
+    &.hide-model-IssueEvent-referenced .model-IssueEvent-referenced,
+    &.hide-model-IssueEvent-referenced_by_issue .model-IssueEvent-referenced_by_issue,
+    &.hide-model-IssueEvent-referenced_by_issuecomment .model-IssueEvent-referenced_by_issuecomment,
+    &.hide-model-IssueEvent-referenced_by_pullrequestcomment .model-IssueEvent-referenced_by_pullrequestcomment,
+    &.hide-model-IssueEvent-referenced_by_milestone .model-IssueEvent-referenced_by_milestone {
+        display: none;
+    }
+}

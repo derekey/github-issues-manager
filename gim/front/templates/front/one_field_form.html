@@ -1,0 +1,14 @@
+<form method="post" action="{{ form_action }}" class="one-field-form {{ form_classes }}" data-field="{{ form.fields.0.name }}">
+    {% csrf_token %}
+    {% for field in form %}
+        {% if forloop.first %}
+            <div class="edit-field edit-field-{{ field.name }}">{{ field }}</div>
+        {% endif %}
+    {% endfor %}
+    {% block buttons %}
+    <div class="edit-buttons">{% spaceless %}
+        <button type="submit" class="btn btn-blue btn-loading btn-save" title="Save">{% block save_btn %}<i class="fa fa-check"> </i>{% endblock save_btn %}<i class='fa fa-spinner fa-spin'> </i></button>
+        <button type="button" class="btn btn-default btn-loading btn-cancel" title="Cancel">{% block cancel_btn %}<i class="fa fa-times"> </i>{% endblock cancel_btn %}<i class='fa fa-spinner fa-spin'> </i></button>
+    {% endspaceless %}</div>
+    {% endblock buttons %}
+</form>

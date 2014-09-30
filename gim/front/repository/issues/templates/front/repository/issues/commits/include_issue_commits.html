@@ -1,0 +1,21 @@
+<div class="content">
+    <strong>{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}</strong>
+    {% with nb_authors=current_issue.nb_authors %}
+        from
+        <strong>{{ nb_authors }} author{{ nb_authors|pluralize }}</strong>
+    {% endwith %}
+    {% if current_issue.nb_deleted_commits %}
+        <label class='deleted-commits-toggler'>
+            <input type='checkbox' />
+            <span>View {{ current_issue.nb_deleted_commits }} outdated commit{{ current_issue.nb_deleted_commits|pluralize }}</span>
+        </label>
+    {% endif %}
+</div>
+<ul class="unstyled chat-box timeline issue-activity active-commits">
+    {% include "front/repository/issues/commits/include_commits_groups.html" with groups=current_issue.get_commits_per_day id_prefix="pr-comm-" repository_source=current_issue.repository collapsed=False %}
+</ul>
+{% if current_issue.nb_deleted_commits %}
+    <ul class="unstyled chat-box timeline issue-activity all-commits">
+        {% include "front/repository/issues/commits/include_commits_groups.html" with groups=current_issue.get_all_commits_per_day id_prefix="pr-all-comm-" repository_source=current_issue.repository collapsed=False %}
+    </ul>
+{% endif %}

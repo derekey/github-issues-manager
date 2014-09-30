@@ -1,0 +1,202 @@
+@import "bootstrap/variables";
+@import "variables";
+@import "modal";
+// @import "uniform_default";
+@import "form_elements";
+@import "core-admin-forms-correct.scss";
+@import "components/issues_mixins";
+
+#labels-editor {
+    .btn-edit-label-type {
+        padding-right: 6px;
+        a {
+            position: relative;
+            top: -1px;
+        }
+    }
+}
+
+.label-type .box-header .title .label {
+    margin-left: 1em;
+    line-height: 13px;
+}
+
+#label-type-edit-form {
+    width: 90%;
+    margin-left: -45%;
+    form {
+        input[type=submit] {
+            display: none;
+        }
+        & > div > label + input[type=text] + .note {
+            margin-top: -10px;
+        }
+    }
+}
+
+.for-mode1, .for-mode2, .for-mode3 {
+    display: none;
+}
+.mode1 .for-mode1,
+.mode2 .for-mode2,
+.mode3 .for-mode3 {
+    display: block;
+}
+
+.edit-mode-dropdown {
+    .select2-results {
+        max-height: none;
+    }
+    li.select2-highlighted .note {
+        color: white;
+    }
+}
+
+.label-type-samples {
+    margin-top: 5px;
+    .note {
+        margin-bottom: 0;
+    }
+    li {
+        cursor: pointer;
+    }
+}
+
+.modal-footer  {
+    // keep btn style even if a popover is inserted
+    .btn + div.popover + .btn {
+        margin-bottom: 0px;
+        margin-left: 5px;
+    }
+    .alert {
+        text-align: center;
+    }
+    .popover-content {
+        label {
+            margin-bottom: 0;
+            & + .errorlist {
+                margin-left: 5px;
+            }
+        }
+    }
+}
+
+.label-edit-form {
+    input[name=order] {
+        width: 45px;
+        margin-right: 5px;
+    }
+    input[name=name] {
+        width: 132px;
+        margin-right: 5px;
+    }
+    &:not(.show-order) {
+        input[name=order] {
+            display: none;
+        }
+        input[name=name] {
+            width: 182px;
+        }
+    }
+    input[name=color] {
+        width: 46px;
+        padding-left: 3px;
+    }
+    // spectrum
+    .sp-replacer {
+        padding: 3px;
+        vertical-align: top;
+    }
+    .sp-preview {
+        width: 26px;
+        height: 18px;
+    }
+}
+.label-type .labels li {
+    &.new-label {
+        padding: 0px;
+        border: medium none;
+        margin: {
+            top: 3px;
+            bottom: 4px;
+        }
+        & > a.btn {
+            line-height: 19px;
+            margin-top: 1px;
+        }
+   }
+    .popover {
+        .popover-title {
+            overflow: hidden;
+            strong {
+                border-bottom: solid transparent 3px;
+                line-height: 1.8em;
+            }
+        }
+        .popover-content {
+            label {
+                float: left;
+            }
+            .errorlist li {
+                margin: 0 {
+                    left: 5px;
+                }
+            }
+        }
+        .popover .popover-content {
+            white-space: nowrap;
+        }
+    }
+}
+
+.select2-labels {
+    .select2-results {
+        max-height: 400px;
+        display: block;
+        > li:not(.select2-selected) {
+            display: inline-block;
+            .select2-result-label {
+                padding-left: 5px !important;
+            }
+        }
+    }
+    .select2-result-label span {
+        @extend %issue-label;
+    }
+}
+
+.for-mode3 {
+    .select2-container-multi .select2-choices {
+        * {
+            @include box-sizing(content-box);
+        }
+        min-height: 27px;
+        padding: 0 4px 1px 0;
+        .select2-search-field {
+            padding: 4px 0px 0px 4px;
+            margin: 0;
+            input {
+                margin: 0;
+                padding: 0;
+                height: 20px;
+            }
+        }
+        .select2-search-choice {
+            margin: 2px 0 0 4px;
+            @include border-radius(0);
+            background: transparent;
+            border: none !important;
+            padding: 0 0 0 18px !important;
+            span {
+                @extend %issue-label;
+                margin-left: -18px;
+                padding-left: 18px;
+                padding-right: 3px;
+                line-height: 20px;
+            }
+        }
+        .select2-search-choice-close {
+            top: 5px;
+        }
+    }
+}

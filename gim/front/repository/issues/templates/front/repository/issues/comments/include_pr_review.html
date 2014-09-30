@@ -1,0 +1,38 @@
+{% load spaceless_except_pre %}{% spaceless_except_pre %}
+{% with entry_points=current_issue.get_sorted_entry_points number_str=current_issue.number|slugify %}{% with id_prefix='issue-'|add:number_str nb_entry_points=entry_points|length %}
+    <div class="content review-header">
+        <strong>{{ current_issue.pr_comments_count }} comment{{ current_issue.pr_comments_count|pluralize }}</strong>
+        on
+        <strong>{{ nb_entry_points }} part{{ nb_entry_points|pluralize }}</strong>
+        being discussed
+
+        <nav>
+            {% if nb_entry_points > 1 %}
+                {% with base=id_prefix|add:'-review' %}
+                    {% include "front/include_quicksearch.html" with id=base|add:'-search' target='#'|add:base|add:' .pr-entry-point' content='.path' title="Fiter on file names" class="review-filter" only %}
+                {% endwith %}
+                <div class="btn-group">
+                    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-bars"> </i></a>
+                    <ul class="dropdown-menu pull-right reviews-navigator" role="menu" aria-label="Navigation options">
+                        <li class="disabled"><a href="#" class="go-to-previous-review-comment"><i class="fa fa-chevron-up fa-fw"> </i> Previous commented line</a></li>
+                        <li><a href="#" class="go-to-next-review-comment"><i class="fa fa-chevron-down fa-fw"> </i> Next commented line</a></li>
+                     </ul>
+                </div>
+            {% endif %}
+        </nav>
+
+    </div>
+
+    <ul class="unstyled chat-box timeline issue-activity issue-review">
+        {% for entry_point in entry_points%}
+            {% include "front/repository/issues/activity/include_pr_entry_point.html" %}
+        {% endfor %}
+    </ul>
+
+{% if view.request.is_ajax and nb_entry_points > 1 %}
+    <script type="text/javascript">
+        window.activate_quicksearches($('#{{ id_prefix }}-review-search input.quicksearch'));
+    </script>
+{% endif %}
+{% endwith %}{% endwith %}
+{% endspaceless_except_pre %}

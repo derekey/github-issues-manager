@@ -1,0 +1,204 @@
+{% load querystring frontutils issues_tags %}{% spaceless %}
+<ul id="issues-filters-accordion" class="nav nav-collapse collapse nav-collapse-primary">
+
+    <li class='clear-all-filters'><a href="{{ root_issues_url }}?state=open"><i class="fa fa-times"> </i> Clear filters</a></li>
+
+    {# List of issues creators #}
+    {% if issues_creators.count %}
+        {{ issues_creators.part|safe }}
+    {% endif %}
+
+    {# List of assigned #}
+    {% if issues_assigned.count %}
+        {{ issues_assigned.part|safe }}
+    {% endif %}
+
+    {# List of closed-by #}
+    {% if issues_closers.count %}
+        {{ issues_closers.part|safe }}
+    {% endif %}
+
+    {# The open/close states #}
+    <li class="accordion-group dark-nav">
+        <span class="glow"></span>
+        <a class="accordion-toggle collapsed{% if issues_filter.objects.state %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-state">
+            State
+            <i class="fa fa-caret-down"></i>
+            {% if issues_filter.objects.state %}
+                    <span class="selection">{{ issues_filter.objects.state }}</span>
+                </a>
+                <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "state" %}" title="Clear this filter"><i class="fa fa-times"> </i>
+            {% endif %}
+        </a>
+        <ul id="filter-state" class="collapse">
+            {% for state in view.allowed_states %}
+                <li{% if issues_filter.parts.state == state %} class="active"{% endif %}>
+                    <a href="{{ current_issues_url }}{% toggle_in_querystring "state" state %}">{{ state|capfirst }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+
+    {# The two pull-requests states #}
+    <li class="accordion-group dark-nav">
+        <span class="glow"></span>
+        <a class="accordion-toggle collapsed{% if issues_filter.parts.pr %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-pr">
+            Pull-request
+            <i class="fa fa-caret-down"></i>
+            {% if issues_filter.parts.pr %}
+                    <span class="selection">{{ issues_filter.parts.pr }}</span>
+                </a>
+                <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "pr" %}" title="Clear this filter"><i class="fa fa-times"> </i>
+            {% endif %}
+        </a>
+        <ul id="filter-pr" class="collapse">
+            {% for pr in view.allowed_prs %}
+                <li{% if issues_filter.parts.pr == pr %} class="active"{% endif %}>
+                    <a href="{{ current_issues_url }}{% toggle_in_querystring "pr" pr %}">{{ pr|capfirst }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+
+    {# The two mergeable states, only if filter on pull requests #}
+    {% if issues_filter.parts.pr == 'yes' %}
+        <li class="accordion-group dark-nav">
+            <span class="glow"></span>
+            <a class="accordion-toggle collapsed{% if issues_filter.parts.mergeable %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-mergeable">
+                Mergeable
+                <i class="fa fa-caret-down"></i>
+                {% if issues_filter.parts.mergeable %}
+                        <span class="selection">{{ issues_filter.parts.mergeable }}</span>
+                    </a>
+                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "mergeable" %}" title="Clear this filter"><i class="fa fa-times"> </i>
+                {% endif %}
+            </a>
+            <ul id="filter-mergeable" class="collapse">
+                {% for mergeable in view.allowed_mergeables %}
+                    <li{% if issues_filter.parts.mergeable == mergeable %} class="active"{% endif %}>
+                        <a href="{{ current_issues_url }}{% toggle_in_querystring "mergeable" mergeable %}">{{ mergeable|capfirst }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endif %}
+
+    {# The milestones #}
+    {% with milestones=current_repository.milestones.ready %}
+        {% if milestones|length %}
+            <li class="accordion-group dark-nav">
+                <span class="glow"></span>
+                <a class="accordion-toggle collapsed{% if issues_filter.objects.milestone %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-milestone">
+                    Milestone
+                    <i class="fa fa-caret-down"></i>
+                    {% if issues_filter.objects.milestone %}
+                            <span class="selection">
+                                {% if issues_filter.objects.milestone == '__none__' %}
+                                    (&nbsp;No&nbsp;milestones&nbsp;)
+                                {% else %}
+                                    {{ issues_filter.objects.milestone }}
+                                {% endif %}
+                            </span>
+                        </a>
+                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "milestone" %}" title="Clear this filter"><i class="fa fa-times"> </i>
+                    {% endif %}
+                </a>
+                <ul id="filter-milestone" class="collapse">
+                    <li{% if issues_filter.parts.milestone == "__none__" %} class="active"{% endif %}>
+                        <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" "__none__" %}">(&nbsp;No&nbsp;milestones&nbsp;)</a>
+                    </li>
+                    {% if milestones|length > 10 %}
+                        <li>
+                            {% include "front/include_quicksearch.html" with id="filter-milestone" target="#filter-milestone li.milestone" only %}
+                        </li>
+                    {% endif %}
+                    {% for milestone in milestones %}
+                        <li class="milestone{% if issues_filter.objects.milestone.number == milestone.number %} active{% endif %}">
+                            <a href="{{ current_issues_url }}{% toggle_in_querystring "milestone" milestone.number %}">{{ milestone }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endif %}
+    {% endwith %}
+
+    {# The different label-types #}
+    {% for label_type in label_types %}
+        {% with label_type.labels.ready as label_type_labels %}
+            {% if label_type_labels|length %}
+                {% attributes_for_list label_type_labels "name" as label_names %}
+                {% with unset=label_type.name|add:":__none__" %}{% with label_names=label_names|append:unset current_label_for_label_type=issues_filter.objects.current_label_types|dict_item:label_type.id %}
+                <li class="accordion-group dark-nav">
+                    <span class="glow"></span>
+                    <a class="accordion-toggle collapsed{% if current_label_for_label_type %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-label-type-{{ label_type.id }}">
+                        {{ label_type.name }}
+                        <i class="fa fa-caret-down"></i>
+                            {% if current_label_for_label_type %}
+                                {% if current_label_for_label_type == '__none__' %}
+                                        <span class="selection">(&nbsp;Not set&nbsp;)</span>
+                                        </a>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" unset remove_values=label_names %}" title="Clear this filter"><i class="fa fa-times"> </i>
+                                {% else %}
+                                        <span class="selection">{{ current_label_for_label_type.typed_name }}</span>
+                                        </a>
+                                    <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_for_label_type.name  %}" title="Clear this filter"><i class="fa fa-times"> </i>
+                                {% endif %}
+                            {% endif %}
+                    </a>
+                    <ul id="filter-label-type-{{ label_type.id }}" class="collapse filter-labels">
+                        <li{% if current_label_for_label_type == '__none__' %} class="active"{% endif %}>
+                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" unset remove_values=label_names %}">(&nbsp;Not set&nbsp;)</a>
+                        </li>
+                        {% if label_type_labels|length > 10 %}
+                            <li>
+                                {% include "front/include_quicksearch.html" with id="filter-label-type-"|add:label_type.id target="#filter-label-type-"|add:label_type.id|add:" li.typed_label" only %}
+                            </li>
+                        {% endif %}
+                        {% for label in label_type_labels %}
+                            <li class="typed_label{% if label.name in issues_filter.parts.labels %} active{% endif %}">
+                                <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name remove_values=label_names %}" title="{{ label.name }}">
+                                    <span style="border-bottom-color: #{{ label.color }}">{{ label.typed_name }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endwith %}{% endwith %}
+            {% endif %}
+        {% endwith %}
+    {% endfor %}
+
+    {# Simple labels #}
+    {% with untyped_labels=current_repository.untyped_labels.all %}
+        {% if untyped_labels|length %}
+            <li class="accordion-group dark-nav">
+                <span class="glow"></span>
+                <a class="accordion-toggle collapsed{% if issues_filter.objects.current_labels %} with-selection{% endif %}" data-toggle="collapse" data-parent="#issues-filters-accordion" href="#filter-labels">
+                    Labels
+                    <i class="fa fa-caret-down"></i>
+                    {% if issues_filter.objects.current_labels %}
+                        {% attributes_for_list issues_filter.objects.current_labels "name" as current_label_names %}
+                            <span class="selection">{{ current_label_names|join:", " }}</span>
+                        </a>
+                        <a class="clear-filter" href="{{ current_issues_url }}{% remove_from_querystring "labels" current_label_names %}" title="Clear this filter"><i class="fa fa-times"> </i>
+                    {% endif %}
+                </a>
+                <ul id="filter-labels" class="collapse filter-labels">
+                    {% if untyped_labels|length > 10 %}
+                        <li>
+                            {% include "front/include_quicksearch.html" with id="filter-labels" target="#filter-labels li.untyped_label" only %}
+                        </li>
+                    {% endif %}
+                    {% for label in untyped_labels %}
+                        <li class="untyped_label{% if label.name in issues_filter.parts.labels %} active{% endif %}">
+                            <a href="{{ current_issues_url }}{% toggle_one_from_querystring "labels" label.name %}">
+                                <span style="border-bottom-color: #{{ label.color }}">{{ label.name }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endif %}
+    {% endwith %}
+
+</ul>{% endspaceless %}

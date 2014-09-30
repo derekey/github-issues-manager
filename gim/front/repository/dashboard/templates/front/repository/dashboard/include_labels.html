@@ -1,0 +1,73 @@
+{% load repository_tags %}
+<div class="box col-part deferrable" id="labels" data-url="{{ defer_url }}" data-params='input[name^=show]'>
+    {% with issues_url=current_repository|repository_view_url:'issues' %}
+
+        <div class="box-header">
+            <span class="title">Labels</span>
+            <ul class="box-toolbar">
+                <li class="toolbar-link">
+                    <a href="#" class="dropdown" data-toggle="dropdown"><i class="fa fa-bars"></i></a>
+                    <ul class="dropdown-menu" role="menu" aria-label="Options">
+                        <li class="with-checkbox"><a href="#"><label title="Check to also see labels with no issues"><input name="show-empty-labels" type="checkbox" value="1"{% if show_empty_labels %} checked="checked"{% endif %}/> <span>Show empty</span></label></a></li>
+                        {% if current_repository|can_user_write:user %}
+                            <li class="divider"></li>
+                            <li><a href="{{ labels_editor_url }}">Edit labels &amp; groups</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+            </ul>
+        </div>{# .box-header #}
+
+        <div class="box-content">
+
+        {% for label_type, labels in labels_groups %}
+            <div class="box-section{% if not label_type and labels_groups|length == 1 %} only{% endif %}">
+                {% if label_type or labels_groups|length > 1 %}
+                    <span class="label label-blue">
+                        {% if label_type %}
+                            {{ label_type.name }}
+                        {% else %}
+                            Others
+                        {% endif %}
+                    </span>
+                {% endif %}
+                <ul class="unstyled labels">
+                    {% for label in labels %}
+                        <li style="border-bottom-color: #{{ label.color }}">
+                            <a href="{{ issues_url }}?state=open&amp;labels={{ label.name|urlencode }}">
+                                {% if label.label_type_id %}{{ label.typed_name }}{% else %}{{ label.name }}{% endif %}
+                                <span>{{ label.issues_count }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% empty %}
+            {% if without_labels %}
+            <div class="box-section empty">
+                <div class="empty-area">{% if show_empty_labels %}No labels{% else %}No issues with labels{% endif %}</div>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if without_labels %}
+            <div class="box-section without-labels">
+                <ul class="unstyled labels">
+                    <li style="border-bottom-color: transparent">
+                        <a href="{{ issues_url }}?state=open&amp;labels=none">
+                            issues without labels
+                            <span>{{ without_labels }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        {% else %}
+            {% if not labels_groups %}
+                <div class="empty-area">{% if show_empty_labels %}No labels{% else %}No issues with labels{% endif %}</div>
+            {% endif %}
+        {% endif %}
+
+        </div>
+
+    {% endwith %}
+</div>

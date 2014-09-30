@@ -1,0 +1,32 @@
+{% if current_subscription.state == 3 %}
+    <div class="hook-block btn-group">
+        {% with unset_title="Adding the Hook on Github allow faster updates (instead of waiting for data to be polled)" %}
+            <button class="btn btn-{% if current_repository.hook_set %}green{% else %}red{% endif %} dropdown-toggle" data-toggle="dropdown"{% if not current_repository.hook_set %} title="{{ unset_title }}"{% endif %}>
+                {% if current_repository.hook_set %}
+                    <i class="fa fa-check"></i>
+                    Hook set
+                {% else %}
+                    <i class="fa fa-times"></i>
+                    Hook not set
+                {% endif %}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right"{% if not current_repository.hook_set %} title="{{ unset_title }}"{% endif %}>
+                <li>
+                    <a href="#" class='btn-loading'>
+                        {% if current_repository.hook_set %}
+                            Remove the hook from Github
+                        {% else %}
+                            Set the hook on Github
+                        {% endif %}
+                        <i class='fa fa-spinner fa-spin'> </i>
+                    </a>
+                </li>
+            </ul>
+        {% endwith %}
+        <form style='display: none' method='post' action='{{ hook_toggle_url }}' id='hook-toggle-form'>
+            <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+            {{ hook_toggle_form.as_p }}
+        </form>
+    </div>
+{% endif %}

@@ -1,0 +1,259 @@
+{% extends "front/repository/base.html" %}
+{% load staticfiles querystring frontutils issues_tags %}
+
+{% block body_id %}repository_issues{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link href="{% static "front/css/pages/repository/issues.css" %}" rel="stylesheet">
+{% endblock extra_css %}
+
+{% block js_footer %}
+    {{ block.super }}
+    <script type="text/javascript">replace_time_ago(document.getElementById('issues-list'));</script>
+{% endblock js_footer %}
+
+{% block main %}
+<div class="row-fluid" id="main-inner">
+    <nav id="issues-filters">
+        <div class="primary-sidebar">
+            {% include "front/repository/issues/filters/include_filters.html" %}
+        </div>
+    </nav>
+    <section id="issues-list-container" class="span5">
+        {% if issues %}
+            <nav id="issues-list-options" class="navbar navbar-no-rounded">{% spaceless %}
+                <div class="navbar-inner">
+                    <ul class="nav">
+                        <li class="dropdown span4">
+                            <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+                                <span>
+                                    Sort
+                                    <b class="caret"></b>
+                                </span>
+                                {% if issues_filter.parts.sort %}
+                                    <span class="selection">
+                                        {{ issues_filter.parts.sort|capfirst }}
+                                        <i class="fa fa-chevron-{% if issues_filter.parts.direction == "asc" %}down{% else %}up{% endif %}" title="{% if issues_filter.parts.direction == "asc" %}Ascending order{% else %}Descending order{% endif %}"> </i>
+                                    </span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu" role="menu" arua-label="Sort options">
+                                {% for sort_field in view.allowed_sort_fields %}
+                                    <li{% if issues_filter.parts.sort == sort_field %} class="active"{% endif %}>
+                                        <a href="{{ current_issues_url }}{% replace_many_in_querystring "sort" sort_field "direction" issues_filter.parts.direction|default:"desc" %}">{{ sort_field|capfirst }}</a>
+                                    </li>
+                                {% endfor %}
+                                {% if issues_filter.parts.sort %}
+                                    <li class="divider"></li>
+                                    <li class="horizontal-6{% if issues_filter.parts.direction == "asc" %} active{% endif %}">
+                                        <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "asc" %}"><i class="fa fa-chevron-down" title="Ascending order"> </i></a>
+                                    </li>
+                                    <li class="horizontal-6{% if issues_filter.parts.direction == "desc" %} active{% endif %}">
+                                        <a href="{{ current_issues_url }}{% replace_in_querystring "direction" "desc" %}"><i class="fa fa-chevron-up" title="Descending order"> </i></a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        <li class="divider-vertical"></li>
+                        <li class="dropdown span4">
+                            <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+                                <span>
+                                    Group by
+                                    <span class="caret"></span>
+                                </span>
+                                <span class="selection">
+                                    {% if issues_filter.parts.group_by %}
+                                        {% if issues_filter.objects.group_by_field == 'label_type_grouper' %}
+                                            {{ issues_filter.objects.group_by.name|capfirst }}
+                                        {% else %}
+                                            {{ issues_filter.objects.group_by|capfirst }}
+                                        {% endif %}
+                                        <i class="fa fa-chevron-{% if issues_filter.parts.group_by_direction == "asc" %}down{% else %}up{% endif %}" title="{% if issues_filter.parts.group_by_direction == "asc" %}Ascending order{% else %}Descending order{% endif %}"> </i>
+                                    {% else %}
+                                        No group by
+                                    {% endif %}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu" aria-label="Group options">
+                                {% for group_by_field in view.allowed_group_by_fields %}
+                                    <li{% if issues_filter.parts.group_by == group_by_field %} class="active"{% endif %}>
+                                        <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" group_by_field %}">{{ group_by_field|capfirst }}</a>
+                                    </li>
+                                {% endfor %}
+                                {% if label_types|length %}
+                                    <li class="divider"></li>
+                                    {% for label_type in label_types %}
+                                        {% with "type:"|add:label_type.name as label_type_group_name %}
+                                            {% if label_type.labels.ready.count %}
+                                                <li{% if issues_filter.parts.group_by == label_type_group_name %} class="active"{% endif %}>
+                                                    <a href="{{ current_issues_url }}{% toggle_in_querystring "group_by" label_type_group_name %}">{{ label_type.name }}</a>
+                                                </li>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% endif %}
+                                {% if issues_filter.parts.group_by %}
+                                    <li class="divider"></li>
+                                    <li class="horizontal-6{% if issues_filter.parts.group_by_direction == "asc" %} active{% endif %}">
+                                        <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "asc" %}"><i class="fa fa-chevron-down" title="Ascending order"> </i></a>
+                                    </li>
+                                    <li class="horizontal-6{% if issues_filter.parts.group_by_direction == "desc" %} active{% endif %}">
+                                        <a href="{{ current_issues_url }}{% replace_in_querystring "group_by_direction" "desc" %}"><i class="fa fa-chevron-up" title="Descending order"> </i></a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        <li class="divider-vertical"></li>
+                        <li class="dropdown span4">
+                            <a href="#" role="button" class="dropdown-toggle no-selection" data-toggle="dropdown">
+                                <span>
+                                    Options
+                                    <span class="caret"></span>
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu pull-right" role="menu" aria-label="Options">
+                                <li><a href="#" id="toggle-issues-details">Toggle details</a></li>
+                                <li><a href="#" id="close-all-groups">Close all groups</a></li>
+                                <li><a href="#" id="open-all-groups">Open all groups</a></li>
+                                <li><a href="#" id="show-shortcuts" data-toggle="modal" data-target="#shortcuts-window">Show shortcuts</a></li>
+                                <li><a href="#" id="go-to-issue" data-toggle="modal" data-target="#go-to-issue-window">Open issue...</a></li>
+                            <ul>
+                        </li>
+                    </ul>
+                </div>
+            {% endspaceless %}</nav>
+            {% include "front/include_quicksearch.html" with id="issues-list-search" class="issues-quicksearch" target="#issues-list .issue-item" content_data="search" placeholder="Filter by owner+number+title+milestone+labels" only %}
+            <div id="issues-list" class='issues-list' data-quicksearch="#issues-list-search input">
+                {% if limit_reached %}
+                    <div class="alert alert-warning">
+                        The current filter returned {{ issues_count }} issues but we only retrieved {{ MAX_ISSUES }} to avoid a slow rendering.
+                        <br />
+                        <a class="btn btn-mini btn-default" href="{{ current_issues_url }}{% replace_in_querystring "limit" "no" %}">Display the whole list.</a>
+                    </div>
+                {% endif %}
+                {% dynamic_regroup issues by issues_filter.objects.group_by_field as issues_groups %}
+                {% for group in issues_groups %}
+                    <div class='box issues-group'>
+                        {% if issues_filter.objects.group_by_field %}
+                            {% with uidname=issues_filter.objects.group_by.id|default:issues_filter.objects.group_by uidvalue=group.grouper.id|default:group.grouper|default:"none" %}
+                                <a class="box-header" href='#' data-toggle="collapse" data-target="#groupby-list-{{ uidname}}-{{ uidvalue }}">
+                                    <span class="title">
+                                        {% if issues_filter.objects.group_by_field == 'is_pull_request' %}
+                                            {% if group.grouper %}Pull-requests{% else %}Issues{% endif %}
+                                        {% elif group.grouper %}
+                                            {{ group.grouper.typed_name|default:group.grouper }}
+                                        {% else %}
+                                            No {{ issues_filter.objects.group_by|lower }}
+                                        {% endif %}
+                                    </span>
+                                    <ul class="unstyled box-toolbar">
+                                        <li><span class="label label-inverse issues-count">{{ group.list|length }}</span></li>
+                                    </ul>
+                                </a>
+                                <ul class="unstyled box-content issues-group-issues collapse" id="groupby-list-{{ uidname}}-{{ uidvalue }}">
+                            {% endwith %}
+                        {% else %}
+                            <a class="box-header" href='#'>
+                                <span class="title">{% if issues_filter.parts.keys|length > 2%}Filtered{% else %}All{% endif %} issues</span>
+                                <ul class="unstyled box-toolbar">
+                                    <li><span class="label label-inverse issues-count">{{ group.list|length }}</span></li>
+                                </ul>
+                            </a>
+                            <ul class="unstyled box issues-group-issues">
+                        {% endif %}
+                        {% for issue in group.list %}{# {% block one-issue %} #}{% issue_cache 0 issue_item issue.pk issue.saved_hash %}{% include "front/repository/issues/include_issue_item.html" with issue=issue %}{% endissue_cache %}{# {% endblock one-issue %} #}{% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <p class="empty-area">Nothing :(</p>
+        {% endif %}
+    </section>
+
+    <section id='main-issue-container' class="span7 issue-container"{% if current_issue %} data-number="{{ current_issue.number }}" data-repository="{{ current_issue.repository.full_name }}"{% endif %}>
+        {% include "front/repository/issues/issue.html" %}
+    </section>
+
+</div>
+{% endblock main %}
+
+{% block modal-windows %}
+    {{ block.super }}
+    <div id="shortcuts-window" class="modal hide fade" tabindex="-1" data-keyboard="false">{% spaceless %}
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" title="Close" aria-hidden="true">&times;</button>
+            <h3>Shortcuts</h3>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid">
+                <div class="span6">
+                    <h4>On the issue detail view</h4>
+                    <table class="table table-condensed">
+                        <tr><td><span class="label label-inverse">CTRL + <i class="fa fa-arrow-left"> </i></span></td><td>Focus the list of issues</td></tr>
+                        <tr><td><span class="label label-inverse">s</span></td><td>Toggle the fullscreen view</td></tr>
+                        <tr><td><span class="label label-inverse">r</span></td><td>Refresh issue</td></tr>
+                        <tr><td><span class="label label-inverse">SHIFT + g</span></td><td>Reload the issue from Github</td></tr>
+                        <tr><td><span class="label label-inverse">v</span></td><td>View the issue on Github in a new tab/window</td></tr>
+                        <tr><td><span class="label label-inverse">SHIFT + d</span></td><td>If a pull-request, open the "Discussion & updates" tab</td></tr>
+                        <tr><td><span class="label label-inverse">SHIFT + c</span></td><td>If a pull-request, open the "Commits" tab</td></tr>
+                        <tr><td><span class="label label-inverse">SHIFT + f</span></td><td>If a pull-request, open the "Files" tab</td></tr>
+                        <tr><td><span class="label label-inverse">SHIFT + r</span></td><td>If a pull-request, open the "Review comments" tab</td></tr>
+                    </table>
+                    <h4>On the "Files" tab of the detail view</h4>
+                    <table class="table table-condensed">
+                        <tr><td><span class="label label-inverse">n</span> or <span class="label label-inverse">j</span></td><td>Focus the next file</td></tr>
+                        <tr><td><span class="label label-inverse">p</span> or <span class="label label-inverse">k</span></td><td>Focus the previous file</td></tr>
+                        <tr><td><span class="label label-inverse">SHIFT + n</span> or <span class="label label-inverse">SHIFT + j</span></td><td>Focus the next comment</td></tr>
+                        <tr><td><span class="label label-inverse">SHIFT + p</span> or <span class="label label-inverse">SHIFT + k</span></td><td>Focus the previous comment</td></tr>
+                        <tr><td><span class="label label-inverse">f</span></td><td>Focus the filter input</td></tr>
+                        <tr><td><span class="label label-inverse">t</span></td><td>Toggle the top files list</td></tr>
+                    </table>
+                    <h4>Other</h4>
+                    <table class="table table-condensed">
+                        <tr><td><span class="label label-inverse">c</span></td><td>Create an new issue</td></tr>
+                        <tr><td><span class="label label-inverse">#</span> or <span class="label label-inverse">i</span></td><td>Open a window to type an issue number to open</td></tr>
+                        <tr><td><span class="label label-inverse">?</span></td><td>This window</td></tr>
+                    </table>
+                </div>
+                <div class="span6">
+                    <h4>Anywhere on the issues-list</h4>
+                    <table class="table table-condensed">
+                        <tr><td><span class="label label-inverse">d</span></td><td>Toggle details for issues</td></tr>
+                        <tr><td><span class="label label-inverse">f</span></td><td>Focus the filter input</td></tr>
+                        <tr><td><span class="label label-inverse">CTRL + u</span></td><td>Clear the search input</td></tr>
+                        <tr><td><span class="label label-inverse">CTRL + <i class="fa fa-arrow-right"> </i></span></td><td>Focus the detail view</td></tr>
+                    </table>
+                    <h4>On issues in the issues list</h4>
+                    <table class="table table-condensed">
+                        <tr>
+                            <td><span class="label label-inverse">n</span>, <span class="label label-inverse">j</span> or <span class="label label-inverse"><i class="fa fa-arrow-down"> </i></span></td><td>Focus the next issue</td>
+                        </tr>
+                        <tr>
+                            <td><span class="label label-inverse">p</span>, <span class="label label-inverse">k</span> or <span class="label label-inverse"><i class="fa fa-arrow-up"> </i></span></td><td>Focus the previous issue</td>
+                        </tr>
+                        <tr><td><span class="label label-inverse">HOME</span></td><td>Focus the first issue of the current group</td></tr>
+                        <tr><td><span class="label label-inverse">END</span></td><td>Focus the last issue of the current group</td></tr>
+                        <tr><td><span class="label label-inverse">c</span> or <span class="label label-inverse"><i class="fa fa-arrow-left"> </i></span></td><td>Close the current group</td></tr>
+                    </table>
+                    <h4>On Groups in the issues list</h4>
+                    <table class="table table-condensed">
+                        <tr>
+                            <td><span class="label label-inverse">n</span>, <span class="label label-inverse">j</span> or <span class="label label-inverse"><i class="fa fa-arrow-up"> </i></span></td><td>Focus the next item (group or issue) in the list</td>
+                        </tr>
+                        <tr>
+                            <td><span class="label label-inverse">p</span>, <span class="label label-inverse">k</span> or <span class="label label-inverse"><i class="fa fa-arrow-down"> </i></span></td><td>Focus the previous item (group or issue) in the list</td>
+                        </tr>
+                        <tr><td><span class="label label-inverse">o</span> or <span class="label label-inverse"><i class="fa fa-arrow-right"> </i></span></td><td>Open the group</td></tr>
+                        <tr><td><span class="label label-inverse">c</span> or <span class="label label-inverse"><i class="fa fa-arrow-left"> </i></span></td><td>Close the group</td></tr>
+                        <tr><td><span class="label label-inverse">t</span></td><td>Toggle the group</td></tr>
+                        <tr><td><span class="label label-inverse">HOME</span></td><td>Focus the first group</td></tr>
+                        <tr><td><span class="label label-inverse">END</span></td><td>Focus the last group</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endspaceless %}</div>
+{% endblock modal-windows %}

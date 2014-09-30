@@ -1,0 +1,4 @@
+{% for label_type in label_types %}
+    {% include label_type_include_template with label_type=label_type labels=label_type.visible_labels %}
+{% endfor %}
+{% include label_type_include_template with label_type=None labels=labels_without_type %}

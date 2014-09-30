@@ -1,0 +1,18 @@
+<div class="box deferrable col-part full-col activity-feed for-{{ activity_mode }}" id="main_activity" data-url="{{ defer_url }}" data-mode='{{ activity_mode }}'>
+    <div class="box-header">
+        <span class="title">Last activity</span>
+        {% include "front/activity/include_toolbar.html" %}
+    </div>
+    <div class="box-content">
+        {% if activity|length %}
+            {% include "front/activity/include_activity.html" %}
+        {% else %}
+            <div class="empty-area">It seems that there is no activity at all!</div>
+        {% endif %}
+    </div>{# .box-content #}
+    {% if not partial_activity %}
+        <script type="text/javascript">
+            Activity.delay_check_new_activity('#main_activity');
+        </script>
+    {% endif %}
+</div>{# #main_activity.box #}

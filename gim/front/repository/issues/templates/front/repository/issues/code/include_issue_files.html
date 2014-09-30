@@ -1,0 +1,3 @@
+{% with number_str=current_issue.number|slugify %}
+    {% include "front/repository/issues/code/include_files.html" with files=current_issue.files.all id_prefix='issue-'|add:number_str nb_additions=current_issue.nb_additions nb_deletions=current_issue.nb_deletions %}
+{% endwith %}
