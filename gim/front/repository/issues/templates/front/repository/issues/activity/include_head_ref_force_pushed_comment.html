@@ -1,0 +1,11 @@
+{% extends "front/repository/issues/activity/include_base_activity.html" %}
+
+{% block node_class %}event event-include_head_ref_force_pushed_comment.html{% endblock %}
+
+{% block comment_info %}
+    <span class="label label-gray">FORCE PUSH</span>
+    <strong>{{ comment.user.username }}</strong>
+    made a force push on the <strong>{{ comment.issue.head_label }}</strong> branch
+{% endblock %}
+
+{% block comment_body %}{% endblock%}
