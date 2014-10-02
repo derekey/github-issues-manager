@@ -1,6 +1,14 @@
 @mixin calc($property, $expression, $important: "") {
-    #{$property}: -moz-calc(#{$expression}) #{$important};
-    #{$property}: -o-calc(#{$expression}) #{$important};
-    #{$property}: -webkit-calc(#{$expression}) #{$important};
-    #{$property}: calc(#{$expression}) #{$important};
+    @if $important == "!important" {
+        #{$property}: -moz-calc(#{$expression}) !important;
+        #{$property}: -o-calc(#{$expression}) !important;
+        #{$property}: -webkit-calc(#{$expression}) !important;
+        #{$property}: calc(#{$expression}) !important;
+    } @else {
+        #{$property}: -moz-calc(#{$expression});
+        #{$property}: -o-calc(#{$expression});
+        #{$property}: -webkit-calc(#{$expression});
+        #{$property}: calc(#{$expression});
+    }
+
 }

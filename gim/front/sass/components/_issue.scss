@@ -1,4 +1,4 @@
-@import "variables";
+@import "gim_variables";
 @import "compass/typography/text/ellipsis";
 @import "compass/css3/box-sizing";
 @import "compass/css3/images";
@@ -35,7 +35,7 @@ $repo-name-height: 20px;
             padding-bottom: 1px;
             .repository-name {
                 text-align: center;
-                margin: 0px;
+                margin: 0;
                 font-size: 14px;
                 height: $repo-name-height;
                 overflow: hidden;
@@ -342,7 +342,7 @@ $repo-name-height: 20px;
             height: auto;
             background: white;
             border: none;
-            @include border-radius(0px);
+            @include border-radius(0);
             @include box-shadow(none);
         }
         div.edit-buttons {
@@ -433,7 +433,7 @@ $repo-name-height: 20px;
         min-height: 27px;
         padding: 0 4px 1px 0;
         .select2-search-field {
-            padding: 4px 0px 0px 4px;
+            padding: 4px 0 0 4px;
             margin: 0;
             input {
                 margin: 0;
@@ -702,7 +702,7 @@ $repo-name-height: 20px;
                     font-size: 11px;
                     color: #bbb;
                     width: auto;
-                    margin: 0px 4px;
+                    margin: 0 4px;
                 }
             }
         }
@@ -882,11 +882,11 @@ $repo-name-height: 20px;
                 }
                 i.fa-times {
                     position: absolute;
-                    right: 0px;
-                    top: 0px;
-                    bottom: 0px;
+                    right: 0;
+                    top: 0;
+                    bottom: 0;
                     line-height: 30px;
-                    padding: 0px 5px;
+                    padding: 0 5px;
                     cursor: pointer;
                     font-size: 12px;
                     color: #CCC;
@@ -916,7 +916,7 @@ $repo-name-height: 20px;
             min-width: 8px;
             line-height: 8px;
             height: 8px;
-            padding: 0px 1px;
+            padding: 0 1px;
 
         }
         > i, > .badge {

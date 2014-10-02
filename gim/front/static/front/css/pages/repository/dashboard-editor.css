@@ -9,13 +9,12 @@
 /* line 10, ../../../../../core-admin/stylesheets/modal.scss */
 .modal.fancy .modal-header, .modal.fancy .modal-footer {
   background: #eaeaea;
-  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
   background-size: 100%;
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #eaeaea));
-  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
   background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
-  background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
-  background-image: linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: linear-gradient(to bottom, #fdfdfd, #eaeaea);
 }
 /* line 12, ../../../../../core-admin/stylesheets/modal.scss */
 .modal.fancy .modal-header h1, .modal.fancy .modal-header h2, .modal.fancy .modal-header h3, .modal.fancy .modal-header h4, .modal.fancy .modal-header h5, .modal.fancy .modal-header h6, .modal.fancy .modal-footer h1, .modal.fancy .modal-footer h2, .modal.fancy .modal-footer h3, .modal.fancy .modal-footer h4, .modal.fancy .modal-footer h5, .modal.fancy .modal-footer h6 {
@@ -38,16 +37,16 @@
 /* \f020 doesn't work in Safari. all shifted one down */
 /* line 8, ../../../../../core-admin/stylesheets/form_elements.scss */
 form.fill-up {
-  -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   width: 100%;
   margin-bottom: 0;
 }
 /* line 10, ../../../../../core-admin/stylesheets/form_elements.scss */
 form.fill-up * {
-  -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
 /* line 16, ../../../../../core-admin/stylesheets/form_elements.scss */
@@ -82,8 +81,8 @@ form.fill-up form {
 form.fill-up .input-append, form.fill-up .input-prepend {
   height: 26px;
   line-height: 26px;
-  -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   width: 100%;
   position: relative;
@@ -95,8 +94,8 @@ form.fill-up .input-append .add-on i, form.fill-up .input-prepend .add-on i {
 }
 /* line 65, ../../../../../core-admin/stylesheets/form_elements.scss */
 form.fill-up .input-append *, form.fill-up .input-prepend * {
-  -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
 /* line 72, ../../../../../core-admin/stylesheets/form_elements.scss */
@@ -106,18 +105,17 @@ form.fill-up .input-append a.add-on, form.fill-up .input-append span.add-on, for
   position: absolute;
   height: 100%;
   z-index: 2;
-  -webkit-box-shadow: inset 0 1px 2px white;
-  -moz-box-shadow: inset 0 1px 2px white;
-  box-shadow: inset 0 1px 2px white;
+  -moz-box-shadow: inset 0 1px 2px #fff;
+  -webkit-box-shadow: inset 0 1px 2px #fff;
+  box-shadow: inset 0 1px 2px #fff;
   border: 1px solid #ccc;
   background: #eaeaea;
-  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZkZmRmZCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhZWFlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
   background-size: 100%;
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fdfdfd), color-stop(100%, #eaeaea));
-  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
   background-image: -moz-linear-gradient(top, #fdfdfd, #eaeaea);
-  background-image: -o-linear-gradient(top, #fdfdfd, #eaeaea);
-  background-image: linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background-image: linear-gradient(to bottom, #fdfdfd, #eaeaea);
   padding-top: 2px;
   padding-bottom: 2px;
   padding-left: 6px;
@@ -153,10 +151,8 @@ form.fill-up .input-append ul.add-on li a, form.fill-up .input-append ul.add-on 
 }
 /* line 113, ../../../../../core-admin/stylesheets/form_elements.scss */
 form.fill-up .input-append ul.add-on li a.btn, form.fill-up .input-append ul.add-on li button.btn, form.fill-up .input-prepend ul.add-on li a.btn, form.fill-up .input-prepend ul.add-on li button.btn {
-  -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
+  -webkit-border-radius: 3px;
   border-radius: 3px;
 }
 /* line 118, ../../../../../core-admin/stylesheets/form_elements.scss */
@@ -173,10 +169,8 @@ form.fill-up .input-append input[type="text"], form.fill-up .input-append input[
   height: 100%;
   width: 100%;
   z-index: 1;
-  -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
+  -webkit-border-radius: 4px;
   border-radius: 4px;
 }
 /* line 138, ../../../../../core-admin/stylesheets/form_elements.scss */
@@ -202,8 +196,8 @@ form.fill-up .input-prepend input[type="text"], form.fill-up .input-prepend inpu
 /* line 163, ../../../../../core-admin/stylesheets/form_elements.scss */
 form.fill-up div.uploader {
   width: 100%;
-  -webkit-box-shadow: none;
   -moz-box-shadow: none;
+  -webkit-box-shadow: none;
   box-shadow: none;
   border: 1px solid #ccc;
   height: 28px;
@@ -236,19 +230,16 @@ form.fill-up div.uploader span.action {
   margin-top: 2px;
   margin-right: 2px;
   margin-bottom: 2px;
-  -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
-  -ms-border-radius: 2px;
-  -o-border-radius: 2px;
+  -webkit-border-radius: 2px;
   border-radius: 2px;
   background: #549fc4;
-  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzdhYjRkMSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzU0OWZjNCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzdhYjRkMSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzU0OWZjNCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
   background-size: 100%;
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7ab4d1), color-stop(100%, #549fc4));
-  background-image: -webkit-linear-gradient(top, #7ab4d1, #549fc4);
   background-image: -moz-linear-gradient(top, #7ab4d1, #549fc4);
-  background-image: -o-linear-gradient(top, #7ab4d1, #549fc4);
-  background-image: linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: -webkit-linear-gradient(top, #7ab4d1, #549fc4);
+  background-image: linear-gradient(to bottom, #7ab4d1, #549fc4);
   color: white;
   text-shadow: none;
   font-size: 16px;
@@ -261,21 +252,18 @@ form.fill-up div.selector {
   overflow: hidden;
   width: 100%;
   font-size: 12px;
-  -webkit-border-radius: 0;
   -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  -o-border-radius: 0;
+  -webkit-border-radius: 0;
   border-radius: 0;
-  background: whitesmoke;
-  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2Y1ZjVmNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background: #f5f5f5;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2Y1ZjVmNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
   background-size: 100%;
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #f5f5f5));
-  background-image: -webkit-linear-gradient(top, #ffffff, #f5f5f5);
   background-image: -moz-linear-gradient(top, #ffffff, #f5f5f5);
-  background-image: -o-linear-gradient(top, #ffffff, #f5f5f5);
-  background-image: linear-gradient(top, #ffffff, #f5f5f5);
-  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  background-image: -webkit-linear-gradient(top, #ffffff, #f5f5f5);
+  background-image: linear-gradient(to bottom, #ffffff, #f5f5f5);
   -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   border: 1px solid #ccc;
   font-size: 12px;
@@ -334,13 +322,11 @@ form.fill-up div.selector select {
 }
 /* line 265, ../../../../../core-admin/stylesheets/form_elements.scss */
 form.fill-up textarea, form.fill-up input[type="text"], form.fill-up input[type="password"], form.fill-up input[type="datetime"], form.fill-up input[type="datetime-local"], form.fill-up input[type="date"], form.fill-up input[type="month"], form.fill-up input[type="time"], form.fill-up input[type="week"], form.fill-up input[type="number"], form.fill-up input[type="email"], form.fill-up input[type="url"], form.fill-up input[type="search"], form.fill-up input[type="tel"], form.fill-up input[type="color"], form.fill-up .uneditable-input {
-  -webkit-box-shadow: none;
   -moz-box-shadow: none;
+  -webkit-box-shadow: none;
   box-shadow: none;
-  -webkit-border-radius: 0;
   -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  -o-border-radius: 0;
+  -webkit-border-radius: 0;
   border-radius: 0;
   font-size: 12px;
   color: #858585;
@@ -352,8 +338,8 @@ form.fill-up textarea, form.fill-up input[type="text"], form.fill-up input[type=
 }
 /* line 276, ../../../../../core-admin/stylesheets/form_elements.scss */
 form.fill-up textarea:focus, form.fill-up input[type="text"]:focus, form.fill-up input[type="password"]:focus, form.fill-up input[type="datetime"]:focus, form.fill-up input[type="datetime-local"]:focus, form.fill-up input[type="date"]:focus, form.fill-up input[type="month"]:focus, form.fill-up input[type="time"]:focus, form.fill-up input[type="week"]:focus, form.fill-up input[type="number"]:focus, form.fill-up input[type="email"]:focus, form.fill-up input[type="url"]:focus, form.fill-up input[type="search"]:focus, form.fill-up input[type="tel"]:focus, form.fill-up input[type="color"]:focus, form.fill-up .uneditable-input:focus {
-  -webkit-box-shadow: none;
   -moz-box-shadow: none;
+  -webkit-box-shadow: none;
   box-shadow: none;
   border: 1px solid #68A6CE;
 }
@@ -370,9 +356,9 @@ form.fill-up label {
 form.fill-up .search-dropdown {
   position: relative;
   background: #fbfbfb;
-  border: 1px solid #cccccc;
-  -webkit-box-sizing: content-box;
+  border: 1px solid #ccc;
   -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
   box-sizing: content-box;
 }
 /* line 72, ../../../../../core-admin/stylesheets/_arrow.scss */
@@ -394,7 +380,7 @@ form.fill-up .search-dropdown:after {
 }
 /* line 94, ../../../../../core-admin/stylesheets/_arrow.scss */
 form.fill-up .search-dropdown:before {
-  border-bottom-color: #cccccc;
+  border-bottom-color: #ccc;
   border-width: 8px;
   left: 50%;
   margin-left: -8px;
@@ -452,7 +438,7 @@ div.selector span {
   line-height: 24px;
 }
 
-/* line 23, ../../../../../sass/components/_issues_mixins.scss */
+/* line 25, ../../../../../sass/components/_issues_mixins.scss */
 .part-labels ul > li, .part-label_type ul > li, .part-labels ul > a, .part-label_type ul > a, .select2-labels .select2-result-label span, .for-mode3 .select2-container-multi .select2-choices .select2-search-choice span {
   display: inline-block;
   white-space: nowrap;
@@ -462,31 +448,29 @@ div.selector span {
   border-bottom: solid #ccc 3px;
 }
 
-/* line 32, ../../../../../sass/components/_issues_mixins.scss */
+/* line 34, ../../../../../sass/components/_issues_mixins.scss */
 .part-labels ul, .part-label_type ul {
   margin: 0;
   padding: 0;
   padding-right: 5px;
 }
-/* line 39, ../../../../../sass/components/_issues_mixins.scss */
+/* line 41, ../../../../../sass/components/_issues_mixins.scss */
 .part-labels ul > li > a, .part-label_type ul > li > a {
   color: inherit;
   text-decoration: none;
 }
 
-/* line 54, ../../../../../sass/components/_issues_mixins.scss */
+/* line 56, ../../../../../sass/components/_issues_mixins.scss */
 p.state-closed {
   color: #b35d5d;
 }
 
-/* line 58, ../../../../../sass/components/_issues_mixins.scss */
+/* line 60, ../../../../../sass/components/_issues_mixins.scss */
 .part-body > span[data-toggle=collapse], .part-title > span[data-toggle=collapse] {
   display: inline-block;
   height: 12px;
-  -webkit-border-radius: 1px;
   -moz-border-radius: 1px;
-  -ms-border-radius: 1px;
-  -o-border-radius: 1px;
+  -webkit-border-radius: 1px;
   border-radius: 1px;
   background: #ddd;
   line-height: 6px;
@@ -495,36 +479,36 @@ p.state-closed {
   padding: 1px 3px;
 }
 
-/* line 70, ../../../../../sass/components/_issues_mixins.scss */
+/* line 72, ../../../../../sass/components/_issues_mixins.scss */
 .part-labels ul, .part-label_type ul {
   display: inline-block;
   margin-top: 0;
   padding-right: 0;
 }
-/* line 74, ../../../../../sass/components/_issues_mixins.scss */
+/* line 76, ../../../../../sass/components/_issues_mixins.scss */
 .part-labels ul li, .part-label_type ul li {
   margin-top: 0;
 }
-/* line 79, ../../../../../sass/components/_issues_mixins.scss */
+/* line 81, ../../../../../sass/components/_issues_mixins.scss */
 .part-labels > span, .part-label_type > span {
   float: left;
   margin-right: 5px;
 }
 
-/* line 84, ../../../../../sass/components/_issues_mixins.scss */
+/* line 86, ../../../../../sass/components/_issues_mixins.scss */
 .part-body, .part-title {
   margin: 0 -10px;
 }
-/* line 85, ../../../../../sass/components/_issues_mixins.scss */
+/* line 87, ../../../../../sass/components/_issues_mixins.scss */
 .part-body > span:first-child, .part-title > span:first-child {
   display: block;
   margin: 5px 5px 5px 10px;
 }
-/* line 88, ../../../../../sass/components/_issues_mixins.scss */
+/* line 90, ../../../../../sass/components/_issues_mixins.scss */
 .part-body > span:first-child.collapsible, .part-title > span:first-child.collapsible {
   float: left;
 }
-/* line 93, ../../../../../sass/components/_issues_mixins.scss */
+/* line 95, ../../../../../sass/components/_issues_mixins.scss */
 .part-body table.diff, .part-title table.diff {
   font-size: 12px;
   border-top: solid 1px #D8D8D8;
@@ -532,38 +516,38 @@ p.state-closed {
   margin-bottom: 10px;
   table-layout: fixed;
 }
-/* line 99, ../../../../../sass/components/_issues_mixins.scss */
+/* line 101, ../../../../../sass/components/_issues_mixins.scss */
 .part-body table.diff tbody tr, .part-title table.diff tbody tr {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-/* line 104, ../../../../../sass/components/_issues_mixins.scss */
+/* line 106, ../../../../../sass/components/_issues_mixins.scss */
 .part-body > span[data-toggle=collapse], .part-title > span[data-toggle=collapse] {
   position: relative;
   top: 2px;
 }
-/* line 109, ../../../../../sass/components/_issues_mixins.scss */
+/* line 111, ../../../../../sass/components/_issues_mixins.scss */
 .part-body > div.collapse, .part-title > div.collapse {
   clear: both;
 }
-/* line 111, ../../../../../sass/components/_issues_mixins.scss */
+/* line 113, ../../../../../sass/components/_issues_mixins.scss */
 .part-body > div.collapse table.diff, .part-title > div.collapse table.diff {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
-/* line 114, ../../../../../sass/components/_issues_mixins.scss */
+/* line 116, ../../../../../sass/components/_issues_mixins.scss */
 .part-body > div.collapse.in, .part-title > div.collapse.in {
   margin-bottom: 10px;
 }
 
-/* line 123, ../../../../../sass/components/_issues_mixins.scss */
+/* line 125, ../../../../../sass/components/_issues_mixins.scss */
 .box-content:last-of-type > .part-body table.diff, .box-content:last-of-type > .part-title table.diff {
   margin-bottom: -6px;
 }
-/* line 127, ../../../../../sass/components/_issues_mixins.scss */
+/* line 129, ../../../../../sass/components/_issues_mixins.scss */
 .box-content:last-of-type > .part-body > div.collapse table.diff, .box-content:last-of-type > .part-title > div.collapse table.diff {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
-/* line 130, ../../../../../sass/components/_issues_mixins.scss */
+/* line 132, ../../../../../sass/components/_issues_mixins.scss */
 .box-content:last-of-type > .part-body > div.collapse.in, .box-content:last-of-type > .part-title > div.collapse.in {
   margin-bottom: -6px;
 }
@@ -603,7 +587,7 @@ p.state-closed {
   display: none;
 }
 
-/* line 42, ../../../../../sass/pages/repository/dashboard-editor.scss */
+/* line 40, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .mode1 .for-mode1,
 .mode2 .for-mode2,
 .mode3 .for-mode3 {
@@ -634,7 +618,7 @@ p.state-closed {
 
 /* line 67, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .modal-footer .btn + div.popover + .btn {
-  margin-bottom: 0px;
+  margin-bottom: 0;
   margin-left: 5px;
 }
 /* line 71, ../../../../../sass/pages/repository/dashboard-editor.scss */
@@ -740,8 +724,8 @@ p.state-closed {
 }
 /* line 170, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices * {
-  -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
   box-sizing: content-box;
 }
 /* line 175, ../../../../../sass/pages/repository/dashboard-editor.scss */
@@ -758,10 +742,8 @@ p.state-closed {
 /* line 184, ../../../../../sass/pages/repository/dashboard-editor.scss */
 .for-mode3 .select2-container-multi .select2-choices .select2-search-choice {
   margin: 2px 0 0 4px;
-  -webkit-border-radius: 0;
   -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  -o-border-radius: 0;
+  -webkit-border-radius: 0;
   border-radius: 0;
   background: transparent;
   border: none !important;

@@ -1,5 +1,5 @@
 @import "bootstrap/variables";
-@import "variables";
+@import "gim_variables";
 @import "modal";
 // @import "uniform_default";
 @import "form_elements";
@@ -65,7 +65,7 @@
 .modal-footer  {
     // keep btn style even if a popover is inserted
     .btn + div.popover + .btn {
-        margin-bottom: 0px;
+        margin-bottom: 0;
         margin-left: 5px;
     }
     .alert {
