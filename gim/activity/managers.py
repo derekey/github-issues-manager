@@ -242,7 +242,9 @@ class ActivityManagerIEV(ActivityManager):
                           |
                           Q(event='referenced', commit_sha__isnull=True)
                           |
-                          Q(event__in=('mentioned', 'subscribed'))
+                          Q(event__in=('mentioned', 'subscribed', 'labeled',
+                                       'unlabeled', 'assigned', 'unassigned',
+                                       'milestoned', 'unmilestoned'))
                         )
 
     @classmethod
