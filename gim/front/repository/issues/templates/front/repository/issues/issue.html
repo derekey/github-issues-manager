@@ -192,6 +192,8 @@
                                         {% include "front/repository/issues/activity/include_head_ref_deleted_comment.html" with comment=event %}
                                     {% elif event.event == 'head_ref_restored' %}
                                         {% include "front/repository/issues/activity/include_head_ref_restored_comment.html" with comment=event %}
+                                    {% elif event.event == 'head_ref_force_pushed' %}
+                                        {% include "front/repository/issues/activity/include_head_ref_force_pushed_comment.html" with comment=event %}
                                     {% elif event.event == 'referenced' and event.commit_sha %}
                                         {% include "front/repository/issues/activity/include_referenced_in_commit_comment.html" with comment=event %}
                                     {% elif event.event == 'referenced_by_issue' %}
