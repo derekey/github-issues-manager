@@ -77,6 +77,7 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
     nb_additions = models.PositiveIntegerField(blank=True, null=True)
     nb_deletions = models.PositiveIntegerField(blank=True, null=True)
     nb_changed_files = models.PositiveIntegerField(blank=True, null=True)
+    commits_comments_count = models.PositiveIntegerField(blank=True, null=True)
     commits_fetched_at = models.DateTimeField(blank=True, null=True)
     commits_etag = models.CharField(max_length=64, blank=True, null=True)
     commits = models.ManyToManyField('Commit', related_name='issues', through='IssueCommits')
@@ -356,14 +357,24 @@ class Issue(WithRepositoryMixin, GithubObjectWithId):
 
     @property
     def total_comments_count(self):
-        return (self.comments_count or 0) + (self.pr_comments_count or 0)
+        return ((self.comments_count or 0)
+              + (self.pr_comments_count or 0)
+              + (self.commits_comments_count or 0))
 
     def update_pr_comments_count(self):
         if self.is_pull_request:
             count = self.pr_comments.count()
-            if count and (not self.pr_comments_count or count > self.pr_comments_count):
+            if count:
                 self.pr_comments_count = count
                 self.save(update_fields=['pr_comments_count'])
+
+    def update_commits_comments_count(self):
+        if self.is_pull_request:
+            from .comments import CommitComment
+            count = CommitComment.objects.filter(commit__issues__pk=self.pk).count()
+            if count:
+                self.commits_comments_count = count
+                self.save(update_fields=['commits_comments_count'])
 
     def save(self, *args, **kwargs):
         """
