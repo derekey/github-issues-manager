@@ -454,6 +454,13 @@ class _Issue(models.Model):
     def nb_deleted_commits(self):
         return self.related_commits.filter(deleted=True).count()
 
+    @cached_property
+    def nb_comments_in_deleted_commits_comments(self):
+        return core_models.CommitComment.objects.filter(
+            commit__issues=self,
+            commit__related_commits__deleted=True
+        ).count()
+
     @property
     def html_content(self):
         return html_content(self)

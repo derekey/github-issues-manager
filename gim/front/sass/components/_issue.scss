@@ -1018,6 +1018,8 @@ $repo-name-height: 20px;
     &.view-deleted {
         .all-commits {
             display: block;
+            padding-top: 15px;
+            margin-top: 0;
         }
         .active-commits {
             display: none;
