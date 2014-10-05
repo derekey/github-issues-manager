@@ -28,7 +28,10 @@
                     {% endif %}
                     {% if with_non_files_comments %}
                         <li class="divider"></li>
-                        <li><a href="#" class="go-to-global-comments" title="Go to the end of files to see global comments on this commit">Global comments</a></li>
+                        <li><a href="#" class="go-to-global-comments" title="Go to the end of files to see global comments on this commit">
+                            Global comments
+                            <span class="label label-blue pull-right" title="{{ nb_non_files_comments }} comment{{ nb_non_files_comments|pluralize }}"><i class="fa fa-comments-o"></i> {{ nb_non_files_comments }}</span>
+                        </a></li>
                     {% endif %}
                  </ul>
             </div>
@@ -52,6 +55,17 @@
                 </td>
             </tr>
         {% endfor %}
+        {% if with_non_files_comments %}
+            <tr data-pos="999999">
+                <td><i class="fa fa-comments-o"> </i></td>
+                <td title="Comments not related to a specific file"><a class="path" href="#{{ id_prefix }}-global-comments"><em>Global comments</em></a></td>
+                <td>
+                    <ul class="unstyled">
+                        <li class="label label-blue" title="{{ nb_non_files_comments }} comment{{ nb_non_files_comments|pluralize }}"><i class="fa fa-comments-o"></i> {{ nb_non_files_comments }}</li>
+                    </ul>
+                </td>
+            </tr>
+        {% endif %}
         </table>
     </div>
 </div>

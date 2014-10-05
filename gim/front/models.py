@@ -473,16 +473,21 @@ class _Issue(models.Model):
         return html_content(self)
 
     @cached_property
-    def files_with_comments_count(self):
-        comments_count_by_path = Counter(
+    def _comments_count_by_path(self):
+        return Counter(
             self.pr_comments.select_related('entry_point')
                             .values_list('entry_point__path', flat=True)
         )
+
+    @cached_property
+    def files_with_comments_count(self):
+        counts = self._comments_count_by_path
         files = []
         for file in self.files.all():
-            file.nb_comments = comments_count_by_path.get(file.path, 0)
+            file.nb_comments = counts.get(file.path, 0)
             files.append(file)
         return files
+
 
 contribute_to_model(_Issue, core_models.Issue)
 
@@ -633,16 +638,24 @@ class _Commit(models.Model):
         return self._all_entry_points
 
     @cached_property
-    def files_with_comments_count(self):
-        comments_count_by_path = Counter(
+    def _comments_count_by_path(self):
+        return Counter(
             self.commit_comments.select_related('entry_point')
                                 .values_list('entry_point__path', flat=True)
         )
+
+    @cached_property
+    def files_with_comments_count(self):
+        counts = self._comments_count_by_path
         files = []
         for file in self.files.all():
-            file.nb_comments = comments_count_by_path.get(file.path, 0)
+            file.nb_comments = counts.get(file.path, 0)
             files.append(file)
         return files
+
+    @cached_property
+    def count_global_comments(self):
+        return self._comments_count_by_path.get(None, 0)
 
 
 contribute_to_model(_Commit, core_models.Commit)

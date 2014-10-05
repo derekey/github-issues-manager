@@ -1181,7 +1181,11 @@ $().ready(function() {
             var $files_list = $tab_pane.find('.code-files-list'),
                 $line;
             if (!$files_list.length) { return; }
-            $line = $files_list.find('tr:nth-child('+ pos +')');
+            if (pos == '999999') {
+                $line = $files_list.find('tr:last-child');
+            } else {
+                $line = $files_list.find('tr:nth-child('+ pos +')');
+            }
             $files_list.find('tr.active').removeClass('active');
             $line.addClass('active');
             IssueDetail.set_active_file_visible($tab_pane, $files_list, $line);
@@ -1235,7 +1239,8 @@ $().ready(function() {
                                 return groups.concat($(
                                     $(file_link).attr('href')
                                 ).find('.code-comments').toArray());
-                            }, []);
+                            }, [])
+                            .concat($tab_pane.find('.global-comments').toArray());
             } else {
                 return [];
             }
@@ -1259,7 +1264,7 @@ $().ready(function() {
             var $files_list_container = $tab_pane.find('.code-files-list-container'),
                 $files_list = $tab_pane.find('.code-files-list'),
                 comments = IssueDetail.visible_files_comments($tab_pane),
-                current, comment, $comment, $file_node, position, file_pos;
+                current, comment, $comment, $file_node, position, file_pos, index;
 
             if (!comments.length) { return; }
 

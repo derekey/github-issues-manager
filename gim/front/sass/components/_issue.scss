@@ -1100,6 +1100,10 @@ $repo-name-height: 20px;
             font-size: inherit;
         }
     }
+    .global-comments > .divider {
+        margin-top: 15px;
+        margin-bottom: 30px;
+    }
 }
 
 .code-files {
@@ -1221,6 +1225,14 @@ table.commits-list {
     li a {
         padding-right: 5px;
         padding-left: 5px;
+        & > span.label {
+            position: absolute;
+            right: 10px;
+            color: white;
+            & > i {
+                color: white;
+            }
+        }
     }
     li.horizontal-4.disabled {
         text-align: right;
