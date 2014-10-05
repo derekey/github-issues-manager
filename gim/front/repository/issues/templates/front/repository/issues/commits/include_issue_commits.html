@@ -7,7 +7,12 @@
     {% if current_issue.nb_deleted_commits %}
         <label class='deleted-commits-toggler'>
             <input type='checkbox' />
-            <span>View {{ current_issue.nb_deleted_commits }} outdated commit{{ current_issue.nb_deleted_commits|pluralize }}</span>
+            <span>
+                View {{ current_issue.nb_deleted_commits }} outdated commit{{ current_issue.nb_deleted_commits|pluralize }}
+                {% if current_issue.nb_comments_in_deleted_commits_comments %}
+                <strong>(including {{ current_issue.nb_comments_in_deleted_commits_comments }} comment{{ current_issue.nb_comments_in_deleted_commits_comments|pluralize }})</strong>
+                {% endif %}
+            </span>
         </label>
     {% endif %}
 </div>

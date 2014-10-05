@@ -895,6 +895,9 @@ $repo-name-height: 20px;
                     }
                 }
             }
+            span.label > span+span {
+                margin-left: 5px;
+            }
         }
     }
     > .arrow {
@@ -1015,6 +1018,8 @@ $repo-name-height: 20px;
     &.view-deleted {
         .all-commits {
             display: block;
+            padding-top: 15px;
+            margin-top: 0;
         }
         .active-commits {
             display: none;

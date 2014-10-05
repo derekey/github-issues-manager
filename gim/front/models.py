@@ -418,14 +418,21 @@ class _Issue(models.Model):
 
             # group commit comments by day + commit
             cc_by_commit = {}
-            for c in (core_models.CommitComment.objects
-                                 .filter(commit__related_commits__issue=self)
-                                 .select_related('commit', 'user')
-                    ):
-                cc_by_commit.setdefault(c.commit, []).append(c)
+            commit_comments = list(core_models.CommitComment.objects
+                                    .filter(commit__related_commits__issue=self)
+                                    .select_related('commit', 'user'))
 
-            for comments in cc_by_commit.values():
-                activity += GroupedCommitComments.group_by_day(comments)
+            if len(commit_comments):
+                all_commits_by_sha = {c.sha: c for c in self.all_commits(True)}
+                for c in commit_comments:
+
+                    if c.commit.sha in all_commits_by_sha:
+                        c.commit.relation_deleted = all_commits_by_sha[c.commit.sha].relation_deleted
+
+                    cc_by_commit.setdefault(c.commit, []).append(c)
+
+                for comments in cc_by_commit.values():
+                    activity += GroupedCommitComments.group_by_day(comments)
 
         activity.sort(key=attrgetter('created_at'))
 
@@ -453,6 +460,13 @@ class _Issue(models.Model):
     @cached_property
     def nb_deleted_commits(self):
         return self.related_commits.filter(deleted=True).count()
+
+    @cached_property
+    def nb_comments_in_deleted_commits_comments(self):
+        return core_models.CommitComment.objects.filter(
+            commit__issues=self,
+            commit__related_commits__deleted=True
+        ).count()
 
     @property
     def html_content(self):
