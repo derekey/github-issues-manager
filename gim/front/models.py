@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from operator import attrgetter
 import re
 
@@ -472,6 +472,18 @@ class _Issue(models.Model):
     def html_content(self):
         return html_content(self)
 
+    @cached_property
+    def files_with_comments_count(self):
+        comments_count_by_path = Counter(
+            self.pr_comments.select_related('entry_point')
+                            .values_list('entry_point__path', flat=True)
+        )
+        files = []
+        for file in self.files.all():
+            file.nb_comments = comments_count_by_path.get(file.path, 0)
+            files.append(file)
+        return files
+
 contribute_to_model(_Issue, core_models.Issue)
 
 
@@ -619,6 +631,18 @@ class _Commit(models.Model):
                                 .select_related('user', 'repository__owner')
                                 .prefetch_related('comments__user'))
         return self._all_entry_points
+
+    @cached_property
+    def files_with_comments_count(self):
+        comments_count_by_path = Counter(
+            self.commit_comments.select_related('entry_point')
+                                .values_list('entry_point__path', flat=True)
+        )
+        files = []
+        for file in self.files.all():
+            file.nb_comments = comments_count_by_path.get(file.path, 0)
+            files.append(file)
+        return files
 
 
 contribute_to_model(_Commit, core_models.Commit)

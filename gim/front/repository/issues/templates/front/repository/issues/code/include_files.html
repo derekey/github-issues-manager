@@ -43,6 +43,9 @@
                 <td title="{{ file.path }}"><a class="path" href="#code-file-{{ file.id }}-target">{{ file.path }}</a></td>
                 <td>
                     <ul class="unstyled">
+                        {% if file.nb_comments %}
+                            <li class="label label-blue" title="{{ file.nb_comments }} comment{{ file.nb_comments|pluralize }}"><i class="fa fa-comments-o"></i> {{ file.nb_comments }}</li>
+                        {% endif %}
                         <li class="label label-green" title="{{ file.nb_additions }} addition{{ file.nb_additions|pluralize }}"><i class="fa fa-plus"></i> {{ file.nb_additions }}</li>
                         <li class="label label-red" title="{{ file.nb_deletions }} deletion{{ file.nb_deletions|pluralize }}"><i class="fa fa-minus"></i> {{ file.nb_deletions }}</li>
                     </ul>
