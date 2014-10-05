@@ -1808,6 +1808,7 @@ $().ready(function() {
             var $link = $(e.target),
                 $holder = $link.closest('.commit-link-holder'),
                 repository, sha, url,
+                nb_files, nb_comments, $label_node,
                 $node, tab_name;
 
 
@@ -1836,9 +1837,23 @@ $().ready(function() {
                 $tab.removeClass('template')
                     .addClass(tab_name + '-tab')
                     .attr('style', null);
+
                 $tab.find('a').attr('href', '#' + tab_name + '-files');
                 $tab.find('strong').text(sha.substring(0, 7));
-                $tab.find('.badge').text($holder.data('comments-count'));
+
+                nb_files = parseInt($holder.data('files-count'), 10);
+                $label_node = $tab.find('.fa-file-o');
+                $label_node.next().text(nb_files);
+                $label_node.parent().attr('title', nb_files + ' changed file' + (nb_files > 1 ? 's' : '' ));
+
+                nb_comments = $holder.data('comments-count');
+                $label_node = $tab.find('.fa-comments-o');
+                if (nb_comments) {
+                    $label_node.next().text(nb_comments);
+                    $label_node.parent().attr('title', nb_comments + ' comment' + (nb_comments > 1 ? 's' : '' ));
+                } else {
+                    $label_node.parent().remove();
+                }
 
                 // add the tab
                 $tab.insertBefore($tab_template);
