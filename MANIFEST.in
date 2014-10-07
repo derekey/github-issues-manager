@@ -3,4 +3,5 @@ include MANIFEST.in
 recursive-include requirements *.txt
 recursive-include gim *.html *.js *.css *.gif *.jpg *.png
 recursive-include gim/static *
+exclude gim/settings/local_settings.py
 recursive-exclude * *.py[co]
