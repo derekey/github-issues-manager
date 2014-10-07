@@ -1,6 +1,7 @@
 @import "gim_variables";
 @import "compass/typography/text/ellipsis";
 @import "compass/css3/box-sizing";
+@import "compass/css3/flexbox";
 @import "compass/css3/images";
 @import "compass/css3/transition";
 @import "mixins";
@@ -513,6 +514,36 @@ $repo-name-height: 20px;
     right: 5px;
 }
 
+.commit-details {
+    margin: -15px -15px 15px -15px;
+    padding-bottom: 0;
+    width: auto;
+    max-height: 300px;
+    overflow-y: auto;
+    @include box-sizing(content-box);
+    blockquote {
+        padding-left: 5px;
+        margin-bottom: 10px;
+        margin-left: -10px;
+        border-left-color: #e3e3e3;
+        p {
+            font-family: $monoFontFamily;
+            white-space: pre-wrap;
+            margin: 0;
+            @include transition(margin 0.35s, height 0.35s);
+            &:last-child.in {
+                margin-top: 10px;
+            }
+            > span[data-toggle=collapse] {
+                @extend %toggle;
+                font-family: "Open Sans",HelveticaNeue,Helvetica,Arial;
+                position: relative;
+                top: -2px;
+            }
+        }
+    }
+}
+
 @media (min-width: 1023px) {
     .issue-container.big-issue .code-files {
         position: relative;
@@ -520,11 +551,13 @@ $repo-name-height: 20px;
             height: auto !important;
         }
         .code-files-list-container {
+            @include display-flex;
+            @include flex-direction(column);
             left: 0;
             width: $file-list-width !important;
             bottom: 0;
-            padding-top: 50px;
             height: auto;
+            padding: 0;
             border-right: 1px solid #ddd;
             &:not(.stuck) {
                 position: absolute;
@@ -534,23 +567,34 @@ $repo-name-height: 20px;
                 border-right-color: #ccc;
                 @include box-shadow(rgba(black, 0.07) 2px 0 1px -1px);
             }
-        }
-        .code-files-list {
-            max-height: none;
-            position: absolute;
-            top: 85px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            height: auto !important;  // bypass collapsing;
-            margin: 5px 0 0 !important;
-        }
-        .files-list-summary {
-            cursor: default;
-            position: absolute;
-            top: 14px;
-            i.fa-sort {
-                display: none;
+            .code-files-list-nav {
+                padding: 15px 15px 0;
+            }
+            .code-files-list {
+                @include flex(1 auto);
+                overflow-y: auto;
+                max-height: none;
+                height: auto !important;  // bypass collapsing;
+                margin: 15px;
+            }
+            .files-list-summary {
+                cursor: default;
+                i.fa-sort {
+                    display: none;
+                }
+            }
+            .commit-details {
+                margin: 0;
+                max-height: 50%;
+                &.multi > p:first-child > span {
+                    display: block;
+                    &:not(:first-child) {
+                        margin-left: 1em;
+                        &:before {
+                            content: "•";
+                        }
+                    }
+                }
             }
         }
         .issue-activity {
@@ -1032,7 +1076,7 @@ $repo-name-height: 20px;
         background: white;
         border-bottom: solid 1px $box-border-color;
         @include box-shadow(rgba(black, 0.1) 0 1px 3px -1px);
-        > nav {
+        > nav, > .code-files-list-nav > nav {
             margin-left: 10px;
             float: right;
             position: relative;

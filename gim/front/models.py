@@ -657,6 +657,24 @@ class _Commit(models.Model):
     def count_global_comments(self):
         return self._comments_count_by_path.get(None, 0)
 
+    @cached_property
+    def real_author_name(self):
+        return self.author.username if self.author_id else self.author_name
+
+    @cached_property
+    def real_committer_name(self):
+        return self.committer.username if self.committer_id else self.committer_name
+
+    @cached_property
+    def committer_is_author(self):
+        if self.author_id and self.committer_id:
+            return self.author_id == self.committer_id
+        if self.author_id:
+            return (self.author.email or self.author_email) == self.committer_email
+        if self.committer_id:
+            return (self.committer.email or self.committer_email) == self.author_email
+        return self.author_email == self.committer_email
+
 
 contribute_to_model(_Commit, core_models.Commit)
 
