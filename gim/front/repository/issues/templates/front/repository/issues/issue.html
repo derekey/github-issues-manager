@@ -157,13 +157,54 @@
             <div class="issue-tabs no-scroll-left no-scroll-right">
                 <a href='#' title="Show one tab one the left" class="arrow scroll-left"><span class="badge badge-gray">0</span><i class="fa fa-chevron-left"> </i></a>
                 <ul class="nav nav-tabs">
-                    <li class="pr-discussion-tab active"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">Discussion <span class="badge badge-blue" title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}">{{ current_issue.comments_count }}</span> &amp; updates</a></li>
+                    <li class="pr-discussion-tab active">
+                        <a data-toggle="tab" href="#issue-{{ current_issue.number }}-discussion">
+                            Discussion
+                            <span class="label label-blue">
+                                <span title="{{ current_issue.comments_count }} comment{{ current_issue.comments_count|pluralize }}"><i class="fa fa-comments-o"></i> {{ current_issue.comments_count }}</span>
+                            </span>
+                             &amp; updates
+                        </a>
+                    </li>
                     {% if current_issue.is_pull_request %}
-                        <li class="pr-commits-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-commits">Commits <span class="badge badge-blue">{{ current_issue.nb_commits }}</span></a></li>
-                        <li class="files-tab pr-files-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">Files changed <span class="badge badge-blue">{{ current_issue.nb_changed_files }}</span></a></li>
-                        <li class="pr-review-tab"><a data-toggle="tab" href="#issue-{{ current_issue.number }}-review">Review comments <span class="badge badge-blue">{{ current_issue.pr_comments_count }}</span></a></li>
+                        <li class="pr-commits-tab">
+                            <a data-toggle="tab" href="#issue-{{ current_issue.number }}-commits">
+                                Commits
+                                <span class="label label-blue">
+                                    <span title="{{ current_issue.nb_commits }} commit{{ current_issue.nb_commits|pluralize }}"><i class="fa fa-git-square"></i> {{ current_issue.nb_commits }}</span>
+                                    {% if current_issue.commits_comments_count %}
+                                        <span title="{{ current_issue.commits_comments_count }} comment{{ current_issue.commits_comments_count|pluralize }} on commit{{ current_issue.nb_commits|pluralize }}"><i class="fa fa-comments-o"></i> {{ current_issue.commits_comments_count }}</span>
+                                    {% endif %}
+                                </span>
+                            </a>
+                        </li>
+                        <li class="files-tab pr-files-tab">
+                            <a data-toggle="tab" href="#issue-{{ current_issue.number }}-files">
+                                Files changed
+                                <span class="label label-blue">
+                                    <span title="{{ current_issue.nb_changed_files }} changed file{{ current_issue.nb_changed_files|pluralize }}"><i class="fa fa-file-o"></i> {{ current_issue.nb_changed_files }}</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="pr-review-tab">
+                            <a data-toggle="tab" href="#issue-{{ current_issue.number }}-review">
+                                Review comments
+                                <span class="label label-blue">
+                                    <span title="{{ current_issue.pr_comments_count }} review comment{{ current_issue.pr_comments_count|pluralize }}"><i class="fa fa-comments-o"></i> {{ current_issue.pr_comments_count }}</span>
+                                </span>
+                            </a>
+                        </li>
                     {% endif %}
-                    <li class="closable files-tab commit-tab template" style="display: none"><a data-toggle="tab" href="#">Commit <strong></strong> <span class="badge badge-blue">0</span> <i class="fa fa-times" title="Close this tab"> </i></a></li>
+                    <li class="closable files-tab commit-tab template" style="display: none">
+                        <a data-toggle="tab" href="#">
+                            Commit <strong></strong>
+                            <span class="label label-blue">
+                                <span><i class="fa fa-file-o"></i>&nbsp;<span>0</span></span>
+                                <span><i class="fa fa-comments-o"></i>&nbsp;<span>0</span></span>
+                            </span>
+                            <i class="fa fa-times" title="Close this tab"> </i>
+                        </a>
+                    </li>
                 </ul>
                 <a href='#' title="Show one tab one the right" class="arrow scroll-right"><span class="badge badge-gray">o</span><i class="fa fa-chevron-right"> </i></a>
             </div>
@@ -192,6 +233,8 @@
                                         {% include "front/repository/issues/activity/include_head_ref_deleted_comment.html" with comment=event %}
                                     {% elif event.event == 'head_ref_restored' %}
                                         {% include "front/repository/issues/activity/include_head_ref_restored_comment.html" with comment=event %}
+                                    {% elif event.event == 'head_ref_force_pushed' %}
+                                        {% include "front/repository/issues/activity/include_head_ref_force_pushed_comment.html" with comment=event %}
                                     {% elif event.event == 'referenced' and event.commit_sha %}
                                         {% include "front/repository/issues/activity/include_referenced_in_commit_comment.html" with comment=event %}
                                     {% elif event.event == 'referenced_by_issue' %}

@@ -1,6 +1,6 @@
-{% include "front/repository/issues/code/include_files.html" with files=current_commit.files.all id_prefix='commit-'|add:current_commit.sha nb_additions=current_commit.nb_additions nb_deletions=current_commit.nb_deletions with_non_files_comments=True %}
+{% include "front/repository/issues/code/include_files.html" with files=current_commit.files_with_comments_count id_prefix='commit-'|add:current_commit.sha nb_additions=current_commit.nb_additions nb_deletions=current_commit.nb_deletions with_non_files_comments=True nb_non_files_comments=current_commit.count_global_comments include_details_template='front/repository/issues/commits/include_header_details.html' include_details_class="has-commit-details" %}
 
-<ul class="unstyled chat-box timeline issue-activity global-comments">
+<ul class="unstyled chat-box timeline issue-activity global-comments code-file" id="commit-{{ current_commit.sha }}-global-comments" data-pos="999999">
     <li class="divider"><span>Global comments on this commit</span></li>
     {% if final_entry_point %}
         {% for comment in final_entry_point.comments.all %}

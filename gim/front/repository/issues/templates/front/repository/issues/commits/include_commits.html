@@ -3,10 +3,10 @@
 <table class="table table-normal commits-list">
     {% for commit in commits %}
         {% with replace_sha='0000000000000000000000000000000000000000:'|add:commit.sha %}
-        <tr class="commit-link-holder" data-repository="{{ commit.repository }}" data-sha="{{ commit.sha }}" data-url="{{ current_issue.ajax_commit_base_url|replace:replace_sha }}" data-comment-url="{{ current_issue.commit_comment_create_url|replace:replace_sha }}" data-comments-count="{{ commit.comments_count }}">
+        <tr class="commit-link-holder" data-repository="{{ commit.repository }}" data-sha="{{ commit.sha }}" data-url="{{ current_issue.ajax_commit_base_url|replace:replace_sha }}" data-comment-url="{{ current_issue.commit_comment_create_url|replace:replace_sha }}" data-comments-count="{{ commit.comments_count }}" data-files-count="{{ commit.nb_changed_files }}">
             <td class="cell-author">
-                <img class="avatar-tiny img-circle" src="{{ commit.author.avatar_url|default:default_avatar }}" alt="{{ commit.author|default:commit.author_name }}">
-                <span title="{{ commit.author|default:commit.author_name }}">{{ commit.author|default:commit.author_name }}</span>
+                <img class="avatar-tiny img-circle" src="{{ commit.author.avatar_url|default:default_avatar }}" alt="{{ commit.real_author_name }}">
+                <span title="{{ commit.real_author_name }}">{{ commit.real_author_name }}</span>
             </td>
             <td class="cell-message">
                 {% if commit.comments_count %}

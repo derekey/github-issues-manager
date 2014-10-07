@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from operator import attrgetter
 import re
 
@@ -418,14 +418,21 @@ class _Issue(models.Model):
 
             # group commit comments by day + commit
             cc_by_commit = {}
-            for c in (core_models.CommitComment.objects
-                                 .filter(commit__related_commits__issue=self)
-                                 .select_related('commit', 'user')
-                    ):
-                cc_by_commit.setdefault(c.commit, []).append(c)
+            commit_comments = list(core_models.CommitComment.objects
+                                    .filter(commit__related_commits__issue=self)
+                                    .select_related('commit', 'user'))
 
-            for comments in cc_by_commit.values():
-                activity += GroupedCommitComments.group_by_day(comments)
+            if len(commit_comments):
+                all_commits_by_sha = {c.sha: c for c in self.all_commits(True)}
+                for c in commit_comments:
+
+                    if c.commit.sha in all_commits_by_sha:
+                        c.commit.relation_deleted = all_commits_by_sha[c.commit.sha].relation_deleted
+
+                    cc_by_commit.setdefault(c.commit, []).append(c)
+
+                for comments in cc_by_commit.values():
+                    activity += GroupedCommitComments.group_by_day(comments)
 
         activity.sort(key=attrgetter('created_at'))
 
@@ -454,9 +461,33 @@ class _Issue(models.Model):
     def nb_deleted_commits(self):
         return self.related_commits.filter(deleted=True).count()
 
+    @cached_property
+    def nb_comments_in_deleted_commits_comments(self):
+        return core_models.CommitComment.objects.filter(
+            commit__issues=self,
+            commit__related_commits__deleted=True
+        ).count()
+
     @property
     def html_content(self):
         return html_content(self)
+
+    @cached_property
+    def _comments_count_by_path(self):
+        return Counter(
+            self.pr_comments.select_related('entry_point')
+                            .values_list('entry_point__path', flat=True)
+        )
+
+    @cached_property
+    def files_with_comments_count(self):
+        counts = self._comments_count_by_path
+        files = []
+        for file in self.files.all():
+            file.nb_comments = counts.get(file.path, 0)
+            files.append(file)
+        return files
+
 
 contribute_to_model(_Issue, core_models.Issue)
 
@@ -605,6 +636,44 @@ class _Commit(models.Model):
                                 .select_related('user', 'repository__owner')
                                 .prefetch_related('comments__user'))
         return self._all_entry_points
+
+    @cached_property
+    def _comments_count_by_path(self):
+        return Counter(
+            self.commit_comments.select_related('entry_point')
+                                .values_list('entry_point__path', flat=True)
+        )
+
+    @cached_property
+    def files_with_comments_count(self):
+        counts = self._comments_count_by_path
+        files = []
+        for file in self.files.all():
+            file.nb_comments = counts.get(file.path, 0)
+            files.append(file)
+        return files
+
+    @cached_property
+    def count_global_comments(self):
+        return self._comments_count_by_path.get(None, 0)
+
+    @cached_property
+    def real_author_name(self):
+        return self.author.username if self.author_id else self.author_name
+
+    @cached_property
+    def real_committer_name(self):
+        return self.committer.username if self.committer_id else self.committer_name
+
+    @cached_property
+    def committer_is_author(self):
+        if self.author_id and self.committer_id:
+            return self.author_id == self.committer_id
+        if self.author_id:
+            return (self.author.email or self.author_email) == self.committer_email
+        if self.committer_id:
+            return (self.committer.email or self.committer_email) == self.author_email
+        return self.author_email == self.committer_email
 
 
 contribute_to_model(_Commit, core_models.Commit)

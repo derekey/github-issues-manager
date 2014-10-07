@@ -1,9 +1,11 @@
+@import "gim_variables";
+
 %issue-state-marker {
     position: relative;
     &:after {
         content: "";
         position: absolute;
-        right: 0px;
+        right: 0;
         top: -1px;
         bottom: -1px;
         width: 5px;
@@ -109,7 +111,7 @@ p.state-closed {
     > div.collapse {
         clear: both;
         table.diff {
-            margin-bottom: 0px;
+            margin-bottom: 0;
         }
         &.in {
             margin-bottom: 10px;
@@ -125,7 +127,7 @@ p.state-closed {
         }
         > div.collapse {
             table.diff {
-                margin-bottom: 0px;
+                margin-bottom: 0;
             }
             &.in {
                 margin-bottom: -6px;

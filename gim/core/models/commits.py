@@ -90,6 +90,8 @@ class Commit(WithRepositoryMixin, GithubObject):
     def update_comments_count(self):
         self.comments_count = self.commit_comments.count()
         self.save(update_fields=['comments_count'])
+        for issue in self.issues.all():
+            issue.update_commits_comments_count()
 
     def fetch(self, gh, defaults=None, force_fetch=False, parameters=None,
                                                         meta_base_name=None):

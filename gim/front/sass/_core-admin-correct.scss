@@ -2,7 +2,7 @@
 @import "compass/css3/text-shadow";
 @import "mixin_helpers";
 @import "badges";
-@import "variables";
+@import "gim_variables";
 
 // allow a box-header to be a link
 .box {
@@ -63,7 +63,7 @@
 $label-match-colors: success green, important red, info blue, warning purple, inverse gray;
 @each $pair in $label-match-colors {
     .label-#{nth($pair, 1)} {
-        @extend .label-#{nth($pair, 2)};
+        @extend .label-#{"" + nth($pair, 2)};
     }
 }
 
@@ -187,7 +187,7 @@ li.divider {
     > span {
         position: relative;
         z-index: 1;
-        padding: 0px 20px;
+        padding: 0 20px;
         @include background(linear-gradient(left, rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 0.9) 10%, rgba(240, 240, 240, 0.9) 90%, rgba(240, 240, 240, 0) 100%));
         @include text-shadow(white 0 1px);
         color: #78808A;

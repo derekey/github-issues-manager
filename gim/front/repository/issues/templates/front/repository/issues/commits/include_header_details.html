@@ -1,0 +1,41 @@
+{% load frontutils staticfiles %}
+{% static 'front/img/default-avatar.png' as default_avatar %}
+<div class='area-top commit-details{% if not current_commit.committer_is_author %} multi{% endif %}'>
+    <p>
+        <span>
+            Commit
+            <a href="{{ current_commit.github_url }}" target='_blank' title="View commit on Github"><strong>{{ current_commit.sha|short_sha }}</strong></a>
+        </span>
+        <span>
+            {% if not current_commit.committer_is_author %}
+            authored
+            {% endif %}
+            by
+            <img class="avatar-tiny img-circle" src="{{ current_commit.author.avatar_url|default:default_avatar }}" alt="{{ current_commit.real_author_name }}">&nbsp;<span title="{{ current_commit.real_author_name }}">{{ current_commit.real_author_name }}</span>
+            on {{ current_commit.authored_at|date:"DATETIME_FORMAT" }}
+        </span>
+        {% if not current_commit.committer_is_author %}
+            <span>
+                commited by
+                <img class="avatar-tiny img-circle" src="{{ current_commit.committer.avatar_url|default:default_avatar }}" alt="{{ current_commit.real_committer_name }}">&nbsp;<span title="{{ current_commit.real_committer_name }}">{{ current_commit.real_committer_name }}</span>
+                {% if current_commit.authored_at != current_commit.committed_at %}
+                    on  {{ current_commit.committed_at|date:"DATETIME_FORMAT" }}
+                {% endif %}
+            </span>
+        {% endif %}
+    </p>
+    {% if not current_commit.fetched_at and not current_commit.message %}
+        <p><i>Commit not fetched yet</i></p>
+    {% else %}
+        <blockquote>
+        {% with message=current_commit.splitted_message %}
+            <p>{{ message.0|strip }} {% if message.1|length %}<span data-toggle="collapse" data-target="#{{ id_prefix }}commit-detail-more">…</span>{% endif %}</p>
+            {% with next=message.1|strip %}
+                {% if next|length %}
+                    <p class="collapse" id="{{ id_prefix }}commit-detail-more">{{ next }}</p>
+                {% endif %}
+            {% endwith %}
+        {% endwith %}
+        </blockquote>
+    {% endif %}
+</div>

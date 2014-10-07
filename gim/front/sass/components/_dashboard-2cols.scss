@@ -4,7 +4,7 @@ $dashboard-small-width: 800px;
 .dashboard-2cols {
     .row-header .area-top {
         @media (max-height: $dashboard-small-height) {
-            padding: 0px 15px;
+            padding: 0 15px;
             margin-bottom: 15px;
         }
     }
