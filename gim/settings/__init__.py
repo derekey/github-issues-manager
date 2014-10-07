@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse_lazy
 SETTINGS_PATH = os.path.dirname(os.path.abspath(__file__))
 GIM_ROOT = os.path.normpath(os.path.join(SETTINGS_PATH, '..'))
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
