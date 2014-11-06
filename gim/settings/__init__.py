@@ -254,15 +254,15 @@ if 'SECRETS_PATH' in os.environ:
         secrets = json.loads(f.read())
 
 
-def get_env_variable(var_name, default=None):
+def get_env_variable(var_name, **kwargs):
     try:
         return os.environ[var_name]
     except KeyError:
         try:
             return secrets[var_name]
         except KeyError:
-            if default is not None:
-                return default
+            if 'default' in kwargs:
+                return kwargs['default']
             msg = "Set the %s environment variable"
             error_msg = msg % var_name
             raise ImproperlyConfigured(error_msg)
@@ -273,7 +273,7 @@ def get_env_variable(var_name, default=None):
 
 SECRET_KEY = get_env_variable('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = get_env_variable('ALLOWED_HOSTS', [])
+ALLOWED_HOSTS = get_env_variable('ALLOWED_HOSTS', default=[])
 if isinstance(ALLOWED_HOSTS, basestring):
     # if got from json, it's already a list, but not from env
     ALLOWED_HOSTS = ALLOWED_HOSTS.split(',')
@@ -281,30 +281,30 @@ if isinstance(ALLOWED_HOSTS, basestring):
 GITHUB_CLIENT_ID = get_env_variable('GITHUB_CLIENT_ID')
 GITHUB_CLIENT_SECRET = get_env_variable('GITHUB_CLIENT_SECRET')
 
-GITHUB_HOOK_URL = get_env_variable('GITHUB_HOOK_URL', None)
+GITHUB_HOOK_URL = get_env_variable('GITHUB_HOOK_URL', default=None)
 
 DATABASES = {  # default to a sqlite db "gim.db"
     'default': {
-        'ENGINE': get_env_variable('DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': get_env_variable('DB_NAME', os.path.normpath(os.path.join(GIM_ROOT, '..', 'db', 'gim.db'))),
-        'USER': get_env_variable('DB_USER', ''),
-        'PASSWORD': get_env_variable('DB_PASSWORD', ''),
-        'HOST': get_env_variable('DB_HOST', ''),
-        'PORT': get_env_variable('DB_PORT', ''),
-        'CONN_MAX_AGE': get_env_variable('DB_CONN_MAX_AGE', 0),
+        'ENGINE': get_env_variable('DB_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': get_env_variable('DB_NAME', default=os.path.normpath(os.path.join(GIM_ROOT, '..', 'db', 'gim.db'))),
+        'USER': get_env_variable('DB_USER', default=''),
+        'PASSWORD': get_env_variable('DB_PASSWORD', default=''),
+        'HOST': get_env_variable('DB_HOST', default=''),
+        'PORT': get_env_variable('DB_PORT', default=''),
+        'CONN_MAX_AGE': get_env_variable('DB_CONN_MAX_AGE', default=0),
     }
 }
 
 LIMPYD_DB_CONFIG = {
-    'host': get_env_variable('LIMPYD_DB_REDIS_HOST', 'localhost'),
-    'port': int(get_env_variable('LIMPYD_DB_REDIS_PORT', 6379)),
-    'db': int(get_env_variable('LIMPYD_DB_REDIS_DB', 0)),
+    'host': get_env_variable('LIMPYD_DB_REDIS_HOST', default='localhost'),
+    'port': int(get_env_variable('LIMPYD_DB_REDIS_PORT', default=6379)),
+    'db': int(get_env_variable('LIMPYD_DB_REDIS_DB', default=0)),
 }
 
 WORKERS_REDIS_CONFIG = {
-    'host': get_env_variable('LIMPYD_JOBS_REDIS_HOST', 'localhost'),
-    'port': int(get_env_variable('LIMPYD_JOBS_REDIS_PORT', 6379)),
-    'db': int(get_env_variable('LIMPYD_JOBS_REDIS_DB', 0)),
+    'host': get_env_variable('LIMPYD_JOBS_REDIS_HOST', default='localhost'),
+    'port': int(get_env_variable('LIMPYD_JOBS_REDIS_PORT', default=6379)),
+    'db': int(get_env_variable('LIMPYD_JOBS_REDIS_DB', default=0)),
 }
 
 
@@ -312,9 +312,9 @@ CACHES = {
     'default': {
         'BACKEND': 'redis_cache.cache.RedisCache',
         'LOCATION': '%s:%d:%d' % (
-                get_env_variable('CACHE_DEFAULT_REDIS_HOST', 'localhost'),
-                int(get_env_variable('CACHE_DEFAULT_REDIS_PORT', 6379)),
-                int(get_env_variable('CACHE_DEFAULT_REDIS_DB', 1)),
+                get_env_variable('CACHE_DEFAULT_REDIS_HOST', default='localhost'),
+                int(get_env_variable('CACHE_DEFAULT_REDIS_PORT', default=6379)),
+                int(get_env_variable('CACHE_DEFAULT_REDIS_DB', default=1)),
             ),
         'TIMEOUT': 30*24*60*60,  # 30 days
         'OPTIONS': {
@@ -326,9 +326,9 @@ CACHES = {
     'issues_tag': {
         'BACKEND': 'redis_cache.cache.RedisCache',
         'LOCATION': '%s:%d:%d' % (
-                get_env_variable('CACHE_ISSUES_TAG_REDIS_HOST', 'localhost'),
-                int(get_env_variable('CACHE_ISSUES_TAG_REDIS_PORT', 6379)),
-                int(get_env_variable('CACHE_ISSUES_TAG_REDIS_DB', 2)),
+                get_env_variable('CACHE_ISSUES_TAG_REDIS_HOST', default='localhost'),
+                int(get_env_variable('CACHE_ISSUES_TAG_REDIS_PORT', default=6379)),
+                int(get_env_variable('CACHE_ISSUES_TAG_REDIS_DB', default=2)),
             ),
         'OPTIONS': {
             'CLIENT_CLASS': 'redis_cache.client.DefaultClient',
@@ -338,11 +338,11 @@ CACHES = {
     },
 }
 
-BRAND_SHORT_NAME = get_env_variable('BRAND_SHORT_NAME', 'G.I.M')
-BRAND_LONG_NAME = get_env_variable('BRAND_LONG_NAME', 'Github Issues Manager')
+BRAND_SHORT_NAME = get_env_variable('BRAND_SHORT_NAME', default='G.I.M')
+BRAND_LONG_NAME = get_env_variable('BRAND_LONG_NAME', default='Github Issues Manager')
 
-FAVICON_PATH = get_env_variable('FAVICON_PATH', None)
-FAVICON_STATIC_MANAGED = get_env_variable('FAVICON_STATIC_MANAGED', True)
+FAVICON_PATH = get_env_variable('FAVICON_PATH', default=None)
+FAVICON_STATIC_MANAGED = get_env_variable('FAVICON_STATIC_MANAGED', default=True)
 
 DEBUG_TOOLBAR = False
 try:

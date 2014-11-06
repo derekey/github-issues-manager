@@ -59,7 +59,7 @@ class my_sdist(sdist):
     def run(self):
         # honor the --dry-run flag
         if not self.dry_run:
-            call(['django-admin.py', 'collectstatic', '--noinput'])
+            call(['django-admin.py', 'collectstatic', '--noinput', '-c'])
         # distutils uses old-style classes, so no super()
         sdist.run(self)
 
