@@ -191,7 +191,7 @@ class FetchCollaborators(RepositoryJob):
     push access
     """
     queue_name = 'fetch-collaborators'
-    clonable_fields = ('gh', 'force_fetch', )
+    clonable_fields = ('force_fetch', )
 
     force_fetch = fields.InstanceHashField()
 
