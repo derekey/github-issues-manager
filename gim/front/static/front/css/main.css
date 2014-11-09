@@ -859,18 +859,19 @@ table.diff tbody tr:not(.diff-comments) td.code .btn-comment {
   position: absolute;
   left: 0;
   padding: 1px;
+  padding-right: 4px;
   cursor: pointer;
   display: none;
 }
-/* line 71, ../../../sass/widgets/_diff.scss */
+/* line 72, ../../../sass/widgets/_diff.scss */
 table.diff tbody tr:not(.diff-comments):hover {
   background: #f8eec7 !important;
 }
-/* line 73, ../../../sass/widgets/_diff.scss */
+/* line 74, ../../../sass/widgets/_diff.scss */
 table.diff tbody tr:not(.diff-comments):hover td {
   background: transparent !important;
 }
-/* line 75, ../../../sass/widgets/_diff.scss */
+/* line 76, ../../../sass/widgets/_diff.scss */
 table.diff tbody tr:not(.diff-comments):hover td.code .btn-comment {
   display: inline-block;
 }
