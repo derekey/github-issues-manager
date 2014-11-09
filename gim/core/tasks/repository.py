@@ -2,6 +2,7 @@ __all__ = [
     'FetchClosedIssuesWithNoClosedBy',
     'FetchUpdatedPullRequests',
     'FetchUnmergedPullRequests',
+    'FetchCollaborators',
     'FirstFetch',
     'FirstFetchStep2',
     'FetchForUpdate',
@@ -184,6 +185,32 @@ class FetchUnmergedPullRequests(RepositoryJob):
         return ' [fetched=%d, updated=%s, deleted=%s, errors=%s, todo=%s]' % result[:-1]
 
 
+class FetchCollaborators(RepositoryJob):
+    """
+    A job to fetch collaborators, as it has to be done by user with at least
+    push access
+    """
+    queue_name = 'fetch-collaborators'
+    clonable_fields = ('gh', 'force_fetch', )
+
+    force_fetch = fields.InstanceHashField()
+
+    permission = 'push'
+
+    def run(self, queue):
+        super(FetchCollaborators, self).run(queue)
+
+        gh = self.gh
+        if not gh:
+            return  # it's delayed !
+
+        force_fetch = self.force_fetch.hget() == '1'
+
+        count = self.repository.fetch_collaborators(gh, force_fetch=force_fetch)
+
+        return count
+
+
 class FirstFetch(Job):
     """
     A job to do the first fetch of a repository.
@@ -252,6 +279,7 @@ class FirstFetch(Job):
         # fetch the repository if never fetched
         if not repository.first_fetch_done:
             repository.fetch_all(gh=self.gh, force_fetch=True, two_steps=True)
+            FetchCollaborators.add_job(repository.id)
 
         # and convert waiting subscriptions to real ones
         count = 0
@@ -389,7 +417,9 @@ class FetchForUpdate(RepositoryJob):
     """
     Job that will do an unforced full fetch of the repository to update all that
     needs to.
-    When done, clone the job to be done again 15 min laters (+-2mn)
+    When done:
+    - spawn a job to fetch collaborators
+    - clone the job to be done again 15 min laters (+-2mn)
     """
     queue_name = 'update-repo'
 
@@ -410,6 +440,7 @@ class FetchForUpdate(RepositoryJob):
 
     def on_success(self, queue, result):
         """
-        Go fetch again in 15 +- 2mn
+        Fetch collaborators and go fetch again in 15 +- 2mn
         """
+        FetchCollaborators.add_job(self.object.id)
         self.clone(delayed_for=60 * 13 + randint(0, 60 * 4))

@@ -564,7 +564,7 @@ class Repository(GithubObjectWithId):
         two_steps = bool(kwargs.get('two_steps', False))
 
         super(Repository, self).fetch_all(gh, force_fetch=force_fetch)
-        # self.fetch_collaborators(gh, force_fetch=force_fetch)  # TODO: need its own task, with a user with push rights
+        # self.fetch_collaborators(gh, force_fetch=force_fetch)  # done via the FetchCollaborators task, with a user with push rights
         self.fetch_labels(gh, force_fetch=force_fetch)
 
         if self.has_issues:
