@@ -255,12 +255,17 @@ class GithubUser(GithubObjectWithId, AbstractUser):
                 'organization_username': None,
             }
 
-        return self._fetch_many('available_repositories_set', gh,
-                                meta_base_name=meta_base_name,
-                                defaults=defaults,
-                                force_fetch=force_fetch,
-                                parameters=parameters,
-                                filter_queryset=filter_queryset)
+        try:
+            return self._fetch_many('available_repositories_set', gh,
+                                    meta_base_name=meta_base_name,
+                                    defaults=defaults,
+                                    force_fetch=force_fetch,
+                                    parameters=parameters,
+                                    filter_queryset=filter_queryset)
+        except ApiNotFoundError:
+            # no access to this list, remove all repos
+            self.available_repositories_set.filter(filter_queryset).delete()
+            return 0
 
     def fetch_all(self, gh=None, force_fetch=False, **kwargs):
         # FORCE GH
@@ -281,12 +286,18 @@ class GithubUser(GithubObjectWithId, AbstractUser):
         # repositories in the user's organizations
         nb_orgs_fetched = self.fetch_organizations(gh, force_fetch=force_fetch)
         for org in self.organizations.all():
-            try:
-                nb_repositories_fetched += self.fetch_available_repositories(gh, org=org, force_fetch=force_fetch)
-            except ApiNotFoundError:
-                # we may have no rights
-                pass
+            nb_repositories_fetched += self.fetch_available_repositories(gh, org=org, force_fetch=force_fetch)
 
+        # check old organizations (the user has avail repos in this org, but it's not an org he is part of)
+        old_orgs = GithubUser.objects.filter(
+            is_organization=True,
+            owned_repositories__availablerepository__user=self
+        ).exclude(id__in=self.organizations.all()).distinct()
+
+        for org in old_orgs:
+            nb_repositories_fetched += self.fetch_available_repositories(gh, org=org, force_fetch=True)
+
+        # manage starred and watched
         if not kwargs.get('available_only'):
             nb_watched = self.fetch_watched_repositories(gh, force_fetch=force_fetch)
             nb_starred = self.fetch_starred_repositories(gh, force_fetch=force_fetch)
